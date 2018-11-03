@@ -107,7 +107,7 @@ public:
     {
         QChar s;
         QString swst = "+-*/^";
-        char counter = 0;
+
         QString output{}; // = string.Empty; //Строка для хранения выражения
 
         QStack<QChar> operStack; //Стек для хранения операторов
@@ -273,12 +273,6 @@ public:
         return &temp_fs;
     }
 
-    double Calculate(QString input, double variable_value)
-    {
-        QString output = get_notation_convert(input); //Преобразовываем выражение в постфиксную запись
-        double result = Computing(output, variable_value); //Решаем полученное выражение
-        return result; //Возвращаем результат
-    }
     float Computing(QString input, float variable_value)
     {
 
@@ -396,7 +390,6 @@ public:
         return temp.top(); //Забираем результат всех вычислений из стека и возвращаем его
     }
 
-
     qint64 typed(QString storagetype, uchar *in_buf, uint c, bool big)//кастуем данные к определенному типу
     {
         if ( storagetype == "int8")
@@ -441,10 +434,6 @@ public:
         }
         else
             return ((quint8)(in_buf)[c]);
-    }
-    int intCalculate(QString input, double variable_value)
-    {
-        return qRound(Calculate(input, variable_value));
     }
 };
 
