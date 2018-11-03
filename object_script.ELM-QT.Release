@@ -1,0 +1,12 @@
+INPUT(
+./release\main.o
+./release\mainwindow.o
+./release\J2534.o
+./release\ftdi.o
+./release\elm-qt_plugin_import.o
+./release\moc_mainwindow.o
+./release\moc_dynamicwindow.o
+./release\moc_dynamictablewidget.o
+./release\moc_DMA.o
+./release\moc_enumdev.o
+);

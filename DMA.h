@@ -1,0 +1,581 @@
+#ifndef DMA_H
+#define DMA_H
+#include <QObject>
+#include <QDebug>
+#include "ftdi.h"
+#include "J2534.h"
+#include "QTimer"
+#include <QStack>
+#include <QTime>
+
+class window_manager
+{
+public:
+    QObjectList list_window = {};    //список для динамически созданных таблиц что бы разгрузить событие таймера
+    QObjectList list_button = {};
+    QObjectList list_widget = {};
+};
+
+class dma:public QObject
+{
+    Q_OBJECT
+public:
+    dma()
+    {
+
+    }
+    ~dma()
+    {
+        if (OP13 != nullptr)
+        {
+            delete OP13;
+            OP13 = nullptr;
+        }
+        if (j2534 != nullptr)
+        {
+            delete j2534;
+            j2534 = nullptr;
+        }
+    }
+    window_manager win_manager;
+
+
+    J2534 *j2534;
+    ftdi *OP13;
+    int VechicleInterfaceType;
+    //  FTDI
+    unsigned char MUT_In_buffer[4128];          //' 4K
+  //  byte FT_Out_Buffer[0x1000];         //' 4K
+    byte MUT_Out_buffer[4128];
+    // J2534
+    unsigned int baudRate = 15625;              //предопределенная скорость соединения
+    unsigned long magic_adder_readTimeout = 7;          // Длинна первого сообщения со статусом прием???
+  //  unsigned long readTimeoutA = 400;          // таймаут соединения
+    unsigned long writeTimeout = 0;
+    byte delay_after_command = 4;
+    PASSTHRU_MSG  tx_msg = {};
+    PASSTHRU_MSG  rx_msg[2] = {};
+    unsigned long devID;
+    unsigned long chanID;
+        unsigned long chanID_INNO;
+    unsigned long NumMsgs;
+    unsigned long protocol = ISO9141;            // соответственно протокол
+    unsigned long ConnectFlag = ISO9141_NO_CHECKSUM;
+   //        || ISO9141_K_LINE_ONLY ;
+    struct
+    {
+        unsigned int length;
+        unsigned int svcid;
+        unsigned short infosvcid;
+
+    } inbuf;
+    struct
+    {
+        unsigned int length;
+        unsigned char data[256];
+    } outbuf;
+
+
+//общая часть процедур доступа к памяти контроллера
+    void read_indirect(unsigned long addr, unsigned long count)
+    {
+        emit timer_lock();
+        if (VechicleInterfaceType == 13)
+            if ( OP13 != nullptr  )
+            {
+                read_indirect_FTDI(addr, count);
+                qDebug() << " read_indirect_FTDI";
+            }
+        if (VechicleInterfaceType == 20)
+            if ( j2534 != nullptr  )
+            {
+                read_indirect_J2534(addr, count);
+                qDebug() << " read_indirect_J2534";
+            }
+        emit timer_unlock();
+    }
+    void read_direct(unsigned long addr, unsigned long count)
+    {
+        emit timer_lock();
+        if (VechicleInterfaceType == 13)
+            if ( OP13 != nullptr  )
+                read_direct_FTDI(addr, count);
+        if (VechicleInterfaceType == 20)
+            if ( j2534 != nullptr  )
+                read_direct_J2534(addr, count);
+        emit timer_unlock();
+    }
+    void write_direct(unsigned long addr, unsigned long count)
+    {
+        emit timer_lock();
+        if (VechicleInterfaceType == 13)
+            if ( OP13 != nullptr  )
+            {
+                write_direct_FTDI(addr, count);
+                qDebug() << " write_direct_FTDI";
+            }
+        if (VechicleInterfaceType == 20)
+            if ( j2534 != nullptr  )
+            {
+                write_direct_J2534(addr, count);
+                qDebug() << " write_direct_J2534";
+            }
+        emit timer_unlock();
+    }
+    void J2534c(unsigned long addr, unsigned long count)  {
+        NumMsgs = 1;
+        tx_msg.DataSize = 1;
+        j2534->PassThruWriteMsgs(chanID, &tx_msg, &NumMsgs, writeTimeout);
+        Sleep(delay_after_command);
+        tx_msg.DataSize = 6;
+        tx_msg.Data[0] = (addr & 0xFF000000) >> 24;
+        tx_msg.Data[1] = (addr & 0xFF0000) >> 16;
+        tx_msg.Data[2] = (addr & 0xFF00) >> 8;
+        tx_msg.Data[3] = (addr & 0xFF);
+        tx_msg.Data[4] = (count & 0xFF00) >> 8;
+        tx_msg.Data[5] = (count & 0xFF);
+        NumMsgs = 1;
+        j2534->PassThruWriteMsgs(chanID, &tx_msg, &NumMsgs, writeTimeout);
+    }
+    void read_indirect_J2534(unsigned long addr, unsigned long count)
+    {
+        QTime t;
+        tx_msg.Data[0] = 0xE0;
+        J2534c(addr, count);
+        NumMsgs = 1;
+        rx_msg[0] = tx_msg;
+        t.start();
+        do
+            j2534->PassThruReadMsgs(chanID, &rx_msg[0], &NumMsgs, count*10000/baudRate + magic_adder_readTimeout);
+        while(rx_msg[0].RxStatus == START_OF_MESSAGE);
+        memcpy(&MUT_In_buffer, &rx_msg[1].Data, count); qDebug("Time to read with copy elapsed: %d ms", t.elapsed());
+    }
+    void read_direct_J2534(unsigned long addr, unsigned long count)
+    {
+        QTime t;
+        tx_msg.Data[0] = 0xE1;
+        J2534c(addr, count);
+        NumMsgs = 1;
+        rx_msg[0].RxStatus = 0;
+        t.start();
+        do
+            j2534->PassThruReadMsgs(chanID, &rx_msg[0], &NumMsgs, count*10000/baudRate + magic_adder_readTimeout);
+        while(rx_msg[0].RxStatus == START_OF_MESSAGE);
+        memcpy(&MUT_In_buffer, &rx_msg[0].Data, count);
+        qDebug("Time to read with copy elapsed: %d ms", t.elapsed());
+    }
+    void write_direct_J2534(unsigned long addr, unsigned long count)
+    {
+
+        tx_msg.Data[0] = 0xE2;
+        J2534c(addr, count);
+        NumMsgs = 1;
+        tx_msg.DataSize = count;
+
+        memcpy(&tx_msg.Data, &MUT_Out_buffer, count);
+
+        j2534->PassThruWriteMsgs(chanID, &tx_msg, &NumMsgs, writeTimeout);
+
+    }
+    bool init_j2534()
+    {
+        QString sf;
+        tx_msg.ProtocolID = protocol;
+
+        for (int r = 0; r < 2; r++)
+        {
+            rx_msg[r] = tx_msg;
+        }
+
+        if (!j2534->init())
+        {
+       //     error_out = "can't connect to J2534 DLL.\r\n";
+            qDebug() << "can't connect to J2534 DLL.";
+            return false;
+        }
+
+        //получаем дескриптор
+        if (j2534->PassThruOpen(nullptr, &devID))
+        {// читаем и выводим ошибку
+            reportJ2534Error(sf);
+     //       error_out = "PassThruOpen: " + sf;
+            qDebug() << "PassThruOpen: " + sf;
+            return false;
+        }
+ //       error_out = "PassThruOpen: devID = " + QString::number(devID) + "\r\n";
+        //читаем версию и прочюю требуху
+        char strApiVersion[256];
+        char strDllVersion[256];
+        char strFirmwareVersion[256];
+        char strSerial[256];
+
+        if (j2534->PassThruReadVersion(strApiVersion, strDllVersion, strFirmwareVersion, devID))
+        {
+            reportJ2534Error(sf);
+          //  error_out += "PassThruReadVersion: " + sf;
+            qDebug() << "PassThruReadVersion: " + sf;
+            return false;
+        }
+
+        if (!get_serial_num(devID, strSerial))
+        {
+            reportJ2534Error(sf);
+      //      error_out += "get_serial_num: " + sf;
+            qDebug() << "get_serial_num: " + sf;
+            return false;
+        }
+
+     //   error_out += "J2534 API Version: " + QString(strApiVersion) + "\r\n";
+     //   error_out += "J2534 DLL Version: " +  QString(strDllVersion) + "\r\n";
+     //   error_out += "Device Firmware Version: " +  QString(strFirmwareVersion) + "\r\n";
+    //    error_out += "Device Serial Number: " +  QString(strSerial) + "\r\n";
+
+        if (j2534->PassThruConnect(devID, protocol, ConnectFlag, baudRate, &chanID))
+
+        {
+            reportJ2534Error(sf);
+            //error_out += "PassThruConnect: \n" + sf;
+            qDebug() << "PassThruConnect: \n" + sf;
+            return false;
+        }
+
+
+
+
+ //     j2534->PassThruConnect(devID,ISO9141_INNO,ISO9141_NO_CHECKSUM,19200,&chanID_INNO);
+
+
+
+
+
+
+        qDebug() << "common_init_j2534 OK";
+        return true;
+    }
+    bool init_FTDI()
+    {
+        if (OP13->FT_Open(0, &OP13->ftHandle) == FT_OK)
+        {
+         //   error_out = "FT_Open OK";
+            // FT_Open OK, use ftHandle to access device
+            OP13->ftStatus = OP13->FT_ResetDevice(OP13->ftHandle);
+            OP13->ftStatus = OP13->FT_Purge(OP13->ftHandle, FT_PURGE_RX || FT_PURGE_TX);
+            OP13->ftStatus = OP13->FT_SetTimeouts(OP13->ftHandle, 0, 0);
+            OP13->ftStatus = OP13->FT_SetLatencyTimer(OP13->ftHandle, 1);
+            OP13->ftStatus = OP13->FT_SetBaudRate(OP13->ftHandle, baudRate);
+            return true;
+        }
+        qDebug() << " FT_Open failed";
+        return false;
+    }
+    void FTDI(unsigned long addr, unsigned long count)
+    {
+
+        OP13->FT_Write( OP13->ftHandle, &MUT_Out_buffer, 1, &Reads );
+
+        // OP13.FT_Read(OP13.ftHandle, &FT_In_Buffer, 1, &Reads);    //читаем эхо
+        Sleep(delay_after_command);
+
+        MUT_Out_buffer[0] = (addr & 0xFF000000) >> 24;
+        MUT_Out_buffer[1] = (addr & 0xFF0000) >> 16;
+        MUT_Out_buffer[2] = (addr & 0xFF00) >> 8;
+        MUT_Out_buffer[3] = (addr & 0xFF);
+        MUT_Out_buffer[4] = (count & 0xFF00) >> 8;
+        MUT_Out_buffer[5] = (count & 0xFF);
+
+        OP13->FT_Write(OP13->ftHandle, &MUT_Out_buffer,6, &Reads );
+        OP13->FT_Read(OP13->ftHandle, &MUT_In_buffer, 7, &Reads);    //читаем эхо оптом
+
+    }
+    void read_direct_FTDI(unsigned long addr, unsigned long count)
+    {
+        QTime t;
+        MUT_Out_buffer[0] = 0xE1;
+        FTDI(addr, count);
+        //Get bytes waiting to be read
+        t.start();
+        do
+            OP13->FT_GetQueueStatus(OP13->ftHandle, &FT_RxQ_Bytes);
+        while(FT_RxQ_Bytes == 0);
+        OP13->FT_Read(OP13->ftHandle, &MUT_In_buffer, count, &Reads);
+        qDebug("Time to read with copy elapsed: %d ms", t.elapsed());
+    }
+    void read_indirect_FTDI(unsigned long addr, unsigned long count)
+    {
+        MUT_Out_buffer[0] = 0xE0;
+        FTDI(addr, count);
+        //Get bytes waiting to be read
+        do
+            OP13->FT_GetQueueStatus(OP13->ftHandle, &FT_RxQ_Bytes);
+        while(FT_RxQ_Bytes == 0);
+        OP13->FT_Read(OP13->ftHandle, &MUT_In_buffer, count, &Reads);
+    }
+    void write_direct_FTDI(unsigned long addr, unsigned long count)
+    {
+        MUT_Out_buffer[0] = 0xE2;
+        FTDI(addr, count);
+        //   memcpy(&FT_Out_Buffer, &MUT_Out_buffer, count);
+        //    Sleep(400);
+        OP13->FT_Write(OP13->ftHandle, &MUT_Out_buffer, count, &Reads );
+        qDebug() << "Writed bytes " << Reads;
+        OP13->FT_Read(OP13->ftHandle, &MUT_Out_buffer, count, &Reads);    //читаем эхо
+    }
+    void read_by_type(QString storagetype, quint32 mem_addr, uint x, uint y)
+    {
+
+        int lenght = x * y;
+        // прочитаем нужное количество данных в соответствии с типом
+        if ( (storagetype == "int8") | (storagetype == "uint8"))
+            read_direct( mem_addr, lenght); //таблица в памяти
+
+        if ((storagetype == "int16") | (storagetype == "uint16"))
+            read_direct( mem_addr, lenght * 2); //таблица в памяти
+
+        if ((storagetype == "int32") | (storagetype == "uint32"))
+            read_direct( mem_addr, lenght * 4); //таблица в памяти
+    }
+
+void close_FTDI()
+{}
+void close_j2534()
+{
+    j2534->PassThruDisconnect(chanID);
+    j2534->PassThruClose(devID);
+}
+
+    bool common_five_baud_init()
+    {
+            if (VechicleInterfaceType == 13)
+            {
+                return ftdi_five_baud_init() ;
+            }
+            if (VechicleInterfaceType == 20)
+            {
+                qDebug() << "attempt to five baud j2534";
+                return j2534_five_baud_init() ;
+            }
+        return false;
+    }
+    bool j2534_five_baud_init()
+    {
+        QString sf;
+        //-======================================== SET CONFIG ===========================================
+        // set timing
+        SCONFIG_LIST scl;
+        SCONFIG scp[6] = {{DATA_RATE, baudRate}, {P1_MAX, 0}, {P2_MAX, 0}, {P3_MIN, 0}, {P4_MIN, 0}, {LOOPBACK, 0}
+    };
+
+        scl.NumOfParams = 6;
+        scl.ConfigPtr = scp;
+        if (j2534->PassThruIoctl(chanID, SET_CONFIG, &scl, nullptr))
+        {
+            reportJ2534Error(sf);
+            return false;
+        }
+
+        //==========================================   5 baud init  ================================
+        SBYTE_ARRAY inputMsg, outputMsg;
+        unsigned char EcuAddr[1]; /* ECU target address array */
+        unsigned char KeyWord[3]; /* Keyword identifier array */
+        EcuAddr[0] = 0x00; /* Initialization address used to activate all ECUs */
+        inputMsg.NumOfBytes = 1; /* ECU target address array contains one address. */
+        inputMsg.BytePtr = &EcuAddr[0]; /* Assign pointer to ECU target address array. */
+        outputMsg.NumOfBytes = 0; /* KeyWord array is empty. */
+        outputMsg.BytePtr = &KeyWord[0]; /* Assign pointer to KeyWord array. */
+        if (j2534->PassThruIoctl(chanID, FIVE_BAUD_INIT, (void *)&inputMsg, (void *)&outputMsg))
+        {
+            reportJ2534Error(sf);
+            qDebug() << "PassThruIoctl - FIVE_BAUD_INIT : not ok" + sf;
+            return false;
+        }
+        qDebug() << "PassThruIoctl - FIVE_BAUD_INIT : OK " << ToHex(KeyWord[0]) << ToHex(KeyWord[1]);
+
+        //   s += " \r\n";
+
+
+
+     j2534->PassThruIoctl(chanID, GET_CONFIG, &scl, nullptr)   ;
+     baudRate = scl.ConfigPtr[0].Value;                                //
+
+
+        // ============================ now setup the filter(s) =========================
+     //   PASSTHRU_MSG  txmsg;
+        PASSTHRU_MSG msgMask, msgPattern;
+        unsigned long msgId;
+
+        // simply create a "pass all" filter so that we can see
+        // everything unfiltered in the raw stream
+        tx_msg.ProtocolID = protocol;
+
+        tx_msg.DataSize = 1;
+
+        msgMask = msgPattern = tx_msg;
+
+        msgMask.Data[0] = 0; // mask the first byte to 0
+        msgPattern.Data[0] = 0; // match it with 0 (i.e. pass everything)
+memset(&msgMask.Data, 0, 4128);
+memset(&msgPattern.Data, 0, 4128);
+        if (j2534->PassThruStartMsgFilter(chanID, PASS_FILTER, &msgMask, &msgPattern, nullptr, &msgId))
+        {
+            reportJ2534Error(sf);
+            qDebug() << "PassThruStartMsgFilter : OK"+sf;
+            return false;
+        }
+        //   s += "PassThruStartMsgFilter : OK";
+        return true;
+    }
+    bool ftdi_five_baud_init()
+    {
+        ftdi_low_baud_sender(5, 0x00);                                 //5 baud, 0x00 ecu addr, 0x05 TCU?
+        Sleep(400);
+
+
+        //Get bytes waiting to be read
+        OP13->ftStatus = OP13->FT_GetQueueStatus(OP13->ftHandle, &FT_RxQ_Bytes);
+
+        OP13->ftStatus = OP13->FT_Read(OP13->ftHandle, MUT_In_buffer, FT_RxQ_Bytes, &Reads);
+
+        if ((OP13->ftStatus != FT_OK) || (FT_RxQ_Bytes < 1))
+        {
+            qDebug() << " FT_Read failed" << Reads << FT_RxQ_Bytes;
+            qDebug() << MUT_In_buffer[0]   ;
+            return false;
+        }
+        qDebug() << " FT_five_baud_OK";
+        return true;
+    }
+
+    QString  ToHex(unsigned int Chk)
+    {
+        return QString("%1").arg(Chk, 2, 16);
+    }
+    void reportJ2534Error(QString &s)
+    {
+        char err[512];
+        j2534->PassThruGetLastError(err);
+        s += QString(err) + "\r\n";
+    }
+    bool get_serial_num(unsigned long devID, char* serial)
+    {
+        inbuf.length = 2;
+        inbuf.svcid = 5; // info
+        inbuf.infosvcid = 1; // serial
+
+        outbuf.length = sizeof( outbuf.data);
+
+        if (j2534->PassThruIoctl(devID, TX_IOCTL_APP_SERVICE, &inbuf, &outbuf))
+        {
+            serial[0] = 0;
+            return false;
+        }
+
+        memcpy(serial,  outbuf.data,  outbuf.length);
+        serial[ outbuf.length] = 0;
+        return true;
+    }
+
+signals:
+   void timer_lock();
+   void timer_unlock();
+
+public slots:
+    void dll_connect(int VechicleInterfaceType)                //по сигналу перечислителя
+    {
+        emit timer_lock();
+        this->VechicleInterfaceType = VechicleInterfaceType;
+        if (VechicleInterfaceType == 13)
+            if ( OP13 == nullptr  )
+            {
+                OP13 = new ftdi ;
+                qDebug() << " OP13 dll created!!";
+                init_FTDI();
+                qDebug() << " OP13 dll inited!!";
+
+            }
+        if (VechicleInterfaceType == 20)
+            if ( j2534 == nullptr  )
+            {
+                j2534 = new J2534 ;
+                qDebug() << " j2534 dll created!!";
+                init_j2534();
+                qDebug() << " j2534 dll inited!!";
+            }
+        emit timer_unlock();
+    }
+    void dll_disconnect()
+    {
+        if (OP13 != nullptr)
+        {
+            close_FTDI();
+            delete OP13;
+            OP13 = nullptr;
+            qDebug() << "OP13 dll delete";
+        }
+        if (j2534 != nullptr)
+        {
+            close_j2534();
+            delete j2534;
+            j2534 = nullptr;
+            qDebug() << "j2534 dll delete";
+        }
+
+    }
+
+private:
+    DWORD Reads;
+    DWORD FT_RxQ_Bytes;
+    void ftdi_low_baud_sender(uint baudRate, byte value)
+    { byte p;
+        uint t = 1000/baudRate;
+        OP13->ftStatus = OP13->FT_SetBreakOn(OP13->ftHandle);
+        Sleep(t);    //старт бит
+        for (int i = 0; i <= 7; i++)
+        {
+            p = value; //??
+            p = p & 0x01;
+            if (p == 1)
+            {
+                OP13->ftStatus = OP13->FT_SetBreakOff(OP13->ftHandle);  //1
+                Sleep(t);
+            }
+            else
+            {
+                OP13->ftStatus = OP13->FT_SetBreakOn(OP13->ftHandle);   //0
+                Sleep(t);
+            }
+           value = value >> 1;
+        }
+        OP13->ftStatus = OP13->FT_SetBreakOff(OP13->ftHandle);
+    }
+};
+
+class Timer:public QTimer
+{
+    Q_OBJECT
+
+ public:
+     Timer(QObject *parent = nullptr)
+     {
+         this->setParent(parent);
+     }
+      ~Timer()
+     {
+
+     }
+private:
+     QStack<bool> stack = {};//переменная для хранения предыдущего состояния таймера
+
+ public slots:
+       void timer_lock()
+       {
+           stack.push(this->isActive());
+           this->stop();
+       }
+       void timer_unlock()
+        {
+            if (stack.pop())
+                this->start();
+        }
+};
+
+#endif // DMA_H
