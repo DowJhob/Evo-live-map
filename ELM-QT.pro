@@ -33,6 +33,9 @@ HEADERS  += mainwindow.h \
     xmldomparser.h \
 
 FORMS    += mainwindow.ui
-QMAKE_LFLAGS_RELEASE += -static -static-libgcc
+#QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 DISTFILES +=
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
+#QMAKE_CXXFLAGS - опции компиляции.
+QMAKE_CXXFLAGS  += -m32 -mfpmath=sse -Ofast -flto -march=native -funroll-loops
+#QMAKE_LFLAGS - опции линковки.

@@ -22,6 +22,7 @@ public:
         :  QTableWidget(Table_Decl->Y_axis.elements, Table_Decl->X_axis.elements, parent)
     {
         this->Table_Decl = *Table_Decl;     //все в таблицу
+
     }
     ~DynamicTableWidget()
     {
@@ -29,9 +30,9 @@ public:
 
     TableProperty_fr_xml Table_Decl;               //Описание таблицы в самом объекте таблицы
 
-    Tracer_marker tracer_marker_X;
+    Tracer_marker tracer_marker_X = {};
     Tracer_marker tracer_marker_pred_X = {};
-    Tracer_marker tracer_marker_Y;
+    Tracer_marker tracer_marker_Y = {};
     Tracer_marker tracer_marker_pred_Y = {};
 
     QVector <int> x_axis;    //костыли с содержимым осей
@@ -41,6 +42,7 @@ private slots:
 
 
 signals:
+  //  void cellChanged();
 
 };
 

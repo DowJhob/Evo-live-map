@@ -23,9 +23,9 @@ TableProperty_fr_xml Table_Decl;                       //Описание одн
 QStringList listFiles; //
 QByteArray *binarray;                                  // массив с бинарником
 
-Tracer_marker axis_lookup(int in, int axis_lenght, QVector<int> axis)
+void  axis_lookup(int in, int axis_lenght, QVector<int> axis, Tracer_marker *marker)
 {
-    Tracer_marker marker {};
+
     if (in < axis[0])
         in = axis[0];
     if (in > axis[axis_lenght - 1])
@@ -34,23 +34,23 @@ Tracer_marker axis_lookup(int in, int axis_lenght, QVector<int> axis)
     {
         if (  in >= axis[i] && in < axis[i + 1])
         {
-            marker.a = i;
+            marker->a = i;
             break;
         }
     }
-    if ( marker.a >= (axis_lenght - 1) )
-        marker.b = marker.a;
+    if ( marker->a >= (axis_lenght - 1) )
+        marker->b = marker->a;
     else
-        marker.b = marker.a + 1;
+        marker->b = marker->a + 1;
 
-    return marker;
+    //return marker;
 
 }
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     timer = new Timer(this);
-    connect(timer, SIGNAL(timeout()), SLOT(logger_and_tableWidget_trace()), Qt::DirectConnection);//таймер подключаем
+   // connect(timer, SIGNAL(timeout()), SLOT(logger_and_tableWidget_trace()), Qt::DirectConnection);//таймер подключаем
     connect(&Enumerator, SIGNAL(InterfaceActive(int)), &DMA, SLOT(dll_connect(int)), Qt::DirectConnection);
     connect(&Enumerator, SIGNAL(disconnectInterface()), &DMA, SLOT(dll_disconnect()), Qt::DirectConnection);
 
@@ -60,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(&DMA, SIGNAL(timer_lock()), timer, SLOT(timer_lock()), Qt::DirectConnection);
     connect(&DMA, SIGNAL(timer_unlock()), timer, SLOT(timer_unlock()), Qt::DirectConnection);
 
-    timer->setInterval( qRound(1000/ui->logger_rate_textedit->text().toDouble())  );
+    timer->setInterval( 1000/ui->logger_rate_textedit->text().toUInt()  );
     ui->StartButton->setDisabled(true);
     ui->RAM_reset_Button->setDisabled(true);
     ui->read_RAM_Button->setDisabled(true);
@@ -78,9 +78,9 @@ QVector<int> axis = {0, 200,500,822,1000,2000,3000,10000};
     for ( int i = 0; i < 100000; i++)
     {
 
-       axis_lookup(10, axis.length(),  axis);
+       //axis_lookup(10, axis.length(),  axis);
     }
-    qDebug() << " time " << start.msecsTo( QTime::currentTime() );
+    //qDebug() << " time " << start.msecsTo( QTime::currentTime() );
 
 
 
@@ -189,10 +189,16 @@ void MainWindow::CreateTable(QString filename)
             DynamicWindow *dynamic_window = new DynamicWindow( this, &tt, &DMA, &math);
             QPushButton *tableButton = new QPushButton(tt.Table.Name, ui->groupBox_mapalloc);
             tableButton->setProperty("tag", tt.tableNum);
+
             ui->gridLayout_mapalloc->addWidget(tableButton);
             connect(tableButton, SIGNAL(clicked(bool) ), dynamic_window, SLOT(table_show_hide()), Qt::DirectConnection);
-            DMA.win_manager.list_window.insert(tt.tableNum, dynamic_window);
-            DMA.win_manager.list_button.insert(tt.tableNum, tableButton);
+
+           // connect(timer, SIGNAL(timeout() ), dynamic_window, SLOT(logger_and_tableWidget_trace() ), Qt::QueuedConnection);
+         //   connect(dynamic_window, SIGNAL(timer_lock() ), timer, SLOT(timer_lock()), Qt::DirectConnection);
+         //   connect(dynamic_window, SIGNAL(timer_unlock() ), timer, SLOT(timer_unlock()), Qt::DirectConnection);
+
+            DMA.win_manager.list_window.insert( tt.tableNum, dynamic_window );
+            DMA.win_manager.list_button.insert( tt.tableNum, tableButton );
         }
     }
 }
@@ -384,7 +390,8 @@ float read_and_cast(bool ram_scaling_storagetype, QString storagetype, quint32 m
     return x;
 }
 void MainWindow::logger_and_tableWidget_trace()
-{    QTime start = QTime::currentTime();
+{
+    QTime start = QTime::currentTime();
     emit timer_lock();
     DMA.read_indirect(xmlParser->RAM_MUT_addr, 16);// логгинг что бы контроллер не уснул
     /* Ищем объект, в списке*/
@@ -430,8 +437,16 @@ void MainWindow::logger_and_tableWidget_trace()
         }
 
         //----------------------- вычисляем координаты маркера------------------------------------------------
-        tablewidget->tracer_marker_X = axis_lookup(qRound(x), tablewidget->Table_Decl.X_axis.elements, tablewidget->x_axis);
-        tablewidget->tracer_marker_Y = axis_lookup(qRound(y), tablewidget->Table_Decl.Y_axis.elements, tablewidget->y_axis);
+        //tablewidget->tracer_marker_X =
+        axis_lookup(qRound(x),
+                    tablewidget->Table_Decl.X_axis.elements,
+                    tablewidget->x_axis,
+                    &tablewidget->tracer_marker_X);
+        //tablewidget->tracer_marker_Y =
+        axis_lookup(qRound(y),
+                    tablewidget->Table_Decl.Y_axis.elements,
+                    tablewidget->y_axis,
+                    &tablewidget->tracer_marker_Y);
         //----------------------- вычисляем насыщенность ячеек маркера хидера---------------------------------------
         //----------------------- ось X
 
@@ -500,7 +515,7 @@ void MainWindow::logger_and_tableWidget_trace()
         tablewidget->blockSignals(false);
     }
     emit timer_unlock();
-     //qDebug() <<  " time " << start.msecsTo( QTime::currentTime() );
+     qDebug() <<  " time " << start.msecsTo( QTime::currentTime() );
 
 }
 
