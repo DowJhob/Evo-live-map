@@ -27,7 +27,7 @@ public:
     //bool VechicleInterfaceState;
     void TableDelete();
 public slots:
-void logger_and_tableWidget_trace();
+//void logger_and_tableWidget_trace();
 //void timer_lock_unlock();
 
 signals:
