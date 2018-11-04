@@ -48,6 +48,8 @@ private slots:
     void on_loadbinbutton_clicked();
     void on_stop_live_clicked();
 
+    void on_verticalSlider_2_sliderMoved(int position);
+
 private:
     Ui::MainWindow *ui;
     void OperateButtonsLockUnlock();

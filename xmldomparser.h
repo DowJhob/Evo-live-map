@@ -44,8 +44,10 @@ class DomParser
 {
   //  Q_OBJECT
 public:
-    DomParser(QIODevice *device)
+     mathParser2 *m;
+    DomParser(QIODevice *device, mathParser2 *m)
     {
+        this->m = m;
         QString errorStr;
         int errorLine;
         int errorColumn;
@@ -184,7 +186,6 @@ private:
         Table.ram_scaling.ram_mut_number = node.toElement().attribute("RAM_mut_number").toUInt(&bStatus,16); //номер мут запроса из рам мут
         Table.ram_scaling.storagetype = node.toElement().attribute("RAM_mut_storagetype");
         Table.ram_scaling.frexpr = node.toElement().attribute("RAM_mut_frexpr");
-        //Table.ram_scaling.toexpr = node.toElement().attribute("RAM_mut_toexpr");
 
         if (node.toElement().attribute("RAM_mut_endian") == "big")
         Table.ram_scaling.endian = true;
@@ -206,6 +207,10 @@ private:
         }
 
         Table.scaling = scaling_qmap.value(node.toElement().attribute("scaling")) ;//Получаем скалинг данных таблицы
+
+        Table.scaling.toexpr2 = *m->set_notation(Table.scaling.toexpr);
+
+        Table.scaling.frexpr2 = *m->set_notation(Table.scaling.frexpr);
 
         Table.elements = node.toElement().attribute("elements").toUInt(&bStatus);
 

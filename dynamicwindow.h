@@ -51,7 +51,7 @@ public:
 
         // QString inverse_polish_note = math->get_notation_convert(Table_Decl->X_axis.scaling.toexpr);
 
-        Table_Decl->X_axis.scaling.toexpr2 = *math->set_notation(Table_Decl->X_axis.scaling.toexpr);   //set notation вернула адрес на свою внутренню структуру с бинарной нотацией
+       // Table_Decl->X_axis.scaling.toexpr2 = *math->set_notation(Table_Decl->X_axis.scaling.toexpr);   //set notation вернула адрес на свою внутренню структуру с бинарной нотацией
 
         float variable_value;
         //читаем таблицу заголовка-оси в буфер
@@ -65,6 +65,7 @@ public:
         for (uint i = 0; i < Table_Decl->X_axis.elements; i++)
         {
             variable_value = math->typed(Table_Decl->X_axis.scaling.storagetype, DMA->MUT_In_buffer, i, Table_Decl->X_axis.scaling.endian); //кастуем данные к определенному типу
+
             QTableWidgetItem *item = new QTableWidgetItem();
             //    float compute = math->Computing(inverse_polish_note, variable_value);
 
@@ -79,7 +80,7 @@ public:
         }
         //----------------------------------------------------------------------------------------------
         //  inverse_polish_note = math->get_notation_convert(Table_Decl->Y_axis.scaling.toexpr);
-        Table_Decl->Y_axis.scaling.toexpr2 = *math->set_notation(Table_Decl->Y_axis.scaling.toexpr);   //set notation вернула адрес на свою внутренню структуру с бинарной нотацией
+        //Table_Decl->Y_axis.scaling.toexpr2 = *math->set_notation(Table_Decl->Y_axis.scaling.toexpr);   //set notation вернула адрес на свою внутренню структуру с бинарной нотацией
 
 
         //читаем таблицу заголовка-оси в буфер

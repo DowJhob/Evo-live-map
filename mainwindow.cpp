@@ -152,7 +152,7 @@ void MainWindow::ReadConfig(QString filename)
         QMessageBox::information(this, tr("Unable to open file"), file->errorString());
         return;
     }
-    xmlParser = new DomParser(file);        // парсим файл
+    xmlParser = new DomParser(file, &math);        // парсим файл
     delete file;
 }
 
@@ -291,7 +291,7 @@ void MainWindow::on_logger_rate_textedit_editingFinished()
 void MainWindow::on_debugButton_clicked()
 {
     QString CurrDir = QApplication::applicationDirPath()+ "/"  ;   //текущая директория
-    SearchFiles(CurrDir, "90552701");   //найдем файл конфига
+    SearchFiles(CurrDir, "80700010");   //найдем файл конфига
     QString xml_filename = listFiles[0];
     for (uchar i =0; i < 255; i++)
     {
@@ -373,26 +373,26 @@ void MainWindow::logger_and_tableWidget_trace()
         tablewidget->blockSignals(true);
         // читаем из буфера и кастуем
         float x = 1;
-        if (!Table_Decl.X_axis.ram_scaling.storagetype.isEmpty())
+        if (!tablewidget->Table_Decl.X_axis.ram_scaling.storagetype.isEmpty())
         {
             x = math.typed(tablewidget->Table_Decl.X_axis.ram_scaling.storagetype,
                            DMA.MUT_In_buffer,
                            tablewidget->Table_Decl.X_axis.ram_scaling.ram_mut_number,  //номер запроса рам мут
-                           tablewidget->Table_Decl.X_axis.ram_scaling.endian);
+                           tablewidget->Table_Decl.X_axis.scaling.endian);
 
 
-            x = math.fast_calc(tablewidget->Table_Decl.X_axis.ram_scaling.frexpr2, x);
+            x = math.fast_calc(tablewidget->Table_Decl.X_axis.scaling.frexpr2, x);
             //x = math.Calculate(tablewidget->Table_Decl.X_axis.ram_scaling.frexpr, x);
         }
         float y = 1;
-        if (!Table_Decl.Y_axis.ram_scaling.storagetype.isEmpty())
+        if (!tablewidget->Table_Decl.Y_axis.ram_scaling.storagetype.isEmpty())
         {
             y= math.typed(tablewidget->Table_Decl.Y_axis.ram_scaling.storagetype,
                           DMA.MUT_In_buffer,
                           tablewidget->Table_Decl.Y_axis.ram_scaling.ram_mut_number,  //номер запроса рам мут
-                          tablewidget->Table_Decl.Y_axis.ram_scaling.endian);
+                          tablewidget->Table_Decl.Y_axis.scaling.endian);
 
-            y = math.fast_calc(tablewidget->Table_Decl.Y_axis.ram_scaling.frexpr2, y);
+            y = math.fast_calc(tablewidget->Table_Decl.Y_axis.scaling.frexpr2, y);
            // y = math.intCalculate(tablewidget->Table_Decl.Y_axis.ram_scaling.frexpr, y);
         }
 
@@ -472,4 +472,10 @@ void MainWindow::logger_and_tableWidget_trace()
 void MainWindow::on_stop_live_clicked()
 {
     TableDelete();
+}
+
+void MainWindow::on_verticalSlider_2_sliderMoved(int position)
+{
+    for (int i = 0; i < 1000; i++)
+        DMA.MUT_In_buffer[i] = position;
 }
