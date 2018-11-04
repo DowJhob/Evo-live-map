@@ -27,6 +27,20 @@ struct fast_calc_struct                          //структура содер
     char variable_position = 0;              //позиция переменной в массиве
 };
 
+
+struct int_postfix_unit
+{
+    int payload;
+    bool op_flag;
+};
+
+struct int_fast_calc_struct                          //структура содержащая операнды и операции над ними для быстрого вычисления скейлинга при логгинге
+{
+    QVector<postfix_unit> postfix_notation{};
+    char variable_position = 0;              //позиция переменной в массиве
+};
+
+
 class mathParser2
 {
 public:
@@ -37,6 +51,11 @@ public:
 
     fast_calc_struct temp_fs;
     postfix_unit temp_postfix_unit;
+
+    fast_calc_struct int_temp_fs;
+    postfix_unit int_temp_postfix_unit;
+
+
     char counter = 0;
     void set_op(QChar s)
     {
@@ -370,6 +389,44 @@ public:
                     float a = temp.pop();
                     float b = temp.pop();
                     switch ( qRound( temp_fs.postfix_notation.at(i).payload ) ) //И производим над ними действие, согласно оператору
+                    {
+                    case 0:  result = b + a;  break;
+                    case 1:  result = b - a;  break;
+                    case 2:  result = b * a;  break;
+                    case 3: {
+                        if (a == 0)
+                        {
+                            a = 0.001;//               qDebug() << "Попытка деления на ноль!!!";
+                        }
+                        result = b / a;
+                    } break;
+                    case 4:  result = qPow(b, a);
+                        break;
+                    }
+                    temp.push(result); //Результат вычисления записываем обратно в стек
+                }
+        }
+        return temp.top(); //Забираем результат всех вычислений из стека и возвращаем его
+    }
+    int int_fast_calc(fast_calc_struct int_temp_fs, int x)
+    {
+        int_temp_postfix_unit.payload = x;
+        int_temp_postfix_unit.op_flag = false;
+        int_temp_fs.postfix_notation.replace(int_temp_fs.variable_position, int_temp_postfix_unit);
+
+        int result = 0; //Результат
+        QStack<int> temp; //Временный стек для решения
+        for (int i = 0; i < int_temp_fs.postfix_notation.length(); i++) //Для каждого символа в строке
+        {
+            if ( !int_temp_fs.postfix_notation.at(i).op_flag )  //Если символ - цифра, то читаем все число и записываем на вершину стека
+                temp.push(int_temp_fs.postfix_notation.at(i).payload); //Записываем в стек
+            else
+                if (int_temp_fs.postfix_notation.at(i).op_flag) //Если символ - оператор
+                {
+                    //Берем два последних значения из стека
+                    int a = temp.pop();
+                    int b = temp.pop();
+                    switch ( qRound( int_temp_fs.postfix_notation.at(i).payload ) ) //И производим над ними действие, согласно оператору
                     {
                     case 0:  result = b + a;  break;
                     case 1:  result = b - a;  break;

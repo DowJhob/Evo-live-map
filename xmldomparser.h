@@ -26,7 +26,7 @@ struct xml_table
     QString Name;                         //Имя таблицы-карты
     quint32 ram_addr;               //Адрес таблицы в
     quint32 rom_addr;
-    quint32 elements;
+    int elements;
     bool swapxy;
     Scaling scaling;
     Scaling ram_scaling;

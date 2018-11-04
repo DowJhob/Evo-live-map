@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>886</width>
+    <width>888</width>
     <height>650</height>
    </rect>
   </property>
@@ -756,7 +756,10 @@ p, li { white-space: pre-wrap; }
        </sizepolicy>
       </property>
       <property name="maximum">
-       <number>255</number>
+       <number>10000</number>
+      </property>
+      <property name="pageStep">
+       <number>100</number>
       </property>
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -778,16 +781,25 @@ p, li { white-space: pre-wrap; }
        </size>
       </property>
       <property name="maximum">
-       <number>255</number>
+       <number>10000</number>
+      </property>
+      <property name="pageStep">
+       <number>100</number>
+      </property>
+      <property name="value">
+       <number>80</number>
       </property>
       <property name="sliderPosition">
-       <number>50</number>
+       <number>80</number>
       </property>
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
       <property name="tickPosition">
        <enum>QSlider::TicksBothSides</enum>
+      </property>
+      <property name="tickInterval">
+       <number>1</number>
       </property>
      </widget>
     </item>

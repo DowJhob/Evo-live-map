@@ -237,6 +237,26 @@ public slots:
         DMA->write_direct(tablewidget->Table_Decl.Table.ram_addr + pos, 1);
         emit timer_unlock();
     }
+
+    Tracer_marker axis_lookup(int in, int axis_lenght, QVector<int> axis)
+    {
+        Tracer_marker marker ={};
+        if (in < axis[0])
+            in = axis[0];
+        if (in > axis[axis_lenght - 1])
+            in = axis[axis_lenght - 1];
+        for (int i = 0; i < axis_lenght; i++)
+        {
+            if (  in >= axis[i] )
+               { marker.a = i;}
+        }
+        if (marker.a >= (axis_lenght - 1))
+            marker.b = marker.a;
+        else
+            marker.b = marker.a + 1;
+        return marker;
+    }
+
 };
 
 #endif // DYNAMICWINDOW_H
