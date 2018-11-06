@@ -178,6 +178,13 @@ void MainWindow::CreateTable(QString filename)
             DMA.win_manager.list_button.insert( tt.tableNum, tableButton );
         }
     }
+
+    QThread *tread = new QThread();
+    Code *code = new Code();
+    code->moveToThread(tread);
+    tread->start();
+
+
 }
 
 void MainWindow::TableDelete()
@@ -284,6 +291,7 @@ void MainWindow::on_read_RAM_Button_clicked()
         tablewidget->blockSignals(false);
         qDebug() << "refresh: " << tablewidget->Table_Decl.Table.Name;
     }
+
     DMA.timer_unlock();
 }
 
