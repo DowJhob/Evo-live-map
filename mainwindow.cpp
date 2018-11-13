@@ -20,7 +20,7 @@ static mathParser2 math;
 static DomParser *xmlParser;
 
 static TableProperty_fr_xml Table_Decl;                       //Описание одной таблицы
-static QStringList listFiles; //
+static QStringList listFiles;                                 //
 static QByteArray *binarray;                                  // массив с бинарником
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -170,7 +170,7 @@ void MainWindow::CreateTable(QString filename)
             ui->gridLayout_mapalloc->addWidget(tableButton);
             connect(tableButton, SIGNAL(clicked(bool) ), dynamic_window, SLOT(table_show_hide()), Qt::DirectConnection);
 
-           connect(timer, SIGNAL(timeout() ), dynamic_window, SLOT(logger_and_tableWidget_trace() ), Qt::QueuedConnection);
+           connect(timer, SIGNAL(timeout() ), dynamic_window, SLOT(logger_and_tableWidget_trace() ), Qt::DirectConnection);
             connect(dynamic_window, SIGNAL(timer_lock() ), timer, SLOT(timer_lock()), Qt::DirectConnection);
             connect(dynamic_window, SIGNAL(timer_unlock() ), timer, SLOT(timer_unlock()), Qt::DirectConnection);
 
@@ -178,11 +178,6 @@ void MainWindow::CreateTable(QString filename)
             DMA.win_manager.list_button.insert( tt.tableNum, tableButton );
         }
     }
-
-    QThread *tread = new QThread();
-    Code *code = new Code();
-    code->moveToThread(tread);
-    tread->start();
 
 
 }
@@ -318,7 +313,7 @@ void MainWindow::on_debugButton_clicked()
     CreateTable(xml_filename);   								//парсим его
     timer->start(1000/ui->logger_rate_textedit->text().toUInt());
 
-    timer->start(650);
+   // timer->start(650);
 }
 
 void MainWindow::on_loadbinbutton_clicked()

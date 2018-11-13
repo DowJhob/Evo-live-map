@@ -748,62 +748,6 @@ p, li { white-space: pre-wrap; }
      </widget>
     </item>
     <item>
-     <widget class="QSlider" name="verticalSlider">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="maximum">
-       <number>10000</number>
-      </property>
-      <property name="pageStep">
-       <number>100</number>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QSlider" name="verticalSlider_2">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>40</width>
-        <height>100</height>
-       </size>
-      </property>
-      <property name="maximum">
-       <number>10000</number>
-      </property>
-      <property name="pageStep">
-       <number>100</number>
-      </property>
-      <property name="value">
-       <number>80</number>
-      </property>
-      <property name="sliderPosition">
-       <number>80</number>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="tickPosition">
-       <enum>QSlider::TicksBothSides</enum>
-      </property>
-      <property name="tickInterval">
-       <number>1</number>
-      </property>
-     </widget>
-    </item>
-    <item>
      <widget class="Line" name="line_2">
       <property name="enabled">
        <bool>true</bool>
@@ -823,10 +767,6 @@ p, li { white-space: pre-wrap; }
      </widget>
     </item>
    </layout>
-   <zorder>tabWidget</zorder>
-   <zorder>line_2</zorder>
-   <zorder>verticalSlider</zorder>
-   <zorder>verticalSlider_2</zorder>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="sizePolicy">

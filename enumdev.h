@@ -1,10 +1,11 @@
 #ifndef ENUMDEV_H
 #define ENUMDEV_H
 #include <windows.h>
-#include <QObject>
-#include <QVector>
 #include <dbt.h>
 #include <setupapi.h>
+#include <QObject>
+#include <QVector>
+
 #include <QUuid>
 #include <QString>
 #include <QDebug>

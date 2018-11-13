@@ -189,7 +189,8 @@ class DynamicWindow: public QWidget
     Q_OBJECT
 
 public:
-
+    float x = 0, f = 300;
+    float y = 0, g = 4000;
     dma *DMA;
     mathParser2 *math;
     int Tag;
@@ -472,10 +473,10 @@ public slots:
         emit timer_lock();
         // DMA.read_indirect(xmlParser->RAM_MUT_addr, 16);// логгинг что бы контроллер не уснул
         /* Ищем объект, в списке*/
-        float x = 0, f = 300;
-        float y = 0, g = 4000;
+//        float x = 0, f = 300;
+//        float y = 0, g = 4000;
         //QObject* obj = sender();
-
+ QTime start = QTime::currentTime();
         foreach (QObject *o, DMA->win_manager.list_widget)
         {
             DynamicTableWidget *tablewidget = qobject_cast<DynamicTableWidget*>( o );
@@ -502,15 +503,16 @@ public slots:
             }
             else
             {
-                if (tablewidget->tracer_marker_X.a == 0)
+                x = x + 10;
+                y = y + 100;
+
+                if (x > 2700)
                 {
-                    x = f;
-                    y = g;
+                   x = 0;
                 }
-                else
+                if (y >= 28000)
                 {
-                    x = 0;
-                    y = 0;
+                   y = 0;
                 }
             }
 
@@ -561,10 +563,10 @@ public slots:
                     ||(tablewidget->tracer_marker_pred_Y.a != tablewidget->tracer_marker_Y.a)) // тут гашение если изменился X или Y
             {
                 //гашение предыдущих маркеров на хидерах
-                tablewidget->horizontalHeaderItem(tablewidget->tracer_marker_pred_X.a)->setForeground(Qt::black);
-                tablewidget->horizontalHeaderItem(tablewidget->tracer_marker_pred_X.b)->setForeground(Qt::black);
-                tablewidget->verticalHeaderItem(tablewidget->tracer_marker_pred_Y.a)->setForeground(Qt::black);
-                tablewidget->verticalHeaderItem(tablewidget->tracer_marker_pred_Y.b)->setForeground(Qt::black);
+//                tablewidget->horizontalHeaderItem(tablewidget->tracer_marker_pred_X.a)->setBackground(Qt::white);
+//                tablewidget->horizontalHeaderItem(tablewidget->tracer_marker_pred_X.b)->setBackground(Qt::white);
+//                tablewidget->verticalHeaderItem(tablewidget->tracer_marker_pred_Y.a)->setBackground(Qt::white);
+//                tablewidget->verticalHeaderItem(tablewidget->tracer_marker_pred_Y.b)->setBackground(Qt::white);
                 //гашение предыдущего маркера таблицы
                 tablewidget->item(tablewidget->tracer_marker_pred_Y.a, tablewidget->tracer_marker_pred_X.a)->setBackground(Qt::white);
                 tablewidget->item(tablewidget->tracer_marker_pred_Y.a, tablewidget->tracer_marker_pred_X.b)->setBackground(Qt::white);
@@ -577,10 +579,10 @@ public slots:
             tablewidget->tracer_marker_pred_Y = tablewidget->tracer_marker_Y;
 
             //         рисуем новое положение маркеров на хидерах
-            tablewidget->horizontalHeaderItem(tablewidget->tracer_marker_X.a)->setForeground(color_leftUP);
-            tablewidget->horizontalHeaderItem(tablewidget->tracer_marker_X.b)->setForeground(color_rightUP);
-            tablewidget->verticalHeaderItem(tablewidget->tracer_marker_Y.a)->setForeground(color_leftUP);
-            tablewidget->verticalHeaderItem(tablewidget->tracer_marker_Y.b)->setForeground(color_leftDOWN);
+//            tablewidget->horizontalHeaderItem(tablewidget->tracer_marker_X.a)->setBackground(color_leftUP);
+//            tablewidget->horizontalHeaderItem(tablewidget->tracer_marker_X.b)->setBackground(color_rightUP);
+//            tablewidget->verticalHeaderItem(tablewidget->tracer_marker_Y.a)->setBackground(color_leftUP);
+//            tablewidget->verticalHeaderItem(tablewidget->tracer_marker_Y.b)->setBackground(color_leftDOWN);
 
             //         рисуем новое положение маркера
             tablewidget->item(tablewidget->tracer_marker_Y.a, tablewidget->tracer_marker_X.a)->setBackground(color_leftUP);//левый верхний
@@ -592,9 +594,11 @@ public slots:
             // разблокируем обновления редакции
             tablewidget->blockSignals(false);//
 
-            QTime start = QTime::currentTime();
-            tablewidget->repaint(1,1,1,1);
-            // qDebug() <<  " time " << start.msecsTo( QTime::currentTime() );
+            //QTime start = QTime::currentTime();
+            //tablewidget->repaint();
+            tablewidget->update(tablewidget->tracer_marker_X.a, tablewidget->tracer_marker_Y.a, 2, 2);
+             qDebug() <<  "fucking time " << start.msecsTo( QTime::currentTime() );
+
 
         }
 
