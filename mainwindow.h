@@ -62,32 +62,20 @@ private slots:
     void on_debugButton_clicked();
     void on_loadbinbutton_clicked();
     void on_stop_live_clicked();
-void fpssss()
-{
-    qDebug() << "FPS = " << fps;
-    fps =0;
-}
 
+    void on_save_trace_pushButton_clicked();
 
 private:
+    bool  debug = false;
     Ui::MainWindow *ui;
     void OperateButtonsLockUnlock();
-    float x = 0;
-    float y = 0;
     Timer* timer = new Timer(this);
-    bool debug;
-     enumerator Enumerator;
-     dma DMA;
-
-     mathParser2 math;
-     DomParser *xmlParser;
-
-     TableProperty_fr_xml Table_Decl;                       //Описание одной таблицы
-
-     QByteArray *binarray;                                  // массив с бинарником
-
-    int fps = 0;
-    QTimer fpss;
+    enumerator Enumerator;
+    dma DMA;
+    bool save_trace = false;
+    DomParser *xmlParser;
+    TableProperty_fr_xml Table_Decl;                       //Описание одной таблицы
+    QByteArray *binarray;                                  // массив с бинарником
     void SearchFiles(QString path, QString CalID)       // Для поиска файлов в каталоге
     {
         // Пытаемся найти правильные файлы, в текущем каталоге
@@ -103,13 +91,11 @@ private:
         float x = 0;
         if (!ram_scaling_storagetype)
         {
-            x = math.typed(storagetype,
-                            DMA.MUT_In_buffer,
-                            mut_number,                //номер запроса рам мут
-                            scaling_endian);
-
-
-            x = math.fast_calc(scaling_frexpr2, x);
+            x = typed(storagetype,
+                      DMA.MUT_In_buffer,
+                      mut_number,                //номер запроса рам мут
+                      scaling_endian);
+            x = fast_calc(scaling_frexpr2, x);
         }
         return x;
     }

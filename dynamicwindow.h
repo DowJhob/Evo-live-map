@@ -8,7 +8,7 @@
 //#include "xmldomparser.h"
 #include "DMA.h"
 #include "dynamictablewidget.h"
-#include "mathparser2.h"
+//#include "mathparser2.h"
 
 
 class DynamicWindow: public QWidget
@@ -19,13 +19,11 @@ public:
     float x = 0;
     float y = 0;
     dma *DMA;
-    mathParser2 *math;
+    //mathParser2 *math;
     int Tag;
-    DynamicWindow(QWidget *parent = nullptr, TableProperty_fr_xml *Table_Decl = nullptr, dma *DMA = nullptr, mathParser2 *math = nullptr, QObjectList *list_widget = nullptr): QWidget(parent, Qt::Window)
+    DynamicWindow(QWidget *parent = nullptr, TableProperty_fr_xml *Table_Decl = nullptr, dma *DMA = nullptr, QObjectList *list_widget = nullptr): QWidget(parent, Qt::Window)
     {
-        this->math = math;
         this->DMA = DMA;
-        this->math = math;
         Tag = Table_Decl->tableNum;
         //генерируем окно
 
@@ -48,32 +46,24 @@ public:
         DynamicTableWidget *table = new DynamicTableWidget( this, Table_Decl);  //создаем динамическую таблицу
         table->setSortingEnabled(false);
         table->setUpdatesEnabled(true);
-      list_widget->insert(Table_Decl->tableNum, table);
+        list_widget->insert(Table_Decl->tableNum, table);
 
         //==============================================================================================================================================================
-
-        // QString inverse_polish_note = math->get_notation_convert(Table_Decl->X_axis.scaling.toexpr);
-
-        // Table_Decl->X_axis.scaling.toexpr2 = *math->set_notation(Table_Decl->X_axis.scaling.toexpr);   //set notation вернула адрес на свою внутренню структуру с бинарной нотацией
-
         float variable_value;
         //читаем таблицу заголовка-оси в буфер
         DMA->read_by_type(
                     Table_Decl->X_axis.scaling.storagetype,          //тип данных оси
                     Table_Decl->X_axis.rom_addr,                     //адрес оси в ром
-                    //mut_trans,
                     Table_Decl->X_axis.elements,
                     1);                                              //по игреку ось икс равна 1
         //заполняем в соотвествии с формулой
         for (uint i = 0; i < Table_Decl->X_axis.elements; i++)
         {
-            variable_value = math->typed(Table_Decl->X_axis.scaling.storagetype, DMA->MUT_In_buffer, i, Table_Decl->X_axis.scaling.endian); //кастуем данные к определенному типу
+            variable_value = typed(Table_Decl->X_axis.scaling.storagetype, DMA->MUT_In_buffer, i, Table_Decl->X_axis.scaling.endian); //кастуем данные к определенному типу
 
             QTableWidgetItem *item = new QTableWidgetItem();
-            //    float compute = math->Computing(inverse_polish_note, variable_value);
 
-
-            float compute = math->fast_calc(Table_Decl->X_axis.scaling.toexpr2, variable_value);
+            float compute = fast_calc(Table_Decl->X_axis.scaling.toexpr2, variable_value);
 
             table->x_axis.append(qRound(compute));
 
@@ -82,25 +72,20 @@ public:
             table->setHorizontalHeaderItem(i, item);
         }
         //----------------------------------------------------------------------------------------------
-        //  inverse_polish_note = math->get_notation_convert(Table_Decl->Y_axis.scaling.toexpr);
-        //Table_Decl->Y_axis.scaling.toexpr2 = *math->set_notation(Table_Decl->Y_axis.scaling.toexpr);   //set notation вернула адрес на свою внутренню структуру с бинарной нотацией
-
 
         //читаем таблицу заголовка-оси в буфер
         DMA->read_by_type(
                     Table_Decl->Y_axis.scaling.storagetype, //тип данных оси
                     Table_Decl->Y_axis.rom_addr,                //адрес оси в ром
-                    //mut_trans,
                     1,
                     Table_Decl->Y_axis.elements);
 
         for (uint i = 0; i < Table_Decl->Y_axis.elements; i++)
         {
-            variable_value = math->typed(Table_Decl->Y_axis.scaling.storagetype, DMA->MUT_In_buffer, i, Table_Decl->Y_axis.scaling.endian); //кастуем данные к определенному типу
+            variable_value = typed(Table_Decl->Y_axis.scaling.storagetype, DMA->MUT_In_buffer, i, Table_Decl->Y_axis.scaling.endian); //кастуем данные к определенному типу
             QTableWidgetItem *item = new QTableWidgetItem();
-            //double compute = math->Computing(inverse_polish_note, variable_value);
-            float compute = math->fast_calc(Table_Decl->Y_axis.scaling.toexpr2, variable_value);
 
+            float compute = fast_calc(Table_Decl->Y_axis.scaling.toexpr2, variable_value);
 
             table->y_axis.append(qRound(compute));
             item->setData( Qt::DisplayRole, QString::number(qRound(compute)));
@@ -119,7 +104,6 @@ public:
         table->resizeColumnsToContents(); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Bingo!!!!
 
         int line_with = 1;
-
 
         table->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
@@ -149,9 +133,6 @@ public:
 
         setFixedSize(Size);
 
-
-
-
     }
     void table_set_update(DynamicTableWidget *tablewidget)
     {
@@ -163,7 +144,8 @@ public:
                     tablewidget->Table_Decl.X_axis.elements,
                     tablewidget->Table_Decl.Y_axis.elements);
         //QString inverse_polish_note = math->get_notation_convert(tablewidget->Table_Decl.Table.scaling.toexpr);
-        tablewidget->Table_Decl.Table.scaling.toexpr2 = *math->set_notation(tablewidget->Table_Decl.Table.scaling.toexpr);   //set notation вернула адрес на свою внутренню структуру с бинарной нотацией
+        tablewidget->Table_Decl.Table.scaling.toexpr2 = //*math->
+                *set_notation(tablewidget->Table_Decl.Table.scaling.toexpr);   //set notation вернула адрес на свою внутренню структуру с бинарной нотацией
 
 
         long long variable_value;
@@ -172,13 +154,13 @@ public:
         {
             for (int y = 0; y < tablewidget->Table_Decl.Y_axis.elements; y++)
             {
-                variable_value = math->typed(tablewidget->Table_Decl.Table.scaling.storagetype,
+                variable_value = typed(tablewidget->Table_Decl.Table.scaling.storagetype,
                                              DMA->MUT_In_buffer,
                                              c,
                                              tablewidget->Table_Decl.Table.scaling.endian); //кастуем данные к определенному типу
                 //создаем обновляем итем
                 float compute;
-                compute = math->fast_calc(tablewidget->Table_Decl.Table.scaling.toexpr2, variable_value);
+                compute = fast_calc(tablewidget->Table_Decl.Table.scaling.toexpr2, variable_value);
                 if ( tablewidget->Table_Decl.Table.swapxy )
                 {
                     if (tablewidget->item(y, x) == nullptr)  //если итема нет создадим
@@ -217,7 +199,7 @@ public slots:
         //DynamicTableWidget *tablewidget = (DynamicTableWidget*)sender();
         DynamicTableWidget *tablewidget = qobject_cast<DynamicTableWidget*>( sender() );
         emit timer_lock();
-        int pos;
+        uint pos;
         if (tablewidget->Table_Decl.Table.swapxy)
         {
             pos = column * tablewidget->Table_Decl.Y_axis.elements + row;
@@ -227,7 +209,7 @@ public slots:
             pos = row * tablewidget->Table_Decl.X_axis.elements + column;
         }
         double variable_value = tablewidget->item(row, column)->text().toDouble();
-        DMA->MUT_Out_buffer[0] = math->Computing(math->get_notation_convert(tablewidget->Table_Decl.Table.scaling.frexpr ), variable_value);
+        DMA->MUT_Out_buffer[0] = qRound(Computing(get_notation_convert(tablewidget->Table_Decl.Table.scaling.frexpr ), variable_value));
         DMA->write_direct(tablewidget->Table_Decl.Table.ram_addr + pos, 1);
         emit timer_unlock();
     }

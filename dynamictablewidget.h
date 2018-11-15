@@ -5,7 +5,7 @@
 
 #include <qtablewidget.h>
 //#include "mut_transport.h"
-#include "mathparser2.h"
+//#include "mathparser2.h"
 struct Tracer_marker
 {
     int a;                   //координаты трейсера

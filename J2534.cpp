@@ -13,7 +13,7 @@
 
 J2534::J2534(void)
 {
-    hDLL = NULL;
+    hDLL = nullptr;
     debugMode = false;
     isLibraryInitialized = false;
     // default to the Openport 2.0 J2534 DLL
@@ -36,7 +36,7 @@ char* J2534::getLastError()
 
 bool J2534::valid()
 {
-    return hDLL != NULL;
+    return hDLL != nullptr;
 }
 
 J2534::~J2534(void)

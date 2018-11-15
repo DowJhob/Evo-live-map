@@ -2,11 +2,11 @@
 #define DOMPARSER_H
 #include <QtXml/QDomDocument>
 #include <QtWidgets>
-
+#include <mathparser2.h>
 //#include <qtablewidget.h>
 
 #include <math.h>
-#include <mathparser2.h>
+
 
 struct Scaling                          //структура скалингов для помещения в контейнер
 {
@@ -44,10 +44,11 @@ class DomParser
 {
   //  Q_OBJECT
 public:
-     mathParser2 *m;
-    DomParser(QIODevice *device, mathParser2 *m)
+     //mathParser2 *m;
+    DomParser(QIODevice *device//, mathParser2 *m
+              )
     {
-        this->m = m;
+        //this->m = m;
         QString errorStr;
         int errorLine;
         int errorColumn;
@@ -208,9 +209,11 @@ private:
 
         Table.scaling = scaling_qmap.value(node.toElement().attribute("scaling")) ;//Получаем скалинг данных таблицы
 
-        Table.scaling.toexpr2 = *m->set_notation(Table.scaling.toexpr);
+        Table.scaling.toexpr2 = //*m->
+                *set_notation(Table.scaling.toexpr);
 
-        Table.scaling.frexpr2 = *m->set_notation(Table.scaling.frexpr);
+        Table.scaling.frexpr2 = //*m->
+                *set_notation(Table.scaling.frexpr);
 
         Table.elements = node.toElement().attribute("elements").toUInt(&bStatus);
 

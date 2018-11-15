@@ -6,7 +6,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "xmldomparser.h"
+//#include "xmldomparser.h"
 #include <dbt.h>
 #include <QtGlobal>
 
@@ -39,14 +39,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     Enumerator.NotifyRegister((HWND)this->winId());
 
 
-
-
-connect(&fpss, SIGNAL(timeout()), SLOT(fpssss()));
-fpss.start(1000);
-
-
-
-
 }
 
 MainWindow::~MainWindow()
@@ -67,8 +59,6 @@ void MainWindow::OperateButtonsLockUnlock()
     ui->RAM_reset_Button->setDisabled(!Enumerator.VechicleInterfaceState);
     ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
 }
-
-
 
 bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *result)
 {
@@ -116,7 +106,8 @@ void MainWindow::ReadConfig(QString filename)
         QMessageBox::information(this, tr("Unable to open file"), file->errorString());
         return;
     }
-    xmlParser = new DomParser(file, &math);        // парсим файл
+    xmlParser = new DomParser(file//, &math
+                              );        // парсим файл
     delete file;
 }
 
@@ -129,7 +120,8 @@ void MainWindow::CreateTable(QString filename)
         tt = xmlParser->TableDecl_qvector[i];                           //
         if (tt.Table.ram_addr != 0)                                    // проверим что это таблица карт, а не таблица патчей
         {
-            DynamicWindow *dynamic_window = new DynamicWindow( this, &tt, &DMA, &math, &list_widget);
+            DynamicWindow *dynamic_window = new DynamicWindow( this, &tt, &DMA, //&math,
+                                                               &list_widget);
             QPushButton *tableButton = new QPushButton(tt.Table.Name, ui->groupBox_mapalloc);
             tableButton->setProperty("tag", tt.tableNum);
 
@@ -279,7 +271,7 @@ void MainWindow::on_debugButton_clicked()
     CreateTable(xml_filename);   								//парсим его
     timer->start(1000/ui->logger_rate_textedit->text().toUInt());
 
-   // timer->start(650);
+    // timer->start(650);
 }
 
 void MainWindow::on_loadbinbutton_clicked()
@@ -348,144 +340,133 @@ void  axis_lookup(int in, int axis_lenght, QVector<int> axis, Tracer_marker *mar
 }
 
 void MainWindow::logger_and_tableWidget_trace()
+{
+
+
+    emit timer_lock();
+    // DMA.read_indirect(xmlParser->RAM_MUT_addr, 16);// логгинг что бы контроллер не уснул
+    /* Ищем объект, в списке*/
+    float x = 0;
+    float y = 0;
+
+    foreach (QObject *o, list_widget)
     {
-    fps++;
-QTime start = QTime::currentTime();
-        bool debug = true;
-
-        emit timer_lock();
-        // DMA.read_indirect(xmlParser->RAM_MUT_addr, 16);// логгинг что бы контроллер не уснул
-        /* Ищем объект, в списке*/
-//        float x = 0;
-//        float y = 0;
+        DynamicTableWidget *tablewidget = reinterpret_cast<DynamicTableWidget*>(o);
 
 
+        //for (int i=0; i < 4; i++)
+        //{
+        //     DynamicTableWidget *tablewidget = reinterpret_cast<DynamicTableWidget*>(list_widget.at(i));
 
+        tablewidget->blockSignals( true );
 
-        foreach (QObject *o, list_widget)
+        // читаем из буфера и кастуем
+
+        if (!debug)
         {
-            DynamicTableWidget *tablewidget = reinterpret_cast<DynamicTableWidget*>(o);
+            x = read_and_cast(tablewidget->Table_Decl.X_axis.ram_scaling.storagetype.isEmpty(),
+                              tablewidget->Table_Decl.X_axis.ram_scaling.storagetype,
+                              tablewidget->Table_Decl.X_axis.ram_scaling.ram_mut_number,
+                              tablewidget->Table_Decl.X_axis.scaling.endian,
+                              tablewidget->Table_Decl.X_axis.scaling.frexpr2);
 
+            y = read_and_cast(tablewidget->Table_Decl.Y_axis.ram_scaling.storagetype.isEmpty(),
+                              tablewidget->Table_Decl.Y_axis.ram_scaling.storagetype,
+                              tablewidget->Table_Decl.Y_axis.ram_scaling.ram_mut_number,
+                              tablewidget->Table_Decl.Y_axis.scaling.endian,
+                              tablewidget->Table_Decl.Y_axis.scaling.frexpr2);
+        }
+        else
+        {
+            x =  QCursor::pos().x()*1.4;
+            y =  QCursor::pos().y()*26;
+        }
+        //----------------------- вычисляем координаты маркера------------------------------------------------
+        axis_lookup(qRound(x),
+                    tablewidget->Table_Decl.X_axis.elements,
+                    tablewidget->x_axis,
+                    &tablewidget->tracer_marker_X);
+        axis_lookup(qRound(y),
+                    tablewidget->Table_Decl.Y_axis.elements,
+                    tablewidget->y_axis,
+                    &tablewidget->tracer_marker_Y);
+        //----------------------- вычисляем насыщенность ячеек маркера хидера---------------------------------------
+        //----------------------- ось X
 
-//for (int i=0; i < 4; i++)
-//{
-//     DynamicTableWidget *tablewidget = reinterpret_cast<DynamicTableWidget*>(list_widget.at(i));
+        int ax_X_len = tablewidget->x_axis[tablewidget->tracer_marker_X.b] - tablewidget->x_axis[tablewidget->tracer_marker_X.a];
+        int ax_Y_len = tablewidget->y_axis[tablewidget->tracer_marker_Y.b] - tablewidget->y_axis[tablewidget->tracer_marker_Y.a];
 
-            tablewidget->blockSignals( true );
+        int EndXvect = (x - tablewidget->x_axis[tablewidget->tracer_marker_X.a] - ax_X_len/2) * 255 / ax_X_len;  //нормированные координаты концов всех векторов
+        int EndYvect = (tablewidget->y_axis[tablewidget->tracer_marker_Y.b] - y - ax_Y_len/2) * 255 / ax_Y_len;  //нормированные координаты концов всех векторов
 
-            // читаем из буфера и кастуем
+        int left_vectX = EndXvect + 178; // EndXvect - (-89)
+        int right_vectX = EndXvect - 178;
+        int up_vectY = EndYvect - 178;
+        int down_vectY = EndYvect + 178;
 
-            if (!debug)
+        //модули векторов,
+        int leftUP = modul(left_vectX, up_vectY);
+        int rightUP  = modul(right_vectX, up_vectY);
+        int leftDOWN   = modul(left_vectX, down_vectY);
+        int rightDOWN    = modul(right_vectX, down_vectY);
+
+        QColor color_rightDOWN, color_leftDOWN, color_rightUP, color_leftUP;
+        color_rightDOWN.setHsv(240, rightDOWN, 255, 255);
+        color_leftDOWN.setHsv(240, leftDOWN, 255, 255);
+        color_rightUP.setHsv(240, rightUP, 255, 255);
+        color_leftUP.setHsv(240, leftUP, 255, 255);
+
+        //------------------------------------------------------------------------------------------------------------------
+        if ((tablewidget->tracer_marker_pred_X.a != tablewidget->tracer_marker_X.a)
+                ||(tablewidget->tracer_marker_pred_Y.a != tablewidget->tracer_marker_Y.a)) // тут гашение если изменился X или Y
+        {
+            //гашение предыдущих маркеров на хидерах
+            //                tablewidget->horizontalHeaderItem(tablewidget->tracer_marker_pred_X.a)->setBackground(Qt::white);
+            //                tablewidget->horizontalHeaderItem(tablewidget->tracer_marker_pred_X.b)->setBackground(Qt::white);
+            //                tablewidget->verticalHeaderItem(tablewidget->tracer_marker_pred_Y.a)->setBackground(Qt::white);
+            //                tablewidget->verticalHeaderItem(tablewidget->tracer_marker_pred_Y.b)->setBackground(Qt::white);
+            //гашение предыдущего маркера таблицы
+            if (!save_trace)
             {
-
-                x = read_and_cast(tablewidget->Table_Decl.X_axis.ram_scaling.storagetype.isEmpty(),
-                                  tablewidget->Table_Decl.X_axis.ram_scaling.storagetype,
-                                  tablewidget->Table_Decl.X_axis.ram_scaling.ram_mut_number,
-                                  tablewidget->Table_Decl.X_axis.scaling.endian,
-                                  tablewidget->Table_Decl.X_axis.scaling.frexpr2);
-
-
-                y = read_and_cast(tablewidget->Table_Decl.Y_axis.ram_scaling.storagetype.isEmpty(),
-                                  tablewidget->Table_Decl.Y_axis.ram_scaling.storagetype,
-                                  tablewidget->Table_Decl.Y_axis.ram_scaling.ram_mut_number,
-                                  tablewidget->Table_Decl.Y_axis.scaling.endian,
-                                  tablewidget->Table_Decl.Y_axis.scaling.frexpr2);
-
-            }
-            else
-            {
-                x = x + 10;
-                y = y + 100;
-
-                if (x > 2700)
-                {
-                   x = 0;
-                }
-                if (y >= 28000)
-                {
-                   y = 0;
-                }
-            }
-
-            //----------------------- вычисляем координаты маркера------------------------------------------------
-            axis_lookup(qRound(x),
-                        tablewidget->Table_Decl.X_axis.elements,
-                        tablewidget->x_axis,
-                        &tablewidget->tracer_marker_X);
-            axis_lookup(qRound(y),
-                        tablewidget->Table_Decl.Y_axis.elements,
-                        tablewidget->y_axis,
-                        &tablewidget->tracer_marker_Y);
-            //----------------------- вычисляем насыщенность ячеек маркера хидера---------------------------------------
-            //----------------------- ось X
-
-            int ax_X_len = tablewidget->x_axis[tablewidget->tracer_marker_X.b] - tablewidget->x_axis[tablewidget->tracer_marker_X.a];
-            int ax_Y_len = tablewidget->y_axis[tablewidget->tracer_marker_Y.b] - tablewidget->y_axis[tablewidget->tracer_marker_Y.a];
-
-            int EndXvect = (x - tablewidget->x_axis[tablewidget->tracer_marker_X.a] - ax_X_len/2) * 255 / ax_X_len;  //нормированные координаты концов всех векторов
-            int EndYvect = (tablewidget->y_axis[tablewidget->tracer_marker_Y.b] - y - ax_Y_len/2) * 255 / ax_Y_len;  //нормированные координаты концов всех векторов
-
-            int left_vectX = EndXvect + 178; // EndXvect - (-89)
-            int right_vectX = EndXvect - 178;
-            int up_vectY = EndYvect - 178;
-            int down_vectY = EndYvect + 178;
-
-            //модули векторов,
-            int leftUP = modul(left_vectX, up_vectY);
-            int rightUP  = modul(right_vectX, up_vectY);
-            int leftDOWN   = modul(left_vectX, down_vectY);
-            int rightDOWN    = modul(right_vectX, down_vectY);
-
-            QColor color_rightDOWN, color_leftDOWN, color_rightUP, color_leftUP;
-            color_rightDOWN.setHsv(240, rightDOWN, 255, 255);
-            color_leftDOWN.setHsv(240, leftDOWN, 255, 255);
-            color_rightUP.setHsv(240, rightUP, 255, 255);
-            color_leftUP.setHsv(240, leftUP, 255, 255);
-
-            //------------------------------------------------------------------------------------------------------------------
-            if ((tablewidget->tracer_marker_pred_X.a != tablewidget->tracer_marker_X.a)
-                    ||(tablewidget->tracer_marker_pred_Y.a != tablewidget->tracer_marker_Y.a)) // тут гашение если изменился X или Y
-            {
-                //гашение предыдущих маркеров на хидерах
-//                tablewidget->horizontalHeaderItem(tablewidget->tracer_marker_pred_X.a)->setBackground(Qt::white);
-//                tablewidget->horizontalHeaderItem(tablewidget->tracer_marker_pred_X.b)->setBackground(Qt::white);
-//                tablewidget->verticalHeaderItem(tablewidget->tracer_marker_pred_Y.a)->setBackground(Qt::white);
-//                tablewidget->verticalHeaderItem(tablewidget->tracer_marker_pred_Y.b)->setBackground(Qt::white);
-                //гашение предыдущего маркера таблицы
                 tablewidget->item(tablewidget->tracer_marker_pred_Y.a, tablewidget->tracer_marker_pred_X.a)->setBackground(Qt::white);
                 tablewidget->item(tablewidget->tracer_marker_pred_Y.a, tablewidget->tracer_marker_pred_X.b)->setBackground(Qt::white);
                 tablewidget->item(tablewidget->tracer_marker_pred_Y.b, tablewidget->tracer_marker_pred_X.a)->setBackground(Qt::white);
                 tablewidget->item(tablewidget->tracer_marker_pred_Y.b, tablewidget->tracer_marker_pred_X.b)->setBackground(Qt::white);
             }
-
-            //сохраняем  текущее положение для след расчета
-            tablewidget->tracer_marker_pred_X = tablewidget->tracer_marker_X;
-            tablewidget->tracer_marker_pred_Y = tablewidget->tracer_marker_Y;
-
-            //         рисуем новое положение маркеров на хидерах
-//            tablewidget->horizontalHeaderItem(tablewidget->tracer_marker_X.a)->setBackground(color_leftUP);
-//            tablewidget->horizontalHeaderItem(tablewidget->tracer_marker_X.b)->setBackground(color_rightUP);
-//            tablewidget->verticalHeaderItem(tablewidget->tracer_marker_Y.a)->setBackground(color_leftUP);
-//            tablewidget->verticalHeaderItem(tablewidget->tracer_marker_Y.b)->setBackground(color_leftDOWN);
-
-            //         рисуем новое положение маркера
-            tablewidget->item(tablewidget->tracer_marker_Y.a, tablewidget->tracer_marker_X.a)->setBackground(color_leftUP);//левый верхний
-            tablewidget->item(tablewidget->tracer_marker_Y.a, tablewidget->tracer_marker_X.b)->setBackground(color_rightUP);//правый верхний
-
-            tablewidget->item(tablewidget->tracer_marker_Y.b, tablewidget->tracer_marker_X.a)->setBackground(color_leftDOWN);//левый нижний
-            tablewidget->item(tablewidget->tracer_marker_Y.b, tablewidget->tracer_marker_X.b)->setBackground(color_rightDOWN);//правый нижний
-            //
-            // разблокируем обновления редакции
-            tablewidget->blockSignals(false);//
-
-            //QTime start = QTime::currentTime();
-            //tablewidget->repaint();
-          //  tablewidget->update(tablewidget->tracer_marker_X.a, tablewidget->tracer_marker_Y.a, 2, 2);
-
-
-
         }
 
-        emit timer_unlock();
-          //   qDebug() <<  "fucking time " << start.msecsTo( QTime::currentTime() );
+        //сохраняем  текущее положение для след расчета
+        tablewidget->tracer_marker_pred_X = tablewidget->tracer_marker_X;
+        tablewidget->tracer_marker_pred_Y = tablewidget->tracer_marker_Y;
+
+        //         рисуем новое положение маркеров на хидерах
+        //            tablewidget->horizontalHeaderItem(tablewidget->tracer_marker_X.a)->setBackground(color_leftUP);
+        //            tablewidget->horizontalHeaderItem(tablewidget->tracer_marker_X.b)->setBackground(color_rightUP);
+        //            tablewidget->verticalHeaderItem(tablewidget->tracer_marker_Y.a)->setBackground(color_leftUP);
+        //            tablewidget->verticalHeaderItem(tablewidget->tracer_marker_Y.b)->setBackground(color_leftDOWN);
+
+        //         рисуем новое положение маркера
+        tablewidget->item(tablewidget->tracer_marker_Y.a, tablewidget->tracer_marker_X.a)->setBackground(color_leftUP);//левый верхний
+        tablewidget->item(tablewidget->tracer_marker_Y.a, tablewidget->tracer_marker_X.b)->setBackground(color_rightUP);//правый верхний
+
+        tablewidget->item(tablewidget->tracer_marker_Y.b, tablewidget->tracer_marker_X.a)->setBackground(color_leftDOWN);//левый нижний
+        tablewidget->item(tablewidget->tracer_marker_Y.b, tablewidget->tracer_marker_X.b)->setBackground(color_rightDOWN);//правый нижний
+        //
+        // разблокируем обновления редакции
+        tablewidget->blockSignals(false);//
+
+        //QTime start = QTime::currentTime();
+        //tablewidget->repaint();
+        //  tablewidget->update(tablewidget->tracer_marker_X.a, tablewidget->tracer_marker_Y.a, 2, 2);
+
     }
+
+    emit timer_unlock();
+    //   qDebug() <<  "fucking time " << start.msecsTo( QTime::currentTime() );
+}
+
+void MainWindow::on_save_trace_pushButton_clicked()
+{
+    save_trace = !save_trace;
+ui->save_trace_pushButton->setDown(save_trace);
+}
