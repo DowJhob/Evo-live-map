@@ -8,14 +8,6 @@
 #include <QStack>
 #include <QTime>
 
-class window_manager
-{
-public:
-    QObjectList list_window = {};    //список для динамически созданных таблиц что бы разгрузить событие таймера
-    QObjectList list_button = {};
-    QObjectList list_widget = {};
-};
-
 class dma:public QObject
 {
     Q_OBJECT
@@ -37,7 +29,6 @@ public:
             j2534 = nullptr;
         }
     }
-    window_manager win_manager;
 
 
     J2534 *j2534;
@@ -259,7 +250,7 @@ public:
          //   error_out = "FT_Open OK";
             // FT_Open OK, use ftHandle to access device
             OP13->ftStatus = OP13->FT_ResetDevice(OP13->ftHandle);
-            OP13->ftStatus = OP13->FT_Purge(OP13->ftHandle, FT_PURGE_RX || FT_PURGE_TX);
+            OP13->ftStatus = OP13->FT_Purge(OP13->ftHandle, FT_PURGE_RX | FT_PURGE_TX);
             OP13->ftStatus = OP13->FT_SetTimeouts(OP13->ftHandle, 0, 0);
             OP13->ftStatus = OP13->FT_SetLatencyTimer(OP13->ftHandle, 1);
             OP13->ftStatus = OP13->FT_SetBaudRate(OP13->ftHandle, baudRate);
@@ -323,7 +314,7 @@ public:
     void read_by_type(QString storagetype, quint32 mem_addr, uint x, uint y)
     {
 
-        int lenght = x * y;
+        uint lenght = x * y;
         // прочитаем нужное количество данных в соответствии с типом
         if ( (storagetype == "int8") | (storagetype == "uint8"))
             read_direct( mem_addr, lenght); //таблица в памяти
@@ -382,7 +373,9 @@ void close_j2534()
         inputMsg.BytePtr = &EcuAddr[0]; /* Assign pointer to ECU target address array. */
         outputMsg.NumOfBytes = 0; /* KeyWord array is empty. */
         outputMsg.BytePtr = &KeyWord[0]; /* Assign pointer to KeyWord array. */
-        if (j2534->PassThruIoctl(chanID, FIVE_BAUD_INIT, (void *)&inputMsg, (void *)&outputMsg))
+
+        if (j2534->PassThruIoctl(chanID, FIVE_BAUD_INIT, reinterpret_cast<void *>(&inputMsg), reinterpret_cast<void *>(&outputMsg)))
+        //if (j2534->PassThruIoctl(chanID, FIVE_BAUD_INIT, (void *)&inputMsg, (void *)&outputMsg))
         {
             reportJ2534Error(sf);
             qDebug() << "PassThruIoctl - FIVE_BAUD_INIT : not ok" + sf;
@@ -394,12 +387,12 @@ void close_j2534()
 
 
 
-     j2534->PassThruIoctl(chanID, GET_CONFIG, &scl, nullptr)   ;
-     baudRate = scl.ConfigPtr[0].Value;                                //
+        j2534->PassThruIoctl(chanID, GET_CONFIG, &scl, nullptr)   ;
+        baudRate = scl.ConfigPtr[0].Value;                                //
 
 
         // ============================ now setup the filter(s) =========================
-     //   PASSTHRU_MSG  txmsg;
+        //   PASSTHRU_MSG  txmsg;
         PASSTHRU_MSG msgMask, msgPattern;
         unsigned long msgId;
 
@@ -413,8 +406,8 @@ void close_j2534()
 
         msgMask.Data[0] = 0; // mask the first byte to 0
         msgPattern.Data[0] = 0; // match it with 0 (i.e. pass everything)
-memset(&msgMask.Data, 0, 4128);
-memset(&msgPattern.Data, 0, 4128);
+        memset(&msgMask.Data, 0, 4128);
+        memset(&msgPattern.Data, 0, 4128);
         if (j2534->PassThruStartMsgFilter(chanID, PASS_FILTER, &msgMask, &msgPattern, nullptr, &msgId))
         {
             reportJ2534Error(sf);
@@ -556,7 +549,7 @@ class Timer:public QTimer
  public:
      Timer(QObject *parent = nullptr)
      {
-         this->setParent(parent);
+         setParent(parent);
      }
       ~Timer()
      {
