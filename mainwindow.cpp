@@ -17,7 +17,7 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
+    CurrDir = QApplication::applicationDirPath()+ "/"  ;   //текущая директория
     connect(timer, SIGNAL(timeout()), SLOT(logger_and_tableWidget_trace()), Qt::DirectConnection);//таймер подключаем
     connect(&Enumerator, SIGNAL(InterfaceActive(int)), &DMA, SLOT(dll_connect(int)), Qt::DirectConnection);
     connect(&Enumerator, SIGNAL(disconnectInterface()), &DMA, SLOT(dll_disconnect()), Qt::DirectConnection);
@@ -97,23 +97,25 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
     return false;
 }
 
-void MainWindow::ReadConfig(QString filename)
+bool  MainWindow::ReadConfig(QString filename)
 {
     // Открываем конфиг:
     QFile* file = new QFile(filename);
     if (!file->open(QIODevice::ReadOnly | QIODevice::Text))
     {
         QMessageBox::information(this, tr("Unable to open file"), file->errorString());
-        return;
+        return false;
     }
     xmlParser = new DomParser(file//, &math
                               );        // парсим файл
     delete file;
+    return true;
 }
 
-void MainWindow::CreateTable(QString filename)
+bool MainWindow::CreateTable(QString filename)
 {
-    ReadConfig(filename);                                               // прочтем конфиг
+    if (!ReadConfig(filename))
+        return false;                                               // прочтем конфиг
     TableProperty_fr_xml tt;                                            // временная переменная для хранения описания таблицы
     for (int i = 0; i < xmlParser->TableDecl_qvector.size(); i++)       // переберем все описания таблиц
     {
@@ -137,7 +139,7 @@ void MainWindow::CreateTable(QString filename)
         }
     }
 
-
+return true;
 }
 
 void MainWindow::TableDelete()
@@ -164,8 +166,6 @@ void MainWindow::on_StartButton_clicked()
 {
     QString s;
     unsigned long romIDnum;
-
-    QString xml_filename;
 
     if (ui->StartButton->text() == "Start")
     {
@@ -197,13 +197,8 @@ void MainWindow::on_StartButton_clicked()
         s =   "romID " + romID + "\r\n";
         ui->listWidget->addItem(s);
 
-        QString CurrDir = QApplication::applicationDirPath()+ "\\"  ;   //текущая директория
         SearchFiles(CurrDir, romID);   //найдем файл конфига
-        xml_filename = listFiles[0];
-        if (xml_filename == "error")
-            xml_filename = QFileDialog::getOpenFileName(this, tr("Open xml"), CurrDir, tr("xml files (*.xml)"));
-        else
-            xml_filename =  CurrDir + xml_filename;
+
         CreateTable(xml_filename);   								//парсим его
 
         timer->start(1000/ui->logger_rate_textedit->text().toUInt());
@@ -256,21 +251,14 @@ void MainWindow::on_logger_rate_textedit_editingFinished()
 void MainWindow::on_debugButton_clicked()
 {
     debug = true;
-    QString CurrDir = QApplication::applicationDirPath()+ "/"  ;   //текущая директория
-    SearchFiles(CurrDir, "80700010");   //найдем файл конфига
-    QString xml_filename = listFiles[0];
     for (uchar i =0; i < 255; i++)
     {
         DMA.MUT_In_buffer[i] = i;
         DMA.MUT_Out_buffer[i] = i;
     }
-    if (xml_filename == "error")
-        xml_filename = QFileDialog::getOpenFileName(this, tr("Open xml"), CurrDir, tr("xml files (*.xml)"));
-    else
-        xml_filename =  CurrDir + xml_filename;
+    SearchFiles(CurrDir, "80700010");   //найдем файл конфига
     CreateTable(xml_filename);   								//парсим его
     timer->start(1000/ui->logger_rate_textedit->text().toUInt());
-
     // timer->start(650);
 }
 

@@ -176,7 +176,7 @@ long J2534::LoadJ2534DLL(const char* szDLL)
     getPTfns();
 #else
 
-    if (szDLL == NULL)
+    if (szDLL == nullptr)
     {
         qDebug() << "NULL string pointer to J2534 DLL location.\n";
         return(1);
@@ -194,7 +194,7 @@ long J2534::LoadJ2534DLL(const char* szDLL)
     {
         // assume unusable if we don't have everything we need
         FreeLibrary(hDLL);
-        hDLL = NULL;
+        hDLL = nullptr;
         strcpy(lastError,"error loading J2534 DLL function pointers");
         return false;
     }
@@ -246,7 +246,7 @@ bool J2534::checkDLL()
 {
     if (!hDLL)
         LoadJ2534DLL(dllName);
-    return (hDLL != NULL);
+    return (hDLL != nullptr);
 }
 
 long J2534::PassThruOpen(const void *pName, unsigned long *pDeviceID)
@@ -254,9 +254,9 @@ long J2534::PassThruOpen(const void *pName, unsigned long *pDeviceID)
     long result = STATUS_NOERROR;
     if (!checkDLL())
         return ERR_DEVICE_NOT_CONNECTED;
-    DBGPRINT(("PassThruOpen(name=%s,pDeviceID=@%08X)\n",(char*)pName,pDeviceID));
+    DBGPRINT(("PassThruOpen(name=%s,pDeviceID=@%08X)\n", (char*)pName, pDeviceID));
 
-    result = (*pfPassThruOpen)(pName,pDeviceID);
+    result = (*pfPassThruOpen)(pName, pDeviceID);
     DBGPRINT(("PassThruOpen returned result %d and DeviceID %u\n",result,*pDeviceID));
 
     return result;
@@ -303,6 +303,7 @@ long J2534::PassThruReadMsgs(unsigned long ChannelID, PASSTHRU_MSG *pMsg, unsign
         return ERR_DEVICE_NOT_CONNECTED;
     DBGPRINT(("PassThruReadMsgs(ChannelID=%u,pMsg=@%08X,pNumMsgs=%u,Timeout=%u)\n",ChannelID,pMsg,*pNumMsgs,Timeout));
     result = (*pfPassThruReadMsgs)(ChannelID,pMsg,pNumMsgs,Timeout);
+
     DBGPRINT(("PassThruReadMsgs returned result %d\n",result));
     return result;
 }
@@ -657,7 +658,7 @@ long J2534::PassThruIoctl(unsigned long ChannelID, unsigned long IoctlID, const 
 
     if (IoctlID == SET_CONFIG)
     {
-        pOutput = NULL; // make some DLLs happy
+        pOutput = nullptr; // make some DLLs happy
 
         // dump params
         scl = (SCONFIG_LIST*)pInput;

@@ -22,11 +22,12 @@ public:
     QObjectList list_window = {};    //список для динамически созданных таблиц что бы разгрузить событие таймера
     QObjectList list_button = {};
     QObjectList list_widget = {};
-    QStringList listFiles;                                 //
+    QStringList listFiles;
+    QString FirstFile_by_Name = {};
     ~MainWindow();
     explicit MainWindow(QWidget *parent = nullptr);
-    void ReadConfig(QString filename);
-    void CreateTable(QString filename);
+    bool ReadConfig(QString filename);
+    bool CreateTable(QString filename);
     //bool VechicleInterfaceState;
     void TableDelete();
 public slots:
@@ -66,6 +67,8 @@ private slots:
     void on_save_trace_pushButton_clicked();
 
 private:
+    QString CurrDir;
+    QString xml_filename;
     bool  debug = false;
     Ui::MainWindow *ui;
     void OperateButtonsLockUnlock();
@@ -83,8 +86,12 @@ private:
         //   QApplication::processEvents();    //что бы не замирал интерфейс при овер дохуа файлов в каталоге
 
         listFiles = QDir(path).entryList((CalID + "*.xml ").split(" "), QDir::Files);  //выборка файлов по маскам
-        if (listFiles.size()  == 0)            // если файл не найдем вернем пустую строку
-            listFiles[0] = "error";                               // если файл не найдем вернем error
+        if (listFiles.size()  == 0)            // если файл не найдем вернем егог
+            xml_filename = QFileDialog::getOpenFileName(this, tr("Open xml"), path, tr("xml files (*.xml)"));
+        else
+            xml_filename =  listFiles.at(0);
+
+
     }
     float read_and_cast(bool ram_scaling_storagetype, QString storagetype, quint32 mut_number, bool scaling_endian, fast_calc_struct scaling_frexpr2 )
     {

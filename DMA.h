@@ -50,7 +50,7 @@ public:
     unsigned long chanID;
         unsigned long chanID_INNO;
     unsigned long NumMsgs;
-    unsigned long protocol = ISO9141;            // соответственно протокол
+    unsigned long protocol = ISO9141_INNO;            // соответственно протокол
     unsigned long ConnectFlag = ISO9141_NO_CHECKSUM;
    //        || ISO9141_K_LINE_ONLY ;
     struct
@@ -231,11 +231,29 @@ public:
         }
 
 
+        // all J2534 channels need filters in order to receive anything at all
+        //
+        // in this case, we simply create a "pass all" filter so that we can see
+        // everything unfiltered in the raw stream
 
+        PASSTHRU_MSG txmsg;
+        PASSTHRU_MSG msgMask,msgPattern;
+        unsigned long msgId;
 
- //     j2534->PassThruConnect(devID,ISO9141_INNO,ISO9141_NO_CHECKSUM,19200,&chanID_INNO);
-
-
+        txmsg.ProtocolID = ISO9141_INNO;
+        txmsg.RxStatus = 0;
+        txmsg.TxFlags = 0;
+        txmsg.Timestamp = 0;
+        txmsg.DataSize = 1;
+        txmsg.ExtraDataIndex = 0;
+        msgMask = msgPattern  = txmsg;
+        msgMask.Data[0] = 0; // mask the first byte to 0
+        msgPattern.Data[0] = 0; // match it with 0 (i.e. pass everything)
+        if (j2534->PassThruStartMsgFilter(chanID, PASS_FILTER, &msgMask, &msgPattern, nullptr, &msgId))
+        {
+            reportJ2534Error(sf);
+            return false;
+        }
 
 
 
@@ -480,7 +498,7 @@ public slots:
             if ( OP13 == nullptr  )
             {
                 OP13 = new ftdi ;
-                qDebug() << " OP13 dll created!!";
+                qDebug() << " OP13 created!!";
                 init_FTDI();
                 qDebug() << " OP13 dll inited!!";
 
@@ -489,7 +507,7 @@ public slots:
             if ( j2534 == nullptr  )
             {
                 j2534 = new J2534 ;
-                qDebug() << " j2534 dll created!!";
+                qDebug() << " j2534 created!!";
                 init_j2534();
                 qDebug() << " j2534 dll inited!!";
             }
@@ -502,14 +520,14 @@ public slots:
             close_FTDI();
             delete OP13;
             OP13 = nullptr;
-            qDebug() << "OP13 dll delete";
+            qDebug() << "OP13 delete";
         }
         if (j2534 != nullptr)
         {
             close_j2534();
             delete j2534;
             j2534 = nullptr;
-            qDebug() << "j2534 dll delete";
+            qDebug() << "j2534 delete";
         }
 
     }

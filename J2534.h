@@ -78,7 +78,7 @@ private:
 
 	char lastError[256];
 	char dllName[256];
-	bool debugMode;
+    bool debugMode = false;
 	bool isLibraryInitialized;
 
 
