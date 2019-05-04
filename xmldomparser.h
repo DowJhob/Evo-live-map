@@ -1,7 +1,7 @@
 #ifndef DOMPARSER_H
 #define DOMPARSER_H
 #include <QtXml/QDomDocument>
-#include <QtWidgets>
+//#include <QtWidgets>
 #include <mathparser2.h>
 //#include <qtablewidget.h>
 
@@ -45,8 +45,7 @@ class DomParser
   //  Q_OBJECT
 public:
      //mathParser2 *m;
-    DomParser(QIODevice *device//, mathParser2 *m
-              )
+    DomParser(QIODevice *device)
     {
         //this->m = m;
         QString errorStr;

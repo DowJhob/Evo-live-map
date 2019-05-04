@@ -10,6 +10,8 @@
 #include "windows.h"
 #include <QTimer>
 
+#include <time.h>
+
 namespace Ui {
 class MainWindow;
 }
@@ -19,9 +21,9 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    QObjectList list_window = {};    //список для динамически созданных таблиц что бы разгрузить событие таймера
-    QObjectList list_button = {};
-    QObjectList list_widget = {};
+    QList<DynamicWindow*> list_window;    //список для динамически созданных таблиц что бы разгрузить событие таймера
+    QList<QPushButton*> list_button = {};
+    //QList<QTableWidget> *list_widget = {};
     QStringList listFiles;
     QString FirstFile_by_Name = {};
     ~MainWindow();
@@ -30,6 +32,14 @@ public:
     bool CreateTable(QString filename);
     //bool VechicleInterfaceState;
     void TableDelete();
+
+    long utime()
+    {
+        struct timespec t;
+        clock_gettime(CLOCK_REALTIME, &t);
+        return t.tv_nsec;
+    }
+
 public slots:
     void logger_and_tableWidget_trace();
     //void timer_lock_unlock();
@@ -37,13 +47,8 @@ public slots:
     {
         /* Определяем объект, который вызвал сигнал*/
         QPushButton *tableButton = qobject_cast<QPushButton*>( sender() );
-        /* Ищем объект, в списке*/
-        foreach (QObject *o, list_window)
-        {
-            DynamicWindow *tablewindow = qobject_cast<DynamicWindow*>(o);
-            if (tableButton->property("tag") ==  tablewindow->Tag)
-                tablewindow->setVisible( !tablewindow->isVisible());
-        }
+        DynamicWindow *window = list_window.at(tableButton->property("tag").toInt());
+        window->setVisible( !window->isVisible());
     }
 
 signals:
@@ -51,7 +56,7 @@ signals:
     void timer_unlock();
 
 protected :
-    //
+
     bool nativeEvent(const QByteArray &eventType, void *message, long *result);
 
 private slots:
@@ -82,15 +87,44 @@ private:
     void SearchFiles(QString path, QString CalID)       // Для поиска файлов в каталоге
     {
         // Пытаемся найти правильные файлы, в текущем каталоге
-
-        //   QApplication::processEvents();    //что бы не замирал интерфейс при овер дохуа файлов в каталоге
-
         listFiles = QDir(path).entryList((CalID + "*.xml ").split(" "), QDir::Files);  //выборка файлов по маскам
         if (listFiles.size()  == 0)            // если файл не найдем вернем егог
             xml_filename = QFileDialog::getOpenFileName(this, tr("Open xml"), path, tr("xml files (*.xml)"));
         else
             xml_filename =  listFiles.at(0);
+    }
+    int modul(int a, int b)
+    {
+        int mod = qRound(sqrt(pow(a, 2) + pow(b, 2)));
+        if (mod > 255)
+            mod = 255;
 
+        mod = (255 - mod);
+        if (mod < 30)
+            mod = 30;
+        return mod;
+    }
+    void  axis_lookup(int in, int axis_lenght, QVector<int> axis, Tracer_marker *marker)
+    {
+
+        if (in < axis[0])
+            in = axis[0];
+        if (in > axis[axis_lenght - 1])
+            in = axis[axis_lenght - 1];
+        for (int i = 0; i < axis_lenght; i++)
+        {
+            if (  in >= axis[i] && in < axis[i + 1])
+            {
+                marker->a = i;
+                break;
+            }
+        }
+        if ( marker->a >= (axis_lenght - 1) )
+            marker->b = marker->a;
+        else
+            marker->b = marker->a + 1;
+
+        //return marker;
 
     }
     float read_and_cast(bool ram_scaling_storagetype, QString storagetype, quint32 mut_number, bool scaling_endian, fast_calc_struct scaling_frexpr2 )
@@ -108,10 +142,4 @@ private:
     }
 
 };
-
-
-
-
-
-
 #endif // MAINWINDOW_H

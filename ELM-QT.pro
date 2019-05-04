@@ -27,7 +27,6 @@ HEADERS  += mainwindow.h \
     dynamicwindow.h \
     ftdi.h \
     ftdi_types.h \
-    dynamictablewidget.h \
     DMA.h \
     enumdev.h \
     xmldomparser.h \
