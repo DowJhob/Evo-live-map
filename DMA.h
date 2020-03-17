@@ -2,8 +2,8 @@
 #define DMA_H
 #include <QObject>
 #include <QDebug>
-#include "ftdi.h"
-#include "J2534.h"
+#include "libs/ftdi.h"
+#include "libs/J2534.h"
 #include "QTimer"
 #include <QStack>
 #include <QTime>
