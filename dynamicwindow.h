@@ -14,11 +14,6 @@ struct Tracer_marker
 {
     int Xtrace;                   //координаты трейсера в индексах таблицы
     int Ytrace;
-
-    int leftUPsat;
-    int rightUPsat;
-    int leftDNsat;
-    int rightDNsat;
 };
 
 class mapWidget: public QWidget
@@ -26,21 +21,15 @@ class mapWidget: public QWidget
     Q_OBJECT
 
 public:
-
-
     tableDeclaration *Table_Decl;               //Описание таблицы
-Tracer_marker tracer_marker;
-
+    Tracer_marker tracer_marker;
     Tracer_marker tracer_marker_pred = {};
-
     QVector <int> x_axis={};    //костыли с содержимым осей
     QVector <int> y_axis={};
-
     QTableWidget *table;
-
     float x = 0;
     float y = 0;
-    dma *DMA={};
+    dma *DMA;
     //mathParser2 *math;
 
     mapWidget(QWidget *parent = nullptr, tableDeclaration *Table_Decl = nullptr, dma *DMA = nullptr): QWidget(parent, Qt::Window)
@@ -50,12 +39,12 @@ Tracer_marker tracer_marker;
         //тут проверим таблицу на размерность
         if (Table_Decl->X_axis.elements == 0)
         {
-            Table_Decl->X_axis.elements = Table_Decl->X_axis.elements+2;
+            Table_Decl->X_axis.elements = Table_Decl->X_axis.elements+1;
             Table_Decl->Table.swapxy = true;
         }
         if (Table_Decl->Y_axis.elements == 0)
         {
-            Table_Decl->Y_axis.elements = Table_Decl->Y_axis.elements+2;
+            Table_Decl->Y_axis.elements = Table_Decl->Y_axis.elements+1;
             Table_Decl->Table.swapxy = true;
         }
 
@@ -107,10 +96,10 @@ Tracer_marker tracer_marker;
         table_set_update();   //создаем обновляем таблицу
         connect(table, SIGNAL(cellChanged(int, int)), this, SLOT(on_tableWidget_cellChanged(int, int)), Qt::DirectConnection);
         //----------------------------------
-        table->resizeRowsToContents();
-        table->resizeColumnsToContents(); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Bingo!!!!
-        int line_with = 1;
-        table->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        table->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+
+        int line_with = 20;
+
         QSize Size(line_with *  2  , //ширина вертикальных линий?
                    line_with *  2   //ширина горизонтальных линий? маджик числа
                    );
@@ -130,12 +119,15 @@ Tracer_marker tracer_marker;
         table->setFixedSize(Size);
         layout->setMargin(0);
         setLayout(layout);
+        table->resizeRowsToContents();
+        table->resizeColumnsToContents(); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Bingo!!!!
         layout->addWidget(table);
 
         setWindowTitle(Table_Decl->Table.Name);
-
+setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
         setFixedSize(Size);
 
+//resize(table->size());
     }
     void table_set_update()
     {
@@ -158,9 +150,9 @@ Tracer_marker tracer_marker;
             for (int y = 0; y < Table_Decl->Y_axis.elements; y++)
             {
                 variable_value = typed(Table_Decl->Table.scaling.storagetype,
-                                             DMA->MUT_In_buffer,
-                                             c,
-                                             Table_Decl->Table.scaling.endian); //кастуем данные к определенному типу
+                                       DMA->MUT_In_buffer,
+                                       c,
+                                       Table_Decl->Table.scaling.endian); //кастуем данные к определенному типу
                 //создаем обновляем итем
                 float compute;
                 compute = fast_calc(Table_Decl->Table.scaling.toexpr2, variable_value);
@@ -190,31 +182,31 @@ Tracer_marker tracer_marker;
 
     void cr_item(QTableWidget *tablewidget, QString storagetype, uchar *in_buf, uint c, bool big, fast_calc_struct toexpr2, bool swapxy)
     {
-           float variable_value = typed(storagetype, in_buf, c, big); //кастуем данные к определенному типу
-           //создаем обновляем итем
-           float compute = fast_calc(toexpr2, variable_value);
-           if ( swapxy )
-           {
-               if (tablewidget->item(y, x) == nullptr)  //если итема нет создадим
-               {
-                   QTableWidgetItem *item = new QTableWidgetItem();
-                   tablewidget->setItem(y, x, item);
-               }
+        float variable_value = typed(storagetype, in_buf, c, big); //кастуем данные к определенному типу
+        //создаем обновляем итем
+        float compute = fast_calc(toexpr2, variable_value);
+        if ( swapxy )
+        {
+            if (tablewidget->item(y, x) == nullptr)  //если итема нет создадим
+            {
+                QTableWidgetItem *item = new QTableWidgetItem();
+                tablewidget->setItem(y, x, item);
+            }
 
-               tablewidget->item(y, x)->setData( Qt::DisplayRole, compute);
-           }
-           else
-           {
-               if (tablewidget->item(x, y) == nullptr)  //если итема нет создадим
-               {
-                   QTableWidgetItem *item = new QTableWidgetItem();
-                   tablewidget->setItem(x, y, item);
-               }
-               tablewidget->item(x, y)->setData( Qt::DisplayRole, compute);
-           }
+            tablewidget->item(y, x)->setData( Qt::DisplayRole, compute);
+        }
+        else
+        {
+            if (tablewidget->item(x, y) == nullptr)  //если итема нет создадим
+            {
+                QTableWidgetItem *item = new QTableWidgetItem();
+                tablewidget->setItem(x, y, item);
+            }
+            tablewidget->item(x, y)->setData( Qt::DisplayRole, compute);
+        }
 
 
-       }
+    }
 
     float read_and_cast(bool ram_scaling_storagetype, QString storagetype, quint32 mut_number, bool scaling_endian, fast_calc_struct scaling_frexpr2 )
     {

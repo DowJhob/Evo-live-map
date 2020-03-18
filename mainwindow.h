@@ -105,30 +105,6 @@ private:
             mod = 30;
         return mod;
     }
-    void  axis_lookup(int in, int axis_lenght, QVector<int> axis, Tracer_marker *marker)
-    {
-        if (axis_lenght >= 1 )
-        {
-            if (in < axis[0])
-                in = axis[0];
-            if (in > axis[axis_lenght - 1])
-                in = axis[axis_lenght - 1];
-            for (int i = 0; i < axis_lenght-1; i++)
-            {
-                if (  in >= axis[i] && in < axis[i+1])
-                {
-                    marker->Xtrace = i;
-                    break;
-                }
-            }
-            if ( marker->Xtrace >= (axis_lenght - 1) )
-                marker->Ytrace = marker->Xtrace;
-            else
-                marker->Ytrace = marker->Xtrace + 1;
-        }
-        //return marker;
-
-    }
 
     int  axis_lookup2(int in, int axis_lenght, QVector<int> axis)    //возвращает меньший индекс
     {

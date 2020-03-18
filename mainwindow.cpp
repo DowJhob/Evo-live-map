@@ -34,10 +34,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->StartButton->setDisabled(!Enumerator.VechicleInterfaceState);
     //Подписываемся на события
     Enumerator.NotifyRegister((HWND)this->winId());
-
-    x = QApplication::desktop()->screenGeometry().width();
-    y = QApplication::desktop()->screenGeometry().height();
-
 }
 
 MainWindow::~MainWindow()
@@ -178,21 +174,26 @@ void MainWindow::logger_and_tableWidget_trace()
         }
         else
         {
-            x = QCursor::pos().x()*2;
-            y = QCursor::pos().y()*15;
+            x = QCursor::pos().x();
+            y = QCursor::pos().y()*8;
         }
         //----------------------- вычисляем координаты маркера------------------------------------------------
         window->tracer_marker.Xtrace = axis_lookup2(x, window->Table_Decl->X_axis.elements, window->x_axis);
         window->tracer_marker.Ytrace = axis_lookup2(y, window->Table_Decl->Y_axis.elements, window->y_axis);
         //----------------------- вычисляем насыщенность ячеек маркера ---------------------------------------
+        int j = 0, k = 0;
+        if ( window->Table_Decl->X_axis.elements > 1 )
+            j = 1;
+        if ( window->Table_Decl->Y_axis.elements > 1 )
+            k = 1;
 
-        float kX = (float)(window->x_axis[window->tracer_marker.Xtrace+1] - window->x_axis[window->tracer_marker.Xtrace])/255;    //коэффициент нормирования
-        float kY = (float)(window->y_axis[window->tracer_marker.Ytrace+1] - window->y_axis[window->tracer_marker.Ytrace])/255;    //коэффициент нормирования
+        float kX = (float)(window->x_axis[window->tracer_marker.Xtrace+j] - window->x_axis[window->tracer_marker.Xtrace])/255;    //коэффициент нормирования
+        float kY = (float)(window->y_axis[window->tracer_marker.Ytrace+k] - window->y_axis[window->tracer_marker.Ytrace])/255;    //коэффициент нормирования
 
         int leftNormalX  = qRound((window->x_axis[window->tracer_marker.Xtrace]-x)/kX);                       //нормированные координаты
-        int rightNormalX = qRound((window->x_axis[window->tracer_marker.Xtrace+1]-x)/kX);                       //нормированные координаты
+        int rightNormalX = qRound((window->x_axis[window->tracer_marker.Xtrace+j]-x)/kX);                       //нормированные координаты
         int upNormalY    = qRound((window->y_axis[window->tracer_marker.Ytrace]-y)/kY);
-        int downNormalY  = qRound((window->y_axis[window->tracer_marker.Ytrace+1]-y)/kY);
+        int downNormalY  = qRound((window->y_axis[window->tracer_marker.Ytrace+k]-y)/kY);
 
         //модули векторов,
         int leftUP    = modul(leftNormalX, upNormalY);
@@ -218,30 +219,30 @@ void MainWindow::logger_and_tableWidget_trace()
             if (!save_trace)
             {
                 window->table->item(window->tracer_marker_pred.Ytrace,   window->tracer_marker_pred.Xtrace)->setBackground(Qt::white);
-                window->table->item(window->tracer_marker_pred.Ytrace,   window->tracer_marker_pred.Xtrace+1)->setBackground(Qt::white);
-                window->table->item(window->tracer_marker_pred.Ytrace+1, window->tracer_marker_pred.Xtrace)->setBackground(Qt::white);
-                window->table->item(window->tracer_marker_pred.Ytrace+1, window->tracer_marker_pred.Xtrace+1)->setBackground(Qt::white);
+                window->table->item(window->tracer_marker_pred.Ytrace,   window->tracer_marker_pred.Xtrace+j)->setBackground(Qt::white);
+                window->table->item(window->tracer_marker_pred.Ytrace+k, window->tracer_marker_pred.Xtrace)->setBackground(Qt::white);
+                window->table->item(window->tracer_marker_pred.Ytrace+k, window->tracer_marker_pred.Xtrace+j)->setBackground(Qt::white);
             }
         }
         //сохраняем  текущее положение для след расчета
         window->tracer_marker_pred = window->tracer_marker;
 
         //         рисуем новое положение маркеров на хидерах
-        //            tablewidget->horizontalHeaderItem(tablewidget->tracer_marker_X.a)->setBackground(color_leftUP);
-        //            tablewidget->horizontalHeaderItem(tablewidget->tracer_marker_X.b)->setBackground(color_rightUP);
+      //              window->table->horizontalHeaderItem(window->tracer_marker.Xtrace)->setBackground(color_leftUP);
+     //   window->table->horizontalHeaderItem(window->tracer_marker.Xtrace+j)->setBackground(color_rightUP);
         //            tablewidget->verticalHeaderItem(tablewidget->tracer_marker_Y.a)->setBackground(color_leftUP);
         //            tablewidget->verticalHeaderItem(tablewidget->tracer_marker_Y.b)->setBackground(color_leftDOWN);
 
         //         рисуем новое положение маркера
         window->table->item(window->tracer_marker.Ytrace, window->tracer_marker.Xtrace)->setBackground(color_leftUP);//левый верхний
-        window->table->item(window->tracer_marker.Ytrace, window->tracer_marker.Xtrace+1)->setBackground(color_rightUP);//правый верхний
-        window->table->item(window->tracer_marker.Ytrace+1, window->tracer_marker.Xtrace)->setBackground(color_leftDOWN);//левый нижний
-        window->table->item(window->tracer_marker.Ytrace+1, window->tracer_marker.Xtrace+1)->setBackground(color_rightDOWN);//правый нижний
+        window->table->item(window->tracer_marker.Ytrace, window->tracer_marker.Xtrace+j)->setBackground(color_rightUP);//правый верхний
+        window->table->item(window->tracer_marker.Ytrace+k, window->tracer_marker.Xtrace)->setBackground(color_leftDOWN);//левый нижний
+        window->table->item(window->tracer_marker.Ytrace+k, window->tracer_marker.Xtrace+j)->setBackground(color_rightDOWN);//правый нижний
 
         // разблокируем обновления редакции
         window->table->blockSignals(false);//
     }
-        ui->trace_time_label->setText(QString::number(t.nsecsElapsed()/1000) + "us");
+    ui->trace_time_label->setText(QString::number(t.nsecsElapsed()/1000) + "us");
     //qDebug() << time.msecsTo( QTime::currentTime() );
     emit timer_unlock();
 }
