@@ -35,6 +35,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     //Подписываемся на события
     Enumerator.NotifyRegister((HWND)this->winId());
 
+    x = QApplication::desktop()->screenGeometry().width();
+    y = QApplication::desktop()->screenGeometry().height();
 
 }
 
@@ -110,7 +112,6 @@ bool  MainWindow::ReadConfig(QString filename)
 
 bool MainWindow::CreateTable(QString filename)
 {
-    qDebug() << filename;
     if (!ReadConfig(filename))
         return false;                                               // прочтем конфиг
     TableProperty_fr_xml *tt;                                            // временная переменная для хранения описания таблицы
@@ -122,19 +123,14 @@ bool MainWindow::CreateTable(QString filename)
             DynamicWindow *dynamic_window = new DynamicWindow( this, tt, &DMA);
             QPushButton *tableButton = new QPushButton(tt->Table.Name, ui->groupBox_mapalloc);
             tableButton->setProperty("tag", tt->tableNum);
-
             ui->gridLayout_mapalloc->addWidget(tableButton);
-            connect(tableButton, SIGNAL(clicked(bool) ), this, SLOT( table_show_hide() ), Qt::DirectConnection);
-
-
-            connect(this, SIGNAL(timer_lock() ), timer, SLOT(timer_lock()), Qt::DirectConnection);
-            connect(this, SIGNAL(timer_unlock() ), timer, SLOT(timer_unlock()), Qt::DirectConnection);
-
+            connect(tableButton, SIGNAL(clicked(bool) ), this, SLOT( table_show_hide() ));
+            connect(this, SIGNAL(timer_lock() ), timer, SLOT(timer_lock()));
+            connect(this, SIGNAL(timer_unlock() ), timer, SLOT(timer_unlock()));
             list_window.insert( tt->tableNum, dynamic_window );
             list_button.insert( tt->tableNum, tableButton );
         }
     }
-
 return true;
 }
 
@@ -182,8 +178,8 @@ void MainWindow::logger_and_tableWidget_trace()
         }
         else
         {
-            x =  QCursor::pos().x()*2;
-            y =  QCursor::pos().y()*26;
+            x = QCursor::pos().x();
+            y = QCursor::pos().y()*18;
         }
         //----------------------- вычисляем координаты маркера------------------------------------------------
         axis_lookup(qRound(x),

@@ -72,6 +72,7 @@ private slots:
     void on_save_trace_pushButton_clicked();
 
 private:
+    int x, y;
     QString CurrDir;
     QString xml_filename;
     bool  debug = false;

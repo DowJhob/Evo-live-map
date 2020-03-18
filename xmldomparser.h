@@ -22,7 +22,7 @@ struct Scaling                          //структура скалингов 
 };
 struct xml_table
 {
- //   quint32 TagID;
+    //   quint32 TagID;
     QString Name;                         //Имя таблицы-карты
     quint32 ram_addr;               //Адрес таблицы в
     quint32 rom_addr;
@@ -42,9 +42,9 @@ struct TableProperty_fr_xml             // характеристики карт
 
 class DomParser
 {
-  //  Q_OBJECT
+    //  Q_OBJECT
 public:
-     //mathParser2 *m;
+    //mathParser2 *m;
     DomParser(QIODevice *device)
     {
         //this->m = m;
@@ -82,16 +82,16 @@ public:
                 }
                 else
                 {
-                sc.toexpr = node.toElement().attribute("toexpr");
-                sc.frexpr = node.toElement().attribute("frexpr");
+                    sc.toexpr = node.toElement().attribute("toexpr");
+                    sc.frexpr = node.toElement().attribute("frexpr");
 
-                if (node.toElement().attribute("endian") == "big")
-                sc.endian = true;
-                else
-                if (node.toElement().attribute("endian") == "little")
-                sc.endian = false;
-                else
-                    sc.endian = true;
+                    if (node.toElement().attribute("endian") == "big")
+                        sc.endian = true;
+                    else
+                        if (node.toElement().attribute("endian") == "little")
+                            sc.endian = false;
+                        else
+                            sc.endian = true;
                 }
                 scaling_qmap.insert(name, sc);
             }
@@ -188,12 +188,12 @@ private:
         Table.ram_scaling.frexpr = node.toElement().attribute("RAM_mut_frexpr");
 
         if (node.toElement().attribute("RAM_mut_endian") == "big")
-        Table.ram_scaling.endian = true;
-        else
-        if (node.toElement().attribute("RAM_mut_endian") == "little")
-        Table.ram_scaling.endian = false;
-        else
             Table.ram_scaling.endian = true;
+        else
+            if (node.toElement().attribute("RAM_mut_endian") == "little")
+                Table.ram_scaling.endian = false;
+            else
+                Table.ram_scaling.endian = true;
 
         //-------------------------------------------//получаем swapxy
 

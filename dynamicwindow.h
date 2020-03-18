@@ -45,8 +45,6 @@ public:
     DynamicWindow(QWidget *parent = nullptr, TableProperty_fr_xml *Table_Decl = nullptr, dma *DMA = nullptr): QWidget(parent, Qt::Window)
     {
         this->Table_Decl = Table_Decl;
-table = new QTableWidget(Table_Decl->Y_axis.elements, Table_Decl->X_axis.elements, parent);
-        table->setProperty("addr", QVariant::fromValue(this) );  //сохраним адрес на окно что бы получить доступ к остальным членам по событиям в виджете
 
         this->DMA = DMA;
 
@@ -55,14 +53,20 @@ table = new QTableWidget(Table_Decl->Y_axis.elements, Table_Decl->X_axis.element
         {
             Table_Decl->X_axis.elements++;
             Table_Decl->X_axis.scaling.toexpr = "x + 0";
+            Table_Decl->X_axis.scaling.toexpr2 =*set_notation(Table_Decl->X_axis.scaling.toexpr);
             Table_Decl->Table.swapxy = true;
         }
         if (Table_Decl->Y_axis.elements == 0)
         {
             Table_Decl->Y_axis.elements++;
             Table_Decl->Y_axis.scaling.toexpr = "x + 0";
+            Table_Decl->Y_axis.scaling.toexpr2 = *set_notation(Table_Decl->Y_axis.scaling.toexpr);
             Table_Decl->Table.swapxy = true;
         }
+
+        table = new QTableWidget(Table_Decl->Y_axis.elements, Table_Decl->X_axis.elements, parent);
+        table->setProperty("addr", QVariant::fromValue(this) );  //сохраним адрес на окно что бы получить доступ к остальным членам по событиям в виджете
+
         QGridLayout *layout = new QGridLayout(this);  //лайот с родителем виджетом
         //создаем таблицу с заданной размерностью
         table->setSortingEnabled(false);
@@ -76,7 +80,7 @@ table = new QTableWidget(Table_Decl->Y_axis.elements, Table_Decl->X_axis.element
                     Table_Decl->X_axis.elements,
                     1);                                              //по игреку ось икс равна 1
         //заполняем в соотвествии с формулой
-        for (uint i = 0; i < Table_Decl->X_axis.elements; i++)
+        for (int i = 0; i < Table_Decl->X_axis.elements; i++)
         {
             variable_value = typed(Table_Decl->X_axis.scaling.storagetype, DMA->MUT_In_buffer, i, Table_Decl->X_axis.scaling.endian); //кастуем данные к определенному типу
             QTableWidgetItem *item = new QTableWidgetItem();
@@ -118,15 +122,15 @@ table = new QTableWidget(Table_Decl->Y_axis.elements, Table_Decl->X_axis.element
         show();
         //--------------------------------------расчет размеров таблицы-------------------------------------------------
         for( uint i = 0; i <  Table_Decl->X_axis.elements; i++)                        //|
-        {                                                                //|
-            Size.setWidth( Size.width() + table->columnWidth( i));             //|накапливаем ширину столбцов
-        }   ;                                                                  //|
-        Size.setWidth( Size.width() + table->verticalHeader()->width());      //|
+        {                                                                       //|
+            Size.setWidth( Size.width() + table->columnWidth( i));              //|накапливаем ширину столбцов
+        }                                                                       //|
+        Size.setWidth( Size.width() + table->verticalHeader()->width());        //|
         for( uint i = 0; i < Table_Decl->Y_axis.elements; i++)                           //|
-        {                                                                     //|
+        {                                                                       //|
             Size.setHeight( Size.height() + table->rowHeight( i));              //| накапливаем высоту строк
-        };                                                                     //|
-        Size.setHeight( Size.height() + table->horizontalHeader()->height()); //|
+        }                                                                       //|
+        Size.setHeight( Size.height() + table->horizontalHeader()->height());   //|
         //--------------------------------------------
         table->setFixedSize(Size);
         layout->setMargin(0);
@@ -172,7 +176,6 @@ table = new QTableWidget(Table_Decl->Y_axis.elements, Table_Decl->X_axis.element
                         QTableWidgetItem *item = new QTableWidgetItem();
                         table->setItem(y, x, item);
                     }
-
                     table->item(y, x)->setData( Qt::DisplayRole, compute);
                 }
                 else
@@ -284,7 +287,7 @@ signals:
 private:
 public slots:
 
-    void on_tableWidget_cellChanged(uint row, uint column)     //обработчик обновление редакции в таблице
+    void on_tableWidget_cellChanged(int row, int column)     //обработчик обновление редакции в таблице
     {
         /* Определяем объект, который вызвал сигнал */
         //DynamicTableWidget *tablewidget = (DynamicTableWidget*)sender();
