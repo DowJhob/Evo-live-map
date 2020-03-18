@@ -14,7 +14,7 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    CurrDir = QApplication::applicationDirPath()+ "/"  ;   //текущая директория
+    CurrDir = QApplication::applicationDirPath()+ "/xml/"  ;   //xml в текущей директории
     connect(timer, SIGNAL(timeout()), SLOT(logger_and_tableWidget_trace()), Qt::DirectConnection);//таймер подключаем
     connect(&Enumerator, SIGNAL(InterfaceActive(int)), &DMA, SLOT(dll_connect(int)), Qt::DirectConnection);
     connect(&Enumerator, SIGNAL(disconnectInterface()), &DMA, SLOT(dll_disconnect()), Qt::DirectConnection);
@@ -110,7 +110,7 @@ bool  MainWindow::ReadConfig(QString filename)
 
 bool MainWindow::CreateTable(QString filename)
 {
-    if (!ReadConfig(filename))
+    if (!ReadConfig(CurrDir + filename))
         return false;                                               // прочтем конфиг
     TableProperty_fr_xml *tt;                                            // временная переменная для хранения описания таблицы
     for (int i = 0; i < xmlParser->TableDecl_qvector.size(); i++)       // переберем все описания таблиц

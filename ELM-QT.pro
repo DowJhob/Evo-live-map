@@ -41,4 +41,4 @@ CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
 #QMAKE_CXXFLAGS - опции компиляции.
 QMAKE_CXXFLAGS  += -mfpmath=sse -Ofast -flto -march=native -funroll-loops
 #QMAKE_LFLAGS - опции линковки.
-№QMAKE_LFLAGS += -lusb-1.0
+#QMAKE_LFLAGS += -lusb-1.0
