@@ -21,7 +21,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    QList<DynamicWindow*> list_window;    //список для динамически созданных таблиц что бы разгрузить событие таймера
+    QList<mapWidget*> list_window;    //список для динамически созданных таблиц что бы разгрузить событие таймера
     QList<QPushButton*> list_button = {};
     //QList<QTableWidget> *list_widget = {};
     QStringList listFiles;
@@ -47,7 +47,7 @@ public slots:
     {
         /* Определяем объект, который вызвал сигнал*/
         QPushButton *tableButton = qobject_cast<QPushButton*>( sender() );
-        DynamicWindow *window = list_window.at(tableButton->property("tag").toInt());
+        mapWidget *window = list_window.at(tableButton->property("tag").toInt());
         window->setVisible( !window->isVisible());
     }
 
@@ -83,7 +83,7 @@ private:
     dma DMA;
     bool save_trace = false;
     DomParser *xmlParser;
-    TableProperty_fr_xml Table_Decl;                       //Описание одной таблицы
+    tableDeclaration Table_Decl;                       //Описание одной таблицы
     QByteArray *binarray;                                  // массив с бинарником
     void SearchFiles(QString path, QString CalID)       // Для поиска файлов в каталоге
     {
@@ -107,27 +107,43 @@ private:
     }
     void  axis_lookup(int in, int axis_lenght, QVector<int> axis, Tracer_marker *marker)
     {
-
-        if (in < axis[0])
-            in = axis[0];
-        if (in > axis[axis_lenght - 1])
-            in = axis[axis_lenght - 1];
-        for (int i = 0; i < axis_lenght; i++)
+        if (axis_lenght >= 1 )
         {
-            if (  in >= axis[i] && in < axis[i + 1])
+            if (in < axis[0])
+                in = axis[0];
+            if (in > axis[axis_lenght - 1])
+                in = axis[axis_lenght - 1];
+            for (int i = 0; i < axis_lenght-1; i++)
             {
-                marker->a = i;
-                break;
+                if (  in >= axis[i] && in < axis[i+1])
+                {
+                    marker->Xtrace = i;
+                    break;
+                }
             }
+            if ( marker->Xtrace >= (axis_lenght - 1) )
+                marker->Ytrace = marker->Xtrace;
+            else
+                marker->Ytrace = marker->Xtrace + 1;
         }
-        if ( marker->a >= (axis_lenght - 1) )
-            marker->b = marker->a;
-        else
-            marker->b = marker->a + 1;
-
         //return marker;
 
     }
+
+    int  axis_lookup2(int in, int axis_lenght, QVector<int> axis)    //возвращает меньший индекс
+    {
+        if (axis_lenght <= 1 )
+            return 0;
+        if (in < axis[0])
+            return 0;
+        if (in > axis[axis_lenght - 1])
+            return axis_lenght - 1;
+        for (int i = 0; i < axis_lenght-1; i++)
+            if (  in >= axis[i] && in < axis[i+1])
+                return i;
+        return axis_lenght - 1;
+    }
+
     float read_and_cast(bool ram_scaling_storagetype, QString storagetype, quint32 mut_number, bool scaling_endian, fast_calc_struct scaling_frexpr2 )
     {
         float x = 0;

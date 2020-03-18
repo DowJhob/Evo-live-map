@@ -68,7 +68,7 @@ public:
 
 
 //общая часть процедур доступа к памяти контроллера
-    void read_indirect(unsigned long addr, unsigned long count)
+    void read_indirect(quint32 addr, int count)
     {
         emit timer_lock();
         if (VechicleInterfaceType == 13)
@@ -85,7 +85,7 @@ public:
             }
         emit timer_unlock();
     }
-    void read_direct(unsigned long addr, unsigned long count)
+    void read_direct(quint32 addr, int count)
     {
         emit timer_lock();
         if (VechicleInterfaceType == 13)
@@ -96,7 +96,7 @@ public:
                 read_direct_J2534(addr, count);
         emit timer_unlock();
     }
-    void write_direct(unsigned long addr, unsigned long count)
+    void write_direct(quint32 addr, int count)
     {
         emit timer_lock();
         if (VechicleInterfaceType == 13)
@@ -277,7 +277,7 @@ public:
         qDebug() << " FT_Open failed";
         return false;
     }
-    void FTDI(unsigned long addr, unsigned long count)
+    void FTDI(quint32 addr, int count)
     {
 
         OP13->FT_Write( OP13->ftHandle, &MUT_Out_buffer, 1, &Reads );
@@ -296,7 +296,7 @@ public:
         OP13->FT_Read(OP13->ftHandle, &MUT_In_buffer, 7, &Reads);    //читаем эхо оптом
 
     }
-    void read_direct_FTDI(unsigned long addr, unsigned long count)
+    void read_direct_FTDI(quint32 addr, int count)
     {
         QTime t;
         MUT_Out_buffer[0] = 0xE1;
@@ -309,7 +309,7 @@ public:
         OP13->FT_Read(OP13->ftHandle, &MUT_In_buffer, count, &Reads);
         qDebug("Time to read with copy elapsed: %d ms", t.elapsed());
     }
-    void read_indirect_FTDI(unsigned long addr, unsigned long count)
+    void read_indirect_FTDI(quint32 addr, int count)
     {
         MUT_Out_buffer[0] = 0xE0;
         FTDI(addr, count);
@@ -329,10 +329,10 @@ public:
         qDebug() << "Writed bytes " << Reads;
         OP13->FT_Read(OP13->ftHandle, &MUT_Out_buffer, count, &Reads);    //читаем эхо
     }
-    void read_by_type(QString storagetype, quint32 mem_addr, uint x, uint y)
+    void read_by_type(QString storagetype, quint32 mem_addr, int x, int y)
     {
 
-        uint lenght = x * y;
+        int lenght = x * y;
         // прочитаем нужное количество данных в соответствии с типом
         if ( (storagetype == "int8") | (storagetype == "uint8"))
             read_direct( mem_addr, lenght); //таблица в памяти

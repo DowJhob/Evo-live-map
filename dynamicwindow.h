@@ -12,25 +12,26 @@
 
 struct Tracer_marker
 {
-    int a;                   //координаты трейсера
-    int b;
-    int kb;
-    int ka;
+    int Xtrace;                   //координаты трейсера в индексах таблицы
+    int Ytrace;
+
+    int leftUPsat;
+    int rightUPsat;
+    int leftDNsat;
+    int rightDNsat;
 };
 
-class DynamicWindow: public QWidget
+class mapWidget: public QWidget
 {
     Q_OBJECT
 
 public:
 
 
-    TableProperty_fr_xml *Table_Decl;               //Описание таблицы
+    tableDeclaration *Table_Decl;               //Описание таблицы
+Tracer_marker tracer_marker;
 
-    Tracer_marker tracer_marker_X = {};
-    Tracer_marker tracer_marker_pred_X = {};
-    Tracer_marker tracer_marker_Y = {};
-    Tracer_marker tracer_marker_pred_Y = {};
+    Tracer_marker tracer_marker_pred = {};
 
     QVector <int> x_axis={};    //костыли с содержимым осей
     QVector <int> y_axis={};
@@ -42,25 +43,19 @@ public:
     dma *DMA={};
     //mathParser2 *math;
 
-    DynamicWindow(QWidget *parent = nullptr, TableProperty_fr_xml *Table_Decl = nullptr, dma *DMA = nullptr): QWidget(parent, Qt::Window)
+    mapWidget(QWidget *parent = nullptr, tableDeclaration *Table_Decl = nullptr, dma *DMA = nullptr): QWidget(parent, Qt::Window)
     {
         this->Table_Decl = Table_Decl;
-
         this->DMA = DMA;
-
         //тут проверим таблицу на размерность
         if (Table_Decl->X_axis.elements == 0)
         {
-            Table_Decl->X_axis.elements++;
-            Table_Decl->X_axis.scaling.toexpr = "x + 0";
-            Table_Decl->X_axis.scaling.toexpr2 =*set_notation(Table_Decl->X_axis.scaling.toexpr);
+            Table_Decl->X_axis.elements = Table_Decl->X_axis.elements+2;
             Table_Decl->Table.swapxy = true;
         }
         if (Table_Decl->Y_axis.elements == 0)
         {
-            Table_Decl->Y_axis.elements++;
-            Table_Decl->Y_axis.scaling.toexpr = "x + 0";
-            Table_Decl->Y_axis.scaling.toexpr2 = *set_notation(Table_Decl->Y_axis.scaling.toexpr);
+            Table_Decl->Y_axis.elements = Table_Decl->Y_axis.elements+2;
             Table_Decl->Table.swapxy = true;
         }
 
@@ -84,9 +79,9 @@ public:
         {
             variable_value = typed(Table_Decl->X_axis.scaling.storagetype, DMA->MUT_In_buffer, i, Table_Decl->X_axis.scaling.endian); //кастуем данные к определенному типу
             QTableWidgetItem *item = new QTableWidgetItem();
-            float compute = fast_calc(Table_Decl->X_axis.scaling.toexpr2, variable_value);
-            x_axis.append(qRound(compute));
-            item->setData( Qt::DisplayRole, QString::number(qRound(compute)));
+            int compute = qRound(fast_calc(Table_Decl->X_axis.scaling.toexpr2, variable_value));
+            x_axis.append(compute);
+            item->setData( Qt::DisplayRole, QString::number(compute));
             table->setHorizontalHeaderItem(i, item);
         }
         //----------------------------------------------------------------------------------------------
@@ -97,15 +92,15 @@ public:
                     1,
                     Table_Decl->Y_axis.elements);
 
-        for (uint i = 0; i < Table_Decl->Y_axis.elements; i++)
+        for (int i = 0; i < Table_Decl->Y_axis.elements; i++)
         {
             variable_value = typed(Table_Decl->Y_axis.scaling.storagetype, DMA->MUT_In_buffer, i, Table_Decl->Y_axis.scaling.endian); //кастуем данные к определенному типу
             QTableWidgetItem *item = new QTableWidgetItem();
 
-            float compute = fast_calc(Table_Decl->Y_axis.scaling.toexpr2, variable_value);
+            int compute = qRound(fast_calc(Table_Decl->Y_axis.scaling.toexpr2, variable_value));
 
-            y_axis.append(qRound(compute));
-            item->setData( Qt::DisplayRole, QString::number(qRound(compute)));
+            y_axis.append(compute);
+            item->setData( Qt::DisplayRole, QString::number(compute));
             table->setVerticalHeaderItem(i, item);
         }
         //заполним таблицу что бы два раза не бегать
@@ -121,12 +116,12 @@ public:
                    );
         show();
         //--------------------------------------расчет размеров таблицы-------------------------------------------------
-        for( uint i = 0; i <  Table_Decl->X_axis.elements; i++)                        //|
+        for( int i = 0; i <  Table_Decl->X_axis.elements; i++)                        //|
         {                                                                       //|
             Size.setWidth( Size.width() + table->columnWidth( i));              //|накапливаем ширину столбцов
         }                                                                       //|
         Size.setWidth( Size.width() + table->verticalHeader()->width());        //|
-        for( uint i = 0; i < Table_Decl->Y_axis.elements; i++)                           //|
+        for( int i = 0; i < Table_Decl->Y_axis.elements; i++)                           //|
         {                                                                       //|
             Size.setHeight( Size.height() + table->rowHeight( i));              //| накапливаем высоту строк
         }                                                                       //|
@@ -293,7 +288,7 @@ public slots:
         //DynamicTableWidget *tablewidget = (DynamicTableWidget*)sender();
         QTableWidget *tablewidget = qobject_cast<QTableWidget*>( sender() );
 
-        DynamicWindow *window = qvariant_cast<DynamicWindow*>( tablewidget->property("addr") ); // указатель на окно
+        mapWidget *window = qvariant_cast<mapWidget*>( tablewidget->property("addr") ); // указатель на окно
 
 
         emit timer_lock();

@@ -21,21 +21,11 @@ struct postfix_unit
 
 struct fast_calc_struct                          //структура содержащая операнды и операции над ними для быстрого вычисления скейлинга при логгинге
 {
-    QVector<postfix_unit> postfix_notation{};
+    QVector<postfix_unit> postfix_notation{{0, false}, {0, false}, {0, true}};
     char variable_position = 0;              //позиция переменной в массиве
 };
 
-struct int_postfix_unit
-{
-    int payload;
-    bool op_flag;
-};
 
-struct int_fast_calc_struct                          //структура содержащая операнды и операции над ними для быстрого вычисления скейлинга при логгинге
-{
-    QVector<postfix_unit> postfix_notation{};
-    char variable_position = 0;              //позиция переменной в массиве
-};
 
 //class mathParser2
 //{
@@ -208,7 +198,6 @@ inline fast_calc_struct* set_notation(QString input)                 //тут в
     init();
     QChar s;
     QString swst = "+-*/^";
-
 
     QStack<QChar> operStack; //Стек для хранения операторов
     if (input.isEmpty())
