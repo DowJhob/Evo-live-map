@@ -91,7 +91,7 @@ private:
         if (listFiles.size()  == 0)            // если файл не найдем вернем егог
             xml_filename = QFileDialog::getOpenFileName(this, tr("Open xml"), path, tr("xml files (*.xml)"));
         else
-            xml_filename =  listFiles.at(0);
+            xml_filename =  CurrDir + listFiles.at(0);
     }
     int modul(int a, int b)
     {

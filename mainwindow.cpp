@@ -59,8 +59,8 @@ void MainWindow::OperateButtonsLockUnlock()
 
 bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *result)
 {
-    Q_UNUSED( result );
-    Q_UNUSED( eventType );
+    Q_UNUSED( result )
+    Q_UNUSED( eventType )
     MSG* msg = static_cast<MSG*>(message);   //reinterpret_cast?
     // Does this specific message interest us?
     if(msg->message == WM_DEVICECHANGE)
@@ -110,7 +110,8 @@ bool  MainWindow::ReadConfig(QString filename)
 
 bool MainWindow::CreateTable(QString filename)
 {
-    if (!ReadConfig(CurrDir + filename))
+    qDebug() << filename;
+    if (!ReadConfig(filename))
         return false;                                               // прочтем конфиг
     TableProperty_fr_xml *tt;                                            // временная переменная для хранения описания таблицы
     for (int i = 0; i < xmlParser->TableDecl_qvector.size(); i++)       // переберем все описания таблиц
