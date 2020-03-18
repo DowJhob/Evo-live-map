@@ -1,5 +1,5 @@
 [Dd]ebug/
 [Rr]elease/
 Makefile*
-*qmake
+.qmake
 users*
