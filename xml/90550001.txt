@@ -9,13 +9,16 @@
 	
 	FFFF8AC5  knock
 	FFFF8A79  timing scaled
+
+
+
 	FFFF8801  TPS
 	FFFF9102  IPW, hi
 	FFFF9103  IPW, lo
 	FFFF87DD  IAT
+
 	FFFF87D3  coolant
 	FFFF8823  MAP
 	FFFF803B  trim low
-	FFFF803D  mid
-	FFFF803F  high
+
 	FFFF88BF  VSS
