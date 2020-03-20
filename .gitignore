@@ -2,4 +2,5 @@
 [Rr]elease/
 Makefile*
 .qmake*
-users*
+*user*
+*.pro.*
