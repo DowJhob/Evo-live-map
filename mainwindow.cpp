@@ -347,7 +347,8 @@ void MainWindow::on_debugButton_clicked()
         DMA.MUT_In_buffer[i] = i;
         DMA.MUT_Out_buffer[i] = i;
     }
-    SearchFiles(CurrDir, "80700010");   //найдем файл конфига
+    //SearchFiles(CurrDir, "80700010");   //найдем файл конфига
+    SearchFiles(CurrDir, "90550001");   //найдем файл конфига
     CreateTable(xml_filename);   								//парсим его
     timer->start(1000/ui->logger_rate_textedit->text().toUInt());
     // timer->start(650);

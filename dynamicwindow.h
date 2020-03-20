@@ -225,12 +225,7 @@ setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     qint64 typed(QString storagetype, uchar *in_buf, uint c, bool big)//кастуем данные к определенному типу
     {
         if ( storagetype == "int8")
-        {
-
             return ((qint8)(in_buf)[c]);
-
-            //    return (qint8)(*((qint8*) (f + c)));
-        }
         if ( storagetype == "int16")
         {
             if (big)

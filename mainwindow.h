@@ -21,9 +21,8 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    QList<mapWidget*> list_window;    //список для динамически созданных таблиц что бы разгрузить событие таймера
+    QList<mapWidget*> list_window;    //список для динамически созданных таблиц
     QList<QPushButton*> list_button = {};
-    //QList<QTableWidget> *list_widget = {};
     QStringList listFiles;
     QString FirstFile_by_Name = {};
     ~MainWindow();

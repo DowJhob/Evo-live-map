@@ -19,6 +19,7 @@
 	<scaling name="AirFlow16" units="g/s" toexpr="x*600/65536" frexpr="x*65536/600" format="%.1f" min="0" max="600" inc="1" storagetype="uint16" endian="big"/>
 	<scaling name="AirFlow8" units="g/s" toexpr="x*321/256" frexpr="x*256/321" format="%.1f" min="0" max="321" inc="1" storagetype="uint8" endian="big"/>
 	<scaling name="LT Trim Hz" units="Hz" toexpr="x*6.25" frexpr="x/6.25" format="%.2f" min="0" max="1593.75" inc="6.25" storagetype="uint8" endian="big"/>
+	<scaling name="MAFHz" units="Hz" toexpr="6.29*x/64" frexpr="64/(6.29*x)" format="%.0f" min="0" max="5000" inc="1" storagetype="int16" endian="big"/>
 	<scaling name="Load" units="%" toexpr="x*10/32" frexpr="x*32/10" format="%.0f" min="0" max="300" inc="1" storagetype="uint16" endian="big"/>
 	<scaling name="Load16" units="units" toexpr="x*5/8" frexpr="x*8/5" format="%.1f" min="0" max="100" inc="1" storagetype="uint16" endian="big"/>
 	<scaling name="Load8" units="%" toexpr="x*5/8" frexpr="x*8/5" format="%.1f" min="0" max="160" inc="1" storagetype="uint8" endian="big"/>
@@ -42,20 +43,24 @@
 	<scaling name="TimingTrim8" units="degrees" toexpr="x-128" frexpr="x+128" format="%.0f" min="-128" max="128" inc="1" storagetype="uint8" endian="big"/>
 	<scaling name="RamAdress" units="hex" toexpr="x-4294901760" frexpr="x+4294901760" format="%04X" min="0" max="65535" inc="1" storagetype="uint32" endian="big"/>
 
-	<table name="MAF Smoothing Table" category="Fuel" address="3522" type="2D" level="3" scaling="AirFlow8" RAM_addr="FFFFA768">
-		<table name="Load" address="4ecc" type="Y Axis" elements="21" scaling="uint16" RAM_mut_number="0x00" RAM_mut_storagetype="uint16" RAM_mut_frexpr="1000*x/256" RAM_mut_endian="big"/>
-	</table>
 	<table name="High Octane Fuel Map" category="Fuel" address="37b4d" type="3D" level="4" swapxy="true" scaling="AFR" RAM_addr="FFFFA04D">
 		<table name="Load" address="4fdc" type="X Axis" elements="18" scaling="Load" RAM_mut_number="0x00" RAM_mut_storagetype="uint16" RAM_mut_frexpr="1000*x/256" RAM_mut_endian="big"/>
-		<table name="RPM" address="4fb4" type="Y Axis" elements="15" scaling="RPM" RAM_mut_number="0x02" RAM_mut_storagetype="uint8" RAM_mut_frexpr="31.25*x"/>
+		<table name="RPM" address="4fb4" type="Y Axis" elements="15" scaling="RPM" RAM_mut_number="0x02" RAM_mut_storagetype="uint16" RAM_mut_frexpr="31.25*x"/>
 	</table> 
 	<table name="High Octane Ignition Map" category="Timing" address="37c67" type="3D" level="4" swapxy="true" scaling="Timing" RAM_addr="FFFFA167">
 		<table name="Load" address="503a" type="X Axis" elements="19" scaling="Load" RAM_mut_number="0x00" RAM_mut_storagetype="uint16" RAM_mut_frexpr="1000*x/256" RAM_mut_endian="big"/>
-		<table name="RPM" address="500a" type="Y Axis" elements="19" scaling="RPM" RAM_mut_number="0x02" RAM_mut_storagetype="uint8" RAM_mut_frexpr="31.25*x"/>
+		<table name="RPM" address="500a" type="Y Axis" elements="19" scaling="RPM" RAM_mut_number="0x02" RAM_mut_storagetype="uint16" RAM_mut_frexpr="31.25*x"/>
 	</table>
-	
+
+	<table name="MAF Scaling" category="Air" address="3506" type="2D" level="3" scaling="AirFlow8">
+		<table name="MAF Hz" address="4ecc" type="Y Axis" elements="21" scaling="MAFHz" RAM_mut_number="0x02" RAM_mut_storagetype="uint16" RAM_mut_frexpr="x" RAM_mut_endian="big" />
+	</table>
+
+	<table name="MAF Smoothing Table" category="Fuel" address="3522" type="2D" level="3" scaling="Percent255" RAM_addr="FFFFA768">
+		<table name="MAF Hz" address="4ecc" type="Y Axis" elements="21" scaling="MAFHz" RAM_mut_number="0x02" RAM_mut_storagetype="uint16" RAM_mut_frexpr="x" RAM_mut_endian="big"/>
+	</table>
+
 	<table name="Boost Control Load Offset" address="37e6c"/>
-	
 	<table name="Turbo Boost Error Correction" address="37dd0">
 		<table name="Boost Error" address="52a2"/>
 	</table>
