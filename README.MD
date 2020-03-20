@@ -2,8 +2,9 @@
 
 Приложение для редактирования таблиц контроллеров митсубиши на лету в ОЗУ.
 Все описания ОЗУ таблиц хранятся в хмлках экуфлэш, в описания таблиц добавлены новые атрибуты
-указывающие на расположение таблиц в оперативке контроллера
-образец:
+указывающие на расположение таблиц в оперативке контроллера.
+
+Образец:
 
     <table name="High Octane Fuel Map" category="Fuel" address="37b4d" type="3D" level="4" swapxy="true" scaling="AFR" RAM_addr="FFFFA04D"> 
         <table name="Load" address="4fdc" type="X Axis" elements="18" scaling="Load" RAM_mut_number="0x00" RAM_mut_storagetype="uint16" RAM_mut_frexpr="1000*x/256" RAM_mut_endian="big"/>
