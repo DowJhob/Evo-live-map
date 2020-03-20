@@ -173,7 +173,6 @@ inline QString get_notation_convert(QString input)
                 while (s != '(')
                 {
                     output += s + ' ';
-
                     s = operStack.pop();
                 }
             }
@@ -193,7 +192,7 @@ inline QString get_notation_convert(QString input)
     return output; //Возвращаем выражение в постфиксной записи
 }
 
-inline fast_calc_struct* set_notation(QString input)                 //тут в отличии от get notation заполняем структуру с числами что бы не парсить каждый раз строку( 5 раз выигрыш)
+inline fast_calc_struct* set_notation(QString input)//тут в отличии от get notation заполняем структуру с числами что бы не парсить каждый раз строку( 5 раз выигрыш)
 {
     init();
     QChar s;
@@ -249,11 +248,10 @@ inline fast_calc_struct* set_notation(QString input)                 //тут в
             {
                 //Выписываем все операторы до открывающей скобки в строку
                 s = operStack.pop();
-                set_op(s);
                 while (s != '(')
                 {
-                    s = operStack.pop();
                     set_op(s);
+                    s = operStack.pop();
                 }
             }
             else //Если любой другой оператор
