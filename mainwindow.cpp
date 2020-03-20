@@ -150,7 +150,7 @@ void MainWindow::logger_and_tableWidget_trace()
     QElapsedTimer t;
     t.start();
     emit timer_lock();
-    DMA.read_indirect(xmlParser->RAM_MUT_addr, 16);// логгинг что бы контроллер не уснул
+    DMA.read_indirect(xmlParser->RAM_MUT_addr, 16);
     int x = 0;
     int y = 0;
     foreach (mapWidget *window, list_window)
