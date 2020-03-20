@@ -17,4 +17,25 @@
 
 В каталоге xdf лежат патчи для tunerpto https://www.tunerpro.net/ в дальнейшем прикручу патчер онбоард.
 
+структура таблиц в памяти
+90550001
+имя таблы|адрес в ROM|адрес в RAM
+------------ | -------------|-----------
+MUT|37B00|FFFFA000
+fuel|37B8F|FFFFA084 
+timing|37CA9|FFFFA19D
+maf scal|37E17|FFFFA311
+maf smooth|37E32|FFFFA32C
+latency|37E47|FFFFA347
+Turbo Boost Error Correction|37E54|FFFFA34E
+Boost Desired Engine Load 1|37E6B|FFFFA365
+Boost Desired Engine Load 2|37E81|FFFFA37B
+Boost Desired Engine Load 3|37E97|FFFFA391
+Max Wastegate Duty 1|37EAD|FFFFA3A7
+Max Wastegate Duty 2|37EC3|FFFFA3BD
+Max Wastegate Duty 3|37ED9|FFFFA3D3
+
+впрочем эти данные есть xml
+
+
 eulle@yandex.ru
