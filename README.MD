@@ -1,11 +1,12 @@
 # EVO livemap 
 
-  Написано для себя, ибо нах никому не нать.
 Все хранится в хмлках экуфлэш, в описания таблиц добавлены новые атрибуты
 указывающие на расположение таблиц в оперативке контроллера
 образец:
-
-	 <patch name="add_v_dmac3_dei3" address="0x139" datasize="0x3" patchdata="03ED10" basedata="009F9C" />
+    <table name="High Octane Fuel Map" category="Fuel" address="37b4d" type="3D" level="4" swapxy="true" scaling="AFR" RAM_addr="FFFFA04D">	
+        <table name="Load" address="4fdc" type="X Axis" elements="18" scaling="Load" RAM_mut_number="0x00" RAM_mut_storagetype="uint16" RAM_mut_frexpr="1000*x/256" RAM_mut_endian="big"/>
+        <table name="RPM" address="4fb4" type="Y Axis" elements="15" scaling="RPM" RAM_mut_number="0x02" RAM_mut_storagetype="uint16" RAM_mut_frexpr="31.25*x"/>
+	</table> 
 	 
   Программа сама определяет тип интерфейса J2534 или FTDI адаптер, при наличии установленных драйверов. При нажатии кнопки старт происходит попытка соединения с контроллером по альтернативному протоколу и в случае успеха читается внутренний ID, далее приложение по маске номера ID пытаеться найти и прочесть первый найденный xml файл калибровок содержащий в имени номер ID, в случае отсутствия открывается окно поиска файла. Ну а далее будут открыты все доступные для редактирования в RAM таблицы.
   Птчер работает аналогично, при загрузке bin или hex файла читается номер калибровки и ищется xml. По нажатию кнопки apple patches все найденные в xml патчи записываются в bin.
