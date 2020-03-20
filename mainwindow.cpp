@@ -174,7 +174,7 @@ void MainWindow::logger_and_tableWidget_trace()
         else
         {
             x = QCursor::pos().x();
-            y = QCursor::pos().y()*8;
+            y = QCursor::pos().y()/6;
         }
         //----------------------- вычисляем координаты маркера------------------------------------------------
         window->tracer_marker.Xtrace = axis_lookup2(x, window->Table_Decl->X_axis.elements, window->x_axis);
