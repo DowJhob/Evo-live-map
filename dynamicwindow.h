@@ -38,10 +38,8 @@ public:
     {
         this->Table_Decl = Table_Decl;
         this->DMA = DMA;
-
         table = new QTableWidget(Table_Decl->Y_axis.elements, Table_Decl->X_axis.elements, parent);
         table->setProperty("addr", QVariant::fromValue(this) );  //сохраним адрес на окно что бы получить доступ к остальным членам по событиям в виджете
-
         QGridLayout *layout = new QGridLayout(this);  //лайот с родителем виджетом
         //создаем таблицу с заданной размерностью
         table->setSortingEnabled(false);
@@ -71,14 +69,11 @@ public:
                     Table_Decl->Y_axis.rom_addr,                //адрес оси в ром
                     1,
                     Table_Decl->Y_axis.elements);
-
         for (int i = 0; i < Table_Decl->Y_axis.elements; i++)
         {
             variable_value = typed(Table_Decl->Y_axis.scaling.storagetype, DMA->rx_msg[1].Data, i, Table_Decl->Y_axis.scaling.endian); //кастуем данные к определенному типу
             QTableWidgetItem *item = new QTableWidgetItem();
-
             int compute = qRound(fast_calc(Table_Decl->Y_axis.scaling.toexpr2, variable_value));
-
             y_axis.append(compute);
             item->setData( Qt::DisplayRole, QString::number(compute));
             table->setVerticalHeaderItem(i, item);
@@ -87,7 +82,6 @@ public:
         table_set_update();   //создаем обновляем таблицу
         connect(table, SIGNAL(cellChanged(int, int)), this, SLOT(on_tableWidget_cellChanged(int, int)), Qt::DirectConnection);
         //----------------------------------
-        int line_with = 10;
         QSize Size(45  , //ширина вертикальных линий?
                    25   //ширина горизонтальных линий? маджик числа
                    );
