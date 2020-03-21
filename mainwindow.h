@@ -125,7 +125,7 @@ private:
         if (!ram_scaling_storagetype)
         {
             x = typed(storagetype,
-                      DMA.MUT_In_buffer,
+                      DMA.rx_msg[1].Data,
                       mut_number,                //номер запроса рам мут
                       scaling_endian);
             x = fast_calc(scaling_frexpr2, x);

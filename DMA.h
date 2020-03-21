@@ -34,8 +34,6 @@ public:
     J2534 *j2534;
     ftdi *OP13;
     int VechicleInterfaceType;
-    //  FTDI
-    unsigned char MUT_In_buffer[4128];          //' 4K
     byte MUT_Out_buffer[4128];
     // J2534
     unsigned int baudRate = 15625;              //предопределенная скорость соединения
@@ -50,7 +48,7 @@ public:
     unsigned long NumMsgs;
     unsigned long protocol = ISO9141_INNO;            // соответственно протокол
     unsigned long ConnectFlag = ISO9141_NO_CHECKSUM;
-   //        || ISO9141_K_LINE_ONLY ;
+    //        || ISO9141_K_LINE_ONLY ;
     struct
     {
         unsigned int length;
@@ -74,7 +72,7 @@ public slots:
                 qDebug() << " OP13 created!!";
                 init_FTDI();
                 qDebug() << " OP13 dll inited!!";
-
+                delay_after_command = 0;
             }
         if (VechicleInterfaceType == 20)
             if ( j2534 == nullptr  )
@@ -83,6 +81,7 @@ public slots:
                 qDebug() << " j2534 created!!";
                 init_j2534();
                 qDebug() << " j2534 dll inited!!";
+                delay_after_command = 4;
             }
         emit timer_unlock();
     }
@@ -106,14 +105,14 @@ public slots:
     }
     bool common_five_baud_init()
     {
-            if (VechicleInterfaceType == 13)
-            {
-                return ftdi_five_baud_init() ;
-            }
-            if (VechicleInterfaceType == 20)
-            {
-                return j2534_five_baud_init() ;
-            }
+        if (VechicleInterfaceType == 13)
+        {
+            return ftdi_five_baud_init() ;
+        }
+        if (VechicleInterfaceType == 20)
+        {
+            return j2534_five_baud_init() ;
+        }
         return false;
     }
 
@@ -122,16 +121,10 @@ public slots:
         emit timer_lock();
         if (VechicleInterfaceType == 13)
             if ( OP13 != nullptr  )
-            {
-                read_indirect_FTDI(addr, count);
-                qDebug() << " read_indirect_FTDI";
-            }
+                read_FTDI(0xE0, addr, count);
         if (VechicleInterfaceType == 20)
             if ( j2534 != nullptr  )
-            {
-                read_indirect_J2534(addr, count);
-                qDebug() << " read_indirect_J2534";
-            }
+                read_J2534(0xE0, addr, count);
         emit timer_unlock();
     }
     void read_direct(quint32 addr, int count)
@@ -139,10 +132,10 @@ public slots:
         emit timer_lock();
         if (VechicleInterfaceType == 13)
             if ( OP13 != nullptr  )
-                read_direct_FTDI(addr, count);
+                read_FTDI(0xE1, addr, count);
         if (VechicleInterfaceType == 20)
             if ( j2534 != nullptr  )
-                read_direct_J2534(addr, count);
+                read_J2534(0xE1, addr, count);
         emit timer_unlock();
     }
     void write_direct(quint32 addr, int count)
@@ -188,16 +181,20 @@ private:
                 OP13->ftStatus = OP13->FT_SetBreakOn(OP13->ftHandle);   //0
                 Sleep(t);
             }
-           value = value >> 1;
+            value = value >> 1;
         }
         OP13->ftStatus = OP13->FT_SetBreakOff(OP13->ftHandle);
     }
-
     //общая часть процедур доступа к памяти контроллера
-    void J2534c(unsigned long addr, unsigned long count)  {
+    void comand_write(unsigned long addr, unsigned long count)  {
         NumMsgs = 1;
         tx_msg.DataSize = 1;
-        j2534->PassThruWriteMsgs(chanID, &tx_msg, &NumMsgs, writeTimeout);
+        if (VechicleInterfaceType == 13)
+            //            if ( OP13 != nullptr  )
+            OP13->FT_Write( OP13->ftHandle, &tx_msg.Data, 1, &Reads );
+        if (VechicleInterfaceType == 20)
+            //            if ( j2534 != nullptr  )
+            j2534->PassThruWriteMsgs(chanID, &tx_msg, &NumMsgs, writeTimeout);
         QThread::msleep(delay_after_command);
         tx_msg.DataSize = 6;
         tx_msg.Data[0] = (addr & 0xFF000000) >> 24;
@@ -207,36 +204,33 @@ private:
         tx_msg.Data[4] = (count & 0xFF00) >> 8;
         tx_msg.Data[5] = (count & 0xFF);
         NumMsgs = 1;
-        j2534->PassThruWriteMsgs(chanID, &tx_msg, &NumMsgs, writeTimeout);
+        if (VechicleInterfaceType == 13)
+            //            if ( OP13 != nullptr  )
+        {
+            OP13->FT_Write( OP13->ftHandle, &tx_msg.Data, 6, &Reads );
+            OP13->FT_Read(OP13->ftHandle, &rx_msg[0].Data, 7, &Reads);    //читаем эхо оптом
+        }
+        if (VechicleInterfaceType == 20)
+            //            if ( j2534 != nullptr  )
+            j2534->PassThruWriteMsgs(chanID, &tx_msg, &NumMsgs, writeTimeout);
     }
-    void read_indirect_J2534(unsigned long addr, unsigned long count)
+    void read_J2534(uchar command, unsigned long addr, unsigned long count)
     {
-        tx_msg.Data[0] = 0xE0;
-        J2534c(addr, count);
+        tx_msg.Data[0] = command;
+        comand_write(addr, count);
         NumMsgs = 1;
         rx_msg[0] = tx_msg;
-        do
-            j2534->PassThruReadMsgs(chanID, &rx_msg[0], &NumMsgs, count*10000/baudRate + magic_adder_readTimeout);
-        while(rx_msg[0].RxStatus == START_OF_MESSAGE);
-        emit recieve(QByteArray::fromRawData( (char*)rx_msg[1].Data, count) );
-        memcpy(&MUT_In_buffer, &rx_msg[1].Data, count);
-    }
-    void read_direct_J2534(unsigned long addr, unsigned long count)
-    {
-        tx_msg.Data[0] = 0xE1;
-        J2534c(addr, count);
-        NumMsgs = 1;
         rx_msg[0].RxStatus = 0;
         do
             j2534->PassThruReadMsgs(chanID, &rx_msg[0], &NumMsgs, count*10000/baudRate + magic_adder_readTimeout);
         while(rx_msg[0].RxStatus == START_OF_MESSAGE);
         emit recieve(QByteArray::fromRawData( (char*)rx_msg[1].Data, count) );
-        memcpy(&MUT_In_buffer, &rx_msg[1].Data, count);
+//        memcpy(&MUT_In_buffer, &rx_msg[1].Data, count);
     }
     void write_direct_J2534(unsigned long addr, unsigned long count)
     {
         tx_msg.Data[0] = 0xE2;
-        J2534c(addr, count);
+        comand_write(addr, count);
         NumMsgs = 1;
         tx_msg.DataSize = count;
         memcpy(&tx_msg.Data, &MUT_Out_buffer, count);
@@ -254,7 +248,7 @@ private:
 
         if (!j2534->init())
         {
-       //     error_out = "can't connect to J2534 DLL.\r\n";
+            //     error_out = "can't connect to J2534 DLL.\r\n";
             qDebug() << "can't connect to J2534 DLL.";
             return false;
         }
@@ -263,11 +257,11 @@ private:
         if (j2534->PassThruOpen(nullptr, &devID))
         {// читаем и выводим ошибку
             reportJ2534Error(sf);
-     //       error_out = "PassThruOpen: " + sf;
+            //       error_out = "PassThruOpen: " + sf;
             qDebug() << "PassThruOpen: " + sf;
             return false;
         }
- //       error_out = "PassThruOpen: devID = " + QString::number(devID) + "\r\n";
+        //       error_out = "PassThruOpen: devID = " + QString::number(devID) + "\r\n";
         //читаем версию и прочюю требуху
         char strApiVersion[256];
         char strDllVersion[256];
@@ -277,7 +271,7 @@ private:
         if (j2534->PassThruReadVersion(strApiVersion, strDllVersion, strFirmwareVersion, devID))
         {
             reportJ2534Error(sf);
-          //  error_out += "PassThruReadVersion: " + sf;
+            //  error_out += "PassThruReadVersion: " + sf;
             qDebug() << "PassThruReadVersion: " + sf;
             return false;
         }
@@ -285,15 +279,15 @@ private:
         if (!get_serial_num(devID, strSerial))
         {
             reportJ2534Error(sf);
-      //      error_out += "get_serial_num: " + sf;
+            //      error_out += "get_serial_num: " + sf;
             qDebug() << "get_serial_num: " + sf;
             return false;
         }
 
-     //   error_out += "J2534 API Version: " + QString(strApiVersion) + "\r\n";
-     //   error_out += "J2534 DLL Version: " +  QString(strDllVersion) + "\r\n";
-     //   error_out += "Device Firmware Version: " +  QString(strFirmwareVersion) + "\r\n";
-    //    error_out += "Device Serial Number: " +  QString(strSerial) + "\r\n";
+        //   error_out += "J2534 API Version: " + QString(strApiVersion) + "\r\n";
+        //   error_out += "J2534 DLL Version: " +  QString(strDllVersion) + "\r\n";
+        //   error_out += "Device Firmware Version: " +  QString(strFirmwareVersion) + "\r\n";
+        //    error_out += "Device Serial Number: " +  QString(strSerial) + "\r\n";
 
         if (j2534->PassThruConnect(devID, protocol, ConnectFlag, baudRate, &chanID))
 
@@ -335,7 +329,7 @@ private:
     {
         if (OP13->FT_Open(0, &OP13->ftHandle) == FT_OK)
         {
-         //   error_out = "FT_Open OK";
+            //   error_out = "FT_Open OK";
             // FT_Open OK, use ftHandle to access device
             OP13->ftStatus = OP13->FT_ResetDevice(OP13->ftHandle);
             OP13->ftStatus = OP13->FT_Purge(OP13->ftHandle, FT_PURGE_RX | FT_PURGE_TX);
@@ -347,52 +341,21 @@ private:
         qDebug() << " FT_Open failed";
         return false;
     }
-    void FTDI(quint32 addr, int count)
+    void read_FTDI(uchar command, quint32 addr, int count)
     {
-
-        OP13->FT_Write( OP13->ftHandle, &MUT_Out_buffer, 1, &Reads );
-
-        // OP13.FT_Read(OP13.ftHandle, &FT_In_Buffer, 1, &Reads);    //читаем эхо
-        Sleep(delay_after_command);
-
-        MUT_Out_buffer[0] = (addr & 0xFF000000) >> 24;
-        MUT_Out_buffer[1] = (addr & 0xFF0000) >> 16;
-        MUT_Out_buffer[2] = (addr & 0xFF00) >> 8;
-        MUT_Out_buffer[3] = (addr & 0xFF);
-        MUT_Out_buffer[4] = (count & 0xFF00) >> 8;
-        MUT_Out_buffer[5] = (count & 0xFF);
-
-        OP13->FT_Write(OP13->ftHandle, &MUT_Out_buffer,6, &Reads );
-        OP13->FT_Read(OP13->ftHandle, &MUT_In_buffer, 7, &Reads);    //читаем эхо оптом
-
-    }
-    void read_direct_FTDI(quint32 addr, int count)
-    {
-        QTime t;
-        MUT_Out_buffer[0] = 0xE1;
-        FTDI(addr, count);
-        //Get bytes waiting to be read
-        t.start();
-        do
-            OP13->FT_GetQueueStatus(OP13->ftHandle, &FT_RxQ_Bytes);
-        while(FT_RxQ_Bytes == 0);
-        OP13->FT_Read(OP13->ftHandle, &MUT_In_buffer, count, &Reads);
-        qDebug("Time to read with copy elapsed: %d ms", t.elapsed());
-    }
-    void read_indirect_FTDI(quint32 addr, int count)
-    {
-        MUT_Out_buffer[0] = 0xE0;
-        FTDI(addr, count);
+        tx_msg.Data[0] = command;
+        comand_write(addr, count);
         //Get bytes waiting to be read
         do
             OP13->FT_GetQueueStatus(OP13->ftHandle, &FT_RxQ_Bytes);
-        while(FT_RxQ_Bytes == 0);
-        OP13->FT_Read(OP13->ftHandle, &MUT_In_buffer, count, &Reads);
+        while(FT_RxQ_Bytes <= count);
+        OP13->FT_Read(OP13->ftHandle, &rx_msg[1].Data, count, &Reads);
     }
+
     void write_direct_FTDI(unsigned long addr, unsigned long count)
     {
-        MUT_Out_buffer[0] = 0xE2;
-        FTDI(addr, count);
+        tx_msg.Data[0] = 0xE2;
+        comand_write(addr, count);
         //   memcpy(&FT_Out_Buffer, &MUT_Out_buffer, count);
         //    Sleep(400);
         OP13->FT_Write(OP13->ftHandle, &MUT_Out_buffer, count, &Reads );
@@ -400,14 +363,13 @@ private:
         OP13->FT_Read(OP13->ftHandle, &MUT_Out_buffer, count, &Reads);    //читаем эхо
     }
 
-
     void close_FTDI()
-{}
+    {}
     void close_j2534()
-{
-    j2534->PassThruDisconnect(chanID);
-    j2534->PassThruClose(devID);
-}
+    {
+        j2534->PassThruDisconnect(chanID);
+        j2534->PassThruClose(devID);
+    }
 
     bool j2534_five_baud_init()
     {
@@ -480,12 +442,11 @@ private:
         //Get bytes waiting to be read
         OP13->ftStatus = OP13->FT_GetQueueStatus(OP13->ftHandle, &FT_RxQ_Bytes);
 
-        OP13->ftStatus = OP13->FT_Read(OP13->ftHandle, MUT_In_buffer, FT_RxQ_Bytes, &Reads);
+        OP13->ftStatus = OP13->FT_Read(OP13->ftHandle, rx_msg[0].Data, FT_RxQ_Bytes, &Reads);
 
         if ((OP13->ftStatus != FT_OK) || (FT_RxQ_Bytes < 1))
         {
             qDebug() << " FT_Read failed" << Reads << FT_RxQ_Bytes;
-            qDebug() << MUT_In_buffer[0]   ;
             return false;
         }
         qDebug() << " FT_five_baud_OK";
@@ -518,9 +479,9 @@ private:
     }
 
 signals:
-   void timer_lock();
-   void timer_unlock();
-   void recieve(QByteArray);
+    void timer_lock();
+    void timer_unlock();
+    void recieve(QByteArray);
 
 
 
@@ -530,29 +491,29 @@ class Timer:public QTimer
 {
     Q_OBJECT
 
- public:
-     Timer(QObject *parent = nullptr)
-     {
-         setParent(parent);
-     }
-      ~Timer()
-     {
+public:
+    Timer(QObject *parent = nullptr)
+    {
+        setParent(parent);
+    }
+    ~Timer()
+    {
 
-     }
+    }
 private:
-     QStack<bool> stack = {};//переменная для хранения предыдущего состояния таймера
+    QStack<bool> stack = {};//переменная для хранения предыдущего состояния таймера
 
- public slots:
-       void timer_lock()
-       {
-           stack.push(this->isActive());
-           this->stop();
-       }
-       void timer_unlock()
-        {
-            if (stack.pop())
-                this->start();
-        }
+public slots:
+    void timer_lock()
+    {
+        stack.push(this->isActive());
+        this->stop();
+    }
+    void timer_unlock()
+    {
+        if (stack.pop())
+            this->start();
+    }
 
 };
 

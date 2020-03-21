@@ -68,7 +68,7 @@ public:
         //заполняем в соотвествии с формулой
         for (int i = 0; i < Table_Decl->X_axis.elements; i++)
         {
-            variable_value = typed(Table_Decl->X_axis.scaling.storagetype, DMA->MUT_In_buffer, i, Table_Decl->X_axis.scaling.endian); //кастуем данные к определенному типу
+            variable_value = typed(Table_Decl->X_axis.scaling.storagetype, DMA->rx_msg[1].Data, i, Table_Decl->X_axis.scaling.endian); //кастуем данные к определенному типу
             QTableWidgetItem *item = new QTableWidgetItem();
             int compute = qRound(fast_calc(Table_Decl->X_axis.scaling.toexpr2, variable_value));
             x_axis.append(compute);
@@ -85,7 +85,7 @@ public:
 
         for (int i = 0; i < Table_Decl->Y_axis.elements; i++)
         {
-            variable_value = typed(Table_Decl->Y_axis.scaling.storagetype, DMA->MUT_In_buffer, i, Table_Decl->Y_axis.scaling.endian); //кастуем данные к определенному типу
+            variable_value = typed(Table_Decl->Y_axis.scaling.storagetype, DMA->rx_msg[1].Data, i, Table_Decl->Y_axis.scaling.endian); //кастуем данные к определенному типу
             QTableWidgetItem *item = new QTableWidgetItem();
 
             int compute = qRound(fast_calc(Table_Decl->Y_axis.scaling.toexpr2, variable_value));
@@ -152,7 +152,7 @@ setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
             for (int y = 0; y < Table_Decl->Y_axis.elements; y++)
             {
                 variable_value = typed(Table_Decl->Table.scaling.storagetype,
-                                       DMA->MUT_In_buffer,
+                                       DMA->rx_msg[1].Data,
                                        c,
                                        Table_Decl->Table.scaling.endian); //кастуем данные к определенному типу
                 //создаем обновляем итем
@@ -216,7 +216,7 @@ setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
         if (!ram_scaling_storagetype)
         {
             x = typed(storagetype,
-                      DMA->MUT_In_buffer,
+                      DMA->rx_msg[1].Data,
                       mut_number,                //номер запроса рам мут
                       scaling_endian);
             x = fast_calc(scaling_frexpr2, x);

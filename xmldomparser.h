@@ -29,7 +29,7 @@ struct sub_tableDeclaration
     int elements;
     bool swapxy;
     Scaling scaling;
-    Scaling ram_scaling;
+    //Scaling ram_scaling;
 
 };
 struct tableDeclaration             // характеристики карт в памяти контроллера
@@ -156,33 +156,19 @@ private:
     {
         bool bStatus = false;
         node = node.toElement();
+        axisDeclaration->scaling = scaling_qmap.value( node.toElement().attribute("scaling") );//Получаем скалинг данных таблицы
         axisDeclaration->Name = node.toElement().attribute("name");						        // сохраним имя таблицы
         axisDeclaration->rom_addr = node.toElement().attribute("address").toUInt(&bStatus,16);  // сохраняем значение ROM адреса
         axisDeclaration->ram_addr = node.toElement().attribute("RAM_addr").toUInt(&bStatus,16); //получаем адрес  таблицы в оперативке
-        axisDeclaration->ram_scaling.ram_mut_number = node.toElement().attribute("RAM_mut_number").toUInt(&bStatus,16); //номер мут запроса из рам мут
-        axisDeclaration->ram_scaling.storagetype = node.toElement().attribute("RAM_mut_storagetype");
-        axisDeclaration->ram_scaling.frexpr = node.toElement().attribute("RAM_mut_frexpr");
-
-        if (node.toElement().attribute("RAM_mut_endian") == "big")
-            axisDeclaration->ram_scaling.endian = true;
-        else
-            if (node.toElement().attribute("RAM_mut_endian") == "little")
-                axisDeclaration->ram_scaling.endian = false;
-            else
-                axisDeclaration->ram_scaling.endian = true;
+        axisDeclaration->scaling.ram_mut_number = node.toElement().attribute("RAM_mut_number").toUInt(&bStatus,16); //номер мут запроса из рам мут
         //-------------------------------------------//получаем swapxy
         if (node.toElement().attribute("swapxy") == "true")
             axisDeclaration->swapxy =   true;
         else
             axisDeclaration->swapxy = false;
 
-        axisDeclaration->scaling = scaling_qmap.value(node.toElement().attribute("scaling")) ;//Получаем скалинг данных таблицы
-
-        axisDeclaration->scaling.toexpr2 = //*m->
-                *set_notation(axisDeclaration->scaling.toexpr);
-
-        axisDeclaration->scaling.frexpr2 = //*m->
-                *set_notation(axisDeclaration->scaling.frexpr);
+        axisDeclaration->scaling.toexpr2 = *set_notation(axisDeclaration->scaling.toexpr);
+        axisDeclaration->scaling.frexpr2 = *set_notation(axisDeclaration->scaling.frexpr);
 
         axisDeclaration->elements = node.toElement().attribute("elements").toUInt(&bStatus);
 

@@ -157,21 +157,18 @@ void MainWindow::logger_and_tableWidget_trace()
     {
         window->table->blockSignals( true );
         // читаем из буфера и кастуем
-        if (!debug)
-        {
-            x = qRound(window->read_and_cast(window->Table_Decl->X_axis.ram_scaling.storagetype.isEmpty(),
-                                             window->Table_Decl->X_axis.ram_scaling.storagetype,
-                                             window->Table_Decl->X_axis.ram_scaling.ram_mut_number,
-                                             window->Table_Decl->X_axis.scaling.endian,
-                                             window->Table_Decl->X_axis.scaling.frexpr2));
+        x = qRound(window->read_and_cast(window->Table_Decl->X_axis.scaling.storagetype.isEmpty(),
+                                         window->Table_Decl->X_axis.scaling.storagetype,
+                                         window->Table_Decl->X_axis.scaling.ram_mut_number,
+                                         window->Table_Decl->X_axis.scaling.endian,
+                                         window->Table_Decl->X_axis.scaling.frexpr2));
 
-            y = qRound(window->read_and_cast(window->Table_Decl->Y_axis.ram_scaling.storagetype.isEmpty(),
-                                             window->Table_Decl->Y_axis.ram_scaling.storagetype,
-                                             window->Table_Decl->Y_axis.ram_scaling.ram_mut_number,
-                                             window->Table_Decl->Y_axis.scaling.endian,
-                                             window->Table_Decl->Y_axis.scaling.frexpr2));
-        }
-        else
+        y = qRound(window->read_and_cast(window->Table_Decl->Y_axis.scaling.storagetype.isEmpty(),
+                                         window->Table_Decl->Y_axis.scaling.storagetype,
+                                         window->Table_Decl->Y_axis.scaling.ram_mut_number,
+                                         window->Table_Decl->Y_axis.scaling.endian,
+                                         window->Table_Decl->Y_axis.scaling.frexpr2));
+        if (debug)
         {
             x = QCursor::pos().x()*2;
             y = QCursor::pos().y()*20;
@@ -262,7 +259,7 @@ void MainWindow::on_StartButton_clicked()
         ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
 
         DMA.read_direct(0xF52, 4); //читаем номер калибровки
-        romIDnum = qFromBigEndian<quint32>(DMA.MUT_In_buffer);
+        romIDnum = qFromBigEndian<quint32>(DMA.rx_msg[1].Data);
 
 
         /*mut_trans->FT_In_Buffer[0] * 0x1000000 +
@@ -332,12 +329,13 @@ void MainWindow::on_debugButton_clicked()
     debug = true;
     for (uchar i =0; i < 255; i++)
     {
-        DMA.MUT_In_buffer[i] = i;
+        DMA.rx_msg[1].Data[i] = i;
         DMA.MUT_Out_buffer[i] = i;
     }
     //SearchFiles(CurrDir, "80700010");   //найдем файл конфига
     SearchFiles(CurrDir, "90550001");   //найдем файл конфига
     CreateTable(xml_filename);   								//парсим его
+    emit Enumerator. InterfaceActive(20);
     timer->start(1000/ui->logger_rate_textedit->text().toUInt());
     // timer->start(650);
 }
