@@ -7,6 +7,7 @@
 #include "QTimer"
 #include <QStack>
 #include <QTime>
+#include <QThread>
 
 class dma:public QObject
 {
@@ -45,7 +46,7 @@ public:
     PASSTHRU_MSG  rx_msg[2] = {};
     unsigned long devID;
     unsigned long chanID;
-        unsigned long chanID_INNO;
+    unsigned long chanID_INNO;
     unsigned long NumMsgs;
     unsigned long protocol = ISO9141_INNO;            // соответственно протокол
     unsigned long ConnectFlag = ISO9141_NO_CHECKSUM;
@@ -111,7 +112,6 @@ public slots:
             }
             if (VechicleInterfaceType == 20)
             {
-                qDebug() << "attempt to five baud j2534";
                 return j2534_five_baud_init() ;
             }
         return false;
@@ -198,7 +198,7 @@ private:
         NumMsgs = 1;
         tx_msg.DataSize = 1;
         j2534->PassThruWriteMsgs(chanID, &tx_msg, &NumMsgs, writeTimeout);
-        Sleep(delay_after_command);
+        QThread::msleep(delay_after_command);
         tx_msg.DataSize = 6;
         tx_msg.Data[0] = (addr & 0xFF000000) >> 24;
         tx_msg.Data[1] = (addr & 0xFF0000) >> 16;
