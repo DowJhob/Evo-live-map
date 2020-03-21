@@ -179,9 +179,9 @@ void MainWindow::logger_and_tableWidget_trace()
         //----------------------- вычисляем насыщенность ячеек маркера ---------------------------------------
         window->tracer_marker.k = 0;
         window->tracer_marker.j = 0;
-        if ( (window->Table_Decl->X_axis.elements > 1) && (window->tracer_marker.Xtrace < window->Table_Decl->X_axis.elements - 2) )
+        if ( (window->Table_Decl->X_axis.elements > 1) && (window->tracer_marker.Xtrace < window->Table_Decl->X_axis.elements - 1) )
             window->tracer_marker.j = 1;
-        if ( (window->Table_Decl->Y_axis.elements > 1) && (window->tracer_marker.Ytrace < window->Table_Decl->Y_axis.elements - 2) )
+        if ( (window->Table_Decl->Y_axis.elements > 1) && (window->tracer_marker.Ytrace < window->Table_Decl->Y_axis.elements - 1) )
             window->tracer_marker.k = 1;
 
         float kX = (float)255/(window->x_axis[window->tracer_marker.Xtrace+window->tracer_marker.j] - window->x_axis[window->tracer_marker.Xtrace]);    //коэффициент нормирования
