@@ -1,5 +1,5 @@
 [Dd]ebug/
-
+[Rr]elease/
 moc*
 *.o
 Makefile*
