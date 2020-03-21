@@ -239,54 +239,32 @@ void MainWindow::on_BaudRatelineEdit_textChanged(const QString &arg1)   // Об�
 void MainWindow::on_StartButton_clicked()
 {
     QString s;
-    unsigned long romIDnum;
-
     if (ui->StartButton->text() == "Start")
     {
-        if (!DMA.common_five_baud_init())
+        QString romID = DMA.connect();
+        if ( romID.isEmpty() )
         {
-            ui->listWidget->addItem(s);
+            ui->listWidget->addItem("connect failure");
             ui->StartButton->setDown(false);
-            //   mut_trans->close_interface();
             return;
         }
-
         ui->listWidget->addItem(s);
         ui->StartButton->setDown(true);
-
         ui->StartButton->setText("Stop");
         ui->RAM_reset_Button->setDisabled(!Enumerator.VechicleInterfaceState);
         ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
-
-        DMA.read_direct(0xF52, 4); //читаем номер калибровки
-        romIDnum = qFromBigEndian<quint32>(DMA.rx_msg[1].Data);
-
-
-        /*mut_trans->FT_In_Buffer[0] * 0x1000000 +
-                mut_trans->FT_In_Buffer[1] * 0x10000 +
-                mut_trans->FT_In_Buffer[2] * 0x100 +
-                mut_trans->FT_In_Buffer[3];*/
-        QString romID =  DMA.ToHex(romIDnum );
-
         s =   "romID " + romID + "\r\n";
         ui->listWidget->addItem(s);
-
         SearchFiles(CurrDir, romID);   //найдем файл конфига
-
         CreateTable(xml_filename);   								//парсим его
-
         timer->start(1000/ui->logger_rate_textedit->text().toUInt());
-
         s =   "CurrDir " + CurrDir + "\r\n";
     }
     else
     {
-
         ui->StartButton->setText("Start");
         ui->StartButton->setDown(false);
-        //   mut_trans->close_interface();
         TableDelete();
-
     }
 }
 
@@ -327,6 +305,8 @@ void MainWindow::on_logger_rate_textedit_editingFinished()
 void MainWindow::on_debugButton_clicked()
 {
     debug = true;
+    emit Enumerator. InterfaceActive(20);
+    QString romID = DMA.connect();
     for (uchar i =0; i < 255; i++)
     {
         DMA.rx_msg[1].Data[i] = i;
@@ -335,9 +315,7 @@ void MainWindow::on_debugButton_clicked()
     //SearchFiles(CurrDir, "80700010");   //найдем файл конфига
     SearchFiles(CurrDir, "90550001");   //найдем файл конфига
     CreateTable(xml_filename);   								//парсим его
-    emit Enumerator. InterfaceActive(20);
     timer->start(1000/ui->logger_rate_textedit->text().toUInt());
-    // timer->start(650);
 }
 
 void MainWindow::on_loadbinbutton_clicked()
@@ -351,7 +329,7 @@ void MainWindow::on_loadbinbutton_clicked()
     binarray = new QByteArray( binfile.read(binfile.size()));     // новый массив
 
     uint romIDnum = qFromBigEndian<quint32>(binarray->mid(0xf52, 4)); // номер калибровки
-    QString romID =  DMA.ToHex(romIDnum );
+    QString romID =  QString::number( romIDnum, 16 );
 
     SearchFiles(CurrDir, romID);   //найдем файл конфига
     QString xml_filename = listFiles[0];

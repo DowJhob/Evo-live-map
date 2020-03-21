@@ -38,17 +38,6 @@ public:
     {
         this->Table_Decl = Table_Decl;
         this->DMA = DMA;
-        //тут проверим таблицу на размерность
-        if (Table_Decl->X_axis.elements == 0)
-        {
-            Table_Decl->X_axis.elements = Table_Decl->X_axis.elements+1;
-            Table_Decl->Table.swapxy = true;
-        }
-        if (Table_Decl->Y_axis.elements == 0)
-        {
-            Table_Decl->Y_axis.elements = Table_Decl->Y_axis.elements+1;
-            Table_Decl->Table.swapxy = true;
-        }
 
         table = new QTableWidget(Table_Decl->Y_axis.elements, Table_Decl->X_axis.elements, parent);
         table->setProperty("addr", QVariant::fromValue(this) );  //сохраним адрес на окно что бы получить доступ к остальным членам по событиям в виджете
@@ -98,14 +87,13 @@ public:
         table_set_update();   //создаем обновляем таблицу
         connect(table, SIGNAL(cellChanged(int, int)), this, SLOT(on_tableWidget_cellChanged(int, int)), Qt::DirectConnection);
         //----------------------------------
-        table->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-
-        int line_with = 20;
-
-        QSize Size(line_with *  2  , //ширина вертикальных линий?
-                   line_with *  2   //ширина горизонтальных линий? маджик числа
+        int line_with = 10;
+        QSize Size(45  , //ширина вертикальных линий?
+                   25   //ширина горизонтальных линий? маджик числа
                    );
-        show();
+        table->resizeRowsToContents();
+        table->resizeColumnsToContents();
+        //table->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
         //--------------------------------------расчет размеров таблицы-------------------------------------------------
         for( int i = 0; i <  Table_Decl->X_axis.elements; i++)                        //|
         {                                                                       //|
@@ -118,18 +106,16 @@ public:
         }                                                                       //|
         Size.setHeight( Size.height() + table->horizontalHeader()->height());   //|
         //--------------------------------------------
-        table->setFixedSize(Size);
-        layout->setMargin(0);
-        setLayout(layout);
-        table->resizeRowsToContents();
-        table->resizeColumnsToContents(); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Bingo!!!!
-        layout->addWidget(table);
-
         setWindowTitle(Table_Decl->Table.Name);
-setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+        setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        setLayout(layout);
+        layout->addWidget(table);
+        table->resize(Size);
+        table->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         setFixedSize(Size);
-
-//resize(table->size());
+        layout->setMargin(10);
+        layout->setContentsMargins(10, 10, 10, 10);
+        show();
     }
     void table_set_update()
     {
@@ -141,20 +127,28 @@ setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
                     Table_Decl->X_axis.elements,
                     Table_Decl->Y_axis.elements);
         //QString inverse_polish_note = math->get_notation_convert(tablewidget->Table_Decl.Table.scaling.toexpr);
-        Table_Decl->Table.scaling.toexpr2 = //*math->
-                *set_notation(Table_Decl->Table.scaling.toexpr);   //set notation вернула адрес на свою внутренню структуру с бинарной нотацией
-
-
+        //        Table_Decl->Table.scaling.toexpr2 = *set_notation(Table_Decl->Table.scaling.toexpr);   //set notation вернула адрес на свою внутренню структуру с бинарной нотацией
         long long variable_value;
         uint c = 0;
-        for (int x = 0; x < Table_Decl->X_axis.elements; x++)
+        int i, j;
+        if ( Table_Decl->Table.swapxy )
         {
-            for (int y = 0; y < Table_Decl->Y_axis.elements; y++)
+            i = Table_Decl->X_axis.elements;
+            j = Table_Decl->Y_axis.elements;
+        }
+        else
+        {
+            j = Table_Decl->X_axis.elements;
+            i = Table_Decl->Y_axis.elements;
+        }
+        for (int x = 0; x < i; x++)
+        {
+            for (int y = 0; y < j; y++)
             {
                 variable_value = typed(Table_Decl->Table.scaling.storagetype,
                                        DMA->rx_msg[1].Data,
-                                       c,
-                                       Table_Decl->Table.scaling.endian); //кастуем данные к определенному типу
+                        c,
+                        Table_Decl->Table.scaling.endian); //кастуем данные к определенному типу
                 //создаем обновляем итем
                 float compute;
                 compute = fast_calc(Table_Decl->Table.scaling.toexpr2, variable_value);
@@ -217,8 +211,8 @@ setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
         {
             x = typed(storagetype,
                       DMA->rx_msg[1].Data,
-                      mut_number,                //номер запроса рам мут
-                      scaling_endian);
+                    mut_number,                //номер запроса рам мут
+                    scaling_endian);
             x = fast_calc(scaling_frexpr2, x);
         }
         return x;

@@ -1,16 +1,15 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <time.h>
+#include <windows.h>
 #include <qt_windows.h>
 #include <QMainWindow>
+#include <QQueue>
+#include <QTimer>
 #include "enumdev.h"
 #include "dynamicwindow.h"
 #include "mathparser2.h"
-
-#include "windows.h"
-#include <QTimer>
-
-#include <time.h>
 
 namespace Ui {
 class MainWindow;
@@ -71,7 +70,9 @@ private slots:
     void on_save_trace_pushButton_clicked();
 
 private:
-    int x, y;
+
+    QQueue<tableDeclaration*> *tableQueue{};
+
     QString CurrDir;
     QString xml_filename;
     bool  debug = false;
@@ -84,6 +85,36 @@ private:
     DomParser *xmlParser;
     tableDeclaration Table_Decl;                       //Описание одной таблицы
     QByteArray *binarray;                                  // массив с бинарником
+
+    void get_table(tableDeclaration *tab)
+    {
+   //     if ( tableQueue->isEmpty() )
+   //         return;
+   //     tab = tableQueue->dequeue();
+
+        quint32 X_ax_ram_addr = 1;
+
+        quint32 Y_ax_ram_addr = 1;
+
+        quint32 tab_ram_addr = tab->Table.ram_addr;
+        DMA.read_direct(tab_ram_addr, 11111111);
+
+
+        if ( tab->X_axis.elements > 0 )
+        {
+            X_ax_ram_addr = tab->X_axis.ram_addr;
+            DMA.read_direct(X_ax_ram_addr, tab->X_axis.elements);
+        }
+        if ( tab->Y_axis.elements > 0 )
+        {
+            Y_ax_ram_addr = tab->Y_axis.ram_addr;
+            DMA.read_direct(Y_ax_ram_addr, tab->Y_axis.elements);
+        }
+
+    }
+
+
+
     void SearchFiles(QString path, QString CalID)       // Для поиска файлов в каталоге
     {
         // Пытаемся найти правильные файлы, в текущем каталоге
@@ -126,8 +157,8 @@ private:
         {
             x = typed(storagetype,
                       DMA.rx_msg[1].Data,
-                      mut_number,                //номер запроса рам мут
-                      scaling_endian);
+                    mut_number,                //номер запроса рам мут
+                    scaling_endian);
             x = fast_calc(scaling_frexpr2, x);
         }
         return x;

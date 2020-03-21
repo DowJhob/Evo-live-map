@@ -8,6 +8,8 @@
 #include <QStack>
 #include <QTime>
 #include <QThread>
+#include <QtEndian>
+#include <QQueue>
 
 class dma:public QObject
 {
@@ -31,9 +33,14 @@ public:
         }
     }
 
+    void get_arr(QByteArray comm) // first 4 byte addr, next 2 byte count, and name..
+    {
+        command.enqueue(comm);
+    }
+    QQueue<QByteArray> command{};
     J2534 *j2534;
     ftdi *OP13;
-    int VechicleInterfaceType;
+    int VechicleInterfaceType = 0;
     byte MUT_Out_buffer[4128];
     // J2534
     unsigned int baudRate = 15625;              //предопределенная скорость соединения
@@ -60,6 +67,8 @@ public:
         unsigned int length;
         unsigned char data[256];
     } outbuf;
+
+
 public slots:
     void dll_connect(int VechicleInterfaceType)                //по сигналу перечислителя
     {
@@ -103,17 +112,13 @@ public slots:
         }
 
     }
-    bool common_five_baud_init()
+
+    QString connect()
     {
-        if (VechicleInterfaceType == 13)
-        {
-            return ftdi_five_baud_init() ;
-        }
-        if (VechicleInterfaceType == 20)
-        {
-            return j2534_five_baud_init() ;
-        }
-        return false;
+        if (!common_five_baud_init())
+            return "";
+        read_direct(0xF52, 4); //читаем номер калибровки
+        return QString::number( qFromBigEndian<quint32>(rx_msg[1].Data), 16 );
     }
 
     void read_indirect(quint32 addr, int count)
@@ -155,13 +160,23 @@ public slots:
             }
         emit timer_unlock();
     }
-    QString ToHex(unsigned int Chk)
-    {
-        return QString("%1").arg(Chk, 2, 16);
-    }
+
 private:
     DWORD Reads;
     DWORD FT_RxQ_Bytes;
+    bool common_five_baud_init()
+    {
+        if (VechicleInterfaceType == 13)
+        {
+            return ftdi_five_baud_init() ;
+        }
+        if (VechicleInterfaceType == 20)
+        {
+            return j2534_five_baud_init() ;
+        }
+        return false;
+    }
+
     void ftdi_low_baud_sender(uint baudRate, byte value)
     { byte p;
         uint t = 1000/baudRate;
@@ -225,7 +240,7 @@ private:
             j2534->PassThruReadMsgs(chanID, &rx_msg[0], &NumMsgs, count*10000/baudRate + magic_adder_readTimeout);
         while(rx_msg[0].RxStatus == START_OF_MESSAGE);
         emit recieve(QByteArray::fromRawData( (char*)rx_msg[1].Data, count) );
-//        memcpy(&MUT_In_buffer, &rx_msg[1].Data, count);
+        //        memcpy(&MUT_In_buffer, &rx_msg[1].Data, count);
     }
     void write_direct_J2534(unsigned long addr, unsigned long count)
     {
@@ -360,7 +375,7 @@ private:
         //    Sleep(400);
         OP13->FT_Write(OP13->ftHandle, &MUT_Out_buffer, count, &Reads );
         qDebug() << "Writed bytes " << Reads;
-        OP13->FT_Read(OP13->ftHandle, &MUT_Out_buffer, count, &Reads);    //читаем эхо
+        OP13->FT_Read(OP13->ftHandle, &rx_msg[0].Data, count, &Reads);    //читаем эхо
     }
 
     void close_FTDI()
@@ -403,7 +418,7 @@ private:
             qDebug() << "PassThruIoctl - FIVE_BAUD_INIT : not ok" + sf;
             return false;
         }
-        qDebug() << "PassThruIoctl - FIVE_BAUD_INIT : OK " << ToHex(KeyWord[0]) << ToHex(KeyWord[1]);
+        qDebug() << "PassThruIoctl - FIVE_BAUD_INIT : OK " << QString::number(KeyWord[0], 16) << QString::number(KeyWord[1], 16);
 
         j2534->PassThruIoctl(chanID, GET_CONFIG, &scl, nullptr)   ;
         baudRate = scl.ConfigPtr[0].Value;                                //
@@ -437,13 +452,9 @@ private:
     {
         ftdi_low_baud_sender(5, 0x00);                                 //5 baud, 0x00 ecu addr, 0x05 TCU?
         Sleep(400);
-
-
         //Get bytes waiting to be read
         OP13->ftStatus = OP13->FT_GetQueueStatus(OP13->ftHandle, &FT_RxQ_Bytes);
-
         OP13->ftStatus = OP13->FT_Read(OP13->ftHandle, rx_msg[0].Data, FT_RxQ_Bytes, &Reads);
-
         if ((OP13->ftStatus != FT_OK) || (FT_RxQ_Bytes < 1))
         {
             qDebug() << " FT_Read failed" << Reads << FT_RxQ_Bytes;
@@ -482,9 +493,6 @@ signals:
     void timer_lock();
     void timer_unlock();
     void recieve(QByteArray);
-
-
-
 };
 
 class Timer:public QTimer
