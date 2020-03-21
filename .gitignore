@@ -1,5 +1,5 @@
 [Dd]ebug/
-
+[Rr]elease/
 moc*
 *.o
 Makefile*
@@ -9,4 +9,4 @@ Makefile*
 j2534_new_wrapper.cpp
 j2534_new_wrapper.h
 inno_mts.h
-inno_mts.h
+
