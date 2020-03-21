@@ -2,7 +2,7 @@
 #define INNO_MTS_H
 
 #include <QObject>
-#include "J2534.h"
+#include "libs/J2534.h"
 class inno_mts
 {
 public:
@@ -96,20 +96,16 @@ public:
             return; // skip
         if (msg->DataSize < 2)
             return;
-
         inno_v1_mts_hdr hdrv1;
         inno_v2_mts_hdr hdrv2;
-
         *((int*)&hdrv1) = msg->Data[0]*256 + msg->Data[1];
         *((int*)&hdrv2) = msg->Data[0]*256 + msg->Data[1];
         unsigned int payload;
         unsigned char* msgptr;
         unsigned int auxcnt = 1;
-
         bool validV1Hdr = hdrv1.mark1 && !hdrv1.mark2 && !hdrv1.mark3 && !hdrv1.mark4;
         bool validV2Hdr = hdrv2.mark1 && hdrv2.mark2 && hdrv2.mark3 && hdrv2.mark4;
         bool is_lm1_packet = false;
-
         if (validV1Hdr || validV2Hdr)
         {
             if (validV2Hdr)
@@ -122,12 +118,9 @@ public:
                 printf("-- LM-1 headerless --\n");
                 payload = 14; // LM-1 V1 payload is a fixed size
             }
-
             if (payload + 2 != msg->DataSize)
                 return;
-
             msgptr = msg->Data + 2;
-
             // work our way through the payload bytes
             while (payload)
             {

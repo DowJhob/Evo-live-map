@@ -16,11 +16,13 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
+    j2534_new_wrapper.cpp \
     mainwindow.cpp \
     libs/J2534.cpp \
     libs/ftdi.cpp \
 
 HEADERS  += mainwindow.h \
+    j2534_new_wrapper.h \
     libs/J2534.h \
     libs/j2534_tactrix.h \
     libs/libusb/include/libusb.h \

@@ -60,7 +60,7 @@ public:
         //==============================================================================================================================================================
         float variable_value;
         //читаем таблицу заголовка-оси в буфер
-        DMA->read_by_type(
+        read_by_type(
                     Table_Decl->X_axis.scaling.storagetype,          //тип данных оси
                     Table_Decl->X_axis.rom_addr,                     //адрес оси в ром
                     Table_Decl->X_axis.elements,
@@ -77,7 +77,7 @@ public:
         }
         //----------------------------------------------------------------------------------------------
         //читаем таблицу заголовка-оси в буфер
-        DMA->read_by_type(
+        read_by_type(
                     Table_Decl->Y_axis.scaling.storagetype, //тип данных оси
                     Table_Decl->Y_axis.rom_addr,                //адрес оси в ром
                     1,
@@ -135,7 +135,7 @@ setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     {
         emit timer_lock();
         // прочитаем нужное количество данных в соответствии с типом
-        DMA->read_by_type(
+        read_by_type(
                     Table_Decl->Table.scaling.storagetype,
                     Table_Decl->Table.ram_addr,
                     Table_Decl->X_axis.elements,
@@ -269,6 +269,20 @@ signals:
     void timer_lock();
     void timer_unlock();
 private:
+    void read_by_type(QString storagetype, quint32 mem_addr, int x, int y)
+    {
+
+        int lenght = x * y;
+        // прочитаем нужное количество данных в соответствии с типом
+        if ( (storagetype == "int8") | (storagetype == "uint8"))
+            DMA->read_direct( mem_addr, lenght); //таблица в памяти
+
+        if ((storagetype == "int16") | (storagetype == "uint16"))
+            DMA->read_direct( mem_addr, lenght * 2); //таблица в памяти
+
+        if ((storagetype == "int32") | (storagetype == "uint32"))
+            DMA->read_direct( mem_addr, lenght * 4); //таблица в памяти
+    }
 public slots:
 
     void on_tableWidget_cellChanged(int row, int column)     //обработчик обновление редакции в таблице
