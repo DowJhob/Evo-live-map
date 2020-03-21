@@ -1,14 +1,14 @@
 # EVO livemap 
 
-Приложение для редактирования таблиц контроллеров митсубиши на лету в ОЗУ.
+Приложение для редактирования таблиц контроллеров митсубиши на лету в ОЗУ. Работает с OpenPort1.3 и OpenPort2.0.
 Все описания ОЗУ таблиц хранятся в хмлках экуфлэш, в описания таблиц добавлены новые атрибуты
 указывающие на расположение таблиц в оперативке контроллера.
 
 Образец:
 
     <table name="High Octane Fuel Map" category="Fuel" address="37b4d" type="3D" level="4" swapxy="true" scaling="AFR" RAM_addr="FFFFA04D"> 
-        <table name="Load" address="4fdc" type="X Axis" elements="18" scaling="Load" RAM_mut_number="0x00" RAM_mut_storagetype="uint16" RAM_mut_frexpr="1000*x/256" RAM_mut_endian="big"/>
-        <table name="RPM" address="4fb4" type="Y Axis" elements="15" scaling="RPM" RAM_mut_number="0x02" RAM_mut_storagetype="uint16" RAM_mut_frexpr="31.25*x"/>
+        <table name="Load" address="4fdc" type="X Axis" elements="18" scaling="Load" RAM_mut_number="0x00"/>
+        <table name="RPM" address="4fb4" type="Y Axis" elements="15" scaling="RPM" RAM_mut_number="0x02"/>
     </table>
 	 
   Программа сама определяет тип интерфейса J2534 или FTDI адаптер, при наличии установленных драйверов. При нажатии кнопки старт происходит попытка соединения с контроллером по альтернативному протоколу и в случае успеха читается внутренний ID, далее приложение по маске номера ID пытаеться найти и прочесть первый найденный xml файл калибровок содержащий в имени номер ID, в случае отсутствия открывается окно поиска файла. Ну а далее будут открыты все доступные для редактирования в RAM таблицы.
