@@ -145,7 +145,6 @@ private:
             node = node.nextSibling();
         }
     }
-
     void getTableDeclaration(QDomNode node, sub_tableDeclaration *_subTableDeclaration)  // сохраняем заголовок таблицы
     {
         bool bStatus = false;
@@ -155,17 +154,12 @@ private:
         _subTableDeclaration->rom_addr = node.toElement().attribute("address").toUInt(&bStatus,16);  // сохраняем значение ROM адреса
         _subTableDeclaration->ram_addr = node.toElement().attribute("RAM_addr").toUInt(&bStatus,16); //получаем адрес  таблицы в оперативке
         _subTableDeclaration->scaling.ram_mut_number = node.toElement().attribute("RAM_mut_number").toUInt(&bStatus,16); //номер мут запроса из рам мут
-        //-------------------------------------------//получаем swapxy
-
-        if (node.toElement().attribute("swapxy") == "true")
+        if (node.toElement().attribute("swapxy") == "true")                              //получаем swapxy
             _subTableDeclaration->swapxy = true;
-
         _subTableDeclaration->scaling.toexpr2 = *set_notation(_subTableDeclaration->scaling.toexpr);
         _subTableDeclaration->scaling.frexpr2 = *set_notation(_subTableDeclaration->scaling.frexpr);
         _subTableDeclaration->elements = node.toElement().attribute("elements").toInt(&bStatus);
-
     }
-
 };
 
 #endif // DOMPARSER_H

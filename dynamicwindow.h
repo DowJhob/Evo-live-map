@@ -126,50 +126,40 @@ public:
                     Table_Decl->Table.ram_addr,
                     Table_Decl->X_axis.elements,
                     Table_Decl->Y_axis.elements);
-        //QString inverse_polish_note = math->get_notation_convert(tablewidget->Table_Decl.Table.scaling.toexpr);
-        //        Table_Decl->Table.scaling.toexpr2 = *set_notation(Table_Decl->Table.scaling.toexpr);   //set notation вернула адрес на свою внутренню структуру с бинарной нотацией
         long long variable_value;
         uint c = 0;
-        int i, j;
+        int swapXyLen, swapYxLen;
         if ( Table_Decl->Table.swapxy )
         {
-            i = Table_Decl->X_axis.elements;
-            j = Table_Decl->Y_axis.elements;
+            swapXyLen = Table_Decl->X_axis.elements;
+            swapYxLen = Table_Decl->Y_axis.elements;
         }
         else
         {
-            j = Table_Decl->X_axis.elements;
-            i = Table_Decl->Y_axis.elements;
+            swapYxLen = Table_Decl->X_axis.elements;
+            swapXyLen = Table_Decl->Y_axis.elements;
         }
-        for (int x = 0; x < i; x++)
+        int swapxyX, swapxyY;
+        for (int x = 0; x < swapXyLen; x++)
         {
-            for (int y = 0; y < j; y++)
+            for (int y = 0; y < swapYxLen; y++)
             {
                 variable_value = typed(Table_Decl->Table.scaling.storagetype,
                                        DMA->rx_msg[1].Data,
                         c,
                         Table_Decl->Table.scaling.endian); //кастуем данные к определенному типу
                 //создаем обновляем итем
-                float compute;
-                compute = fast_calc(Table_Decl->Table.scaling.toexpr2, variable_value);
+                float compute = fast_calc(Table_Decl->Table.scaling.toexpr2, variable_value);
                 if ( Table_Decl->Table.swapxy )
-                {
-                    if (table->item(y, x) == nullptr)  //если итема нет создадим
-                    {
-                        QTableWidgetItem *item = new QTableWidgetItem();
-                        table->setItem(y, x, item);
-                    }
-                    table->item(y, x)->setData( Qt::DisplayRole, compute);
-                }
+                {swapxyX = x; swapxyY = y;}
                 else
+                {swapxyX = y; swapxyY = x;}
+                if (table->item(swapxyY, swapxyX) == nullptr)  //если итема нет создадим
                 {
-                    if (table->item(x, y) == nullptr)  //если итема нет создадим
-                    {
-                        QTableWidgetItem *item = new QTableWidgetItem();
-                        table->setItem(x, y, item);
-                    }
-                    table->item(x, y)->setData( Qt::DisplayRole, compute);
+                    QTableWidgetItem *item = new QTableWidgetItem();
+                    table->setItem(swapxyY, swapxyX, item);
                 }
+                table->item(swapxyY, swapxyX)->setData( Qt::DisplayRole, compute);
                 c++;
             }
         }
@@ -282,12 +272,8 @@ public slots:
     void on_tableWidget_cellChanged(int row, int column)     //обработчик обновление редакции в таблице
     {
         /* Определяем объект, который вызвал сигнал */
-        //DynamicTableWidget *tablewidget = (DynamicTableWidget*)sender();
         QTableWidget *tablewidget = qobject_cast<QTableWidget*>( sender() );
-
         mapWidget *window = qvariant_cast<mapWidget*>( tablewidget->property("addr") ); // указатель на окно
-
-
         emit timer_lock();
         uint pos;
         if (window->Table_Decl->Table.swapxy)
