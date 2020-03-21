@@ -14,6 +14,8 @@ struct Tracer_marker
 {
     int Xtrace;                   //координаты трейсера в индексах таблицы
     int Ytrace;
+    int k;                         //добавочные индексы для краев диапазона, их нужно сохранять на случай резкого измения сигнала от края до нуля
+    int j;
 };
 
 class mapWidget: public QWidget
