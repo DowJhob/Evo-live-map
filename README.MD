@@ -19,24 +19,24 @@
 
 структура таблиц в памяти
 90550001
-имя таблы|адрес в ROM|адрес в RAM|адрес в RAM
-------------|-------------|-----------|-----------
-номер калибровки||  90550001 |80770001
-MUT       |37B00 |  FFFFA000 |FFFFA000
-fuel      |37B8F |  FFFFA084 |FFFFA084 
-fuel2     |      |           |FFFFA19D
-timing    |37CA9 |  FFFFA19D
-timing2   |37CA9 |           |FFFFA311
-maf scal  |37E17 |  FFFFA311 |FFFFA485
-maf smooth|37E32 |  FFFFA32C |FFFFA4A0
-latency   |37E47 |  FFFFA347 |FFFFA4BB
-Turbo Boost Error Correction|37E54   |FFFFA34E |FFFFA4C2
-Boost Desired Engine Load 1 |37E6B   |FFFFA365 |FFFFA4D9
-Boost Desired Engine Load 2 |37E81   |FFFFA37B |FFFFA4EF
-Boost Desired Engine Load 3 |37E97   |FFFFA391 |FFFFA505
-Max Wastegate Duty 1        |37EAD   |FFFFA3A7 |FFFFA51B
-Max Wastegate Duty 2        |37EC3   |FFFFA3BD |FFFFA531
-Max Wastegate Duty 3        |37ED9   |FFFFA3D3 |FFFFA547
+имя таблы                |адрес в ROM|адрес в RAM|адрес в ROM|адрес в RAM
+-----------------------------|-------|----------|-------|-----------
+номер калибровки             |       | 90550001 |       | 80770001
+MUT                          | 37B00 | FFFFA000 | 37B00 | FFFFA000
+fuel                         | 37B8F | FFFFA084 | 37B8F | FFFFA084 
+fuel2                        |       |          | 37CA8 | FFFFA19D
+timing                       | 37CA9 | FFFFA19D | 37DC1 |
+timing2                      | 37CA9 |          | 37F35 | FFFFA311
+maf scal                     | 37E17 | FFFFA311 | 370A9 | FFFFA485
+maf smooth                   | 37E32 | FFFFA32C | 380C4 | FFFFA4A0
+latency                      | 37E47 | FFFFA347 | 380DF | FFFFA4BB
+Turbo Boost Error Correction | 37E54 | FFFFA34E | 380E6 | FFFFA4C2
+Boost Desired Engine Load 1  | 37E6B | FFFFA365 | 380FD | FFFFA4D9
+Boost Desired Engine Load 2  | 37E81 | FFFFA37B | 38113 | FFFFA4EF
+Boost Desired Engine Load 3  | 37E97 | FFFFA391 | 38129 | FFFFA505
+Max Wastegate Duty 1         | 37EAD | FFFFA3A7 | 3813F | FFFFA51B
+Max Wastegate Duty 2         | 37EC3 | FFFFA3BD | 38155 | FFFFA531
+Max Wastegate Duty 3         | 37ED9 | FFFFA3D3 | 3816B | FFFFA547
 
 впрочем эти данные есть xml
 
