@@ -19,14 +19,17 @@
 
 структура таблиц в памяти
 90550001
-имя таблы|адрес в ROM|адрес в RAM
------------- | -------------|-----------
-MUT|37B00|FFFFA000
-fuel|37B8F|FFFFA084 
-timing|37CA9|FFFFA19D
-maf scal|37E17|FFFFA311
-maf smooth|37E32|FFFFA32C
-latency|37E47|FFFFA347
+имя таблы|адрес в ROM|адрес в RAM|адрес в RAM
+------------|-------------|-----------|-----------
+номер калибровки|| 90550001 |80770001
+MUT       |37B00 | FFFFA000 |FFFFA000
+fuel      |37B8F | FFFFA084 |FFFFA084 
+fuel2     |      |          |FFFFA19D
+timing    |37CA9 | FFFFA19D
+timing2   |37CA9 |          |FFFFA2B6
+maf scal  |37E17 | FFFFA311
+maf smooth|37E32 | FFFFA32C
+latency   |37E47 | FFFFA347
 Turbo Boost Error Correction|37E54|FFFFA34E
 Boost Desired Engine Load 1|37E6B|FFFFA365
 Boost Desired Engine Load 2|37E81|FFFFA37B
