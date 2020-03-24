@@ -21,22 +21,22 @@
 90550001
 имя таблы|адрес в ROM|адрес в RAM|адрес в RAM
 ------------|-------------|-----------|-----------
-номер калибровки|| 90550001 |80770001
-MUT       |37B00 | FFFFA000 |FFFFA000
-fuel      |37B8F | FFFFA084 |FFFFA084 
-fuel2     |      |          |FFFFA19D
-timing    |37CA9 | FFFFA19D
-timing2   |37CA9 |          |FFFFA2B6
-maf scal  |37E17 | FFFFA311
-maf smooth|37E32 | FFFFA32C
-latency   |37E47 | FFFFA347
-Turbo Boost Error Correction|37E54|FFFFA34E
-Boost Desired Engine Load 1|37E6B|FFFFA365
-Boost Desired Engine Load 2|37E81|FFFFA37B
-Boost Desired Engine Load 3|37E97|FFFFA391
-Max Wastegate Duty 1|37EAD|FFFFA3A7
-Max Wastegate Duty 2|37EC3|FFFFA3BD
-Max Wastegate Duty 3|37ED9|FFFFA3D3
+номер калибровки||  90550001 |80770001
+MUT       |37B00 |  FFFFA000 |FFFFA000
+fuel      |37B8F |  FFFFA084 |FFFFA084 
+fuel2     |      |           |FFFFA19D
+timing    |37CA9 |  FFFFA19D
+timing2   |37CA9 |           |FFFFA311
+maf scal  |37E17 |  FFFFA311 |FFFFA485
+maf smooth|37E32 |  FFFFA32C |FFFFA4A0
+latency   |37E47 |  FFFFA347 |FFFFA4BB
+Turbo Boost Error Correction|37E54   |FFFFA34E |FFFFA4C2
+Boost Desired Engine Load 1 |37E6B   |FFFFA365 |FFFFA4D9
+Boost Desired Engine Load 2 |37E81   |FFFFA37B |FFFFA4EF
+Boost Desired Engine Load 3 |37E97   |FFFFA391 |FFFFA505
+Max Wastegate Duty 1        |37EAD   |FFFFA3A7 |FFFFA51B
+Max Wastegate Duty 2        |37EC3   |FFFFA3BD |FFFFA531
+Max Wastegate Duty 3        |37ED9   |FFFFA3D3 |FFFFA547
 
 впрочем эти данные есть xml
 
