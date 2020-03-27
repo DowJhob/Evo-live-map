@@ -67,6 +67,6 @@
 
 	<table name="DEAD var" category="EvoLiveMap" address="FFFFAA30"/>
 
-	<table name="RAM_MUT" category="EvoLiveMap" type="1D" scaling="uint32"  address="FFFFA000"/>
+	<table name="RAM_MUT" category="EvoLiveMap" type="1D" scaling="uint32"  address="FFFFA230"/>
 
 </rom>
