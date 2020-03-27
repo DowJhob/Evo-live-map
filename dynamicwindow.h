@@ -48,16 +48,16 @@ public:
         float variable_value;
         //читаем таблицу заголовка-оси в буфер
         read_by_type(
-                    Table_Decl->X_axis.scaling.storagetype,          //тип данных оси
+                    Table_Decl->X_axis.rom_scaling.storagetype,          //тип данных оси
                     Table_Decl->X_axis.rom_addr,                     //адрес оси в ром
                     Table_Decl->X_axis.elements,
                     1);                                              //по игреку ось икс равна 1
         //заполняем в соотвествии с формулой
         for (int i = 0; i < Table_Decl->X_axis.elements; i++)
         {
-            variable_value = mem_cast(Table_Decl->X_axis.scaling.storagetype, DMA->MUT_Out_buffer, i, Table_Decl->X_axis.scaling.endian); //кастуем данные к определенному типу
+            variable_value = mem_cast(Table_Decl->X_axis.rom_scaling.storagetype, DMA->MUT_Out_buffer, i, Table_Decl->X_axis.rom_scaling.endian); //кастуем данные к определенному типу
             QTableWidgetItem *item = new QTableWidgetItem();
-            int compute = qRound(fast_calc(Table_Decl->X_axis.scaling.toexpr2, variable_value));
+            int compute = qRound(fast_calc(Table_Decl->X_axis.rom_scaling.toexpr2, variable_value));
             x_axis.append(compute);
             item->setData( Qt::DisplayRole, QString::number(compute));
             table->setHorizontalHeaderItem(i, item);
@@ -65,15 +65,15 @@ public:
         //----------------------------------------------------------------------------------------------
         //читаем таблицу заголовка-оси в буфер
         read_by_type(
-                    Table_Decl->Y_axis.scaling.storagetype, //тип данных оси
+                    Table_Decl->Y_axis.rom_scaling.storagetype, //тип данных оси
                     Table_Decl->Y_axis.rom_addr,                //адрес оси в ром
                     1,
                     Table_Decl->Y_axis.elements);
         for (int i = 0; i < Table_Decl->Y_axis.elements; i++)
         {
-            variable_value = mem_cast(Table_Decl->Y_axis.scaling.storagetype, DMA->MUT_Out_buffer, i, Table_Decl->Y_axis.scaling.endian); //кастуем данные к определенному типу
+            variable_value = mem_cast(Table_Decl->Y_axis.rom_scaling.storagetype, DMA->MUT_Out_buffer, i, Table_Decl->Y_axis.rom_scaling.endian); //кастуем данные к определенному типу
             QTableWidgetItem *item = new QTableWidgetItem();
-            int compute = qRound(fast_calc(Table_Decl->Y_axis.scaling.toexpr2, variable_value));
+            int compute = qRound(fast_calc(Table_Decl->Y_axis.rom_scaling.toexpr2, variable_value));
             y_axis.append(compute);
             item->setData( Qt::DisplayRole, QString::number(compute));
             table->setVerticalHeaderItem(i, item);
@@ -116,7 +116,7 @@ public:
         emit timer_lock();
         // прочитаем нужное количество данных в соответствии с типом
         read_by_type(
-                    Table_Decl->Table.scaling.storagetype,
+                    Table_Decl->Table.rom_scaling.storagetype,
                     Table_Decl->Table.ram_addr,
                     Table_Decl->X_axis.elements,
                     Table_Decl->Y_axis.elements);
@@ -138,12 +138,12 @@ public:
         {
             for (int y = 0; y < swapYxLen; y++)
             {
-                variable_value = mem_cast(Table_Decl->Table.scaling.storagetype,
+                variable_value = mem_cast(Table_Decl->Table.rom_scaling.storagetype,
                                        DMA->MUT_Out_buffer,
                         c,
-                        Table_Decl->Table.scaling.endian); //кастуем данные к определенному типу
+                        Table_Decl->Table.rom_scaling.endian); //кастуем данные к определенному типу
                 //создаем обновляем итем
-                float compute = fast_calc(Table_Decl->Table.scaling.toexpr2, variable_value);
+                float compute = fast_calc(Table_Decl->Table.rom_scaling.toexpr2, variable_value);
                 if ( Table_Decl->Table.swapxy )
                 {swapxyX = x; swapxyY = y;}
                 else
@@ -277,7 +277,7 @@ public slots:
             pos = row * window->Table_Decl->X_axis.elements + column;
         }
         double variable_value = tablewidget->item(row, column)->text().toDouble();
-        DMA->MUT_Out_buffer[0] = qRound(Computing(get_notation_convert(window->Table_Decl->Table.scaling.frexpr ), variable_value));
+        DMA->MUT_Out_buffer[0] = qRound(Computing(get_notation_convert(window->Table_Decl->Table.rom_scaling.frexpr ), variable_value));
         DMA->write_direct(window->Table_Decl->Table.ram_addr + pos, 1);
         emit timer_unlock();
     }

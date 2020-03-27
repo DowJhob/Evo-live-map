@@ -160,15 +160,15 @@ void MainWindow::logger_and_tableWidget_trace()
     {
         window->table->blockSignals( true );
         // читаем из буфера и кастуем
-        x = qRound(window->mut_cast(window->Table_Decl->X_axis.scaling.storagetype.isEmpty(),
-                                         window->Table_Decl->X_axis.scaling.ram_mut_number,
-                                         window->Table_Decl->X_axis.scaling.endian,
-                                         window->Table_Decl->X_axis.scaling.toexpr2));
+        x = qRound(window->mut_cast(window->Table_Decl->X_axis.rom_scaling.storagetype.isEmpty(),
+                                         window->Table_Decl->X_axis.ram_mut_number,
+                                         window->Table_Decl->X_axis.ram_scaling.endian,
+                                         window->Table_Decl->X_axis.ram_scaling.toexpr2));
 
-        y = qRound(window->mut_cast(window->Table_Decl->Y_axis.scaling.storagetype.isEmpty(),
-                                         window->Table_Decl->Y_axis.scaling.ram_mut_number,
-                                         window->Table_Decl->Y_axis.scaling.endian,
-                                         window->Table_Decl->Y_axis.scaling.toexpr2));
+        y = qRound(window->mut_cast(window->Table_Decl->Y_axis.rom_scaling.storagetype.isEmpty(),
+                                         window->Table_Decl->Y_axis.ram_mut_number,
+                                         window->Table_Decl->Y_axis.ram_scaling.endian,
+                                         window->Table_Decl->Y_axis.ram_scaling.toexpr2));
         if (debug)
         {
             x = QCursor::pos().x();
@@ -313,8 +313,8 @@ void MainWindow::on_debugButton_clicked()
         DMA.MUT_Out_buffer[i] = i;
     }
     //SearchFiles(CurrDir + "/xml/", "80700010");   //найдем файл конфига
-    CreateTable(SearchFiles(CurrDir + "/xml/", "90550001"));   	//найдем файл конфига							//парсим его
-
+//    CreateTable(SearchFiles(CurrDir + "/xml/", "90550001"));   	//найдем файл конфига							//парсим его
+CreateTable(SearchFiles(CurrDir + "/xml/", "88592714"));
 //    if ( "90550001" != load_bin(SearchFiles(CurrDir + "/bin/", "90550001")) )
 //         qDebug() << "bin mismatch";
 

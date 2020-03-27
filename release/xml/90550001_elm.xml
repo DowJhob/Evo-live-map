@@ -50,19 +50,19 @@
 	<scaling name="DynamicBoost" units="%" toexpr="(x-128)/2" frexpr="x*2+128" format="%.1f" min="-64" max="63.5" inc="0.5" storagetype="uint8" endian="big" />
   	
 	<table name="High Octane Fuel Map" category="Fuel" address="37B8F" type="3D" swapxy="true" scaling="AFR" RAM_addr="FFFFA08F">
-		<table name="Load" address="4fdc" type="X Axis" elements="18" scaling="Load" RAM_mut_number="0x00"/>
-		<table name="RPM" address="4fb4" type="Y Axis" elements="15" scaling="RPM" RAM_mut_number="0x02"/>
+		<table name="Load" address="4fdc" type="X Axis" elements="18" scaling="Load" RAM_mut_number="0x00" ram_scaling="Load"/>
+		<table name="RPM" address="4fb4" type="Y Axis" elements="15" scaling="RPM" RAM_mut_number="0x02" ram_scaling=/>
 	</table> 
 	<table name="High Octane Ignition Map" category="Timing" address="37CA9" type="3D" swapxy="true" scaling="Timing" RAM_addr="FFFFA1A9">
-		<table name="Load" address="503a" type="X Axis" elements="19" scaling="Load" RAM_mut_number="0x00"/>
-		<table name="RPM" address="500a" type="Y Axis" elements="19" scaling="RPM" RAM_mut_number="0x02"/>
+		<table name="Load" address="503a" type="X Axis" elements="19" scaling="Load" RAM_mut_number="0x00" ram_scaling="Load"/>
+		<table name="RPM" address="500a" type="Y Axis" elements="19" scaling="RPM" RAM_mut_number="0x02" ram_scaling="RPM"/>
 	</table>
 
 	<table name="MAF Scaling" category="Air" address="37E17" type="2D" scaling="AirFlow8" RAM_addr="FFFFA317">
-		<table name="MAF Hz" address="4ecc" type="Y Axis" elements="21" scaling="MAFHz" RAM_mut_number="0x02"/>
+		<table name="MAF Hz" address="4ecc" type="Y Axis" elements="21" scaling="MAFHz"/>
 	</table>
 	<table name="MAF Smoothing Table" category="Fuel" address="37E32" type="2D" scaling="Percent255" RAM_addr="FFFFA332">
-		<table name="MAF Hz" address="4ecc" type="Y Axis" elements="21" scaling="MAFHz" RAM_mut_number="0x02"/>
+		<table name="MAF Hz" address="4ecc" type="Y Axis" elements="21" scaling="MAFHz"/>
 	</table>
 	
 	<table name="Injector Battery Voltage Latency Compensation" category="Fuel" address="37E47" type="2D" scaling="InjectorLatency" RAM_addr="FFFFA347">
