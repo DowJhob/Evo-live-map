@@ -14,16 +14,17 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    CurrDir = QApplication::applicationDirPath()+ "/xml/"  ;   //xml в текущей директории
-    connect(timer, SIGNAL(timeout()), SLOT(logger_and_tableWidget_trace()), Qt::DirectConnection);//таймер подключаем
-    connect(&Enumerator, SIGNAL(InterfaceActive(int)), &DMA, SLOT(dll_connect(int)), Qt::DirectConnection);
-    connect(&Enumerator, SIGNAL(disconnectInterface()), &DMA, SLOT(dll_disconnect()), Qt::DirectConnection);
+    CurrDir = QApplication::applicationDirPath();   //текущая директории
+    connect(timer, SIGNAL(timeout()), SLOT(logger_and_tableWidget_trace()));
+    connect(&Enumerator, SIGNAL(InterfaceActive(int)), &DMA, SLOT(dll_connect(int)));
+    connect(&Enumerator, SIGNAL(disconnectInterface()), &DMA, SLOT(dll_disconnect()));
 
-    connect(this, SIGNAL(timer_lock()), timer, SLOT(timer_lock()), Qt::DirectConnection);
-    connect(this, SIGNAL(timer_unlock()), timer, SLOT(timer_unlock()), Qt::DirectConnection);
+    connect(this, SIGNAL(timer_lock()), timer, SLOT(timer_lock()));
+    connect(this, SIGNAL(timer_unlock()), timer, SLOT(timer_unlock()));
 
-    connect(&DMA, SIGNAL(timer_lock()), timer, SLOT(timer_lock()), Qt::DirectConnection);
-    connect(&DMA, SIGNAL(timer_unlock()), timer, SLOT(timer_unlock()), Qt::DirectConnection);
+    connect(&DMA, SIGNAL(timer_lock()), timer, SLOT(timer_lock()));
+    connect(&DMA, SIGNAL(timer_unlock()), timer, SLOT(timer_unlock()));
+    connect(&DMA, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
 
     timer->setInterval( 1000/ui->logger_rate_textedit->text().toUInt()  );
     ui->StartButton->setDisabled(true);
@@ -101,6 +102,8 @@ bool  MainWindow::ReadConfig(QString filename)
         QMessageBox::information(this, tr("Unable to open file"), file->errorString());
         return false;
     }
+    if (xmlParser !=nullptr)
+        xmlParser->deleteLater();
     xmlParser = new DomParser(file);        // парсим файл
     delete file;
     return true;
@@ -121,8 +124,8 @@ bool MainWindow::CreateTable(QString filename)
             tableButton->setProperty("tag", tt->tableNum);
             ui->gridLayout_mapalloc->addWidget(tableButton);
             connect(tableButton, SIGNAL(clicked(bool) ), this, SLOT( table_show_hide() ));
-            connect(this, SIGNAL(timer_lock() ), timer, SLOT(timer_lock()));
-            connect(this, SIGNAL(timer_unlock() ), timer, SLOT(timer_unlock()));
+            connect(dynamic_window, SIGNAL(timer_lock() ), timer, SLOT(timer_lock()));
+            connect(dynamic_window, SIGNAL(timer_unlock() ), timer, SLOT(timer_unlock()));
             list_window.insert( tt->tableNum, dynamic_window );
             list_button.insert( tt->tableNum, tableButton );
         }
@@ -157,21 +160,19 @@ void MainWindow::logger_and_tableWidget_trace()
     {
         window->table->blockSignals( true );
         // читаем из буфера и кастуем
-        x = qRound(window->read_and_cast(window->Table_Decl->X_axis.scaling.storagetype.isEmpty(),
-                                         window->Table_Decl->X_axis.scaling.storagetype,
+        x = qRound(window->mut_cast(window->Table_Decl->X_axis.scaling.storagetype.isEmpty(),
                                          window->Table_Decl->X_axis.scaling.ram_mut_number,
                                          window->Table_Decl->X_axis.scaling.endian,
-                                         window->Table_Decl->X_axis.scaling.frexpr2));
+                                         window->Table_Decl->X_axis.scaling.toexpr2));
 
-        y = qRound(window->read_and_cast(window->Table_Decl->Y_axis.scaling.storagetype.isEmpty(),
-                                         window->Table_Decl->Y_axis.scaling.storagetype,
+        y = qRound(window->mut_cast(window->Table_Decl->Y_axis.scaling.storagetype.isEmpty(),
                                          window->Table_Decl->Y_axis.scaling.ram_mut_number,
                                          window->Table_Decl->Y_axis.scaling.endian,
-                                         window->Table_Decl->Y_axis.scaling.frexpr2));
+                                         window->Table_Decl->Y_axis.scaling.toexpr2));
         if (debug)
         {
-            x = QCursor::pos().x()*2;
-            y = QCursor::pos().y()*20;
+            x = QCursor::pos().x();
+            y = QCursor::pos().y()*10;
         }
         //----------------------- вычисляем координаты маркера------------------------------------------------
         window->tracer_marker.Xtrace = axis_lookup2(x, window->Table_Decl->X_axis.elements, window->x_axis);
@@ -255,8 +256,7 @@ void MainWindow::on_StartButton_clicked()
         ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
         s =   "romID " + romID + "\r\n";
         ui->listWidget->addItem(s);
-        SearchFiles(CurrDir, romID);   //найдем файл конфига
-        CreateTable(xml_filename);   								//парсим его
+        CreateTable(SearchFiles(CurrDir + "/xml/", romID)); //найдем файл конфига и парсим его
         timer->start(1000/ui->logger_rate_textedit->text().toUInt());
         s =   "CurrDir " + CurrDir + "\r\n";
     }
@@ -312,9 +312,12 @@ void MainWindow::on_debugButton_clicked()
         DMA.rx_msg[1].Data[i] = i;
         DMA.MUT_Out_buffer[i] = i;
     }
-    //SearchFiles(CurrDir, "80700010");   //найдем файл конфига
-    SearchFiles(CurrDir, "90550001");   //найдем файл конфига
-    CreateTable(xml_filename);   								//парсим его
+    //SearchFiles(CurrDir + "/xml/", "80700010");   //найдем файл конфига
+    CreateTable(SearchFiles(CurrDir + "/xml/", "90550001"));   	//найдем файл конфига							//парсим его
+
+//    if ( "90550001" != load_bin(SearchFiles(CurrDir + "/bin/", "90550001")) )
+//         qDebug() << "bin mismatch";
+
     timer->start(1000/ui->logger_rate_textedit->text().toUInt());
 }
 
@@ -328,16 +331,16 @@ void MainWindow::on_loadbinbutton_clicked()
 
     binarray = new QByteArray( binfile.read(binfile.size()));     // новый массив
 
-    uint romIDnum = qFromBigEndian<quint32>(binarray->mid(0xf52, 4)); // номер калибровки
-    QString romID =  QString::number( romIDnum, 16 );
+    //uint romIDnum = qFromBigEndian<quint32>(binarray->mid(0xf52, 4)); // номер калибровки
+    //QString romID =  QString::number( romIDnum, 16 );
 
-    SearchFiles(CurrDir, romID);   //найдем файл конфига
-    QString xml_filename = listFiles[0];
-    if (xml_filename == "error")
-        xml_filename = QFileDialog::getOpenFileName(this, tr("Open xml"), CurrDir, tr("xml files (*.xml)"));
-    else
-        xml_filename =  CurrDir + xml_filename;
-    ReadConfig(xml_filename);   								//парсим его
+    //SearchFiles(CurrDir, romID);   //найдем файл конфига
+    //QString xml_filename = listFiles[0];
+    //if (xml_filename == "error")
+    //    xml_filename = QFileDialog::getOpenFileName(this, tr("Open xml"), CurrDir, tr("xml files (*.xml)"));
+   // else
+   //     xml_filename =  CurrDir + xml_filename;
+  //  ReadConfig(xml_filename);   								//парсим его
 
     qDebug() << "";
 
@@ -353,4 +356,14 @@ void MainWindow::on_save_trace_pushButton_clicked()
 {
     save_trace = !save_trace;
     ui->save_trace_pushButton->setDown(save_trace);
+}
+
+void MainWindow::Log(QString str)
+{
+    ui->listWidget->addItem(str);
+}
+
+void MainWindow::on_inno_initButton_clicked()
+{
+    DMA.init_inno();
 }

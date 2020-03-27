@@ -55,7 +55,7 @@ public:
         //заполняем в соотвествии с формулой
         for (int i = 0; i < Table_Decl->X_axis.elements; i++)
         {
-            variable_value = typed(Table_Decl->X_axis.scaling.storagetype, DMA->rx_msg[1].Data, i, Table_Decl->X_axis.scaling.endian); //кастуем данные к определенному типу
+            variable_value = mem_cast(Table_Decl->X_axis.scaling.storagetype, DMA->MUT_Out_buffer, i, Table_Decl->X_axis.scaling.endian); //кастуем данные к определенному типу
             QTableWidgetItem *item = new QTableWidgetItem();
             int compute = qRound(fast_calc(Table_Decl->X_axis.scaling.toexpr2, variable_value));
             x_axis.append(compute);
@@ -71,7 +71,7 @@ public:
                     Table_Decl->Y_axis.elements);
         for (int i = 0; i < Table_Decl->Y_axis.elements; i++)
         {
-            variable_value = typed(Table_Decl->Y_axis.scaling.storagetype, DMA->rx_msg[1].Data, i, Table_Decl->Y_axis.scaling.endian); //кастуем данные к определенному типу
+            variable_value = mem_cast(Table_Decl->Y_axis.scaling.storagetype, DMA->MUT_Out_buffer, i, Table_Decl->Y_axis.scaling.endian); //кастуем данные к определенному типу
             QTableWidgetItem *item = new QTableWidgetItem();
             int compute = qRound(fast_calc(Table_Decl->Y_axis.scaling.toexpr2, variable_value));
             y_axis.append(compute);
@@ -138,8 +138,8 @@ public:
         {
             for (int y = 0; y < swapYxLen; y++)
             {
-                variable_value = typed(Table_Decl->Table.scaling.storagetype,
-                                       DMA->rx_msg[1].Data,
+                variable_value = mem_cast(Table_Decl->Table.scaling.storagetype,
+                                       DMA->MUT_Out_buffer,
                         c,
                         Table_Decl->Table.scaling.endian); //кастуем данные к определенному типу
                 //создаем обновляем итем
@@ -162,7 +162,7 @@ public:
 
     void cr_item(QTableWidget *tablewidget, QString storagetype, uchar *in_buf, uint c, bool big, fast_calc_struct toexpr2, bool swapxy)
     {
-        float variable_value = typed(storagetype, in_buf, c, big); //кастуем данные к определенному типу
+        float variable_value = mem_cast(storagetype, in_buf, c, big); //кастуем данные к определенному типу
         //создаем обновляем итем
         float compute = fast_calc(toexpr2, variable_value);
         if ( swapxy )
@@ -184,63 +184,61 @@ public:
             }
             tablewidget->item(x, y)->setData( Qt::DisplayRole, compute);
         }
-
-
     }
 
-    float read_and_cast(bool ram_scaling_storagetype, QString storagetype, quint32 mut_number, bool scaling_endian, fast_calc_struct scaling_frexpr2 )
+    float mut_cast(bool ram_scaling_storagetype, quint32 mut_number, bool scaling_endian, fast_calc_struct fast_scaling )
     {
         float x = 0;
         if (!ram_scaling_storagetype)
         {
-            x = typed(storagetype,
-                      DMA->rx_msg[1].Data,
-                    mut_number,                //номер запроса рам мут
-                    scaling_endian);
-            x = fast_calc(scaling_frexpr2, x);
+            x = mem_cast("uint8",
+                      DMA->MUT_Out_buffer,
+                      mut_number,                //номер запроса рам мут
+                      scaling_endian);
+            x = fast_calc(fast_scaling, x);
         }
         return x;
     }
 
-    qint64 typed(QString storagetype, uchar *in_buf, uint c, bool big)//кастуем данные к определенному типу
+    qint64 mem_cast(QString storagetype, uchar *in_buf, uint offset, bool big)//кастуем данные к определенному типу
     {
         if ( storagetype == "int8")
-            return ((qint8)(in_buf)[c]);
+            return ((qint8)(in_buf)[offset]);
         if ( storagetype == "int16")
         {
             if (big)
-                return qFromBigEndian<qint16>(in_buf + 2 * c);
+                return qFromBigEndian<qint16>(in_buf + 2 * offset);
             else
-                return qFromLittleEndian<qint16>(in_buf + 2 * c);
+                return qFromLittleEndian<qint16>(in_buf + 2 * offset);
         }
         if ( storagetype == "int32")
         {
             if (big)
-                return qFromBigEndian<qint32>(in_buf + 4 * c);
+                return qFromBigEndian<qint32>(in_buf + 4 * offset);
             else
-                return qFromLittleEndian<qint32>(in_buf + 4 * c);
+                return qFromLittleEndian<qint32>(in_buf + 4 * offset);
         }
         if ( storagetype == "uint8")
         {
-            return ((quint8)(in_buf)[c]);
+            return ((quint8)(in_buf)[offset]);
             //  return (quint8)(*((quint8*) (f + c)));
         }
         if ( storagetype == "uint16")
         {
             if (big)
-                return qFromBigEndian<quint16>(in_buf + 2 * c);
+                return qFromBigEndian<quint16>(in_buf + 2 * offset);
             else
-                return qFromLittleEndian<quint16>(in_buf + 2 * c);
+                return qFromLittleEndian<quint16>(in_buf + 2 * offset);
         }
         if ( storagetype == "uint32")
         {
             if (big)
-                return qFromBigEndian<quint32>(in_buf + 4 * c);
+                return qFromBigEndian<quint32>(in_buf + 4 * offset);
             else
-                return qFromLittleEndian<quint32>(in_buf + 4 * c);
+                return qFromLittleEndian<quint32>(in_buf + 4 * offset);
         }
         else
-            return ((quint8)(in_buf)[c]);
+            return ((quint8)(in_buf)[offset]);
     }
 
 signals:

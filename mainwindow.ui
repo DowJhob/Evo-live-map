@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>888</width>
+    <width>934</width>
     <height>650</height>
    </rect>
   </property>
@@ -446,6 +446,13 @@
                   <widget class="QLabel" name="label_7">
                    <property name="text">
                     <string>Время отрисовки трейсера всех таблиц</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QPushButton" name="inno_initButton">
+                   <property name="text">
+                    <string>inno_init</string>
                    </property>
                   </widget>
                  </item>

@@ -361,7 +361,7 @@ inline float fast_calc(fast_calc_struct temp_fs, float x)
 
     float result = 0; //Результат
     QStack<float> temp; //Временный стек для решения
-    for (int i = 0; i < temp_fs.postfix_notation.length(); i++) //Для каждого символа в строке
+    for (int i = 0; i < temp_fs.postfix_notation.count(); i++) //Для каждого символа в строке
     {
         if ( !temp_fs.postfix_notation.at(i).op_flag )  //Если символ - цифра, то читаем все число и записываем на вершину стека
             temp.push(temp_fs.postfix_notation.at(i).payload); //Записываем в стек
@@ -399,7 +399,7 @@ inline int int_fast_calc(fast_calc_struct int_temp_fs, int x)
 
     int result = 0; //Результат
     QStack<int> temp; //Временный стек для решения
-    for (int i = 0; i < int_temp_fs.postfix_notation.length(); i++) //Для каждого символа в строке
+    for (int i = 0; i < int_temp_fs.postfix_notation.count(); i++) //Для каждого символа в строке
     {
         if ( !int_temp_fs.postfix_notation.at(i).op_flag )  //Если символ - цифра, то читаем все число и записываем на вершину стека
             temp.push(int_temp_fs.postfix_notation.at(i).payload); //Записываем в стек

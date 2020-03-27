@@ -4,6 +4,7 @@
 #
 #-------------------------------------------------
 
+CONFIG += c++11
 LIBS += -lSetupapi
 
 QT       += core gui
@@ -21,9 +22,10 @@ SOURCES += main.cpp\
     libs/ftdi.cpp \
 
 HEADERS  += mainwindow.h \
+    inno_mts.h \
     libs/J2534.h \
     libs/j2534_tactrix.h \
-    libs/libusb/include/libusb.h \
+    #libs/libusb/include/libusb.h \
     mathparser2.h \
     dynamicwindow.h \
     libs/ftdi.h \
@@ -32,13 +34,12 @@ HEADERS  += mainwindow.h \
     enumdev.h \
     xmldomparser.h \
 
-LIBS += -Llibs/libusb/MinGW64/dll -lusb-1.0
-INCLUDEPATH += libs/libusb/include
+#LIBS += -Llibs/libusb/MinGW64/dll -lusb-1.0
+#INCLUDEPATH += libs/libusb/include
 FORMS    += mainwindow.ui
 #QMAKE_LFLAGS_RELEASE += -static -static-libgcc
-DISTFILES +=
+#DISTFILES +=
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
-#QMAKE_CXXFLAGS - опции компиляции.
-QMAKE_CXXFLAGS  += -mfpmath=sse -Ofast -flto -march=native -funroll-loops
-#QMAKE_LFLAGS - опции линковки.
-#QMAKE_LFLAGS += -lusb-1.0
+#QMAKE_CXXFLAGS
+#QMAKE_CXXFLAGS  += # -flto -funroll-loops
+QMAKE_CXXFLAGS  += -Ofast -march=core2 -mfpmath=both

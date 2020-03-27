@@ -39,9 +39,9 @@ struct tableDeclaration             // характеристики карт в 
     sub_tableDeclaration Y_axis;                     //Структура заголовка оси
 };
 
-class DomParser
+class DomParser : public QObject
 {
-    //  Q_OBJECT
+      Q_OBJECT
 public:
     //mathParser2 *m;
     DomParser(QIODevice *device)

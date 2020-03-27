@@ -68,6 +68,9 @@ private slots:
     void on_stop_live_clicked();
 
     void on_save_trace_pushButton_clicked();
+    void Log(QString str);
+
+    void on_inno_initButton_clicked();
 
 private:
 
@@ -82,7 +85,7 @@ private:
     enumerator Enumerator;
     dma DMA;
     bool save_trace = false;
-    DomParser *xmlParser;
+    DomParser *xmlParser = nullptr;
     tableDeclaration Table_Decl;                       //Описание одной таблицы
     QByteArray *binarray;                                  // массив с бинарником
 
@@ -100,12 +103,12 @@ private:
         DMA.read_direct(tab_ram_addr, 11111111);
 
 
-        if ( tab->X_axis.elements > 0 )
+        if ( tab->X_axis.elements > 1 )
         {
             X_ax_ram_addr = tab->X_axis.ram_addr;
             DMA.read_direct(X_ax_ram_addr, tab->X_axis.elements);
         }
-        if ( tab->Y_axis.elements > 0 )
+        if ( tab->Y_axis.elements > 1 )
         {
             Y_ax_ram_addr = tab->Y_axis.ram_addr;
             DMA.read_direct(Y_ax_ram_addr, tab->Y_axis.elements);
@@ -113,16 +116,27 @@ private:
 
     }
 
+QString load_bin(QString bin_filename)
+{
+    QFile binfile(bin_filename);
+    if (!binfile.open(QIODevice::ReadWrite ))
+        return "";
+if (binarray != nullptr)
+    delete binarray;
+    binarray = new QByteArray( binfile.read(binfile.size()));     // новый массив
 
+    //uint romIDnum = qFromBigEndian<quint32>(binarray->mid(0xf52, 4)); // номер калибровки
+    //return QString::number( romIDnum, 16 );
+}
 
-    void SearchFiles(QString path, QString CalID)       // Для поиска файлов в каталоге
+    QString SearchFiles(QString path, QString CalID)       // Для поиска файлов в каталоге
     {
         // Пытаемся найти правильные файлы, в текущем каталоге
         listFiles = QDir(path).entryList((CalID + "*.xml ").split(" "), QDir::Files);  //выборка файлов по маскам
         if (listFiles.size()  == 0)            // если файл не найдем вернем егог
-            xml_filename = QFileDialog::getOpenFileName(this, tr("Open xml"), path, tr("xml files (*.xml)"));
+            return QFileDialog::getOpenFileName(this, tr("Open xml"), path, tr("xml files (*.xml)"));
         else
-            xml_filename =  CurrDir + listFiles.at(0);
+            return path + listFiles.at(0);
     }
     int modul(int a, int b)
     {

@@ -33,15 +33,13 @@ public:
         }
     }
 
-    void get_arr(QByteArray comm) // first 4 byte addr, next 2 byte count, and name..
-    {
-        command.enqueue(comm);
-    }
-    QQueue<QByteArray> command{};
     J2534 *j2534;
     ftdi *OP13;
     int VechicleInterfaceType = 0;
     byte MUT_Out_buffer[4128];
+
+    QByteArray _out;
+
     // J2534
     unsigned int baudRate = 15625;              //предопределенная скорость соединения
     unsigned long magic_adder_readTimeout = 7;          // Длинна первого сообщения со статусом прием???
@@ -53,7 +51,8 @@ public:
     unsigned long chanID;
     unsigned long chanID_INNO;
     unsigned long NumMsgs;
-    unsigned long protocol = ISO9141_INNO;            // соответственно протокол
+    unsigned long protocol_inno = ISO9141_INNO;
+    unsigned long protocol = ISO9141_K;
     unsigned long ConnectFlag = ISO9141_NO_CHECKSUM;
     //        || ISO9141_K_LINE_ONLY ;
     struct
@@ -68,30 +67,63 @@ public:
         unsigned char data[256];
     } outbuf;
 
-
 public slots:
+    bool init_inno()
+    {
+        if (j2534->PassThruConnect(devID,ISO9141_INNO,ISO9141_NO_CHECKSUM,19200,&chanID_INNO ))
+        {
+            emit Log( "inno PassThruConnect: not ok" + reportJ2534Error() );
+            return false;
+        }
+
+        // all J2534 channels need filters in order to receive anything at all
+        //
+        // in this case, we simply create a "pass all" filter so that we can see
+        // everything unfiltered in the raw stream
+
+        PASSTHRU_MSG rxmsg,txmsg;
+        PASSTHRU_MSG msgMask,msgPattern;
+        unsigned long msgId;
+        unsigned long numRxMsg;
+
+        txmsg.ProtocolID = ISO9141_INNO;
+        txmsg.RxStatus = 0;
+        txmsg.TxFlags = 0;
+        txmsg.Timestamp = 0;
+        txmsg.DataSize = 1;
+        txmsg.ExtraDataIndex = 0;
+        msgMask = msgPattern  = txmsg;
+        msgMask.Data[0] = 0; // mask the first byte to 0
+        msgPattern.Data[0] = 0; // match it with 0 (i.e. pass everything)
+        if (j2534->PassThruStartMsgFilter(chanID_INNO,PASS_FILTER,&msgMask,&msgPattern,NULL,&msgId))
+        {
+            emit Log( "inno PassThruStartMsgFilter: not ok" + reportJ2534Error() );
+            return false;
+        }
+        emit Log( "inno init : OK" );
+        return true;
+    }
+
     void dll_connect(int VechicleInterfaceType)                //по сигналу перечислителя
     {
         emit timer_lock();
         this->VechicleInterfaceType = VechicleInterfaceType;
-        if (VechicleInterfaceType == 13)
-            if ( OP13 == nullptr  )
-            {
-                OP13 = new ftdi ;
-                qDebug() << " OP13 created!!";
-                init_FTDI();
-                qDebug() << " OP13 dll inited!!";
-                delay_after_command = 0;
-            }
-        if (VechicleInterfaceType == 20)
-            if ( j2534 == nullptr  )
-            {
-                j2534 = new J2534 ;
-                qDebug() << " j2534 created!!";
-                init_j2534();
-                qDebug() << " j2534 dll inited!!";
-                delay_after_command = 4;
-            }
+        if (VechicleInterfaceType == 13 && OP13 == nullptr  )
+        {
+            OP13 = new ftdi ;
+            qDebug() << " OP13 created!!";
+            init_FTDI();
+            qDebug() << " OP13 dll inited!!";
+            delay_after_command = 0;
+        }
+        if (VechicleInterfaceType == 20 && j2534 == nullptr  )
+        {
+            j2534 = new J2534 ;
+            qDebug() << " j2534 created!!";
+            init_j2534();
+            qDebug() << " j2534 dll inited!!";
+            delay_after_command = 4;
+        }
         emit timer_unlock();
     }
     void dll_disconnect()
@@ -118,29 +150,27 @@ public slots:
         if (!common_five_baud_init())
             return "";
         read_direct(0xF52, 4); //читаем номер калибровки
-        return QString::number( qFromBigEndian<quint32>(rx_msg[1].Data), 16 );
+        return QString::number( qFromBigEndian<quint32>(MUT_Out_buffer), 16 );
     }
 
-    void read_indirect(quint32 addr, int count)
+    QByteArray read_indirect(quint32 addr, int count)
     {
         emit timer_lock();
-        if (VechicleInterfaceType == 13)
-            if ( OP13 != nullptr  )
-                read_FTDI(0xE0, addr, count);
-        if (VechicleInterfaceType == 20)
-            if ( j2534 != nullptr  )
-                read_J2534(0xE0, addr, count);
+        if (VechicleInterfaceType == 13 && OP13 != nullptr  )
+            return read_FTDI(0xE0, addr, count);
+        if (VechicleInterfaceType == 20  && j2534 != nullptr  )
+            return read_J2534(0xE0, addr, count);
         emit timer_unlock();
     }
-    void read_direct(quint32 addr, int count)
+    QByteArray read_direct(quint32 addr, int count)
     {
         emit timer_lock();
         if (VechicleInterfaceType == 13)
             if ( OP13 != nullptr  )
-                read_FTDI(0xE1, addr, count);
+                return read_FTDI(0xE1, addr, count);
         if (VechicleInterfaceType == 20)
             if ( j2534 != nullptr  )
-                read_J2534(0xE1, addr, count);
+                return read_J2534(0xE1, addr, count);
         emit timer_unlock();
     }
     void write_direct(quint32 addr, int count)
@@ -229,7 +259,7 @@ private:
             //            if ( j2534 != nullptr  )
             j2534->PassThruWriteMsgs(chanID, &tx_msg, &NumMsgs, writeTimeout);
     }
-    void read_J2534(uchar command, unsigned long addr, unsigned long count)
+    QByteArray read_J2534(uchar command, unsigned long addr, unsigned long count)
     {
         tx_msg.Data[0] = command;
         comand_write(addr, count);
@@ -239,8 +269,13 @@ private:
         do
             j2534->PassThruReadMsgs(chanID, &rx_msg[0], &NumMsgs, count*10000/baudRate + magic_adder_readTimeout);
         while(rx_msg[0].RxStatus == START_OF_MESSAGE);
-        emit recieve(QByteArray::fromRawData( (char*)rx_msg[1].Data, count) );
-        //        memcpy(&MUT_In_buffer, &rx_msg[1].Data, count);
+        qDebug()<<rx_msg[0].Data[0]
+                <<rx_msg[0].Data[1]
+                <<rx_msg[0].Data[2]
+                <<rx_msg[0].Data[3] << " count:  " << count << " NumMsgs:  " << NumMsgs;
+        memcpy(&MUT_Out_buffer, &rx_msg[0].Data, count);
+        _out = QByteArray::fromRawData( (char*)MUT_Out_buffer, count);
+        return _out;
     }
     void write_direct_J2534(unsigned long addr, unsigned long count)
     {
@@ -253,93 +288,57 @@ private:
     }
     bool init_j2534()
     {
-        QString sf;
         tx_msg.ProtocolID = protocol;
-
         for (int r = 0; r < 2; r++)
         {
             rx_msg[r] = tx_msg;
         }
-
         if (!j2534->init())
         {
-            //     error_out = "can't connect to J2534 DLL.\r\n";
-            qDebug() << "can't connect to J2534 DLL.";
+            emit Log( "can't connect to J2534 DLL." );
             return false;
         }
-
         //получаем дескриптор
         if (j2534->PassThruOpen(nullptr, &devID))
         {// читаем и выводим ошибку
-            reportJ2534Error(sf);
-            //       error_out = "PassThruOpen: " + sf;
-            qDebug() << "PassThruOpen: " + sf;
+            emit Log( "PassThruOpen: not ok" + reportJ2534Error() );
             return false;
         }
-        //       error_out = "PassThruOpen: devID = " + QString::number(devID) + "\r\n";
+        emit Log( "PassThruOpen:  devID = " + QString::number(devID) + "\r\n" );
         //читаем версию и прочюю требуху
         char strApiVersion[256];
         char strDllVersion[256];
         char strFirmwareVersion[256];
         char strSerial[256];
-
-        if (j2534->PassThruReadVersion(strApiVersion, strDllVersion, strFirmwareVersion, devID))
+        if ( j2534->PassThruReadVersion(strApiVersion, strDllVersion, strFirmwareVersion, devID) )
         {
-            reportJ2534Error(sf);
-            //  error_out += "PassThruReadVersion: " + sf;
-            qDebug() << "PassThruReadVersion: " + sf;
-            return false;
+            emit Log( "PassThruReadVersion: not ok" + reportJ2534Error() );
         }
-
-        if (!get_serial_num(devID, strSerial))
+        else
         {
-            reportJ2534Error(sf);
-            //      error_out += "get_serial_num: " + sf;
-            qDebug() << "get_serial_num: " + sf;
-            return false;
+            emit Log( "J2534 API Version: " + QString(strApiVersion) + "\r\n" );
+            emit Log( "J2534 DLL Version: " +  QString(strDllVersion) + "\r\n" );
+            emit Log( "Device Firmware Version: " +  QString(strFirmwareVersion) + "\r\n" );
         }
-
-        //   error_out += "J2534 API Version: " + QString(strApiVersion) + "\r\n";
-        //   error_out += "J2534 DLL Version: " +  QString(strDllVersion) + "\r\n";
-        //   error_out += "Device Firmware Version: " +  QString(strFirmwareVersion) + "\r\n";
-        //    error_out += "Device Serial Number: " +  QString(strSerial) + "\r\n";
+        if (get_serial_num(devID, strSerial))
+            emit Log( "Device Serial Number: " +  QString(strSerial) + "\r\n" );
+        else
+            emit Log( "get_serial_num: not ok" + reportJ2534Error() );
 
         if (j2534->PassThruConnect(devID, protocol, ConnectFlag, baudRate, &chanID))
-
         {
-            reportJ2534Error(sf);
-            //error_out += "PassThruConnect: \n" + sf;
-            qDebug() << "PassThruConnect: \n" + sf;
+            emit Log( "PassThruConnect: not ok" + reportJ2534Error() );
             return false;
         }
+        emit Log( "PassThruConnect: OK" );
 
 
-        // all J2534 channels need filters in order to receive anything at all
-        //
-        // in this case, we simply create a "pass all" filter so that we can see
-        // everything unfiltered in the raw stream
 
-        PASSTHRU_MSG txmsg;
-        PASSTHRU_MSG msgMask,msgPattern;
-        unsigned long msgId;
 
-        txmsg.ProtocolID = ISO9141_INNO;
-        txmsg.RxStatus = 0;
-        txmsg.TxFlags = 0;
-        txmsg.Timestamp = 0;
-        txmsg.DataSize = 1;
-        txmsg.ExtraDataIndex = 0;
-        msgMask = msgPattern  = txmsg;
-        msgMask.Data[0] = 0; // mask the first byte to 0
-        msgPattern.Data[0] = 0; // match it with 0 (i.e. pass everything)
-        if (j2534->PassThruStartMsgFilter(chanID, PASS_FILTER, &msgMask, &msgPattern, nullptr, &msgId))
-        {
-            reportJ2534Error(sf);
-            return false;
-        }
-        qDebug() << "common_init_j2534 OK";
+        emit Log( "common_init_j2534 OK" );
         return true;
     }
+
     bool init_FTDI()
     {
         if (OP13->FT_Open(0, &OP13->ftHandle) == FT_OK)
@@ -356,7 +355,7 @@ private:
         qDebug() << " FT_Open failed";
         return false;
     }
-    void read_FTDI(uchar command, quint32 addr, int count)
+    QByteArray read_FTDI(uchar command, quint32 addr, int count)
     {
         tx_msg.Data[0] = command;
         comand_write(addr, count);
@@ -365,6 +364,7 @@ private:
             OP13->FT_GetQueueStatus(OP13->ftHandle, &FT_RxQ_Bytes);
         while(FT_RxQ_Bytes <= count);
         OP13->FT_Read(OP13->ftHandle, &rx_msg[1].Data, count, &Reads);
+        return QByteArray::fromRawData( (char*)rx_msg[1].Data, count);
     }
 
     void write_direct_FTDI(unsigned long addr, unsigned long count)
@@ -388,7 +388,6 @@ private:
 
     bool j2534_five_baud_init()
     {
-        QString sf;
         //-======================================== SET CONFIG ===========================================
         // set timing
         SCONFIG_LIST scl;
@@ -398,7 +397,7 @@ private:
         scl.ConfigPtr = scp;
         if (j2534->PassThruIoctl(chanID, SET_CONFIG, &scl, nullptr))
         {
-            reportJ2534Error(sf);
+            emit Log( "PassThruIoctl - SET_CONFIG : not ok  " + reportJ2534Error() );
             return false;
         }
 
@@ -412,16 +411,16 @@ private:
         outputMsg.NumOfBytes = 0; /* KeyWord array is empty. */
         outputMsg.BytePtr = &KeyWord[0]; /* Assign pointer to KeyWord array. */
 
-        if (j2534->PassThruIoctl(chanID, FIVE_BAUD_INIT, reinterpret_cast<void *>(&inputMsg), reinterpret_cast<void *>(&outputMsg)))
+        if (j2534->PassThruIoctl(chanID, FIVE_BAUD_INIT, (void *)(&inputMsg), (void *)(&outputMsg)))
         {
-            reportJ2534Error(sf);
-            qDebug() << "PassThruIoctl - FIVE_BAUD_INIT : not ok" + sf;
+            emit Log( "PassThruIoctl - FIVE_BAUD_INIT : not ok" + reportJ2534Error() );
             return false;
         }
-        qDebug() << "PassThruIoctl - FIVE_BAUD_INIT : OK " << QString::number(KeyWord[0], 16) << QString::number(KeyWord[1], 16);
+        Log( "PassThruIoctl - FIVE_BAUD_INIT : OK " + QString::number(KeyWord[0], 16) + " " + QString::number(KeyWord[1], 16) + " " + QString::number(KeyWord[2], 16));
 
         j2534->PassThruIoctl(chanID, GET_CONFIG, &scl, nullptr)   ;
         baudRate = scl.ConfigPtr[0].Value;                                //
+        Log( "PassThruIoctl - GET_CONFIG : baudRate = " + QString::number( baudRate ));
 
         // ============================ now setup the filter(s) =========================
         //   PASSTHRU_MSG  txmsg;
@@ -438,12 +437,10 @@ private:
 
         msgMask.Data[0] = 0; // mask the first byte to 0
         msgPattern.Data[0] = 0; // match it with 0 (i.e. pass everything)
-        memset(&msgMask.Data, 0, 4128);
-        memset(&msgPattern.Data, 0, 4128);
+
         if (j2534->PassThruStartMsgFilter(chanID, PASS_FILTER, &msgMask, &msgPattern, nullptr, &msgId))
         {
-            reportJ2534Error(sf);
-            qDebug() << "PassThruStartMsgFilter : OK"+sf;
+            emit Log( "PassThruIoctl - PassThruStartMsgFilter : not ok  " + reportJ2534Error() );
             return false;
         }
         return true;
@@ -464,11 +461,11 @@ private:
         return true;
     }
 
-    void reportJ2534Error(QString &s)
+    QString reportJ2534Error()
     {
         char err[512];
-        j2534->PassThruGetLastError(err);
-        s += QString(err) + "\r\n";
+        int result = j2534->PassThruGetLastError(err);
+        return QString::fromLocal8Bit(err) + "  PassThruGetLastError.return = " + QString::number(result) + "\r\n";
     }
     bool get_serial_num(unsigned long devID, char* serial)
     {
@@ -492,7 +489,7 @@ private:
 signals:
     void timer_lock();
     void timer_unlock();
-    void recieve(QByteArray);
+    void Log(QString);
 };
 
 class Timer:public QTimer
@@ -509,18 +506,17 @@ public:
 
     }
 private:
-    QStack<bool> stack = {};//переменная для хранения предыдущего состояния таймера
-
+    QStack<bool> stack = {};
 public slots:
     void timer_lock()
     {
-        stack.push(this->isActive());
-        this->stop();
+        //     stack.push(this->isActive());
+        //     this->stop();
     }
     void timer_unlock()
     {
-        if (stack.pop())
-            this->start();
+        //   if (stack.pop())
+        //        this->start();
     }
 
 };
