@@ -250,7 +250,7 @@ private:
     bool  debug = false;
     Ui::MainWindow *ui;
     void OperateButtonsLockUnlock();
-    Timer* timer = new Timer(this);
+    QTimer* timer = new QTimer(this);
     enumerator Enumerator;
     dma DMA;
     bool save_trace = false;

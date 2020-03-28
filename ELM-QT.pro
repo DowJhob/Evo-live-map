@@ -5,12 +5,16 @@
 #-------------------------------------------------
 
 CONFIG += c++11
-LIBS += -lSetupapi
 
-QT       += core gui
-QT       += xml
+QT       += core gui xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+DEFINES += QT_DEPRECATED_WARNINGS
+
+# Default rules for deployment.
+qnx: target.path = /tmp/$${TARGET}/bin
+else: unix:!android: target.path = /opt/$${TARGET}/bin
+!isEmpty(target.path): INSTALLS += target
 
 TARGET = ELM-QT
 TEMPLATE = app
@@ -24,7 +28,7 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h \
     #evox.h \
-    inno_mts.h \
+    #inno_mts.h \
     libs/J2534.h \
     libs/j2534_tactrix.h \
     #libs/libusb/include/libusb.h \
@@ -37,7 +41,9 @@ HEADERS  += mainwindow.h \
     xmldomparser.h \
 
 #LIBS += -Llibs/libusb/MinGW64/dll -lusb-1.0
-#INCLUDEPATH += libs/libusb/include
+LIBS += -lSetupapi
+
+#INCLUDEPATH += libs#/libusb/include
 FORMS    += mainwindow.ui
 #QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 #DISTFILES +=

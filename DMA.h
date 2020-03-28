@@ -50,7 +50,7 @@ public:
     unsigned long devID;
     unsigned long chanID;
     unsigned long chanID_INNO;
-    unsigned long NumMsgs;
+    unsigned long NumMsgs ;
     unsigned long protocol_inno = ISO9141_INNO;
     unsigned long protocol = ISO9141_K;
     unsigned long ConnectFlag = ISO9141_NO_CHECKSUM;
@@ -491,34 +491,4 @@ signals:
     void timer_unlock();
     void Log(QString);
 };
-
-class Timer:public QTimer
-{
-    Q_OBJECT
-
-public:
-    Timer(QObject *parent = nullptr)
-    {
-        setParent(parent);
-    }
-    ~Timer()
-    {
-
-    }
-private:
-    QStack<bool> stack = {};
-public slots:
-    void timer_lock()
-    {
-        //     stack.push(this->isActive());
-        //     this->stop();
-    }
-    void timer_unlock()
-    {
-        //   if (stack.pop())
-        //        this->start();
-    }
-
-};
-
 #endif // DMA_H

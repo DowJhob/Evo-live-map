@@ -19,11 +19,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(&Enumerator, SIGNAL(InterfaceActive(int)), &DMA, SLOT(dll_connect(int)));
     connect(&Enumerator, SIGNAL(disconnectInterface()), &DMA, SLOT(dll_disconnect()));
 
-    connect(this, SIGNAL(timer_lock()), timer, SLOT(timer_lock()));
-    connect(this, SIGNAL(timer_unlock()), timer, SLOT(timer_unlock()));
-
-    connect(&DMA, SIGNAL(timer_lock()), timer, SLOT(timer_lock()));
-    connect(&DMA, SIGNAL(timer_unlock()), timer, SLOT(timer_unlock()));
     connect(&DMA, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
 
     timer->setInterval( 1000/ui->logger_rate_textedit->text().toUInt()  );
@@ -124,8 +119,7 @@ bool MainWindow::CreateTable(QString filename)
             tableButton->setProperty("tag", tt->tableNum);
             ui->gridLayout_mapalloc->addWidget(tableButton);
             connect(tableButton, SIGNAL(clicked(bool) ), this, SLOT( table_show_hide() ));
-            connect(dynamic_window, SIGNAL(timer_lock() ), timer, SLOT(timer_lock()));
-            connect(dynamic_window, SIGNAL(timer_unlock() ), timer, SLOT(timer_unlock()));
+
             list_window.insert( tt->tableNum, dynamic_window );
             list_button.insert( tt->tableNum, tableButton );
         }
