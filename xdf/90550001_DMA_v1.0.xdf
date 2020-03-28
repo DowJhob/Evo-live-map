@@ -26,6 +26,7 @@
     <XDFPATCHENTRY name="Injector Latency pointer" address="0x12C8C" datasize="0x4" patchdata="FFFFA347" basedata="00003970" />
     <XDFPATCHENTRY name="MAF Scaling pointer" address="0x13444" datasize="0x4" patchdata="FFFFA311" basedata="00003500" />
     <XDFPATCHENTRY name="MAF Smoothing pointer" address="0x13454" datasize="0x4" patchdata="FFFFA32C" basedata="0000351C" />
+	<XDFPATCHENTRY name="New fuel pump control" address="0x19b70" datasize="0x48" patchdata="D10D6011C8108909D10C6011C8028B05D10B6211910D622D32168904D1096011CB80000B2101D107920463112239000B212100C7FF7F0009FFFF88E4FFFF8C58FFFF852CFFFF87A2" basedata="4F222FE66EF3B0120009600D88008905DA1060A1CB802A01A0050009DA0D60A1DB0B20B92A016EF64F26000B00092FE66EF3D0096001C8108903D0086001C8028902E001A0010009" />
 	<XDFPATCHENTRY name="Inject Turbo Boost Error Correction" address="0x1C690" datasize="0x4" patchdata="FFFFA34E" basedata="000042E6" />
 	<XDFPATCHENTRY name="Inject Boost Desired Engine Load #1" address="0x1C6BC" datasize="0x4" patchdata="FFFFA365" basedata="00004340" />
 	<XDFPATCHENTRY name="Inject Boost Desired Engine Load #2" address="0x1C6C0" datasize="0x4" patchdata="FFFFA37B" basedata="00004356" />
