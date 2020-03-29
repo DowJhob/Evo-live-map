@@ -6,29 +6,29 @@
 //#include <qtablewidget.h>
 
 #include <math.h>
-
+enum Storagetype { int8, int16, int32, uint8, uint16, uint32 };
 
 struct Scaling                          //структура скалингов для помещения в контейнер
 {
-    QString storagetype;
+    Storagetype _storagetype = Storagetype::int8;
     fast_calc_struct toexpr2;
     fast_calc_struct frexpr2;
     QString toexpr;
     QString frexpr;
-    bool endian;
+    bool endian = false;
     QString Original;
     QString Patched;
 };
 struct sub_tableDeclaration
 {
     quint32 ram_mut_number;
-    QString Name;                         //Имя таблицы-карты
-    quint32 ram_addr;               //Адрес таблицы в
+    QString Name;                         //Имя таблицы-карты, или оси
+    quint32 ram_addr;                     //Адрес таблицы в
     quint32 rom_addr;
     int elements = 1;
     bool swapxy = false;
     Scaling rom_scaling;
-    Scaling ram_scaling;
+    Scaling RAM_MUT_scaling;
 };
 struct tableDeclaration             // характеристики карт в памяти контроллера
 {
@@ -69,8 +69,8 @@ public:
             if (node.toElement().tagName() == "scaling")                                                 //сохраним все скалинги
             {
                 QString name = node.toElement().attribute("name");
-                sc.storagetype = node.toElement().attribute("storagetype");
-                if (sc.storagetype == "bloblist")
+                QString storagetype = node.toElement().attribute("storagetype");
+                if (storagetype == "bloblist")
                 {
                     parseEntry(node.toElement());    //пропарсим вложенные тэги патча и оригинала
                 }
@@ -80,11 +80,18 @@ public:
                     sc.frexpr = node.toElement().attribute("frexpr");
                     if (node.toElement().attribute("endian") == "big")
                         sc.endian = true;
-                    else
-                        if (node.toElement().attribute("endian") == "little")
-                            sc.endian = false;
-                        else
-                            sc.endian = true;
+                    if (storagetype == "int8")
+                        sc._storagetype = Storagetype::int8;
+                    if (storagetype == "int16")
+                        sc._storagetype = Storagetype::int16;
+                    if (storagetype == "int32")
+                        sc._storagetype = Storagetype::int32;
+                    if (storagetype == "uint8")
+                        sc._storagetype = Storagetype::uint8;
+                    if (storagetype == "uint16")
+                        sc._storagetype = Storagetype::uint16;
+                    if (storagetype == "uint32")
+                        sc._storagetype = Storagetype::uint32;
                 }
                 scaling_qmap.insert(name, sc);
             }
@@ -146,23 +153,20 @@ private:
     }
     void getTableDeclaration(QDomNode node, sub_tableDeclaration *_subTableDeclaration)  // сохраняем заголовок таблицы
     {
-        bool bStatus = false;
         node = node.toElement();
         _subTableDeclaration->rom_scaling = scaling_qmap.value( node.toElement().attribute("scaling") ); //сохраним скалинг данных таблицы
         _subTableDeclaration->Name = node.toElement().attribute("name");						        // сохраним имя таблицы
-        _subTableDeclaration->rom_addr = node.toElement().attribute("address").toUInt(&bStatus,16);  // сохраняем значение ROM адреса
-        _subTableDeclaration->ram_addr = node.toElement().attribute("RAM_addr").toUInt(&bStatus,16); //получаем адрес  таблицы в оперативке
-        _subTableDeclaration->ram_mut_number = node.toElement().attribute("RAM_mut_number").toUInt(&bStatus,16); //номер мут запроса из рам мут
+        _subTableDeclaration->rom_addr = node.toElement().attribute("address").toUInt(nullptr,16);  // сохраняем значение ROM адреса
+        _subTableDeclaration->ram_addr = node.toElement().attribute("RAM_addr").toUInt(nullptr,16); //получаем адрес  таблицы в оперативке
+        _subTableDeclaration->ram_mut_number = node.toElement().attribute("RAM_mut_number").toUInt(nullptr,16); //номер мут запроса из рам мут
 
-        _subTableDeclaration->ram_scaling = scaling_qmap.value( node.toElement().attribute("ram_scaling") ); //сохраним RAM скалинг данных логгера
-
-
+        _subTableDeclaration->RAM_MUT_scaling = scaling_qmap.value( node.toElement().attribute("ram_mut_scaling") ); //сохраним RAM скалинг данных логгера
 
         if (node.toElement().attribute("swapxy") == "true")                              //получаем swapxy
             _subTableDeclaration->swapxy = true;
         _subTableDeclaration->rom_scaling.toexpr2 = *set_notation(_subTableDeclaration->rom_scaling.toexpr);
         _subTableDeclaration->rom_scaling.frexpr2 = *set_notation(_subTableDeclaration->rom_scaling.frexpr);
-        _subTableDeclaration->elements = node.toElement().attribute("elements").toInt(&bStatus);
+        _subTableDeclaration->elements = node.toElement().attribute("elements").toInt(nullptr);
     }
 };
 

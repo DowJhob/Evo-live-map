@@ -1,0 +1,17 @@
+INPUT(
+./release\main.o
+./release\chunks.o
+./release\commands.o
+./release\qhexedit.o
+./release\mainwindow.o
+./release\J2534.o
+./release\ftdi.o
+./release\moc_mainwindow.o
+./release\moc_chunks.o
+./release\moc_commands.o
+./release\moc_qhexedit.o
+./release\moc_dynamicwindow.o
+./release\moc_DMA.o
+./release\moc_enumdev.o
+./release\moc_xmldomparser.o
+);

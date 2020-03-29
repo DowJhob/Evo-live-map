@@ -1,0 +1,17 @@
+INPUT(
+./debug\main.o
+./debug\chunks.o
+./debug\commands.o
+./debug\qhexedit.o
+./debug\mainwindow.o
+./debug\J2534.o
+./debug\ftdi.o
+./debug\moc_mainwindow.o
+./debug\moc_chunks.o
+./debug\moc_commands.o
+./debug\moc_qhexedit.o
+./debug\moc_dynamicwindow.o
+./debug\moc_DMA.o
+./debug\moc_enumdev.o
+./debug\moc_xmldomparser.o
+);

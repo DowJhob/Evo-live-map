@@ -22,13 +22,20 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     #evox.cpp \
+    qhexedit/chunks.cpp \
+    qhexedit/commands.cpp \
+    qhexedit/qhexedit.cpp \
     mainwindow.cpp \
     libs/J2534.cpp \
-    libs/ftdi.cpp \
+    libs/ftdi.cpp
+
 
 HEADERS  += mainwindow.h \
     #evox.h \
     #inno_mts.h \
+    qhexedit/chunks.h \
+    qhexedit/commands.h \
+qhexedit/qhexedit.h \
     libs/J2534.h \
     libs/j2534_tactrix.h \
     #libs/libusb/include/libusb.h \
@@ -38,16 +45,19 @@ HEADERS  += mainwindow.h \
     libs/ftdi_types.h \
     DMA.h \
     enumdev.h \
-    xmldomparser.h \
+    xmldomparser.h
 
+FORMS    += mainwindow.ui
+
+#DISTFILES +=
+
+CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
+
+#INCLUDEPATH += libs/libusb/include
 #LIBS += -Llibs/libusb/MinGW64/dll -lusb-1.0
 LIBS += -lSetupapi
 
-#INCLUDEPATH += libs#/libusb/include
-FORMS    += mainwindow.ui
 #QMAKE_LFLAGS_RELEASE += -static -static-libgcc
-#DISTFILES +=
-CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
-#QMAKE_CXXFLAGS
 #QMAKE_CXXFLAGS  += # -flto -funroll-loops
 QMAKE_CXXFLAGS  += -Ofast -march=core2 -mfpmath=both
+DEFINES += QHEXEDIT_EXPORTS

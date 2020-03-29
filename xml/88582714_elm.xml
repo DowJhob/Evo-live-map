@@ -63,38 +63,21 @@
 	<scaling name="int8" units="units" toexpr="x" frexpr="x" format="%.0f" min="0" max="255" inc="1" storagetype="int8" endian="big"/>
 
 	
-<scaling name="int32" units="units" toexpr="x" frexpr="x" format="%.0f" min="0" max="65535" inc="1" storagetype="int32" endian="big"/>
-
-
+	<scaling name="int32" units="units" toexpr="x" frexpr="x" format="%.0f" min="0" max="65535" inc="1" storagetype="int32" endian="big"/>
 	<scaling name="Timing" units="degrees" toexpr="x" frexpr="x" format="%.0f" min="-61" max="61" inc="1" storagetype="int8" endian="big"/>
 	<scaling name="Timing-Cut" units="degrees" toexpr="x*0.35" frexpr="x/0.35" format="%.1f" min="0" max="30" inc="1" storagetype="int8" endian="big"/>
 	<scaling name="TimingTrim8" units="degrees" toexpr="x-128" frexpr="x+128" format="%.0f" min="-128" max="128" inc="1" storagetype="uint8" endian="big"/>
-
 	<scaling name="RamAdress" units="hex" toexpr="x-4294901760" frexpr="x+4294901760" format="%04X" min="0" max="65535" inc="1" storagetype="uint32" endian="big"/>
 
-
-
-
-
-
-<table name="High Octane Fuel Map" category="Fuel" address="35bd" type="3D" level="4" swapxy="true" scaling="AFR" RAM_addr="FFFFA04D">
-
-	<table name="Load" address="6fd0" type="X Axis" elements="18" scaling="Load" RAM_mut_number="0x00" RAM_mut_storagetype="uint16" RAM_mut_frexpr="1000*x/256" RAM_mut_endian="big"/>
-	
-	<table name="RPM" address="6fa8" type="Y Axis" elements="15" scaling="RPM" RAM_mut_number="0x02" RAM_mut_storagetype="uint8" RAM_mut_frexpr="31.25*x"/>
+	<table name="High Octane Fuel Map" category="Fuel" address="35bd" type="3D" level="4" swapxy="true" scaling="AFR" RAM_addr="FFFFA04D">
+		<table name="Load" address="6fd0" type="X Axis" elements="18" scaling="Load" RAM_mut_number="0x00" ram_mut_scaling="Load"/>
+		<table name="RPM" address="6fa8" type="Y Axis" elements="15" scaling="RPM" RAM_mut_number="0x02" ram_mut_scaling="RPM"/>
 	</table>
 
-
-
-<table name="High Octane Ignition Map" category="Timing" address="3f3d" type="3D" level="4" swapxy="true" scaling="Timing" RAM_addr="FFFFA34D">
-
-		<table name="Load" address="7034" type="X Axis" elements="19" scaling="Load" RAM_mut_number="0x00" RAM_mut_storagetype="uint16" RAM_mut_frexpr="1000*x/256" RAM_mut_endian="big"/>
-
-		<table name="RPM" address="7002" type="Y Axis" elements="19" scaling="RPM" RAM_mut_number="0x02" RAM_mut_storagetype="uint8" RAM_mut_frexpr="31.25*x"/>
-
+	<table name="High Octane Ignition Map" category="Timing" address="3f3d" type="3D" level="4" swapxy="true" scaling="Timing" RAM_addr="FFFFA34D">
+		<table name="Load" address="7034" type="X Axis" elements="19" scaling="Load" RAM_mut_number="0x00" ram_mut_scaling="Load"/>
+		<table name="RPM" address="7002" type="Y Axis" elements="19" scaling="RPM" RAM_mut_number="0x02" ram_mut_scaling="RPM"/>
 	</table>
-
-
 
 <table name="Boost Desired Engine Load (Low Gear Range)" address="3fd6" RAM_addr="FFFFA6CD">
     <table name="RPM" address="7336"/>

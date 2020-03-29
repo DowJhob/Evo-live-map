@@ -30,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->StartButton->setDisabled(!Enumerator.VechicleInterfaceState);
     //Подписываемся на события
     Enumerator.NotifyRegister((HWND)this->winId());
+    hexEdit = new QHexEdit;
+    ui->RAMeditorLayout->addWidget(hexEdit, 3,0,1,2);
 }
 
 MainWindow::~MainWindow()
@@ -154,15 +156,9 @@ void MainWindow::logger_and_tableWidget_trace()
     {
         window->table->blockSignals( true );
         // читаем из буфера и кастуем
-        x = qRound(window->mut_cast(window->Table_Decl->X_axis.rom_scaling.storagetype.isEmpty(),
-                                         window->Table_Decl->X_axis.ram_mut_number,
-                                         window->Table_Decl->X_axis.ram_scaling.endian,
-                                         window->Table_Decl->X_axis.ram_scaling.toexpr2));
+        x = qRound(window->mut_cast(window->Table_Decl->X_axis.RAM_MUT_scaling, window->Table_Decl->X_axis.ram_mut_number));
 
-        y = qRound(window->mut_cast(window->Table_Decl->Y_axis.rom_scaling.storagetype.isEmpty(),
-                                         window->Table_Decl->Y_axis.ram_mut_number,
-                                         window->Table_Decl->Y_axis.ram_scaling.endian,
-                                         window->Table_Decl->Y_axis.ram_scaling.toexpr2));
+        y = qRound(window->mut_cast(window->Table_Decl->Y_axis.RAM_MUT_scaling, window->Table_Decl->Y_axis.ram_mut_number));
         if (debug)
         {
             x = QCursor::pos().x();
@@ -301,14 +297,14 @@ void MainWindow::on_debugButton_clicked()
     debug = true;
     emit Enumerator. InterfaceActive(20);
     QString romID = DMA.connect();
-    for (uchar i =0; i < 255; i++)
+    for (int i =0; i < 4000; i++)
     {
-        DMA.rx_msg[1].Data[i] = i;
-        DMA.MUT_Out_buffer[i] = i;
+        DMA.rx_msg[0].Data[i] = 128;
+        DMA.MUT_Out_buffer[i] = 128;
     }
     //SearchFiles(CurrDir + "/xml/", "80700010");   //найдем файл конфига
-//    CreateTable(SearchFiles(CurrDir + "/xml/", "90550001"));   	//найдем файл конфига							//парсим его
-CreateTable(SearchFiles(CurrDir + "/xml/", "88592714"));
+    CreateTable(SearchFiles(CurrDir + "/xml/", "90550001"));   	//найдем файл конфига							//парсим его
+//CreateTable(SearchFiles(CurrDir + "/xml/", "88592715"));
 //    if ( "90550001" != load_bin(SearchFiles(CurrDir + "/bin/", "90550001")) )
 //         qDebug() << "bin mismatch";
 
@@ -360,4 +356,29 @@ void MainWindow::Log(QString str)
 void MainWindow::on_inno_initButton_clicked()
 {
     DMA.init_inno();
+}
+
+void MainWindow::on_start_addr_lineEdit_returnPressed()
+{
+    int count = ui->count_lineEdit->text().toUInt();
+    DMA.read_direct(ui->start_addr_lineEdit->text().toUInt(), count);
+    QByteArray b;
+    b = QByteArray::fromRawData( (char*)DMA.MUT_Out_buffer, count );
+    hexEdit->setData(b);
+}
+
+void MainWindow::on_count_lineEdit_returnPressed()
+{
+    int count = ui->count_lineEdit->text().toUInt();
+    DMA.read_direct(ui->start_addr_lineEdit->text().toUInt(), count);
+    QByteArray b;
+    b = QByteArray::fromRawData( (char*)DMA.MUT_Out_buffer, count );
+    hexEdit->setData(b);
+}
+
+void MainWindow::on_clearDeadVarButton_clicked()
+{
+    DMA.MUT_Out_buffer[0] = 0xDE;
+    DMA.MUT_Out_buffer[1] = 0xAD;
+    DMA.write_direct(0xFFFFA800, 4);
 }

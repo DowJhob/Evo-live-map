@@ -4,11 +4,9 @@
 
 #include <QTableWidget>
 #include <QtEndian>
-//#include <math.h>
+
 #include "xmldomparser.h"
 #include "DMA.h"
-//#include "dynamictablewidget.h"
-//#include "mathparser2.h"
 
 struct Tracer_marker
 {
@@ -48,14 +46,14 @@ public:
         float variable_value;
         //читаем таблицу заголовка-оси в буфер
         read_by_type(
-                    Table_Decl->X_axis.rom_scaling.storagetype,          //тип данных оси
-                    Table_Decl->X_axis.rom_addr,                     //адрес оси в ром
-                    Table_Decl->X_axis.elements,
-                    1);                                              //по игреку ось икс равна 1
+            Table_Decl->X_axis.rom_scaling._storagetype,          //тип данных оси
+            Table_Decl->X_axis.rom_addr,                     //адрес оси в ром
+            Table_Decl->X_axis.elements,
+            1);                                              //по игреку ось икс равна 1
         //заполняем в соотвествии с формулой
         for (int i = 0; i < Table_Decl->X_axis.elements; i++)
         {
-            variable_value = mem_cast(Table_Decl->X_axis.rom_scaling.storagetype, DMA->MUT_Out_buffer, i, Table_Decl->X_axis.rom_scaling.endian); //кастуем данные к определенному типу
+            variable_value = mem_cast(Table_Decl->X_axis.rom_scaling, DMA->MUT_Out_buffer, i); //кастуем данные к определенному типу
             QTableWidgetItem *item = new QTableWidgetItem();
             int compute = qRound(fast_calc(Table_Decl->X_axis.rom_scaling.toexpr2, variable_value));
             x_axis.append(compute);
@@ -65,13 +63,13 @@ public:
         //----------------------------------------------------------------------------------------------
         //читаем таблицу заголовка-оси в буфер
         read_by_type(
-                    Table_Decl->Y_axis.rom_scaling.storagetype, //тип данных оси
-                    Table_Decl->Y_axis.rom_addr,                //адрес оси в ром
-                    1,
-                    Table_Decl->Y_axis.elements);
+            Table_Decl->Y_axis.rom_scaling._storagetype, //тип данных оси
+            Table_Decl->Y_axis.rom_addr,                //адрес оси в ром
+            1,
+            Table_Decl->Y_axis.elements);
         for (int i = 0; i < Table_Decl->Y_axis.elements; i++)
         {
-            variable_value = mem_cast(Table_Decl->Y_axis.rom_scaling.storagetype, DMA->MUT_Out_buffer, i, Table_Decl->Y_axis.rom_scaling.endian); //кастуем данные к определенному типу
+            variable_value = mem_cast(Table_Decl->Y_axis.rom_scaling, DMA->MUT_Out_buffer, i); //кастуем данные к определенному типу
             QTableWidgetItem *item = new QTableWidgetItem();
             int compute = qRound(fast_calc(Table_Decl->Y_axis.rom_scaling.toexpr2, variable_value));
             y_axis.append(compute);
@@ -116,10 +114,10 @@ public:
         emit timer_lock();
         // прочитаем нужное количество данных в соответствии с типом
         read_by_type(
-                    Table_Decl->Table.rom_scaling.storagetype,
-                    Table_Decl->Table.ram_addr,
-                    Table_Decl->X_axis.elements,
-                    Table_Decl->Y_axis.elements);
+            Table_Decl->Table.rom_scaling._storagetype,
+            Table_Decl->Table.ram_addr,
+            Table_Decl->X_axis.elements,
+            Table_Decl->Y_axis.elements);
         long long variable_value;
         uint c = 0;
         int swapXyLen, swapYxLen;
@@ -138,16 +136,11 @@ public:
         {
             for (int y = 0; y < swapYxLen; y++)
             {
-                variable_value = mem_cast(Table_Decl->Table.rom_scaling.storagetype,
-                                       DMA->MUT_Out_buffer,
-                        c,
-                        Table_Decl->Table.rom_scaling.endian); //кастуем данные к определенному типу
+                variable_value = mem_cast(Table_Decl->Table.rom_scaling, DMA->MUT_Out_buffer, c ); //кастуем данные к определенному типу
                 //создаем обновляем итем
                 float compute = fast_calc(Table_Decl->Table.rom_scaling.toexpr2, variable_value);
-                if ( Table_Decl->Table.swapxy )
-                {swapxyX = x; swapxyY = y;}
-                else
-                {swapxyX = y; swapxyY = x;}
+                if ( Table_Decl->Table.swapxy ) {swapxyX = x; swapxyY = y;}
+                else {swapxyX = y; swapxyY = x;}
                 if (table->item(swapxyY, swapxyX) == nullptr)  //если итема нет создадим
                 {
                     QTableWidgetItem *item = new QTableWidgetItem();
@@ -160,9 +153,9 @@ public:
         emit timer_unlock();
     }
 
-    void cr_item(QTableWidget *tablewidget, QString storagetype, uchar *in_buf, uint c, bool big, fast_calc_struct toexpr2, bool swapxy)
+    void cr_item(QTableWidget *tablewidget, Scaling scaling, uchar *in_buf, uint c, bool big, fast_calc_struct toexpr2, bool swapxy)
     {
-        float variable_value = mem_cast(storagetype, in_buf, c, big); //кастуем данные к определенному типу
+        float variable_value = mem_cast(scaling, in_buf, c); //кастуем данные к определенному типу
         //создаем обновляем итем
         float compute = fast_calc(toexpr2, variable_value);
         if ( swapxy )
@@ -186,78 +179,70 @@ public:
         }
     }
 
-    float mut_cast(bool ram_scaling_storagetype, quint32 mut_number, bool scaling_endian, fast_calc_struct fast_scaling )
+    float mut_cast( Scaling scaling, int mut_number )
     {
         float x = 0;
-        if (!ram_scaling_storagetype)
-        {
-            x = mem_cast("uint8",
-                      DMA->MUT_Out_buffer,
-                      mut_number,                //номер запроса рам мут
-                      scaling_endian);
-            x = fast_calc(fast_scaling, x);
-        }
+        x = type_cast(scaling,
+                      DMA->MUT_Out_buffer + mut_number                //номер запроса рам мут
+                      );
+        x = fast_calc(scaling.toexpr2, x);
         return x;
     }
 
-    qint64 mem_cast(QString storagetype, uchar *in_buf, uint offset, bool big)//кастуем данные к определенному типу
+    qint64 mem_cast(Scaling scaling, uchar *in_buf, uint offset)   //кастуем данные к определенному типу
     {
-        if ( storagetype == "int8")
-            return ((qint8)(in_buf)[offset]);
-        if ( storagetype == "int16")
-        {
-            if (big)
-                return qFromBigEndian<qint16>(in_buf + 2 * offset);
-            else
-                return qFromLittleEndian<qint16>(in_buf + 2 * offset);
+        switch (scaling._storagetype) {
+        case Storagetype::int8:
+        case Storagetype::uint8:  type_cast(scaling, in_buf + offset); break;
+        case Storagetype::int16:
+        case Storagetype::uint16: type_cast(scaling, in_buf + 2*offset); break;
+        case Storagetype::int32:
+        case Storagetype::uint32: type_cast(scaling, in_buf + 4*offset); break;
+        default: break;
         }
-        if ( storagetype == "int32")
-        {
-            if (big)
-                return qFromBigEndian<qint32>(in_buf + 4 * offset);
-            else
-                return qFromLittleEndian<qint32>(in_buf + 4 * offset);
-        }
-        if ( storagetype == "uint8")
-        {
-            return ((quint8)(in_buf)[offset]);
-            //  return (quint8)(*((quint8*) (f + c)));
-        }
-        if ( storagetype == "uint16")
-        {
-            if (big)
-                return qFromBigEndian<quint16>(in_buf + 2 * offset);
-            else
-                return qFromLittleEndian<quint16>(in_buf + 2 * offset);
-        }
-        if ( storagetype == "uint32")
-        {
-            if (big)
-                return qFromBigEndian<quint32>(in_buf + 4 * offset);
-            else
-                return qFromLittleEndian<quint32>(in_buf + 4 * offset);
-        }
+    }
+
+    qint64 type_cast(Scaling scaling, uchar *in_buf)          //кастуем данные к определенному типу
+    {
+        if (scaling.endian)
+            switch (scaling._storagetype) {
+            case Storagetype::int8:   return (qint8)in_buf[0];                break;
+            case Storagetype::int16:  return qFromBigEndian<qint16>(in_buf);  break;
+            case Storagetype::int32:  return qFromBigEndian<qint32>(in_buf);  break;
+            case Storagetype::uint8:  return (quint8)in_buf[0];  break;
+            case Storagetype::uint16: return qFromBigEndian<quint16>(in_buf); break;
+            case Storagetype::uint32: return qFromBigEndian<quint32>(in_buf);break;
+            default: break;
+            }
         else
-            return ((quint8)(in_buf)[offset]);
+            switch (scaling._storagetype) {
+            case Storagetype::int8:   return (qint8)in_buf[0];           break;
+            case Storagetype::int16:  return qFromLittleEndian<qint16>(in_buf); break;
+            case Storagetype::int32:  return qFromLittleEndian<qint32>(in_buf); break;
+            case Storagetype::uint8:  return (quint8)in_buf[0];      break;
+            case Storagetype::uint16: return qFromLittleEndian<quint16>(in_buf); break;
+            case Storagetype::uint32: return qFromLittleEndian<quint32>(in_buf); break;
+            default: break;
+            }
     }
 
 signals:
     void timer_lock();
     void timer_unlock();
 private:
-    void read_by_type(QString storagetype, quint32 mem_addr, int x, int y)
+    void read_by_type(Storagetype storagetype, quint32 mem_addr, int x, int y)
     {
-
         int lenght = x * y;
         // прочитаем нужное количество данных в соответствии с типом
-        if ( (storagetype == "int8") | (storagetype == "uint8"))
-            DMA->read_direct( mem_addr, lenght); //таблица в памяти
-
-        if ((storagetype == "int16") | (storagetype == "uint16"))
-            DMA->read_direct( mem_addr, lenght * 2); //таблица в памяти
-
-        if ((storagetype == "int32") | (storagetype == "uint32"))
-            DMA->read_direct( mem_addr, lenght * 4); //таблица в памяти
+        switch (storagetype) {
+        case Storagetype::int8:
+        case Storagetype::uint8:  DMA->read_direct( mem_addr, lenght); break;
+        case Storagetype::int16:
+        case Storagetype::uint16: DMA->read_direct( mem_addr, lenght * 2); break;
+        case Storagetype::int32:
+        case Storagetype::uint32: DMA->read_direct( mem_addr, lenght * 4); break;
+        default: break;
+        }
     }
 public slots:
 

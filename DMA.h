@@ -36,7 +36,7 @@ public:
     J2534 *j2534;
     ftdi *OP13;
     int VechicleInterfaceType = 0;
-    byte MUT_Out_buffer[4128];
+    uchar MUT_Out_buffer[4128];
 
     QByteArray _out;
 
@@ -70,9 +70,9 @@ public:
 public slots:
     bool init_inno()
     {
-        if (j2534->PassThruConnect(devID,ISO9141_INNO,ISO9141_NO_CHECKSUM,19200,&chanID_INNO ))
+        if (j2534->PassThruConnect(devID, ISO9141_INNO, ISO9141_NO_CHECKSUM, 19200, &chanID_INNO ))
         {
-            emit Log( "inno PassThruConnect: not ok" + reportJ2534Error() );
+            emit Log( "inno PassThruConnect: not ok  -  " + reportJ2534Error() );
             return false;
         }
 
@@ -165,25 +165,21 @@ public slots:
     QByteArray read_direct(quint32 addr, int count)
     {
         emit timer_lock();
-        if (VechicleInterfaceType == 13)
-            if ( OP13 != nullptr  )
+        if (VechicleInterfaceType == 13 && OP13 != nullptr  )
                 return read_FTDI(0xE1, addr, count);
-        if (VechicleInterfaceType == 20)
-            if ( j2534 != nullptr  )
+        if (VechicleInterfaceType == 20 && j2534 != nullptr  )
                 return read_J2534(0xE1, addr, count);
         emit timer_unlock();
     }
     void write_direct(quint32 addr, int count)
     {
         emit timer_lock();
-        if (VechicleInterfaceType == 13)
-            if ( OP13 != nullptr  )
+        if (VechicleInterfaceType == 13 && OP13 != nullptr  )
             {
                 write_direct_FTDI(addr, count);
                 qDebug() << " write_direct_FTDI";
             }
-        if (VechicleInterfaceType == 20)
-            if ( j2534 != nullptr  )
+        if (VechicleInterfaceType == 20 && j2534 != nullptr  )
             {
                 write_direct_J2534(addr, count);
                 qDebug() << " write_direct_J2534";
@@ -269,11 +265,8 @@ private:
         do
             j2534->PassThruReadMsgs(chanID, &rx_msg[0], &NumMsgs, count*10000/baudRate + magic_adder_readTimeout);
         while(rx_msg[0].RxStatus == START_OF_MESSAGE);
-        qDebug()<<rx_msg[0].Data[0]
-                <<rx_msg[0].Data[1]
-                <<rx_msg[0].Data[2]
-                <<rx_msg[0].Data[3] << " count:  " << count << " NumMsgs:  " << NumMsgs;
-        memcpy(&MUT_Out_buffer, &rx_msg[0].Data, count);
+
+        //memcpy(&MUT_Out_buffer, &rx_msg[0].Data, count);
         _out = QByteArray::fromRawData( (char*)MUT_Out_buffer, count);
         return _out;
     }
@@ -304,7 +297,7 @@ private:
             emit Log( "PassThruOpen: not ok" + reportJ2534Error() );
             return false;
         }
-        emit Log( "PassThruOpen:  devID = " + QString::number(devID) + "\r\n" );
+        emit Log( "PassThruOpen:  devID = " + QString::number(devID) );
         //читаем версию и прочюю требуху
         char strApiVersion[256];
         char strDllVersion[256];
@@ -316,12 +309,12 @@ private:
         }
         else
         {
-            emit Log( "J2534 API Version: " + QString(strApiVersion) + "\r\n" );
-            emit Log( "J2534 DLL Version: " +  QString(strDllVersion) + "\r\n" );
-            emit Log( "Device Firmware Version: " +  QString(strFirmwareVersion) + "\r\n" );
+            emit Log( "J2534 API Version: " + QString(strApiVersion) );
+            emit Log( "J2534 DLL Version: " +  QString(strDllVersion));
+            emit Log( "Device Firmware Version: " +  QString(strFirmwareVersion) );
         }
         if (get_serial_num(devID, strSerial))
-            emit Log( "Device Serial Number: " +  QString(strSerial) + "\r\n" );
+            emit Log( "Device Serial Number: " +  QString(strSerial) );
         else
             emit Log( "get_serial_num: not ok" + reportJ2534Error() );
 
@@ -330,10 +323,7 @@ private:
             emit Log( "PassThruConnect: not ok" + reportJ2534Error() );
             return false;
         }
-        emit Log( "PassThruConnect: OK" );
-
-
-
+        emit Log( "PassThruConnect: OK  -  chanel ID: " + QString::number(chanID));
 
         emit Log( "common_init_j2534 OK" );
         return true;

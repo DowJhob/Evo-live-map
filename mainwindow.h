@@ -10,6 +10,7 @@
 #include "enumdev.h"
 #include "dynamicwindow.h"
 #include "mathparser2.h"
+#include "qhexedit/qhexedit.h"
 
 namespace Ui {
 class MainWindow;
@@ -71,6 +72,12 @@ private slots:
     void Log(QString str);
 
     void on_inno_initButton_clicked();
+
+    void on_start_addr_lineEdit_returnPressed();
+
+    void on_count_lineEdit_returnPressed();
+
+    void on_clearDeadVarButton_clicked();
 
 private:
     void evoX_Connect_Click()
@@ -257,7 +264,7 @@ private:
     DomParser *xmlParser = nullptr;
     tableDeclaration Table_Decl;                       //Описание одной таблицы
     QByteArray *binarray;                                  // массив с бинарником
-
+QHexEdit *hexEdit;
     void get_table(tableDeclaration *tab)
     {
    //     if ( tableQueue->isEmpty() )
