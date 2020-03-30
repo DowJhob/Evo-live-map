@@ -41,11 +41,7 @@ MainWindow::~MainWindow()
     TableDelete();
     delete ui;
     delete timer;
-    if (xmlParser != nullptr)
-    {
-        delete xmlParser;
-        xmlParser = nullptr;
-    }
+
 }
 
 void MainWindow::OperateButtonsLockUnlock()
@@ -101,31 +97,44 @@ bool MainWindow::ReadConfig(QString filename)
         QMessageBox::information(this, tr("Unable to open file"), file->errorString());
         return false;
     }
-    if (xmlParser !=nullptr)
-        xmlParser->deleteLater();
-    xmlParser = new DomParser(file);        // парсим файл
+
+    xmlParser._parser(file, _ecu);        // парсим файл
     delete file;
     return true;
 }
 
 bool MainWindow::CreateTable(QString filename)
 {
+    _ecu = new ecu;
     if (!ReadConfig(filename))
-        return false;                                               // прочтем конфиг
-    tableDeclaration *tt;                                            // временная переменная для хранения описания таблицы
-    for (int i = 0; i < xmlParser->TableDecl_qvector.size(); i++)       // переберем все описания таблиц
+        return false;
+// переберем все описания таблиц
+    foreach ( tableDeclaration tab, _ecu->loggingRAMtables)
     {
-        tt = &xmlParser->TableDecl_qvector[i];                           //
-        if (tt->Table.ram_addr != 0)                                    // проверим что это таблица карт, а не таблица патчей
+        if (tab.Table.ram_addr != 0)                                    // проверим что это таблица карт, а не таблица патчей
         {
-            mapWidget *dynamic_window = new mapWidget( this, tt, &DMA);
-            QPushButton *tableButton = new QPushButton(tt->Table.Name, ui->groupBox_mapalloc);
-            tableButton->setProperty("tag", tt->tableNum);
+            mapWidget *dynamic_window = new mapWidget( this, &tab, &DMA);
+            QPushButton *tableButton = new QPushButton(tab.Table.Name, ui->groupBox_mapalloc);
+            tableButton->setProperty("tag", tab.tableNum);
             ui->gridLayout_mapalloc->addWidget(tableButton);
             connect(tableButton, SIGNAL(clicked(bool) ), this, SLOT( table_show_hide() ));
 
-            list_window.insert( tt->tableNum, dynamic_window );
-            list_button.insert( tt->tableNum, tableButton );
+            list_window.insert( tab.tableNum, dynamic_window );
+            list_button.insert( tab.tableNum, tableButton );
+        }
+    }
+    foreach ( tableDeclaration tab, _ecu->not_loggingRAMtables)
+    {
+        if (tab.Table.ram_addr != 0)                                    // проверим что это таблица карт, а не таблица патчей
+        {
+            mapWidget *dynamic_window = new mapWidget( this, &tab, &DMA);
+            QPushButton *tableButton = new QPushButton(tab.Table.Name, ui->groupBox_mapalloc);
+            tableButton->setProperty("tag", tab.tableNum);
+            ui->gridLayout_mapalloc->addWidget(tableButton);
+            connect(tableButton, SIGNAL(clicked(bool) ), this, SLOT( table_show_hide() ));
+
+            list_window.insert( tab.tableNum, dynamic_window );
+            list_button.insert( tab.tableNum, tableButton );
         }
     }
     return true;
@@ -150,78 +159,79 @@ void MainWindow::logger_and_tableWidget_trace()
 {
     QElapsedTimer t;
     t.start();
-    emit timer_lock();
-    DMA.read_indirect(xmlParser->RAM_MUT_addr, 16);
+    timer->stop();
+    DMA.read_indirect(_ecu->RAM_MUT_addr, 16);
     int x = 0;
     int y = 0;
     foreach (mapWidget *window, list_window)
     {
-        window->table->blockSignals( true );
-        // читаем из буфера и кастуем
-        x = qRound(window->mut_cast(window->Table_Decl->X_axis.RAM_MUT_scaling, window->Table_Decl->X_axis.ram_mut_number));
-
-        y = qRound(window->mut_cast(window->Table_Decl->Y_axis.RAM_MUT_scaling, window->Table_Decl->Y_axis.ram_mut_number));
-        if (debug)
+        if ( window->Table_Decl.X_axis.ram_mut_number || window->Table_Decl.Y_axis.ram_mut_number )
         {
-            x = QCursor::pos().x();
-            y = QCursor::pos().y()*10;
-        }
-        //----------------------- вычисляем координаты маркера------------------------------------------------
-        window->tracer_marker.Xtrace = axis_lookup2(x, window->Table_Decl->X_axis.elements, window->x_axis);
-        window->tracer_marker.Ytrace = axis_lookup2(y, window->Table_Decl->Y_axis.elements, window->y_axis);
-        //----------------------- вычисляем насыщенность ячеек маркера ---------------------------------------
-        window->tracer_marker.k = 0;
-        window->tracer_marker.j = 0;
-        if ( (window->Table_Decl->X_axis.elements > 1) && (window->tracer_marker.Xtrace < window->Table_Decl->X_axis.elements - 1) )
-            window->tracer_marker.j = 1;
-        if ( (window->Table_Decl->Y_axis.elements > 1) && (window->tracer_marker.Ytrace < window->Table_Decl->Y_axis.elements - 1) )
-            window->tracer_marker.k = 1;
-
-        float kX = (float)255/(window->x_axis[window->tracer_marker.Xtrace+window->tracer_marker.j] - window->x_axis[window->tracer_marker.Xtrace]);    //коэффициент нормирования
-        float kY = (float)255/(window->y_axis[window->tracer_marker.Ytrace+window->tracer_marker.k] - window->y_axis[window->tracer_marker.Ytrace]);    //коэффициент нормирования
-
-        int leftNormalX  = qRound((window->x_axis[window->tracer_marker.Xtrace]-x)*kX);                       //нормированные координаты
-        int rightNormalX = qRound((window->x_axis[window->tracer_marker.Xtrace+window->tracer_marker.j]-x)*kX);                       //нормированные координаты
-        int upNormalY    = qRound((window->y_axis[window->tracer_marker.Ytrace]-y)*kY);
-        int downNormalY  = qRound((window->y_axis[window->tracer_marker.Ytrace+window->tracer_marker.k]-y)*kY);
-
-        //модули векторов,
-        int leftUP    = modul(leftNormalX, upNormalY);
-        int rightUP   = modul(rightNormalX, upNormalY);
-        int leftDOWN  = modul(leftNormalX, downNormalY);
-        int rightDOWN = modul(rightNormalX, downNormalY);
-
-        QColor color_rightDOWN, color_leftDOWN, color_rightUP, color_leftUP;
-        color_rightDOWN.setHsv(240, rightDOWN, 255, 255);
-        color_leftDOWN.setHsv(240, leftDOWN, 255, 255);
-        color_rightUP.setHsv(240, rightUP, 255, 255);
-        color_leftUP.setHsv(240, leftUP, 255, 255);
-        //------------------------------------------------------------------------------------------------------------------
-        if ((window->tracer_marker_pred.Xtrace != window->tracer_marker.Xtrace) ||(window->tracer_marker_pred.Ytrace != window->tracer_marker.Ytrace)) // тут гашение если изменился X или Y
-        {
-            //гашение предыдущего маркера таблицы
-            if (!save_trace)
+            x = qRound(window->mut_cast(window->Table_Decl.X_axis.RAM_MUT_scaling, window->Table_Decl.X_axis.ram_mut_number));
+            y = qRound(window->mut_cast(window->Table_Decl.Y_axis.RAM_MUT_scaling, window->Table_Decl.Y_axis.ram_mut_number));
+            if (debug)
             {
-                window->table->item(window->tracer_marker_pred.Ytrace,   window->tracer_marker_pred.Xtrace)->setBackground(Qt::white);
-                window->table->item(window->tracer_marker_pred.Ytrace,   window->tracer_marker_pred.Xtrace+window->tracer_marker_pred.j)->setBackground(Qt::white);
-                window->table->item(window->tracer_marker_pred.Ytrace+window->tracer_marker_pred.k, window->tracer_marker_pred.Xtrace)->setBackground(Qt::white);
-                window->table->item(window->tracer_marker_pred.Ytrace+window->tracer_marker_pred.k, window->tracer_marker_pred.Xtrace+window->tracer_marker_pred.j)->setBackground(Qt::white);
+                x = QCursor::pos().x();
+                y = QCursor::pos().y()*10;
             }
-        }
-        //сохраняем  текущее положение для след расчета
-        window->tracer_marker_pred = window->tracer_marker;
-        //         рисуем новое положение маркера
-        window->table->item(window->tracer_marker.Ytrace, window->tracer_marker.Xtrace)->setBackground(color_leftUP);//левый верхний
-        window->table->item(window->tracer_marker.Ytrace, window->tracer_marker.Xtrace+window->tracer_marker.j)->setBackground(color_rightUP);//правый верхний
-        window->table->item(window->tracer_marker.Ytrace+window->tracer_marker.k, window->tracer_marker.Xtrace)->setBackground(color_leftDOWN);//левый нижний
-        window->table->item(window->tracer_marker.Ytrace+window->tracer_marker.k, window->tracer_marker.Xtrace+window->tracer_marker.j)->setBackground(color_rightDOWN);//правый нижний
+            //----------------------- вычисляем координаты маркера------------------------------------------------
+            window->tracer_marker.Xtrace = axis_lookup2(x, window->Table_Decl.X_axis.elements, window->x_axis);
+            window->tracer_marker.Ytrace = axis_lookup2(y, window->Table_Decl.Y_axis.elements, window->y_axis);
+            //----------------------- вычисляем насыщенность ячеек маркера ---------------------------------------
+            window->tracer_marker.k = 0;
+            window->tracer_marker.j = 0;
+            if ( (window->Table_Decl.X_axis.elements > 1) && (window->tracer_marker.Xtrace < window->Table_Decl.X_axis.elements - 1) )
+                window->tracer_marker.j = 1;
+            if ( (window->Table_Decl.Y_axis.elements > 1) && (window->tracer_marker.Ytrace < window->Table_Decl.Y_axis.elements - 1) )
+                window->tracer_marker.k = 1;
 
-        // разблокируем обновления редакции
-        window->table->blockSignals(false);//
+            float kX = (float)255/(window->x_axis[window->tracer_marker.Xtrace+window->tracer_marker.j] - window->x_axis[window->tracer_marker.Xtrace]);    //коэффициент нормирования
+            float kY = (float)255/(window->y_axis[window->tracer_marker.Ytrace+window->tracer_marker.k] - window->y_axis[window->tracer_marker.Ytrace]);    //коэффициент нормирования
+
+            int leftNormalX  = qRound((window->x_axis[window->tracer_marker.Xtrace]-x)*kX);                       //нормированные координаты
+            int rightNormalX = qRound((window->x_axis[window->tracer_marker.Xtrace+window->tracer_marker.j]-x)*kX);                       //нормированные координаты
+            int upNormalY    = qRound((window->y_axis[window->tracer_marker.Ytrace]-y)*kY);
+            int downNormalY  = qRound((window->y_axis[window->tracer_marker.Ytrace+window->tracer_marker.k]-y)*kY);
+
+            //модули векторов,
+            int leftUP    = modul(leftNormalX, upNormalY);
+            int rightUP   = modul(rightNormalX, upNormalY);
+            int leftDOWN  = modul(leftNormalX, downNormalY);
+            int rightDOWN = modul(rightNormalX, downNormalY);
+
+            QColor color_rightDOWN, color_leftDOWN, color_rightUP, color_leftUP;
+            color_rightDOWN.setHsv(240, rightDOWN, 255, 255);
+            color_leftDOWN.setHsv(240, leftDOWN, 255, 255);
+            color_rightUP.setHsv(240, rightUP, 255, 255);
+            color_leftUP.setHsv(240, leftUP, 255, 255);
+            //------------------------------------------------------------------------------------------------------------------
+            window->table->blockSignals( true );
+            if ((window->tracer_marker_pred.Xtrace != window->tracer_marker.Xtrace) ||(window->tracer_marker_pred.Ytrace != window->tracer_marker.Ytrace)) // тут гашение если изменился X или Y
+            {
+                //гашение предыдущего маркера таблицы
+                if (!save_trace)
+                {
+                    window->table->item(window->tracer_marker_pred.Ytrace,   window->tracer_marker_pred.Xtrace)->setBackground(Qt::white);
+                    window->table->item(window->tracer_marker_pred.Ytrace,   window->tracer_marker_pred.Xtrace+window->tracer_marker_pred.j)->setBackground(Qt::white);
+                    window->table->item(window->tracer_marker_pred.Ytrace+window->tracer_marker_pred.k, window->tracer_marker_pred.Xtrace)->setBackground(Qt::white);
+                    window->table->item(window->tracer_marker_pred.Ytrace+window->tracer_marker_pred.k, window->tracer_marker_pred.Xtrace+window->tracer_marker_pred.j)->setBackground(Qt::white);
+                }
+            }
+            //сохраняем  текущее положение для след расчета
+            window->tracer_marker_pred = window->tracer_marker;
+            //         рисуем новое положение маркера
+            window->table->item(window->tracer_marker.Ytrace, window->tracer_marker.Xtrace)->setBackground(color_leftUP);//левый верхний
+            window->table->item(window->tracer_marker.Ytrace, window->tracer_marker.Xtrace+window->tracer_marker.j)->setBackground(color_rightUP);//правый верхний
+            window->table->item(window->tracer_marker.Ytrace+window->tracer_marker.k, window->tracer_marker.Xtrace)->setBackground(color_leftDOWN);//левый нижний
+            window->table->item(window->tracer_marker.Ytrace+window->tracer_marker.k, window->tracer_marker.Xtrace+window->tracer_marker.j)->setBackground(color_rightDOWN);//правый нижний
+
+            // разблокируем обновления редакции
+            window->table->blockSignals(false);//
+        }
     }
     ui->trace_time_label->setText(QString::number(t.nsecsElapsed()/1000) + "us");
     //qDebug() << time.msecsTo( QTime::currentTime() );
-    emit timer_unlock();
+    timer->start();
 }
 
 void MainWindow::on_BaudRatelineEdit_textChanged(const QString &arg1)   // Обновляем скорость обмена
@@ -266,7 +276,7 @@ void MainWindow::on_RAM_reset_Button_clicked()
     DMA.MUT_Out_buffer[0] = 0x00;
     DMA.MUT_Out_buffer[1] = 0x00;
 
-    DMA.write_direct(xmlParser->DEAD_var, 2);
+    DMA.write_direct(_ecu->DEAD_var, 2);
     on_read_RAM_Button_clicked();
     DMA.timer_unlock();
 }
@@ -283,7 +293,6 @@ void MainWindow::on_read_RAM_Button_clicked()
         window->table->blockSignals(true);//перед обновлением отключим сигнал автообновления ячейки
         window->table_set_update();
         window->table->blockSignals(false);
-        qDebug() << "refresh: " << window->Table_Decl->Table.Name;
     }
 
     DMA.timer_unlock();
@@ -306,9 +315,9 @@ void MainWindow::on_debugButton_clicked()
     }
     //SearchFiles(CurrDir + "/xml/", "80700010");   //найдем файл конфига
     CreateTable(SearchFiles(CurrDir + "/xml/", "90550001"));   	//найдем файл конфига							//парсим его
-//CreateTable(SearchFiles(CurrDir + "/xml/", "88592715"));
-//    if ( "90550001" != load_bin(SearchFiles(CurrDir + "/bin/", "90550001")) )
-//         qDebug() << "bin mismatch";
+    //CreateTable(SearchFiles(CurrDir + "/xml/", "88592715"));
+    //    if ( "90550001" != load_bin(SearchFiles(CurrDir + "/bin/", "90550001")) )
+    //         qDebug() << "bin mismatch";
 
     timer->start(1000/ui->logger_rate_textedit->text().toUInt());
 }
@@ -330,9 +339,9 @@ void MainWindow::on_loadbinbutton_clicked()
     //QString xml_filename = listFiles[0];
     //if (xml_filename == "error")
     //    xml_filename = QFileDialog::getOpenFileName(this, tr("Open xml"), CurrDir, tr("xml files (*.xml)"));
-   // else
-   //     xml_filename =  CurrDir + xml_filename;
-  //  ReadConfig(xml_filename);   								//парсим его
+    // else
+    //     xml_filename =  CurrDir + xml_filename;
+    //  ReadConfig(xml_filename);   								//парсим его
 
     qDebug() << "";
 

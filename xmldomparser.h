@@ -1,51 +1,20 @@
 #ifndef DOMPARSER_H
 #define DOMPARSER_H
 #include <QtXml/QDomDocument>
-//#include <QtWidgets>
 #include <mathparser2.h>
-//#include <qtablewidget.h>
-
+#include "ecu.h"
 #include <math.h>
-enum Storagetype { int8, int16, int32, uint8, uint16, uint32 };
-
-struct Scaling                          //структура скалингов для помещения в контейнер
-{
-    Storagetype _storagetype = Storagetype::int8;
-    fast_calc_struct toexpr2;
-    fast_calc_struct frexpr2;
-    QString toexpr;
-    QString frexpr;
-    bool endian = false;
-    QString Original;
-    QString Patched;
-};
-struct sub_tableDeclaration
-{
-    quint32 ram_mut_number;
-    QString Name;                         //Имя таблицы-карты, или оси
-    quint32 ram_addr;                     //Адрес таблицы в
-    quint32 rom_addr;
-    int elements = 1;
-    bool swapxy = false;
-    Scaling rom_scaling;
-    Scaling RAM_MUT_scaling;
-};
-struct tableDeclaration             // характеристики карт в памяти контроллера
-{
-    int tableNum;               //порядковый номер
-    sub_tableDeclaration Table;                      //Структура заголовка  таблицы
-    sub_tableDeclaration X_axis;                     //Структура заголовка оси
-    sub_tableDeclaration Y_axis;                     //Структура заголовка оси
-};
 
 class DomParser : public QObject
 {
       Q_OBJECT
 public:
-    //mathParser2 *m;
-    DomParser(QIODevice *device)
+
+    DomParser()
+    {}
+    void _parser(QIODevice *device, ecu *_ecu)
     {
-        //this->m = m;
+        this->_ecu = _ecu;
         QString errorStr;
         int errorLine;
         int errorColumn;
@@ -98,19 +67,25 @@ public:
             if (node.toElement().tagName() == "table")                                                   // находим таблицу
             {
                 if (node.toElement().attribute("name") == "RAM_MUT")                                     //
-                    RAM_MUT_addr = node.toElement().attribute("address").toUInt(nullptr, 16);
+                {
+                    _ecu->RAM_MUT_addr = node.toElement().attribute("address").toUInt(nullptr, 16);
+                    _ecu->DEAD_var = node.toElement().attribute("DEAD_var").toUInt(nullptr, 16);
+                    parseEntry(node.toElement());
+                }
                 if (node.toElement().attribute("name") == "DEAD var")                                    //
-                    DEAD_var = node.toElement().attribute("address").toUInt(nullptr, 16);
-                if (node.toElement().attribute("name") == "MUT Table")                                   //
-                    MUT_addr = node.toElement().attribute("address").toUInt(nullptr, 16);
+                    _ecu->DEAD_var = node.toElement().attribute("address").toUInt(nullptr, 16);
                 if (!node.toElement().attribute("RAM_addr").isEmpty() ||                                 //  лайв таблица или
-                        !scaling_qmap.value(node.toElement().attribute("scaling")).Patched.isEmpty())    // это таблица с патчем?
+                    !scaling_qmap.value(node.toElement().attribute("scaling")).Patched.isEmpty())    // это таблица с патчем?
                 {
                     mainTableDeclaration = {};
                     getTableDeclaration(node, &mainTableDeclaration.Table);                              // сохраняем заголовок таблицы
                     parseEntry(node.toElement());                                                        // парсим оси
                     mainTableDeclaration.tableNum = i;
-                    TableDecl_qvector.insert(i, mainTableDeclaration);
+
+                  //  if ( mainTableDeclaration.X_axis.ram_addr || mainTableDeclaration.X_axis.ram_addr )
+                  //      _ecu->loggingRAMtables.insert(mainTableDeclaration.Table.Name, mainTableDeclaration);
+                  //  else
+                        _ecu->not_loggingRAMtables.insert(mainTableDeclaration.Table.Name, mainTableDeclaration);
                     i++;
                 }
             }
@@ -118,22 +93,26 @@ public:
         }
     }
 
-    QVector<tableDeclaration> TableDecl_qvector;   //вектор таблиц
-    quint32 MUT_addr;
-    quint32 DEAD_var;
-    quint32 RAM_MUT_addr;
 
 private:
+    ecu *_ecu;
     Scaling sc;                                               //промежуточная структура для помещения в контейнер
     QMap<QString, Scaling> scaling_qmap;                      //контейнер скалингов
     sub_tableDeclaration axisDeclaration;                     //структура оси
     tableDeclaration mainTableDeclaration;                    //структура таблицы
-    //mathParser2 mp;                                         //объект матпарсера
+
     void parseEntry(const QDomElement &element)
     {
         QDomNode node = element.firstChild();
         while (!node.isNull())
         {
+            if (node.toElement().tagName() == "ram_mut") //находим параметры мут таблицы
+            {
+                mutParam _mut_param;
+                _mut_param.ram_mut_param_scaling = scaling_qmap.value(node.toElement().attribute("scaling"));
+                _mut_param.ram_mut_offset = node.toElement().attribute("offset").toInt(nullptr, 16);
+                _ecu->RAM_MUT.insert( node.toElement().attribute("name"), _mut_param );
+            }
             if (node.toElement().tagName() == "table") //находим ось
             {
                 if (node.toElement().attribute("type") == "X Axis")
@@ -156,9 +135,9 @@ private:
         node = node.toElement();
         _subTableDeclaration->rom_scaling = scaling_qmap.value( node.toElement().attribute("scaling") ); //сохраним скалинг данных таблицы
         _subTableDeclaration->Name = node.toElement().attribute("name");						        // сохраним имя таблицы
-        _subTableDeclaration->rom_addr = node.toElement().attribute("address").toUInt(nullptr,16);  // сохраняем значение ROM адреса
-        _subTableDeclaration->ram_addr = node.toElement().attribute("RAM_addr").toUInt(nullptr,16); //получаем адрес  таблицы в оперативке
-        _subTableDeclaration->ram_mut_number = node.toElement().attribute("RAM_mut_number").toUInt(nullptr,16); //номер мут запроса из рам мут
+        _subTableDeclaration->rom_addr = node.toElement().attribute("address").toUInt(nullptr, 16);  // сохраняем значение ROM адреса
+        _subTableDeclaration->ram_addr = node.toElement().attribute("RAM_addr").toUInt(nullptr, 16); //получаем адрес  таблицы в оперативке
+        _subTableDeclaration->ram_mut_number = node.toElement().attribute("RAM_mut_number").toUInt(nullptr, 16); //номер мут запроса из рам мут
 
         _subTableDeclaration->RAM_MUT_scaling = scaling_qmap.value( node.toElement().attribute("ram_mut_scaling") ); //сохраним RAM скалинг данных логгера
 

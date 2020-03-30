@@ -21,7 +21,7 @@ class mapWidget: public QWidget
     Q_OBJECT
 
 public:
-    tableDeclaration *Table_Decl;               //Описание таблицы
+    tableDeclaration Table_Decl;               //Описание таблицы
     Tracer_marker tracer_marker;
     Tracer_marker tracer_marker_pred = {};
     QVector <int> x_axis={};    //костыли с содержимым осей
@@ -34,9 +34,10 @@ public:
 
     mapWidget(QWidget *parent = nullptr, tableDeclaration *Table_Decl = nullptr, dma *DMA = nullptr): QWidget(parent, Qt::Window)
     {
-        this->Table_Decl = Table_Decl;
+        //this->Table_Decl = new tableDeclaration;
+        this->Table_Decl =  *Table_Decl;
         this->DMA = DMA;
-        table = new QTableWidget(Table_Decl->Y_axis.elements, Table_Decl->X_axis.elements, parent);
+        table = new QTableWidget(this->Table_Decl.Y_axis.elements, this->Table_Decl.X_axis.elements, parent);
         table->setProperty("addr", QVariant::fromValue(this) );  //сохраним адрес на окно что бы получить доступ к остальным членам по событиям в виджете
         QGridLayout *layout = new QGridLayout(this);  //лайот с родителем виджетом
         //создаем таблицу с заданной размерностью
@@ -46,16 +47,16 @@ public:
         float variable_value;
         //читаем таблицу заголовка-оси в буфер
         read_by_type(
-            Table_Decl->X_axis.rom_scaling._storagetype,          //тип данных оси
-            Table_Decl->X_axis.rom_addr,                     //адрес оси в ром
-            Table_Decl->X_axis.elements,
+            this->Table_Decl.X_axis.rom_scaling._storagetype,          //тип данных оси
+            this->Table_Decl.X_axis.rom_addr,                     //адрес оси в ром
+            this->Table_Decl.X_axis.elements,
             1);                                              //по игреку ось икс равна 1
         //заполняем в соотвествии с формулой
-        for (int i = 0; i < Table_Decl->X_axis.elements; i++)
+        for (int i = 0; i < this->Table_Decl.X_axis.elements; i++)
         {
-            variable_value = mem_cast(Table_Decl->X_axis.rom_scaling, DMA->MUT_Out_buffer, i); //кастуем данные к определенному типу
+            variable_value = mem_cast(this->Table_Decl.X_axis.rom_scaling, DMA->MUT_Out_buffer, i); //кастуем данные к определенному типу
             QTableWidgetItem *item = new QTableWidgetItem();
-            int compute = qRound(fast_calc(Table_Decl->X_axis.rom_scaling.toexpr2, variable_value));
+            int compute = qRound(fast_calc(this->Table_Decl.X_axis.rom_scaling.toexpr2, variable_value));
             x_axis.append(compute);
             item->setData( Qt::DisplayRole, QString::number(compute));
             table->setHorizontalHeaderItem(i, item);
@@ -63,15 +64,15 @@ public:
         //----------------------------------------------------------------------------------------------
         //читаем таблицу заголовка-оси в буфер
         read_by_type(
-            Table_Decl->Y_axis.rom_scaling._storagetype, //тип данных оси
-            Table_Decl->Y_axis.rom_addr,                //адрес оси в ром
+            this->Table_Decl.Y_axis.rom_scaling._storagetype, //тип данных оси
+            this->Table_Decl.Y_axis.rom_addr,                //адрес оси в ром
             1,
-            Table_Decl->Y_axis.elements);
+            this->Table_Decl.Y_axis.elements);
         for (int i = 0; i < Table_Decl->Y_axis.elements; i++)
         {
-            variable_value = mem_cast(Table_Decl->Y_axis.rom_scaling, DMA->MUT_Out_buffer, i); //кастуем данные к определенному типу
+            variable_value = mem_cast(this->Table_Decl.Y_axis.rom_scaling, DMA->MUT_Out_buffer, i); //кастуем данные к определенному типу
             QTableWidgetItem *item = new QTableWidgetItem();
-            int compute = qRound(fast_calc(Table_Decl->Y_axis.rom_scaling.toexpr2, variable_value));
+            int compute = qRound(fast_calc(this->Table_Decl.Y_axis.rom_scaling.toexpr2, variable_value));
             y_axis.append(compute);
             item->setData( Qt::DisplayRole, QString::number(compute));
             table->setVerticalHeaderItem(i, item);
@@ -87,18 +88,18 @@ public:
         table->resizeColumnsToContents();
         //table->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
         //--------------------------------------расчет размеров таблицы-------------------------------------------------
-        for( int i = 0; i <  Table_Decl->X_axis.elements; i++)                        //|
+        for( int i = 0; i <  this->Table_Decl.X_axis.elements; i++)                        //|
         {                                                                       //|
             Size.setWidth( Size.width() + table->columnWidth( i));              //|накапливаем ширину столбцов
         }                                                                       //|
         Size.setWidth( Size.width() + table->verticalHeader()->width());        //|
-        for( int i = 0; i < Table_Decl->Y_axis.elements; i++)                           //|
+        for( int i = 0; i < this->Table_Decl.Y_axis.elements; i++)                           //|
         {                                                                       //|
             Size.setHeight( Size.height() + table->rowHeight( i));              //| накапливаем высоту строк
         }                                                                       //|
         Size.setHeight( Size.height() + table->horizontalHeader()->height());   //|
         //--------------------------------------------
-        setWindowTitle(Table_Decl->Table.Name);
+        setWindowTitle(this->Table_Decl.Table.Name);
         setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         setLayout(layout);
         layout->addWidget(table);
@@ -107,7 +108,7 @@ public:
         setFixedSize(Size);
         layout->setMargin(10);
         layout->setContentsMargins(10, 10, 10, 10);
-        show();
+ //       show();
     }
 
     void table_set_update()
@@ -115,32 +116,32 @@ public:
         emit timer_lock();
         // прочитаем нужное количество данных в соответствии с типом
         read_by_type(
-            Table_Decl->Table.rom_scaling._storagetype,
-            Table_Decl->Table.ram_addr,
-            Table_Decl->X_axis.elements,
-            Table_Decl->Y_axis.elements);
+            Table_Decl.Table.rom_scaling._storagetype,
+            Table_Decl.Table.ram_addr,
+            Table_Decl.X_axis.elements,
+            Table_Decl.Y_axis.elements);
         long long variable_value;
         uint c = 0;
         int swapXyLen, swapYxLen;
-        if ( Table_Decl->Table.swapxy )
+        if ( Table_Decl.Table.swapxy )
         {
-            swapXyLen = Table_Decl->X_axis.elements;
-            swapYxLen = Table_Decl->Y_axis.elements;
+            swapXyLen = Table_Decl.X_axis.elements;
+            swapYxLen = Table_Decl.Y_axis.elements;
         }
         else
         {
-            swapYxLen = Table_Decl->X_axis.elements;
-            swapXyLen = Table_Decl->Y_axis.elements;
+            swapYxLen = Table_Decl.X_axis.elements;
+            swapXyLen = Table_Decl.Y_axis.elements;
         }
         int swapxyX, swapxyY;
         for (int x = 0; x < swapXyLen; x++)
         {
             for (int y = 0; y < swapYxLen; y++)
             {
-                variable_value = mem_cast(Table_Decl->Table.rom_scaling, DMA->MUT_Out_buffer, c ); //кастуем данные к определенному типу
+                variable_value = mem_cast(Table_Decl.Table.rom_scaling, DMA->MUT_Out_buffer, c ); //кастуем данные к определенному типу
                 //создаем обновляем итем
-                float compute = fast_calc(Table_Decl->Table.rom_scaling.toexpr2, variable_value);
-                if ( Table_Decl->Table.swapxy ) {swapxyX = x; swapxyY = y;}
+                float compute = fast_calc(Table_Decl.Table.rom_scaling.toexpr2, variable_value);
+                if ( Table_Decl.Table.swapxy ) {swapxyX = x; swapxyY = y;}
                 else {swapxyX = y; swapxyY = x;}
                 if (table->item(swapxyY, swapxyX) == nullptr)  //если итема нет создадим
                 {
@@ -224,17 +225,17 @@ public slots:
         mapWidget *window = qvariant_cast<mapWidget*>( tablewidget->property("addr") ); // указатель на окно
         emit timer_lock();
         uint pos;
-        if (window->Table_Decl->Table.swapxy)
+        if (window->Table_Decl.Table.swapxy)
         {
-            pos = column * window->Table_Decl->Y_axis.elements + row;
+            pos = column * window->Table_Decl.Y_axis.elements + row;
         }
         else
         {
-            pos = row * window->Table_Decl->X_axis.elements + column;
+            pos = row * window->Table_Decl.X_axis.elements + column;
         }
         double variable_value = tablewidget->item(row, column)->text().toDouble();
-        DMA->MUT_Out_buffer[0] = qRound(Computing(get_notation_convert(window->Table_Decl->Table.rom_scaling.frexpr ), variable_value));
-        DMA->write_direct(window->Table_Decl->Table.ram_addr + pos, 1);
+        DMA->MUT_Out_buffer[0] = qRound(Computing(get_notation_convert(window->Table_Decl.Table.rom_scaling.frexpr ), variable_value));
+        DMA->write_direct(window->Table_Decl.Table.ram_addr + pos, 1);
         emit timer_unlock();
     }
 

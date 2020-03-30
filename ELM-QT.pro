@@ -22,6 +22,7 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     #evox.cpp \
+    ecu.cpp \
     qhexedit/chunks.cpp \
     qhexedit/commands.cpp \
     qhexedit/qhexedit.cpp \
@@ -33,6 +34,7 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     #evox.h \
     #inno_mts.h \
+    ecu.h \
     qhexedit/chunks.h \
     qhexedit/commands.h \
 qhexedit/qhexedit.h \

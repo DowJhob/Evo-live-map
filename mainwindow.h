@@ -10,6 +10,7 @@
 #include "enumdev.h"
 #include "dynamicwindow.h"
 #include "mathparser2.h"
+#include "ecu.h"
 #include "qhexedit/qhexedit.h"
 
 namespace Ui {
@@ -247,7 +248,7 @@ private:
 //        }
     }
 
-    QQueue<tableDeclaration*> *tableQueue{};
+    ecu *_ecu;
 
     QString CurrDir;
     QString xml_filename;
@@ -258,7 +259,7 @@ private:
     enumerator Enumerator;
     dma DMA;
     bool save_trace = false;
-    DomParser *xmlParser = nullptr;
+    DomParser xmlParser;
     tableDeclaration Table_Decl;                       //Описание одной таблицы
     QByteArray *binarray;                                  // массив с бинарником
 QHexEdit *hexEdit;
