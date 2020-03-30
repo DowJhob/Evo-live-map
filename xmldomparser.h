@@ -66,12 +66,12 @@ public:
             }
             if (node.toElement().tagName() == "table")                                                   // находим таблицу
             {
-//                if (node.toElement().attribute("name") == "RAM_MUT")                                     //
-//                {
-//                    _ecu->RAM_MUT_addr = node.toElement().attribute("address").toUInt(nullptr, 16);
-//                    _ecu->DEAD_var = node.toElement().attribute("DEAD_var").toUInt(nullptr, 16);
-//                    parseEntry(node.toElement());
-//                }
+                if (node.toElement().attribute("name") == "RAM_MUT")                                     //
+                {
+                    _ecu->RAM_MUT_addr = node.toElement().attribute("address").toUInt(nullptr, 16);
+                    _ecu->DEAD_var = node.toElement().attribute("DEAD_var").toUInt(nullptr, 16);
+                    parseEntry(node.toElement());
+                }
                 if (node.toElement().attribute("name") == "DEAD var")                                    //
                     _ecu->DEAD_var = node.toElement().attribute("address").toUInt(nullptr, 16);
                 if (!node.toElement().attribute("RAM_addr").isEmpty() ||                                 //  лайв таблица или
