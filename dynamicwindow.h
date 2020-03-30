@@ -34,8 +34,8 @@ public:
 
     mapWidget(QWidget *parent = nullptr, tableDeclaration *Table_Decl = nullptr, dma *DMA = nullptr): QWidget(parent, Qt::Window)
     {
-        //this->Table_Decl = new tableDeclaration;
         this->Table_Decl =  *Table_Decl;
+        qDebug() << "====================== Create table : " << this->Table_Decl.Table.Name << " ================================";
         this->DMA = DMA;
         table = new QTableWidget(this->Table_Decl.Y_axis.elements, this->Table_Decl.X_axis.elements, parent);
         table->setProperty("addr", QVariant::fromValue(this) );  //сохраним адрес на окно что бы получить доступ к остальным членам по событиям в виджете
@@ -116,38 +116,35 @@ public:
         emit timer_lock();
         // прочитаем нужное количество данных в соответствии с типом
         read_by_type(
-            Table_Decl.Table.rom_scaling._storagetype,
-            Table_Decl.Table.ram_addr,
-            Table_Decl.X_axis.elements,
-            Table_Decl.Y_axis.elements);
+            this->Table_Decl.Table.rom_scaling._storagetype,
+            this->Table_Decl.Table.ram_addr,
+            this->Table_Decl.X_axis.elements,
+            this->Table_Decl.Y_axis.elements);
         long long variable_value;
         uint c = 0;
         int swapXyLen, swapYxLen;
-        if ( Table_Decl.Table.swapxy )
+        if ( this->Table_Decl.Table.swapxy )
         {
-            swapXyLen = Table_Decl.X_axis.elements;
-            swapYxLen = Table_Decl.Y_axis.elements;
+            swapXyLen = this->Table_Decl.X_axis.elements;
+            swapYxLen = this->Table_Decl.Y_axis.elements;
         }
         else
         {
-            swapYxLen = Table_Decl.X_axis.elements;
-            swapXyLen = Table_Decl.Y_axis.elements;
+            swapYxLen = this->Table_Decl.X_axis.elements;
+            swapXyLen = this->Table_Decl.Y_axis.elements;
         }
         int swapxyX, swapxyY;
         for (int x = 0; x < swapXyLen; x++)
         {
             for (int y = 0; y < swapYxLen; y++)
             {
-                variable_value = mem_cast(Table_Decl.Table.rom_scaling, DMA->MUT_Out_buffer, c ); //кастуем данные к определенному типу
+                variable_value = mem_cast(this->Table_Decl.Table.rom_scaling, DMA->MUT_Out_buffer, c ); //кастуем данные к определенному типу
                 //создаем обновляем итем
-                float compute = fast_calc(Table_Decl.Table.rom_scaling.toexpr2, variable_value);
-                if ( Table_Decl.Table.swapxy ) {swapxyX = x; swapxyY = y;}
+                float compute = fast_calc(this->Table_Decl.Table.rom_scaling.toexpr2, variable_value);
+                if ( this->Table_Decl.Table.swapxy ) {swapxyX = x; swapxyY = y;}
                 else {swapxyX = y; swapxyY = x;}
                 if (table->item(swapxyY, swapxyX) == nullptr)  //если итема нет создадим
-                {
-                    QTableWidgetItem *item = new QTableWidgetItem();
-                    table->setItem(swapxyY, swapxyX, item);
-                }
+                    table->setItem(swapxyY, swapxyX, new QTableWidgetItem());
                 table->item(swapxyY, swapxyX)->setData( Qt::DisplayRole, compute);
                 c++;
             }
@@ -166,11 +163,11 @@ public:
     {
         switch (scaling._storagetype) {
         case Storagetype::int8:
-        case Storagetype::uint8:  type_cast(scaling, in_buf + offset); break;
+        case Storagetype::uint8:  return type_cast(scaling, in_buf + offset); break;
         case Storagetype::int16:
-        case Storagetype::uint16: type_cast(scaling, in_buf + 2*offset); break;
+        case Storagetype::uint16: return type_cast(scaling, in_buf + 2*offset); break;
         case Storagetype::int32:
-        case Storagetype::uint32: type_cast(scaling, in_buf + 4*offset); break;
+        case Storagetype::uint32: return type_cast(scaling, in_buf + 4*offset); break;
         default: break;
         }
     }

@@ -38,8 +38,6 @@ public:
     int VechicleInterfaceType = 0;
     uchar MUT_Out_buffer[4128];
 
-    QByteArray _out;
-
     // J2534
     unsigned int baudRate = 15625;              //предопределенная скорость соединения
     unsigned long magic_adder_readTimeout = 7;          // Длинна первого сообщения со статусом прием???
@@ -149,26 +147,27 @@ public slots:
     {
         if (!common_five_baud_init())
             return "";
+
         read_direct(0xF52, 4); //читаем номер калибровки
         return QString::number( qFromBigEndian<quint32>(MUT_Out_buffer), 16 );
     }
 
-    QByteArray read_indirect(quint32 addr, int count)
+    void read_indirect(quint32 addr, int count)
     {
         emit timer_lock();
         if (VechicleInterfaceType == 13 && OP13 != nullptr  )
-            return read_FTDI(0xE0, addr, count);
+            read_FTDI(0xE0, addr, count);
         if (VechicleInterfaceType == 20  && j2534 != nullptr  )
-            return read_J2534(0xE0, addr, count);
+            read_J2534(0xE0, addr, count);
         emit timer_unlock();
     }
-    QByteArray read_direct(quint32 addr, int count)
+    void read_direct(quint32 addr, int count)
     {
         emit timer_lock();
         if (VechicleInterfaceType == 13 && OP13 != nullptr  )
-                return read_FTDI(0xE1, addr, count);
+                read_FTDI(0xE1, addr, count);
         if (VechicleInterfaceType == 20 && j2534 != nullptr  )
-                return read_J2534(0xE1, addr, count);
+                read_J2534(0xE1, addr, count);
         emit timer_unlock();
     }
     void write_direct(quint32 addr, int count)
@@ -255,7 +254,7 @@ private:
             //            if ( j2534 != nullptr  )
             j2534->PassThruWriteMsgs(chanID, &tx_msg, &NumMsgs, writeTimeout);
     }
-    QByteArray read_J2534(uchar command, unsigned long addr, unsigned long count)
+    void read_J2534(uchar command, unsigned long addr, unsigned long count)
     {
         tx_msg.Data[0] = command;
         comand_write(addr, count);
@@ -266,9 +265,7 @@ private:
             j2534->PassThruReadMsgs(chanID, &rx_msg[0], &NumMsgs, count*10000/baudRate + magic_adder_readTimeout);
         while(rx_msg[0].RxStatus == START_OF_MESSAGE);
 
-        //memcpy(&MUT_Out_buffer, &rx_msg[0].Data, count);
-        _out = QByteArray::fromRawData( (char*)MUT_Out_buffer, count);
-        return _out;
+        memcpy(&MUT_Out_buffer, &rx_msg[0].Data, count);
     }
     void write_direct_J2534(unsigned long addr, unsigned long count)
     {

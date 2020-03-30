@@ -41,7 +41,6 @@ MainWindow::~MainWindow()
     TableDelete();
     delete ui;
     delete timer;
-
 }
 
 void MainWindow::OperateButtonsLockUnlock()
@@ -245,6 +244,7 @@ void MainWindow::on_StartButton_clicked()
     if (ui->StartButton->text() == "Start")
     {
         QString romID = DMA.connect();
+
         if ( romID.isEmpty() )
         {
             ui->listWidget->addItem("connect failure");
@@ -306,15 +306,16 @@ void MainWindow::on_logger_rate_textedit_editingFinished()
 void MainWindow::on_debugButton_clicked()
 {
     debug = true;
-    emit Enumerator. InterfaceActive(20);
-    QString romID = DMA.connect();
+    //emit Enumerator. InterfaceActive(20);
+    //QString romID = DMA.connect();
     for (int i =0; i < 4000; i++)
     {
-        DMA.rx_msg[0].Data[i] = 128;
-        DMA.MUT_Out_buffer[i] = 128;
+        DMA.rx_msg[0].Data[i] = i;
+        DMA.MUT_Out_buffer[i] = i;
     }
     //SearchFiles(CurrDir + "/xml/", "80700010");   //найдем файл конфига
     CreateTable(SearchFiles(CurrDir + "/xml/", "90550001"));   	//найдем файл конфига							//парсим его
+    hexEdit->setData(QByteArray::fromRawData((char*)DMA.MUT_Out_buffer, 4000));
     //CreateTable(SearchFiles(CurrDir + "/xml/", "88592715"));
     //    if ( "90550001" != load_bin(SearchFiles(CurrDir + "/bin/", "90550001")) )
     //         qDebug() << "bin mismatch";

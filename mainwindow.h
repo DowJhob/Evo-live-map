@@ -33,13 +33,6 @@ public:
     //bool VechicleInterfaceState;
     void TableDelete();
 
-    long utime()
-    {
-        struct timespec t;
-        clock_gettime(CLOCK_REALTIME, &t);
-        return t.tv_nsec;
-    }
-
 public slots:
     void logger_and_tableWidget_trace();
     //void timer_lock_unlock();

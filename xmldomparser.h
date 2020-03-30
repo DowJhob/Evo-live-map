@@ -66,12 +66,12 @@ public:
             }
             if (node.toElement().tagName() == "table")                                                   // находим таблицу
             {
-                if (node.toElement().attribute("name") == "RAM_MUT")                                     //
-                {
-                    _ecu->RAM_MUT_addr = node.toElement().attribute("address").toUInt(nullptr, 16);
-                    _ecu->DEAD_var = node.toElement().attribute("DEAD_var").toUInt(nullptr, 16);
-                    parseEntry(node.toElement());
-                }
+//                if (node.toElement().attribute("name") == "RAM_MUT")                                     //
+//                {
+//                    _ecu->RAM_MUT_addr = node.toElement().attribute("address").toUInt(nullptr, 16);
+//                    _ecu->DEAD_var = node.toElement().attribute("DEAD_var").toUInt(nullptr, 16);
+//                    parseEntry(node.toElement());
+//                }
                 if (node.toElement().attribute("name") == "DEAD var")                                    //
                     _ecu->DEAD_var = node.toElement().attribute("address").toUInt(nullptr, 16);
                 if (!node.toElement().attribute("RAM_addr").isEmpty() ||                                 //  лайв таблица или
@@ -82,9 +82,9 @@ public:
                     parseEntry(node.toElement());                                                        // парсим оси
                     mainTableDeclaration.tableNum = i;
 
-                  //  if ( mainTableDeclaration.X_axis.ram_addr || mainTableDeclaration.X_axis.ram_addr )
-                  //      _ecu->loggingRAMtables.insert(mainTableDeclaration.Table.Name, mainTableDeclaration);
-                  //  else
+                    if ( mainTableDeclaration.X_axis.ram_addr || mainTableDeclaration.X_axis.ram_addr )
+                        _ecu->loggingRAMtables.insert(mainTableDeclaration.Table.Name, mainTableDeclaration);
+                    else
                         _ecu->not_loggingRAMtables.insert(mainTableDeclaration.Table.Name, mainTableDeclaration);
                     i++;
                 }
@@ -97,7 +97,7 @@ public:
 private:
     ecu *_ecu;
     Scaling sc;                                               //промежуточная структура для помещения в контейнер
-    QMap<QString, Scaling> scaling_qmap;                      //контейнер скалингов
+    QHash<QString, Scaling> scaling_qmap;                      //контейнер скалингов
     sub_tableDeclaration axisDeclaration;                     //структура оси
     tableDeclaration mainTableDeclaration;                    //структура таблицы
 
