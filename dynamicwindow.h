@@ -109,6 +109,7 @@ public:
         layout->setContentsMargins(10, 10, 10, 10);
         show();
     }
+
     void table_set_update()
     {
         emit timer_lock();
@@ -153,38 +154,9 @@ public:
         emit timer_unlock();
     }
 
-    void cr_item(QTableWidget *tablewidget, Scaling scaling, uchar *in_buf, uint c, bool big, fast_calc_struct toexpr2, bool swapxy)
-    {
-        float variable_value = mem_cast(scaling, in_buf, c); //кастуем данные к определенному типу
-        //создаем обновляем итем
-        float compute = fast_calc(toexpr2, variable_value);
-        if ( swapxy )
-        {
-            if (tablewidget->item(y, x) == nullptr)  //если итема нет создадим
-            {
-                QTableWidgetItem *item = new QTableWidgetItem();
-                tablewidget->setItem(y, x, item);
-            }
-
-            tablewidget->item(y, x)->setData( Qt::DisplayRole, compute);
-        }
-        else
-        {
-            if (tablewidget->item(x, y) == nullptr)  //если итема нет создадим
-            {
-                QTableWidgetItem *item = new QTableWidgetItem();
-                tablewidget->setItem(x, y, item);
-            }
-            tablewidget->item(x, y)->setData( Qt::DisplayRole, compute);
-        }
-    }
-
     float mut_cast( Scaling scaling, int mut_number )
     {
-        float x = 0;
-        x = type_cast(scaling,
-                      DMA->MUT_Out_buffer + mut_number                //номер запроса рам мут
-                      );
+        float x = type_cast(scaling, DMA->MUT_Out_buffer + mut_number );
         x = fast_calc(scaling.toexpr2, x);
         return x;
     }
@@ -248,7 +220,6 @@ public slots:
 
     void on_tableWidget_cellChanged(int row, int column)     //обработчик обновление редакции в таблице
     {
-        /* Определяем объект, который вызвал сигнал */
         QTableWidget *tablewidget = qobject_cast<QTableWidget*>( sender() );
         mapWidget *window = qvariant_cast<mapWidget*>( tablewidget->property("addr") ); // указатель на окно
         emit timer_lock();
@@ -266,6 +237,7 @@ public slots:
         DMA->write_direct(window->Table_Decl->Table.ram_addr + pos, 1);
         emit timer_unlock();
     }
+
 
 };
 #endif // DYNAMICWINDOW_H

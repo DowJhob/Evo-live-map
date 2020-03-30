@@ -31,6 +31,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     //Подписываемся на события
     Enumerator.NotifyRegister((HWND)this->winId());
     hexEdit = new QHexEdit;
+    hexEdit->setAddressWidth(8);
+    hexEdit->setAddressOffset(ui->start_addr_lineEdit->text().toUInt(nullptr, 16));
     ui->RAMeditorLayout->addWidget(hexEdit, 3,0,1,2);
 }
 
@@ -90,7 +92,7 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
     return false;
 }
 
-bool  MainWindow::ReadConfig(QString filename)
+bool MainWindow::ReadConfig(QString filename)
 {
     // Открываем конфиг:
     QFile* file = new QFile(filename);
@@ -244,11 +246,11 @@ void MainWindow::on_StartButton_clicked()
         ui->StartButton->setText("Stop");
         ui->RAM_reset_Button->setDisabled(!Enumerator.VechicleInterfaceState);
         ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
-        s =   "romID " + romID + "\r\n";
+        s = "romID " + romID;
         ui->listWidget->addItem(s);
         CreateTable(SearchFiles(CurrDir + "/xml/", romID)); //найдем файл конфига и парсим его
         timer->start(1000/ui->logger_rate_textedit->text().toUInt());
-        s =   "CurrDir " + CurrDir + "\r\n";
+        s =   "CurrDir " + CurrDir;
     }
     else
     {
@@ -261,8 +263,8 @@ void MainWindow::on_StartButton_clicked()
 void MainWindow::on_RAM_reset_Button_clicked()
 {
     DMA.timer_lock();
-    DMA.MUT_Out_buffer[0] = 0xAD;
-    DMA.MUT_Out_buffer[1] = 0xDE;
+    DMA.MUT_Out_buffer[0] = 0x00;
+    DMA.MUT_Out_buffer[1] = 0x00;
 
     DMA.write_direct(xmlParser->DEAD_var, 2);
     on_read_RAM_Button_clicked();
@@ -360,25 +362,23 @@ void MainWindow::on_inno_initButton_clicked()
 
 void MainWindow::on_start_addr_lineEdit_returnPressed()
 {
-    int count = ui->count_lineEdit->text().toUInt();
-    DMA.read_direct(ui->start_addr_lineEdit->text().toUInt(), count);
-    QByteArray b;
-    b = QByteArray::fromRawData( (char*)DMA.MUT_Out_buffer, count );
+    int count = ui->count_lineEdit->text().toUInt(nullptr);
+    quint64 addr = ui->start_addr_lineEdit->text().toUInt(nullptr, 16);
+
+    DMA.read_direct(addr, count);
+    QByteArray b = QByteArray::fromRawData( (char*)DMA.MUT_Out_buffer, count );
     hexEdit->setData(b);
+    hexEdit->setAddressOffset(addr);
+
 }
 
 void MainWindow::on_count_lineEdit_returnPressed()
 {
-    int count = ui->count_lineEdit->text().toUInt();
-    DMA.read_direct(ui->start_addr_lineEdit->text().toUInt(), count);
-    QByteArray b;
-    b = QByteArray::fromRawData( (char*)DMA.MUT_Out_buffer, count );
-    hexEdit->setData(b);
-}
+    int count = ui->count_lineEdit->text().toUInt(nullptr);
+    quint64 addr = ui->start_addr_lineEdit->text().toUInt(nullptr, 16);
 
-void MainWindow::on_clearDeadVarButton_clicked()
-{
-    DMA.MUT_Out_buffer[0] = 0xDE;
-    DMA.MUT_Out_buffer[1] = 0xAD;
-    DMA.write_direct(0xFFFFA800, 4);
+    DMA.read_direct(addr, count);
+    QByteArray b = QByteArray::fromRawData( (char*)DMA.MUT_Out_buffer, count );
+    hexEdit->setData(b);
+    hexEdit->setAddressOffset(addr);
 }

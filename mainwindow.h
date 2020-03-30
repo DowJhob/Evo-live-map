@@ -44,7 +44,6 @@ public slots:
     //void timer_lock_unlock();
     void table_show_hide()
     {
-        /* Определяем объект, который вызвал сигнал*/
         QPushButton *tableButton = qobject_cast<QPushButton*>( sender() );
         mapWidget *window = list_window.at(tableButton->property("tag").toInt());
         window->setVisible( !window->isVisible());
@@ -76,8 +75,6 @@ private slots:
     void on_start_addr_lineEdit_returnPressed();
 
     void on_count_lineEdit_returnPressed();
-
-    void on_clearDeadVarButton_clicked();
 
 private:
     void evoX_Connect_Click()
