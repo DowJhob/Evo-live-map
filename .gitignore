@@ -12,3 +12,6 @@ j2534_new_wrapper.h
 inno_mts.h
 
 *.autosave
+*.TMP
+*.Debug
+*.Release

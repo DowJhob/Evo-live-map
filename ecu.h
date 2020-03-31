@@ -51,6 +51,48 @@ public:
     QHash<QString, tableDeclaration> loggingRAMtables;
     QHash<QString, mutParam> RAM_MUT;
     ecu();
+public slots:
+    qint64 mem_cast(Scaling scaling, uchar *in_buf, uint offset)   //кастуем данные к определенному типу
+    {
+        switch (scaling._storagetype) {
+        case Storagetype::int8:
+        case Storagetype::uint8:  return type_cast(scaling, in_buf + offset); break;
+        case Storagetype::int16:
+        case Storagetype::uint16: return type_cast(scaling, in_buf + 2*offset); break;
+        case Storagetype::int32:
+        case Storagetype::uint32: return type_cast(scaling, in_buf + 4*offset); break;
+        default: break;
+        }
+    }
+    qint64 type_cast(Scaling scaling, uchar *in_buf)          //кастуем данные к определенному типу
+    {
+        if (scaling.endian)
+            switch (scaling._storagetype) {
+            case Storagetype::int8:   return (qint8)in_buf[0];                break;
+            case Storagetype::int16:  return qFromBigEndian<qint16>(in_buf);  break;
+            case Storagetype::int32:  return qFromBigEndian<qint32>(in_buf);  break;
+            case Storagetype::uint8:  return (quint8)in_buf[0];  break;
+            case Storagetype::uint16: return qFromBigEndian<quint16>(in_buf); break;
+            case Storagetype::uint32: return qFromBigEndian<quint32>(in_buf);break;
+            default: break;
+            }
+        else
+            switch (scaling._storagetype) {
+            case Storagetype::int8:   return (qint8)in_buf[0];           break;
+            case Storagetype::int16:  return qFromLittleEndian<qint16>(in_buf); break;
+            case Storagetype::int32:  return qFromLittleEndian<qint32>(in_buf); break;
+            case Storagetype::uint8:  return (quint8)in_buf[0];      break;
+            case Storagetype::uint16: return qFromLittleEndian<quint16>(in_buf); break;
+            case Storagetype::uint32: return qFromLittleEndian<quint32>(in_buf); break;
+            default: break;
+            }
+    }
+    float mut_cast( uchar* in_buf, Scaling scaling, int mut_number )
+    {
+        float x = type_cast(scaling, in_buf + mut_number );
+        x = fast_calc(scaling.toexpr2, x);
+        return x;
+    }
 };
 
 #endif // ECU_H

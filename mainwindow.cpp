@@ -104,21 +104,54 @@ bool MainWindow::ReadConfig(QString filename)
     return true;
 }
 
+void MainWindow::axread(sub_tableDeclaration *sub_tab, QVector <qint64> *axis)
+{
+    float variable_value;
+    //читаем таблицу заголовка-оси в буфер
+    // прочитаем нужное количество данных в соответствии с типом
+    switch (sub_tab->rom_scaling._storagetype) {                                //тип данных оси
+    case Storagetype::int8:
+    case Storagetype::uint8:  DMA.read_direct( sub_tab->rom_addr, sub_tab->elements); break;
+    case Storagetype::int16:
+    case Storagetype::uint16: DMA.read_direct( sub_tab->rom_addr, sub_tab->elements * 2); break;
+    case Storagetype::int32:
+    case Storagetype::uint32: DMA.read_direct( sub_tab->rom_addr, sub_tab->elements * 4); break;
+    default: break;
+    }
+    //заполняем в соотвествии с формулой
+    for (int i = 0; i < sub_tab->elements; i++)
+    {
+        variable_value = _ecu->mem_cast(sub_tab->rom_scaling, DMA.MUT_Out_buffer, i); //кастуем данные к определенному типу
+        int compute = qRound(fast_calc(sub_tab->rom_scaling.toexpr2, variable_value));
+        axis->append(compute);
+    }
+}
+
 bool MainWindow::CreateTable(QString filename)
 {
     _ecu = new ecu;
     if (!ReadConfig(filename))
         return false;
-// переберем все описания таблиц
+    // переберем все описания таблиц
     foreach ( tableDeclaration tab, _ecu->loggingRAMtables)
     {
         if (tab.Table.ram_addr != 0)                                    // проверим что это таблица карт, а не таблица патчей
         {
-            mapWidget *dynamic_window = new mapWidget( this, &tab, &DMA);
+            mapWidget *dynamic_window = new mapWidget( this, &tab);
+            axread(&tab.X_axis, &dynamic_window->x_axis);   // читаем оси
+            axread(&tab.Y_axis, &dynamic_window->y_axis);   // читаем оси
+            QVector <qint64> map;
+            tab.Table.elements = tab.X_axis.elements * tab.Y_axis.elements;
+            axread(&tab.Table, &map);
+            dynamic_window->create( &map);
+            connect(dynamic_window, SIGNAL(update(quint32, QString)), SLOT(updateRAM(quint32, QString)));
+
             QPushButton *tableButton = new QPushButton(tab.Table.Name, ui->groupBox_mapalloc);
             tableButton->setProperty("tag", tab.tableNum);
             ui->gridLayout_mapalloc->addWidget(tableButton);
             connect(tableButton, SIGNAL(clicked(bool) ), this, SLOT( table_show_hide() ));
+
+            list_table.insert( tab.tableNum, dynamic_window->table );
 
             list_window.insert( tab.tableNum, dynamic_window );
             list_button.insert( tab.tableNum, tableButton );
@@ -128,11 +161,22 @@ bool MainWindow::CreateTable(QString filename)
     {
         if (tab.Table.ram_addr != 0)                                    // проверим что это таблица карт, а не таблица патчей
         {
-            mapWidget *dynamic_window = new mapWidget( this, &tab, &DMA);
+            mapWidget *dynamic_window = new mapWidget( this, &tab);
+            axread(&tab.X_axis, &dynamic_window->x_axis);   // читаем оси
+            axread(&tab.Y_axis, &dynamic_window->y_axis);   // читаем оси
+            QVector <qint64> map;
+            tab.Table.elements = tab.X_axis.elements * tab.Y_axis.elements;
+            axread(&tab.Table, &map);
+            dynamic_window->create( &map);
+connect(dynamic_window, SIGNAL(update(quint32, QString)), SLOT(updateRAM(quint32, QString)));
+
+
             QPushButton *tableButton = new QPushButton(tab.Table.Name, ui->groupBox_mapalloc);
             tableButton->setProperty("tag", tab.tableNum);
             ui->gridLayout_mapalloc->addWidget(tableButton);
             connect(tableButton, SIGNAL(clicked(bool) ), this, SLOT( table_show_hide() ));
+
+            list_table.insert( tab.tableNum, dynamic_window->table );
 
             list_window.insert( tab.tableNum, dynamic_window );
             list_button.insert( tab.tableNum, tableButton );
@@ -168,8 +212,8 @@ void MainWindow::logger_and_tableWidget_trace()
     {
         if ( window->Table_Decl.X_axis.ram_mut_number || window->Table_Decl.Y_axis.ram_mut_number )
         {
-            x = qRound(window->mut_cast(window->Table_Decl.X_axis.RAM_MUT_scaling, window->Table_Decl.X_axis.ram_mut_number));
-            y = qRound(window->mut_cast(window->Table_Decl.Y_axis.RAM_MUT_scaling, window->Table_Decl.Y_axis.ram_mut_number));
+            x = qRound(_ecu->mut_cast(DMA.MUT_Out_buffer, window->Table_Decl.X_axis.RAM_MUT_scaling, window->Table_Decl.X_axis.ram_mut_number));
+            y = qRound(_ecu->mut_cast(DMA.MUT_Out_buffer, window->Table_Decl.Y_axis.RAM_MUT_scaling, window->Table_Decl.Y_axis.ram_mut_number));
             if (debug)
             {
                 x = QCursor::pos().x();
@@ -293,7 +337,7 @@ void MainWindow::on_read_RAM_Button_clicked()
         //DynamicWindow *tablewindow = qobject_cast<DynamicWindow*>(list_window[i]);
         //DynamicTableWidget *tablewidget = qobject_cast<DynamicTableWidget*>(list_widget[i]);
         window->table->blockSignals(true);//перед обновлением отключим сигнал автообновления ячейки
-        window->table_set_update();
+        //window->table_set_update();
         window->table->blockSignals(false);
     }
 

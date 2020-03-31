@@ -11,6 +11,7 @@
 #include <QtEndian>
 #include <QQueue>
 
+#include "ecu.h"
 class dma:public QObject
 {
     Q_OBJECT

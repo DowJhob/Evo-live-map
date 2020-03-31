@@ -34,7 +34,9 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     #evox.h \
     #inno_mts.h \
+    custom_tablewidget.h \
     ecu.h \
+    map_widget.h \
     qhexedit/chunks.h \
     qhexedit/commands.h \
 qhexedit/qhexedit.h \
@@ -42,7 +44,6 @@ qhexedit/qhexedit.h \
     libs/j2534_tactrix.h \
     #libs/libusb/include/libusb.h \
     mathparser2.h \
-    dynamicwindow.h \
     libs/ftdi.h \
     libs/ftdi_types.h \
     DMA.h \

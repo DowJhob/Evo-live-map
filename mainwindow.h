@@ -8,7 +8,7 @@
 #include <QQueue>
 #include <QTimer>
 #include "enumdev.h"
-#include "dynamicwindow.h"
+#include "map_widget.h"
 #include "mathparser2.h"
 #include "ecu.h"
 #include "qhexedit/qhexedit.h"
@@ -22,6 +22,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
+    QList<QTableWidget*> list_table;
     QList<mapWidget*> list_window;    //список для динамически созданных таблиц
     QList<QPushButton*> list_button = {};
     QStringList listFiles;
@@ -35,14 +36,33 @@ public:
 
 public slots:
     void logger_and_tableWidget_trace();
-    //void timer_lock_unlock();
     void table_show_hide()
     {
         QPushButton *tableButton = qobject_cast<QPushButton*>( sender() );
         mapWidget *window = list_window.at(tableButton->property("tag").toInt());
         window->setVisible( !window->isVisible());
     }
+    void updateRAM(quint32 pos, QString in)
+    {
+        mapWidget *_mapwidget = qobject_cast<mapWidget*>( sender() );
 
+
+
+        qint64 out = qRound64(fast_calc(_mapwidget->Table_Decl.Table.rom_scaling.frexpr2, in.toDouble()));
+
+
+        switch (_mapwidget->Table_Decl.Table.rom_scaling._storagetype) {
+        case Storagetype::int8:
+        case Storagetype::uint8:            memcpy(&DMA.MUT_Out_buffer, (char*)&out, 1); break;
+        case Storagetype::int16:
+        case Storagetype::uint16: pos *= 2; memcpy(&DMA.MUT_Out_buffer, (char*)&out, 2); break;
+        case Storagetype::int32:
+        case Storagetype::uint32: pos *= 4; memcpy(&DMA.MUT_Out_buffer, (char*)&out, 4); break;
+        default: break;
+        }
+        qDebug() << "hop: " << _mapwidget->Table_Decl.Table.Name << " : " << DMA.MUT_Out_buffer[0];
+        DMA.write_direct(_mapwidget->Table_Decl.Table.ram_addr + pos, 1);
+    }
 signals:
     void timer_lock();
     void timer_unlock();
@@ -71,6 +91,7 @@ private slots:
     void on_count_lineEdit_returnPressed();
 
 private:
+    void axread(sub_tableDeclaration *sub_tab, QVector<qint64> *axis);
     void evoX_Connect_Click()
     {
 //        object obj2;
@@ -283,7 +304,9 @@ QHexEdit *hexEdit;
 
     }
 
-QString load_bin(QString bin_filename)
+
+
+    QString load_bin(QString bin_filename)
 {
     QFile binfile(bin_filename);
     if (!binfile.open(QIODevice::ReadWrite ))
@@ -317,7 +340,7 @@ if (binarray != nullptr)
         return mod;
     }
 
-    int  axis_lookup2(int in, int axis_lenght, QVector<int> axis)    //возвращает меньший индекс
+    int  axis_lookup2(int in, int axis_lenght, QVector<qint64> axis)    //возвращает меньший индекс
     {
         if (axis_lenght <= 1 )
             return 0;
