@@ -38,6 +38,21 @@ public:
         qDebug() << "====================== Create table : " << this->Table_Decl.Table.Name << " ================================";
         this->DMA = DMA;
         table = new QTableWidget(this->Table_Decl.Y_axis.elements, this->Table_Decl.X_axis.elements, parent);
+
+        QAction* copyAct = new QAction("&Copy", this);
+        copyAct->setData( QVariant::fromValue( table ) );
+        copyAct->setShortcut(QKeySequence::Copy);
+        connect(copyAct, SIGNAL(triggered()), this, SLOT(slotCopy()));
+        table->setContextMenuPolicy(Qt::ActionsContextMenu);
+        table->addAction(copyAct);
+
+        QAction* pasteAct = new QAction("&Paste", this);
+        pasteAct->setData( QVariant::fromValue( table ) );
+        pasteAct->setShortcut(QKeySequence::Paste);
+        connect(pasteAct, SIGNAL(triggered()), this, SLOT(slotPaste()));
+        table->setContextMenuPolicy(Qt::ActionsContextMenu);
+        table->addAction(pasteAct);
+
         table->setProperty("addr", QVariant::fromValue(this) );  //сохраним адрес на окно что бы получить доступ к остальным членам по событиям в виджете
         QGridLayout *layout = new QGridLayout(this);  //лайот с родителем виджетом
         //создаем таблицу с заданной размерностью
@@ -110,7 +125,111 @@ public:
         layout->setContentsMargins(10, 10, 10, 10);
  //       show();
     }
+protected:
+//    void keyPressEvent(QKeyEvent *event)
+//    {
+//        if( event->matches( QKeySequence::Copy ) )
+//            copy();
+//        else if( event->matches( QKeySequence::Paste ) )
+//            paste();
+//        else
+//            keyPressEvent(event);
+//    }
 
+signals:
+    void timer_lock();
+    void timer_unlock();
+private:
+    qint64 mem_cast(Scaling scaling, uchar *in_buf, uint offset)   //кастуем данные к определенному типу
+    {
+        switch (scaling._storagetype) {
+        case Storagetype::int8:
+        case Storagetype::uint8:  return type_cast(scaling, in_buf + offset); break;
+        case Storagetype::int16:
+        case Storagetype::uint16: return type_cast(scaling, in_buf + 2*offset); break;
+        case Storagetype::int32:
+        case Storagetype::uint32: return type_cast(scaling, in_buf + 4*offset); break;
+        default: break;
+        }
+    }
+    qint64 type_cast(Scaling scaling, uchar *in_buf)          //кастуем данные к определенному типу
+    {
+        if (scaling.endian)
+            switch (scaling._storagetype) {
+            case Storagetype::int8:   return (qint8)in_buf[0];                break;
+            case Storagetype::int16:  return qFromBigEndian<qint16>(in_buf);  break;
+            case Storagetype::int32:  return qFromBigEndian<qint32>(in_buf);  break;
+            case Storagetype::uint8:  return (quint8)in_buf[0];  break;
+            case Storagetype::uint16: return qFromBigEndian<quint16>(in_buf); break;
+            case Storagetype::uint32: return qFromBigEndian<quint32>(in_buf);break;
+            default: break;
+            }
+        else
+            switch (scaling._storagetype) {
+            case Storagetype::int8:   return (qint8)in_buf[0];           break;
+            case Storagetype::int16:  return qFromLittleEndian<qint16>(in_buf); break;
+            case Storagetype::int32:  return qFromLittleEndian<qint32>(in_buf); break;
+            case Storagetype::uint8:  return (quint8)in_buf[0];      break;
+            case Storagetype::uint16: return qFromLittleEndian<quint16>(in_buf); break;
+            case Storagetype::uint32: return qFromLittleEndian<quint32>(in_buf); break;
+            default: break;
+            }
+    }
+    void read_by_type(Storagetype storagetype, quint32 mem_addr, int x, int y)
+    {
+        int lenght = x * y;
+        // прочитаем нужное количество данных в соответствии с типом
+        switch (storagetype) {
+        case Storagetype::int8:
+        case Storagetype::uint8:  DMA->read_direct( mem_addr, lenght); break;
+        case Storagetype::int16:
+        case Storagetype::uint16: DMA->read_direct( mem_addr, lenght * 2); break;
+        case Storagetype::int32:
+        case Storagetype::uint32: DMA->read_direct( mem_addr, lenght * 4); break;
+        default: break;
+        }
+    }
+
+private slots:
+    void slotCopy(){
+        QAction* act = qobject_cast< QAction* >( sender() );
+        QTableWidget* table = act->data().value< QTableWidget* >();
+
+        mapWidget *window = qvariant_cast<mapWidget*>( table->property("addr") ); // указатель на окно
+        qDebug() << window->Table_Decl.Table.Name;
+
+        QString text;
+        QItemSelectionRange range = table->selectionModel()->selection().first();
+        for (auto i = range.top(); i <= range.bottom(); ++i)
+        {
+            QStringList rowContents;
+            for (auto j = range.left(); j <= range.right(); ++j)
+                rowContents << table->model()->index(i,j).data().toString();
+            text += rowContents.join("\t");
+            text += "\n";
+        }
+        QApplication::clipboard()->setText(text);
+    }
+    void slotPaste(){
+        QAction* act = qobject_cast< QAction* >( sender() );
+        QTableWidget* table = act->data().value< QTableWidget* >();
+
+        QString text = QApplication::clipboard()->text();
+        QStringList rowContents = text.split("\n", QString::SkipEmptyParts);
+
+        QModelIndex initIndex = table->selectionModel()->selectedIndexes().at(0);
+        auto initRow = initIndex.row();
+        auto initCol = initIndex.column();
+
+        for (auto i = 0; i < rowContents.size(); ++i) {
+            QStringList columnContents = rowContents.at(i).split("\t");
+            for (auto j = 0; j < columnContents.size(); ++j) {
+                table->model()->setData(table->model()->index(initRow + i, initCol + j), columnContents.at(j));
+            }
+        }
+    }
+
+public slots:
     void table_set_update()
     {
         emit timer_lock();
@@ -151,70 +270,12 @@ public:
         }
         emit timer_unlock();
     }
-
     float mut_cast( Scaling scaling, int mut_number )
     {
         float x = type_cast(scaling, DMA->MUT_Out_buffer + mut_number );
         x = fast_calc(scaling.toexpr2, x);
         return x;
     }
-
-    qint64 mem_cast(Scaling scaling, uchar *in_buf, uint offset)   //кастуем данные к определенному типу
-    {
-        switch (scaling._storagetype) {
-        case Storagetype::int8:
-        case Storagetype::uint8:  return type_cast(scaling, in_buf + offset); break;
-        case Storagetype::int16:
-        case Storagetype::uint16: return type_cast(scaling, in_buf + 2*offset); break;
-        case Storagetype::int32:
-        case Storagetype::uint32: return type_cast(scaling, in_buf + 4*offset); break;
-        default: break;
-        }
-    }
-
-    qint64 type_cast(Scaling scaling, uchar *in_buf)          //кастуем данные к определенному типу
-    {
-        if (scaling.endian)
-            switch (scaling._storagetype) {
-            case Storagetype::int8:   return (qint8)in_buf[0];                break;
-            case Storagetype::int16:  return qFromBigEndian<qint16>(in_buf);  break;
-            case Storagetype::int32:  return qFromBigEndian<qint32>(in_buf);  break;
-            case Storagetype::uint8:  return (quint8)in_buf[0];  break;
-            case Storagetype::uint16: return qFromBigEndian<quint16>(in_buf); break;
-            case Storagetype::uint32: return qFromBigEndian<quint32>(in_buf);break;
-            default: break;
-            }
-        else
-            switch (scaling._storagetype) {
-            case Storagetype::int8:   return (qint8)in_buf[0];           break;
-            case Storagetype::int16:  return qFromLittleEndian<qint16>(in_buf); break;
-            case Storagetype::int32:  return qFromLittleEndian<qint32>(in_buf); break;
-            case Storagetype::uint8:  return (quint8)in_buf[0];      break;
-            case Storagetype::uint16: return qFromLittleEndian<quint16>(in_buf); break;
-            case Storagetype::uint32: return qFromLittleEndian<quint32>(in_buf); break;
-            default: break;
-            }
-    }
-
-signals:
-    void timer_lock();
-    void timer_unlock();
-private:
-    void read_by_type(Storagetype storagetype, quint32 mem_addr, int x, int y)
-    {
-        int lenght = x * y;
-        // прочитаем нужное количество данных в соответствии с типом
-        switch (storagetype) {
-        case Storagetype::int8:
-        case Storagetype::uint8:  DMA->read_direct( mem_addr, lenght); break;
-        case Storagetype::int16:
-        case Storagetype::uint16: DMA->read_direct( mem_addr, lenght * 2); break;
-        case Storagetype::int32:
-        case Storagetype::uint32: DMA->read_direct( mem_addr, lenght * 4); break;
-        default: break;
-        }
-    }
-public slots:
 
     void on_tableWidget_cellChanged(int row, int column)     //обработчик обновление редакции в таблице
     {

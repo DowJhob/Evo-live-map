@@ -11,3 +11,4 @@ j2534_new_wrapper.cpp
 j2534_new_wrapper.h
 inno_mts.h
 
+*.autosave
