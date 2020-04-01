@@ -144,7 +144,7 @@ bool MainWindow::CreateTable(QString filename)
             tab.Table.elements = tab.X_axis.elements * tab.Y_axis.elements;
             axread(&tab.Table, &map);
             dynamic_window->create( &map);
-            connect(dynamic_window, SIGNAL(update(quint32, QString)), SLOT(updateRAM(quint32, QString)));
+            connect(dynamic_window->table, SIGNAL(cellChanged(int, int)), this, SLOT(updateRAM(int, int)));
 
             QPushButton *tableButton = new QPushButton(tab.Table.Name, ui->groupBox_mapalloc);
             tableButton->setProperty("tag", tab.tableNum);
@@ -168,8 +168,7 @@ bool MainWindow::CreateTable(QString filename)
             tab.Table.elements = tab.X_axis.elements * tab.Y_axis.elements;
             axread(&tab.Table, &map);
             dynamic_window->create( &map);
-connect(dynamic_window, SIGNAL(update(quint32, QString)), SLOT(updateRAM(quint32, QString)));
-
+connect(dynamic_window->table, SIGNAL(cellChanged(int, int)), this, SLOT(updateRAM(int, int)));
 
             QPushButton *tableButton = new QPushButton(tab.Table.Name, ui->groupBox_mapalloc);
             tableButton->setProperty("tag", tab.tableNum);

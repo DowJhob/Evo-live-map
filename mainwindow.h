@@ -42,15 +42,21 @@ public slots:
         mapWidget *window = list_window.at(tableButton->property("tag").toInt());
         window->setVisible( !window->isVisible());
     }
-    void updateRAM(quint32 pos, QString in)
+    void updateRAM(int row, int column)
     {
-        mapWidget *_mapwidget = qobject_cast<mapWidget*>( sender() );
+        QTableWidget *tablewidget = qobject_cast<QTableWidget*>( sender() );
+        mapWidget *_mapwidget = qvariant_cast<mapWidget*>( tablewidget->property("addr") ); // указатель на окно
+        uint pos;
+        if (_mapwidget->Table_Decl.Table.swapxy)
+        {
+            pos = column * _mapwidget->Table_Decl.Y_axis.elements + row;
+        }
+        else
+        {
+            pos = row * _mapwidget->Table_Decl.X_axis.elements + column;
+        }
 
-
-
-        qint64 out = qRound64(fast_calc(_mapwidget->Table_Decl.Table.rom_scaling.frexpr2, in.toDouble()));
-
-
+        qint64 out = qRound64(fast_calc(_mapwidget->Table_Decl.Table.rom_scaling.frexpr2, tablewidget->item(row, column)->text().toDouble()));
         switch (_mapwidget->Table_Decl.Table.rom_scaling._storagetype) {
         case Storagetype::int8:
         case Storagetype::uint8:            memcpy(&DMA.MUT_Out_buffer, (char*)&out, 1); break;

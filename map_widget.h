@@ -53,17 +53,15 @@ public:
 
         table->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-        layout->setMargin(10);
-        layout->setContentsMargins(10, 10, 10, 10);
+        layout->setMargin(1);
+        layout->setContentsMargins(1, 1, 1, 1);
  //       show();
     }
 protected:
 
 signals:
-    void update(quint32, QString);
+
 private:
-
-
 
 public slots:
     void create(QVector <qint64>* map)
@@ -83,7 +81,6 @@ public slots:
         }
         //заполним таблицу что бы два раза не бегать
         table_set_update(map);   //создаем обновляем таблицу
-        connect(table, SIGNAL(cellChanged(int, int)), this, SLOT(on_tableWidget_cellChanged(int, int)));
         //----------------------------------
         QSize Size( 45, 25 );
         table->resizeRowsToContents();
@@ -131,23 +128,6 @@ public slots:
                 c++;
             }
         }
-    }
-    void on_tableWidget_cellChanged(int row, int column)     //обработчик обновление редакции в таблице
-    {
-        QTableWidget *tablewidget = qobject_cast<QTableWidget*>( sender() );
-        mapWidget *window = qvariant_cast<mapWidget*>( tablewidget->property("addr") ); // указатель на окно
-        uint pos;
-        if (window->Table_Decl.Table.swapxy)
-        {
-            pos = column * window->Table_Decl.Y_axis.elements + row;
-        }
-        else
-        {
-            pos = row * window->Table_Decl.X_axis.elements + column;
-        }
-
-
-        emit update(pos, tablewidget->item(row, column)->text());
     }
 };
 #endif // DYNAMICWINDOW_H
