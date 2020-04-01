@@ -27,19 +27,20 @@ public:
     tableDeclaration Table_Decl;               //Описание таблицы
     Tracer_marker tracer_marker;
     Tracer_marker tracer_marker_pred = {};
-    QVector <qint64> x_axis={};    //костыли с содержимым осей
-    QVector <qint64> y_axis={};
+    QVector <float> x_axis={};    //костыли с содержимым осей
+    QVector <float> y_axis={};
     CustomTableWidget(int row, int column, QWidget *parent = nullptr//, tableDeclaration *Table_Decl = nullptr
                       ): QTableWidget(parent)
     {
         setRowCount(row);
         setColumnCount(column);
         setContextMenuPolicy(Qt::ActionsContextMenu);
-        setSortingEnabled(false);
+        //setSortingEnabled(false);
         setUpdatesEnabled(true);
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        setContentsMargins(0, 0, 0, 0);
     }
-    void create(QVector <qint64>* map)
+    void create(QVector <float>* map)
     {
         for (int i = 0; i < Table_Decl.X_axis.elements; i++)
         {
@@ -57,7 +58,9 @@ public:
         //заполним таблицу что бы два раза не бегать
         table_set_update(map);   //создаем обновляем таблицу
         //----------------------------------
-        QSize Size( 45, 25 );
+        QSize Size( 30, 10 );
+
+//setHorizontalHeaderLabels("fghshshf");
         resizeRowsToContents();
         resizeColumnsToContents();
         //--------------------------------------расчет размеров таблицы-------------------------------------------------
@@ -65,14 +68,14 @@ public:
         {                                                                       //|
             Size.setWidth( Size.width() + columnWidth( i));              //|накапливаем ширину столбцов
         }                                                                       //|
-        Size.setWidth( Size.width() + this->verticalHeader()->width() );        //|
+                //|
         for( int i = 0; i < Table_Decl.Y_axis.elements; i++)                           //|
         {                                                                       //|
             Size.setHeight( Size.height() + rowHeight( i));              //| накапливаем высоту строк
-        }                                                                       //|
-        Size.setHeight( Size.height() + horizontalHeader()->height());   //|
+        }
+        Size.setWidth( Size.width() + verticalHeader()->width() );
+        Size.setHeight( Size.height() + horizontalHeader()->height());
         //--------------------------------------------
-        resize(Size);
         setFixedSize(Size);
     }
 protected:
@@ -89,7 +92,7 @@ protected:
     }
 private:
 
-    void table_set_update(QVector <qint64>* map)
+    void table_set_update(QVector <float>* map)
     {
         long long variable_value;
         uint c = 0;

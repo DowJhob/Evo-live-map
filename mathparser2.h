@@ -366,7 +366,7 @@ inline float fast_calc(fast_calc_struct temp_fs, float x)
         if ( !temp_fs.postfix_notation.at(i).op_flag )  //Если символ - цифра, то читаем все число и записываем на вершину стека
             temp.push(temp_fs.postfix_notation.at(i).payload); //Записываем в стек
         else
-            if (temp_fs.postfix_notation.at(i).op_flag) //Если символ - оператор
+            if (temp_fs.postfix_notation.at(i).op_flag && temp.count() > 1 ) //Если символ - оператор
             {
                 //Берем два последних значения из стека
                 float a = temp.pop();

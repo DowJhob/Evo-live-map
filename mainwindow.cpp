@@ -99,23 +99,29 @@ void MainWindow::create_table(tableDeclaration *tab)
 
         QWidget *mapWidget = new QWidget(this, Qt::Window);
         mapWidget->setWindowTitle(tab->Table.Name);
-        mapWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        //mapWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         QGridLayout *layout = new QGridLayout(mapWidget);
         mapWidget->setLayout(layout);
 //создаем таблицу с заданной размерностью
 CustomTableWidget *table = new CustomTableWidget(tab->Y_axis.elements, tab->X_axis.elements, mapWidget);
 layout->addWidget(table);
+mapWidget->setContentsMargins(1, 1, 1, 1);
 layout->setMargin(1);
 layout->setContentsMargins(1, 1, 1, 1);
 
         table->Table_Decl = *tab;
         axread(&tab->X_axis, &table->x_axis);   // читаем оси
         axread(&tab->Y_axis, &table->y_axis);   // читаем оси
-        QVector <qint64> map;
+        QVector <float> map;
         tab->Table.elements = tab->X_axis.elements * tab->Y_axis.elements;
         axread(&tab->Table, &map);
         table->create( &map);
         connect(table, SIGNAL(cellChanged(int, int)), this, SLOT(updateRAM(int, int)));
+
+        QSize Size = table->size();
+        Size.setWidth( Size.width() + 5);
+        Size.setHeight( Size.height() + 5);
+        mapWidget->setFixedSize( Size );
 
         QPushButton *tableButton = new QPushButton(tab->Table.Name);
         tableButton->setProperty("widget", QVariant::fromValue( mapWidget ));
@@ -142,7 +148,7 @@ bool MainWindow::ReadConfig(QString filename)
     return true;
 }
 
-void MainWindow::axread(sub_tableDeclaration *sub_tab, QVector <qint64> *axis)
+void MainWindow::axread(sub_tableDeclaration *sub_tab, QVector <float> *axis)
 {
     float variable_value;
     //читаем таблицу заголовка-оси в буфер
@@ -160,8 +166,7 @@ void MainWindow::axread(sub_tableDeclaration *sub_tab, QVector <qint64> *axis)
     for (int i = 0; i < sub_tab->elements; i++)
     {
         variable_value = _ecu->mem_cast(sub_tab->rom_scaling, DMA.MUT_Out_buffer, i); //кастуем данные к определенному типу
-        int compute = qRound(fast_calc(sub_tab->rom_scaling.toexpr2, variable_value));
-        axis->append(compute);
+        axis->append(fast_calc(sub_tab->rom_scaling.toexpr2, variable_value));
     }
 }
 
@@ -193,18 +198,18 @@ void MainWindow::logger_and_tableWidget_trace()
     t.start();
     timer->stop();
     DMA.read_indirect(_ecu->RAM_MUT_addr, 16);
-    int x = 0;
-    int y = 0;
+    float x = 0;
+    float y = 0;
     foreach (CustomTableWidget *table, list_table)
     {
-        if ( table->Table_Decl.X_axis.ram_mut_number || table->Table_Decl.Y_axis.ram_mut_number )
+        if ( table->Table_Decl.X_axis.ram_mut_number >= 0 || table->Table_Decl.Y_axis.ram_mut_number >= 0 )
         {
-            x = qRound(_ecu->mut_cast(DMA.MUT_Out_buffer, table->Table_Decl.X_axis.RAM_MUT_scaling, table->Table_Decl.X_axis.ram_mut_number));
-            y = qRound(_ecu->mut_cast(DMA.MUT_Out_buffer, table->Table_Decl.Y_axis.RAM_MUT_scaling, table->Table_Decl.Y_axis.ram_mut_number));
+            x = _ecu->mut_cast(DMA.MUT_Out_buffer, table->Table_Decl.X_axis.RAM_MUT_scaling, table->Table_Decl.X_axis.ram_mut_number);
+            y = _ecu->mut_cast(DMA.MUT_Out_buffer, table->Table_Decl.Y_axis.RAM_MUT_scaling, table->Table_Decl.Y_axis.ram_mut_number);
             if (debug)
             {
-                x = QCursor::pos().x();
-                y = QCursor::pos().y()*10;
+                x = QCursor::pos().x()*2.3;
+                y = QCursor::pos().y()*10.1;
             }
             //----------------------- вычисляем координаты маркера------------------------------------------------
             table->tracer_marker.Xtrace = axis_lookup2(x, table->Table_Decl.X_axis.elements, table->x_axis);

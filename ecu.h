@@ -88,9 +88,9 @@ public slots:
             default: break;
             }
     }
-    float mut_cast( uchar* in_buf, Scaling scaling, int mut_number )
+    float mut_cast( uchar* in_buf, Scaling scaling, int mut_offset )
     {
-        float x = type_cast(scaling, in_buf + mut_number );
+        float x = type_cast(scaling, in_buf + mut_offset );
         x = fast_calc(scaling.toexpr2, x);
         return x;
     }

@@ -145,6 +145,10 @@ private:
             _subTableDeclaration->swapxy = true;
         _subTableDeclaration->rom_scaling.toexpr2 = *set_notation(_subTableDeclaration->rom_scaling.toexpr);
         _subTableDeclaration->rom_scaling.frexpr2 = *set_notation(_subTableDeclaration->rom_scaling.frexpr);
+
+        _subTableDeclaration->RAM_MUT_scaling.toexpr2 = *set_notation(_subTableDeclaration->RAM_MUT_scaling.toexpr);
+        _subTableDeclaration->RAM_MUT_scaling.frexpr2 = *set_notation(_subTableDeclaration->RAM_MUT_scaling.frexpr);
+
         _subTableDeclaration->elements = node.toElement().attribute("elements").toInt(nullptr);
     }
 };

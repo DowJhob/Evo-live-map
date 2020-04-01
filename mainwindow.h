@@ -95,7 +95,7 @@ private slots:
     void on_count_lineEdit_returnPressed();
 
 private:
-    void axread(sub_tableDeclaration *sub_tab, QVector<qint64> *axis);
+    void axread(sub_tableDeclaration *sub_tab, QVector<float> *axis);
     void evoX_Connect_Click()
     {
 //        object obj2;
@@ -344,7 +344,7 @@ if (binarray != nullptr)
         return mod;
     }
 
-    int  axis_lookup2(int in, int axis_lenght, QVector<qint64> axis)    //возвращает меньший индекс
+    int  axis_lookup2(float in, int axis_lenght, QVector<float> axis)    //возвращает меньший индекс
     {
         if (axis_lenght <= 1 )
             return 0;
