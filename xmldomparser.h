@@ -137,17 +137,18 @@ private:
         _subTableDeclaration->Name = node.toElement().attribute("name");						        // сохраним имя таблицы
         _subTableDeclaration->rom_addr = node.toElement().attribute("address").toUInt(nullptr, 16);  // сохраняем значение ROM адреса
         _subTableDeclaration->ram_addr = node.toElement().attribute("RAM_addr").toUInt(nullptr, 16); //получаем адрес  таблицы в оперативке
-        _subTableDeclaration->ram_mut_number = node.toElement().attribute("RAM_mut_number").toUInt(nullptr, 16); //номер мут запроса из рам мут
-
-        _subTableDeclaration->RAM_MUT_scaling = scaling_qmap.value( node.toElement().attribute("ram_mut_scaling") ); //сохраним RAM скалинг данных логгера
-
         if (node.toElement().attribute("swapxy") == "true")                              //получаем swapxy
             _subTableDeclaration->swapxy = true;
         _subTableDeclaration->rom_scaling.toexpr2 = *set_notation(_subTableDeclaration->rom_scaling.toexpr);
         _subTableDeclaration->rom_scaling.frexpr2 = *set_notation(_subTableDeclaration->rom_scaling.frexpr);
 
+        _subTableDeclaration->RAM_MUT_scaling = scaling_qmap.value( node.toElement().attribute("ram_mut_scaling") ); //сохраним RAM скалинг данных логгера
         _subTableDeclaration->RAM_MUT_scaling.toexpr2 = *set_notation(_subTableDeclaration->RAM_MUT_scaling.toexpr);
         _subTableDeclaration->RAM_MUT_scaling.frexpr2 = *set_notation(_subTableDeclaration->RAM_MUT_scaling.frexpr);
+
+        QString RAM_mut_number = node.toElement().attribute("RAM_mut_number");
+        if( !RAM_mut_number.isEmpty() )
+            _subTableDeclaration->ram_mut_number = RAM_mut_number.toUInt(nullptr, 16); //номер мут запроса из рам мут
 
         _subTableDeclaration->elements = node.toElement().attribute("elements").toInt(nullptr);
     }
