@@ -5,13 +5,16 @@
 #include <windows.h>
 #include <qt_windows.h>
 #include <QMainWindow>
-#include <QQueue>
+#include <QPushButton>
 #include <QTimer>
+#include <QFileDialog>
 #include "enumdev.h"
-#include "map_widget.h"
+#include "custom_tablewidget.h"
+#include "DMA.h"
 #include "mathparser2.h"
 #include "ecu.h"
 #include "qhexedit/qhexedit.h"
+#include "xmldomparser.h"
 
 namespace Ui {
 class MainWindow;
@@ -22,15 +25,13 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    QList<QTableWidget*> list_table;
-    QList<mapWidget*> list_window;    //список для динамически созданных таблиц
-    QList<QPushButton*> list_button = {};
+    QList<CustomTableWidget*> list_table;
     QStringList listFiles;
     QString FirstFile_by_Name = {};
     ~MainWindow();
     explicit MainWindow(QWidget *parent = nullptr);
     bool ReadConfig(QString filename);
-    bool CreateTable(QString filename);
+    bool StartLogging(QString filename);
     //bool VechicleInterfaceState;
     void TableDelete();
 
@@ -39,25 +40,25 @@ public slots:
     void table_show_hide()
     {
         QPushButton *tableButton = qobject_cast<QPushButton*>( sender() );
-        mapWidget *window = list_window.at(tableButton->property("tag").toInt());
+        QWidget* window  = qvariant_cast<QWidget*>( tableButton->property("widget") );
         window->setVisible( !window->isVisible());
     }
     void updateRAM(int row, int column)
     {
-        QTableWidget *tablewidget = qobject_cast<QTableWidget*>( sender() );
-        mapWidget *_mapwidget = qvariant_cast<mapWidget*>( tablewidget->property("addr") ); // указатель на окно
+        CustomTableWidget *table = qobject_cast<CustomTableWidget*>( sender() );
+//        mapWidget *_mapwidget = qvariant_cast<mapWidget*>( tablewidget->property("addr") ); // указатель на окно
         uint pos;
-        if (_mapwidget->Table_Decl.Table.swapxy)
+        if (table->Table_Decl.Table.swapxy)
         {
-            pos = column * _mapwidget->Table_Decl.Y_axis.elements + row;
+            pos = column * table->Table_Decl.Y_axis.elements + row;
         }
         else
         {
-            pos = row * _mapwidget->Table_Decl.X_axis.elements + column;
+            pos = row * table->Table_Decl.X_axis.elements + column;
         }
 
-        qint64 out = qRound64(fast_calc(_mapwidget->Table_Decl.Table.rom_scaling.frexpr2, tablewidget->item(row, column)->text().toDouble()));
-        switch (_mapwidget->Table_Decl.Table.rom_scaling._storagetype) {
+        qint64 out = qRound64(fast_calc(table->Table_Decl.Table.rom_scaling.frexpr2, table->item(row, column)->text().toDouble()));
+        switch (table->Table_Decl.Table.rom_scaling._storagetype) {
         case Storagetype::int8:
         case Storagetype::uint8:            memcpy(&DMA.MUT_Out_buffer, (char*)&out, 1); break;
         case Storagetype::int16:
@@ -66,8 +67,8 @@ public slots:
         case Storagetype::uint32: pos *= 4; memcpy(&DMA.MUT_Out_buffer, (char*)&out, 4); break;
         default: break;
         }
-        qDebug() << "hop: " << _mapwidget->Table_Decl.Table.Name << " : " << DMA.MUT_Out_buffer[0];
-        DMA.write_direct(_mapwidget->Table_Decl.Table.ram_addr + pos, 1);
+        qDebug() << "hop: " << table->Table_Decl.Table.Name << " : " << DMA.MUT_Out_buffer[0];
+        DMA.write_direct(table->Table_Decl.Table.ram_addr + pos, 1);
     }
 signals:
     void timer_lock();
@@ -78,6 +79,7 @@ protected :
     bool nativeEvent(const QByteArray &eventType, void *message, long *result);
 
 private slots:
+    void create_table(tableDeclaration *tab);
     void on_BaudRatelineEdit_textChanged(const QString &arg1);
     void on_StartButton_clicked();
     void on_RAM_reset_Button_clicked();
@@ -86,14 +88,10 @@ private slots:
     void on_debugButton_clicked();
     void on_loadbinbutton_clicked();
     void on_stop_live_clicked();
-
     void on_save_trace_pushButton_clicked();
     void Log(QString str);
-
     void on_inno_initButton_clicked();
-
     void on_start_addr_lineEdit_returnPressed();
-
     void on_count_lineEdit_returnPressed();
 
 private:
@@ -280,7 +278,7 @@ private:
     dma DMA;
     bool save_trace = false;
     DomParser xmlParser;
-    tableDeclaration Table_Decl;                       //Описание одной таблицы
+
     QByteArray *binarray;                                  // массив с бинарником
 QHexEdit *hexEdit;
     void get_table(tableDeclaration *tab)

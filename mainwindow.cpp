@@ -89,6 +89,44 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
     return false;
 }
 
+void MainWindow::create_table(tableDeclaration *tab)
+{
+    if (tab->Table.ram_addr != 0)                                    // проверим что это таблица карт, а не таблица патчей
+    {
+       // mapWidget *dynamic_window = new mapWidget( this, tab);
+
+        qDebug() << "====================== Create table : " << tab->Table.Name << " ================================";
+
+        QWidget *mapWidget = new QWidget(this, Qt::Window);
+        mapWidget->setWindowTitle(tab->Table.Name);
+        mapWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        QGridLayout *layout = new QGridLayout(mapWidget);
+        mapWidget->setLayout(layout);
+//создаем таблицу с заданной размерностью
+CustomTableWidget *table = new CustomTableWidget(tab->Y_axis.elements, tab->X_axis.elements, mapWidget);
+layout->addWidget(table);
+layout->setMargin(1);
+layout->setContentsMargins(1, 1, 1, 1);
+
+        table->Table_Decl = *tab;
+        axread(&tab->X_axis, &table->x_axis);   // читаем оси
+        axread(&tab->Y_axis, &table->y_axis);   // читаем оси
+        QVector <qint64> map;
+        tab->Table.elements = tab->X_axis.elements * tab->Y_axis.elements;
+        axread(&tab->Table, &map);
+        table->create( &map);
+        connect(table, SIGNAL(cellChanged(int, int)), this, SLOT(updateRAM(int, int)));
+
+        QPushButton *tableButton = new QPushButton(tab->Table.Name);
+        tableButton->setProperty("widget", QVariant::fromValue( mapWidget ));
+        ui->gridLayout_mapalloc->addWidget(tableButton);
+
+        connect(tableButton, SIGNAL(clicked(bool) ), this, SLOT( table_show_hide() ));
+
+        list_table.insert( tab->tableNum, table );
+    }
+}
+
 bool MainWindow::ReadConfig(QString filename)
 {
     // Открываем конфиг:
@@ -127,7 +165,7 @@ void MainWindow::axread(sub_tableDeclaration *sub_tab, QVector <qint64> *axis)
     }
 }
 
-bool MainWindow::CreateTable(QString filename)
+bool MainWindow::StartLogging(QString filename)
 {
     _ecu = new ecu;
     if (!ReadConfig(filename))
@@ -135,68 +173,18 @@ bool MainWindow::CreateTable(QString filename)
     // переберем все описания таблиц
     foreach ( tableDeclaration tab, _ecu->loggingRAMtables)
     {
-        if (tab.Table.ram_addr != 0)                                    // проверим что это таблица карт, а не таблица патчей
-        {
-            mapWidget *dynamic_window = new mapWidget( this, &tab);
-            axread(&tab.X_axis, &dynamic_window->x_axis);   // читаем оси
-            axread(&tab.Y_axis, &dynamic_window->y_axis);   // читаем оси
-            QVector <qint64> map;
-            tab.Table.elements = tab.X_axis.elements * tab.Y_axis.elements;
-            axread(&tab.Table, &map);
-            dynamic_window->create( &map);
-            connect(dynamic_window->table, SIGNAL(cellChanged(int, int)), this, SLOT(updateRAM(int, int)));
-
-            QPushButton *tableButton = new QPushButton(tab.Table.Name, ui->groupBox_mapalloc);
-            tableButton->setProperty("tag", tab.tableNum);
-            ui->gridLayout_mapalloc->addWidget(tableButton);
-            connect(tableButton, SIGNAL(clicked(bool) ), this, SLOT( table_show_hide() ));
-
-            list_table.insert( tab.tableNum, dynamic_window->table );
-
-            list_window.insert( tab.tableNum, dynamic_window );
-            list_button.insert( tab.tableNum, tableButton );
-        }
+        create_table(&tab);
     }
     foreach ( tableDeclaration tab, _ecu->not_loggingRAMtables)
     {
-        if (tab.Table.ram_addr != 0)                                    // проверим что это таблица карт, а не таблица патчей
-        {
-            mapWidget *dynamic_window = new mapWidget( this, &tab);
-            axread(&tab.X_axis, &dynamic_window->x_axis);   // читаем оси
-            axread(&tab.Y_axis, &dynamic_window->y_axis);   // читаем оси
-            QVector <qint64> map;
-            tab.Table.elements = tab.X_axis.elements * tab.Y_axis.elements;
-            axread(&tab.Table, &map);
-            dynamic_window->create( &map);
-connect(dynamic_window->table, SIGNAL(cellChanged(int, int)), this, SLOT(updateRAM(int, int)));
-
-            QPushButton *tableButton = new QPushButton(tab.Table.Name, ui->groupBox_mapalloc);
-            tableButton->setProperty("tag", tab.tableNum);
-            ui->gridLayout_mapalloc->addWidget(tableButton);
-            connect(tableButton, SIGNAL(clicked(bool) ), this, SLOT( table_show_hide() ));
-
-            list_table.insert( tab.tableNum, dynamic_window->table );
-
-            list_window.insert( tab.tableNum, dynamic_window );
-            list_button.insert( tab.tableNum, tableButton );
-        }
+        create_table(&tab);
     }
     return true;
 }
 
 void MainWindow::TableDelete()
 {
-    foreach (mapWidget *window, list_window)
-    {
-        delete window;
-    }
-    foreach (QPushButton *button, list_button)
-    {
-        delete button;
-    }
-    list_window = {};
-    list_button = {};
-    //    list_widget = {};
+
 }
 
 void MainWindow::logger_and_tableWidget_trace()
@@ -207,35 +195,35 @@ void MainWindow::logger_and_tableWidget_trace()
     DMA.read_indirect(_ecu->RAM_MUT_addr, 16);
     int x = 0;
     int y = 0;
-    foreach (mapWidget *window, list_window)
+    foreach (CustomTableWidget *table, list_table)
     {
-        if ( window->Table_Decl.X_axis.ram_mut_number || window->Table_Decl.Y_axis.ram_mut_number )
+        if ( table->Table_Decl.X_axis.ram_mut_number || table->Table_Decl.Y_axis.ram_mut_number )
         {
-            x = qRound(_ecu->mut_cast(DMA.MUT_Out_buffer, window->Table_Decl.X_axis.RAM_MUT_scaling, window->Table_Decl.X_axis.ram_mut_number));
-            y = qRound(_ecu->mut_cast(DMA.MUT_Out_buffer, window->Table_Decl.Y_axis.RAM_MUT_scaling, window->Table_Decl.Y_axis.ram_mut_number));
+            x = qRound(_ecu->mut_cast(DMA.MUT_Out_buffer, table->Table_Decl.X_axis.RAM_MUT_scaling, table->Table_Decl.X_axis.ram_mut_number));
+            y = qRound(_ecu->mut_cast(DMA.MUT_Out_buffer, table->Table_Decl.Y_axis.RAM_MUT_scaling, table->Table_Decl.Y_axis.ram_mut_number));
             if (debug)
             {
                 x = QCursor::pos().x();
                 y = QCursor::pos().y()*10;
             }
             //----------------------- вычисляем координаты маркера------------------------------------------------
-            window->tracer_marker.Xtrace = axis_lookup2(x, window->Table_Decl.X_axis.elements, window->x_axis);
-            window->tracer_marker.Ytrace = axis_lookup2(y, window->Table_Decl.Y_axis.elements, window->y_axis);
+            table->tracer_marker.Xtrace = axis_lookup2(x, table->Table_Decl.X_axis.elements, table->x_axis);
+            table->tracer_marker.Ytrace = axis_lookup2(y, table->Table_Decl.Y_axis.elements, table->y_axis);
             //----------------------- вычисляем насыщенность ячеек маркера ---------------------------------------
-            window->tracer_marker.k = 0;
-            window->tracer_marker.j = 0;
-            if ( (window->Table_Decl.X_axis.elements > 1) && (window->tracer_marker.Xtrace < window->Table_Decl.X_axis.elements - 1) )
-                window->tracer_marker.j = 1;
-            if ( (window->Table_Decl.Y_axis.elements > 1) && (window->tracer_marker.Ytrace < window->Table_Decl.Y_axis.elements - 1) )
-                window->tracer_marker.k = 1;
+            table->tracer_marker.k = 0;
+            table->tracer_marker.j = 0;
+            if ( (table->Table_Decl.X_axis.elements > 1) && (table->tracer_marker.Xtrace < table->Table_Decl.X_axis.elements - 1) )
+                table->tracer_marker.j = 1;
+            if ( (table->Table_Decl.Y_axis.elements > 1) && (table->tracer_marker.Ytrace < table->Table_Decl.Y_axis.elements - 1) )
+                table->tracer_marker.k = 1;
 
-            float kX = (float)255/(window->x_axis[window->tracer_marker.Xtrace+window->tracer_marker.j] - window->x_axis[window->tracer_marker.Xtrace]);    //коэффициент нормирования
-            float kY = (float)255/(window->y_axis[window->tracer_marker.Ytrace+window->tracer_marker.k] - window->y_axis[window->tracer_marker.Ytrace]);    //коэффициент нормирования
+            float kX = (float)255/(table->x_axis[table->tracer_marker.Xtrace + table->tracer_marker.j] - table->x_axis[table->tracer_marker.Xtrace]);    //коэффициент нормирования
+            float kY = (float)255/(table->y_axis[table->tracer_marker.Ytrace + table->tracer_marker.k] - table->y_axis[table->tracer_marker.Ytrace]);    //коэффициент нормирования
 
-            int leftNormalX  = qRound((window->x_axis[window->tracer_marker.Xtrace]-x)*kX);                       //нормированные координаты
-            int rightNormalX = qRound((window->x_axis[window->tracer_marker.Xtrace+window->tracer_marker.j]-x)*kX);                       //нормированные координаты
-            int upNormalY    = qRound((window->y_axis[window->tracer_marker.Ytrace]-y)*kY);
-            int downNormalY  = qRound((window->y_axis[window->tracer_marker.Ytrace+window->tracer_marker.k]-y)*kY);
+            int leftNormalX  = qRound((table->x_axis[table->tracer_marker.Xtrace]-x)*kX);                       //нормированные координаты
+            int rightNormalX = qRound((table->x_axis[table->tracer_marker.Xtrace + table->tracer_marker.j]-x)*kX);                       //нормированные координаты
+            int upNormalY    = qRound((table->y_axis[table->tracer_marker.Ytrace]-y)*kY);
+            int downNormalY  = qRound((table->y_axis[table->tracer_marker.Ytrace + table->tracer_marker.k]-y)*kY);
 
             //модули векторов,
             int leftUP    = modul(leftNormalX, upNormalY);
@@ -249,28 +237,28 @@ void MainWindow::logger_and_tableWidget_trace()
             color_rightUP.setHsv(240, rightUP, 255, 255);
             color_leftUP.setHsv(240, leftUP, 255, 255);
             //------------------------------------------------------------------------------------------------------------------
-            window->table->blockSignals( true );
-            if ((window->tracer_marker_pred.Xtrace != window->tracer_marker.Xtrace) ||(window->tracer_marker_pred.Ytrace != window->tracer_marker.Ytrace)) // тут гашение если изменился X или Y
+            table->blockSignals( true );
+            if ((table->tracer_marker_pred.Xtrace != table->tracer_marker.Xtrace) ||(table->tracer_marker_pred.Ytrace != table->tracer_marker.Ytrace)) // тут гашение если изменился X или Y
             {
                 //гашение предыдущего маркера таблицы
                 if (!save_trace)
                 {
-                    window->table->item(window->tracer_marker_pred.Ytrace,   window->tracer_marker_pred.Xtrace)->setBackground(Qt::white);
-                    window->table->item(window->tracer_marker_pred.Ytrace,   window->tracer_marker_pred.Xtrace+window->tracer_marker_pred.j)->setBackground(Qt::white);
-                    window->table->item(window->tracer_marker_pred.Ytrace+window->tracer_marker_pred.k, window->tracer_marker_pred.Xtrace)->setBackground(Qt::white);
-                    window->table->item(window->tracer_marker_pred.Ytrace+window->tracer_marker_pred.k, window->tracer_marker_pred.Xtrace+window->tracer_marker_pred.j)->setBackground(Qt::white);
+                    table->item(table->tracer_marker_pred.Ytrace,  table->tracer_marker_pred.Xtrace)->setBackground(Qt::white);
+                    table->item(table->tracer_marker_pred.Ytrace,  table->tracer_marker_pred.Xtrace + table->tracer_marker_pred.j)->setBackground(Qt::white);
+                    table->item(table->tracer_marker_pred.Ytrace + table->tracer_marker_pred.k, table->tracer_marker_pred.Xtrace)->setBackground(Qt::white);
+                    table->item(table->tracer_marker_pred.Ytrace + table->tracer_marker_pred.k, table->tracer_marker_pred.Xtrace + table->tracer_marker_pred.j)->setBackground(Qt::white);
                 }
             }
             //сохраняем  текущее положение для след расчета
-            window->tracer_marker_pred = window->tracer_marker;
+            table->tracer_marker_pred = table->tracer_marker;
             //         рисуем новое положение маркера
-            window->table->item(window->tracer_marker.Ytrace, window->tracer_marker.Xtrace)->setBackground(color_leftUP);//левый верхний
-            window->table->item(window->tracer_marker.Ytrace, window->tracer_marker.Xtrace+window->tracer_marker.j)->setBackground(color_rightUP);//правый верхний
-            window->table->item(window->tracer_marker.Ytrace+window->tracer_marker.k, window->tracer_marker.Xtrace)->setBackground(color_leftDOWN);//левый нижний
-            window->table->item(window->tracer_marker.Ytrace+window->tracer_marker.k, window->tracer_marker.Xtrace+window->tracer_marker.j)->setBackground(color_rightDOWN);//правый нижний
+            table->item(table->tracer_marker.Ytrace,  table->tracer_marker.Xtrace)->setBackground(color_leftUP);//левый верхний
+            table->item(table->tracer_marker.Ytrace,  table->tracer_marker.Xtrace + table->tracer_marker.j)->setBackground(color_rightUP);//правый верхний
+            table->item(table->tracer_marker.Ytrace + table->tracer_marker.k, table->tracer_marker.Xtrace)->setBackground(color_leftDOWN);//левый нижний
+            table->item(table->tracer_marker.Ytrace + table->tracer_marker.k, table->tracer_marker.Xtrace + table->tracer_marker.j)->setBackground(color_rightDOWN);//правый нижний
 
             // разблокируем обновления редакции
-            window->table->blockSignals(false);//
+            table->blockSignals(false);//
         }
     }
     ui->trace_time_label->setText(QString::number(t.nsecsElapsed()/1000) + "us");
@@ -303,7 +291,7 @@ void MainWindow::on_StartButton_clicked()
         ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
         s = "romID " + romID;
         ui->listWidget->addItem(s);
-        CreateTable(SearchFiles(CurrDir + "/xml/", romID)); //найдем файл конфига и парсим его
+        StartLogging(SearchFiles(CurrDir + "/xml/", romID)); //найдем файл конфига и парсим его
         timer->start(1000/ui->logger_rate_textedit->text().toUInt());
         s =   "CurrDir " + CurrDir;
     }
@@ -331,13 +319,13 @@ void MainWindow::on_read_RAM_Button_clicked()
     DMA.timer_lock();
     //for(int i=0; i < list_window->count(); i++)
 
-    foreach(mapWidget *window, list_window)
+//    foreach(mapWidget *window, list_window)
     {
         //DynamicWindow *tablewindow = qobject_cast<DynamicWindow*>(list_window[i]);
         //DynamicTableWidget *tablewidget = qobject_cast<DynamicTableWidget*>(list_widget[i]);
-        window->table->blockSignals(true);//перед обновлением отключим сигнал автообновления ячейки
+//        window->table->blockSignals(true);//перед обновлением отключим сигнал автообновления ячейки
         //window->table_set_update();
-        window->table->blockSignals(false);
+//        window->table->blockSignals(false);
     }
 
     DMA.timer_unlock();
@@ -359,7 +347,7 @@ void MainWindow::on_debugButton_clicked()
         DMA.MUT_Out_buffer[i] = i;
     }
     //SearchFiles(CurrDir + "/xml/", "80700010");   //найдем файл конфига
-    CreateTable(SearchFiles(CurrDir + "/xml/", "90550001"));   	//найдем файл конфига							//парсим его
+    StartLogging(SearchFiles(CurrDir + "/xml/", "90550001"));   	//найдем файл конфига							//парсим его
     hexEdit->setData(QByteArray::fromRawData((char*)DMA.MUT_Out_buffer, 4000));
     //CreateTable(SearchFiles(CurrDir + "/xml/", "88592715"));
     //    if ( "90550001" != load_bin(SearchFiles(CurrDir + "/bin/", "90550001")) )

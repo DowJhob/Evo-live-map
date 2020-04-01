@@ -50,8 +50,9 @@ public:
     QHash<QString, tableDeclaration> not_loggingRAMtables;
     QHash<QString, tableDeclaration> loggingRAMtables;
     QHash<QString, mutParam> RAM_MUT;
-    ecu();
+    ecu(){}
 public slots:
+
     qint64 mem_cast(Scaling scaling, uchar *in_buf, uint offset)   //кастуем данные к определенному типу
     {
         switch (scaling._storagetype) {
