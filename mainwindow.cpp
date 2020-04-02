@@ -34,8 +34,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     hexEdit->setAddressWidth(8);
     hexEdit->setAddressOffset(ui->start_addr_lineEdit->text().toUInt(nullptr, 16));
     ui->RAMeditorLayout->addWidget(hexEdit, 3,0,1,2);
-
-
 }
 
 MainWindow::~MainWindow()
@@ -93,21 +91,18 @@ void MainWindow::create_table(tableDeclaration *tab)
 {
     if (tab->Table.ram_addr != 0)                                    // проверим что это таблица карт, а не таблица патчей
     {
-       // mapWidget *dynamic_window = new mapWidget( this, tab);
-
         qDebug() << "====================== Create table : " << tab->Table.Name << " ================================";
-
-        QWidget *mapWidget = new QWidget(this, Qt::Window);
+        QWidget *mapWidget = new QWidget(this, Qt::Window | Qt::WindowCloseButtonHint);
         mapWidget->setWindowTitle(tab->Table.Name);
         //mapWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         QGridLayout *layout = new QGridLayout(mapWidget);
         mapWidget->setLayout(layout);
-//создаем таблицу с заданной размерностью
-CustomTableWidget *table = new CustomTableWidget(tab->Y_axis.elements, tab->X_axis.elements, mapWidget);
-layout->addWidget(table);
-mapWidget->setContentsMargins(1, 1, 1, 1);
-layout->setMargin(1);
-layout->setContentsMargins(1, 1, 1, 1);
+        //создаем таблицу с заданной размерностью
+        CustomTableWidget *table = new CustomTableWidget(tab->Y_axis.elements, tab->X_axis.elements, mapWidget);
+        layout->addWidget(table);
+        mapWidget->setContentsMargins(1, 1, 1, 1);
+        layout->setMargin(1);
+        layout->setContentsMargins(1, 1, 1, 1);
 
         table->Table_Decl = *tab;
         axread(&tab->X_axis, &table->x_axis);   // читаем оси
@@ -119,8 +114,8 @@ layout->setContentsMargins(1, 1, 1, 1);
         connect(table, SIGNAL(cellChanged(int, int)), this, SLOT(updateRAM(int, int)));
 
         QSize Size = table->size();
-        Size.setWidth( Size.width() + 5);
-        Size.setHeight( Size.height() + 5);
+        Size.setWidth( Size.width() + 8);
+        Size.setHeight( Size.height() + 8);
         mapWidget->setFixedSize( Size );
 
         QPushButton *tableButton = new QPushButton(tab->Table.Name);
@@ -248,26 +243,33 @@ void MainWindow::logger_and_tableWidget_trace()
                 //гашение предыдущего маркера таблицы
                 if (!save_trace)
                 {
-                    table->item(table->tracer_marker_pred.Ytrace,  table->tracer_marker_pred.Xtrace)->setBackground(Qt::white);
-                    table->item(table->tracer_marker_pred.Ytrace,  table->tracer_marker_pred.Xtrace + table->tracer_marker_pred.j)->setBackground(Qt::white);
-                    table->item(table->tracer_marker_pred.Ytrace + table->tracer_marker_pred.k, table->tracer_marker_pred.Xtrace)->setBackground(Qt::white);
-                    table->item(table->tracer_marker_pred.Ytrace + table->tracer_marker_pred.k, table->tracer_marker_pred.Xtrace + table->tracer_marker_pred.j)->setBackground(Qt::white);
+                    table->item(table->tracer_marker_pred.Ytrace,  table->tracer_marker_pred.Xtrace)->setBackground(table->tracer_marker_pred.predColorA);
+                    table->item(table->tracer_marker_pred.Ytrace,  table->tracer_marker_pred.Xtrace + table->tracer_marker_pred.j)->setBackground(table->tracer_marker_pred.predColorB);
+                    table->item(table->tracer_marker_pred.Ytrace + table->tracer_marker_pred.k, table->tracer_marker_pred.Xtrace)->setBackground(table->tracer_marker_pred.predColorC);
+                    table->item(table->tracer_marker_pred.Ytrace + table->tracer_marker_pred.k, table->tracer_marker_pred.Xtrace + table->tracer_marker_pred.j)->setBackground(table->tracer_marker_pred.predColorD);
                 }
-            }
+
+
             //сохраняем  текущее положение для след расчета
             table->tracer_marker_pred = table->tracer_marker;
+            table->tracer_marker_pred.predColorA = table->item(table->tracer_marker.Ytrace,                          table->tracer_marker.Xtrace                         )->background().color();
+            table->tracer_marker_pred.predColorB = table->item(table->tracer_marker.Ytrace,                          table->tracer_marker.Xtrace + table->tracer_marker.j)->background().color();
+            table->tracer_marker_pred.predColorC = table->item(table->tracer_marker.Ytrace + table->tracer_marker.k, table->tracer_marker.Xtrace                         )->background().color();
+            table->tracer_marker_pred.predColorD = table->item(table->tracer_marker.Ytrace + table->tracer_marker.k, table->tracer_marker.Xtrace + table->tracer_marker.j)->background().color();
+        }
             //         рисуем новое положение маркера
             table->item(table->tracer_marker.Ytrace,  table->tracer_marker.Xtrace)->setBackground(color_leftUP);//левый верхний
             table->item(table->tracer_marker.Ytrace,  table->tracer_marker.Xtrace + table->tracer_marker.j)->setBackground(color_rightUP);//правый верхний
             table->item(table->tracer_marker.Ytrace + table->tracer_marker.k, table->tracer_marker.Xtrace)->setBackground(color_leftDOWN);//левый нижний
             table->item(table->tracer_marker.Ytrace + table->tracer_marker.k, table->tracer_marker.Xtrace + table->tracer_marker.j)->setBackground(color_rightDOWN);//правый нижний
 
+
             // разблокируем обновления редакции
             table->blockSignals(false);//
         }
     }
     ui->trace_time_label->setText(QString::number(t.nsecsElapsed()/1000) + "us");
-    //qDebug() << time.msecsTo( QTime::currentTime() );
+
     timer->start();
 }
 
@@ -324,13 +326,13 @@ void MainWindow::on_read_RAM_Button_clicked()
     DMA.timer_lock();
     //for(int i=0; i < list_window->count(); i++)
 
-//    foreach(mapWidget *window, list_window)
+    //    foreach(mapWidget *window, list_window)
     {
         //DynamicWindow *tablewindow = qobject_cast<DynamicWindow*>(list_window[i]);
         //DynamicTableWidget *tablewidget = qobject_cast<DynamicTableWidget*>(list_widget[i]);
-//        window->table->blockSignals(true);//перед обновлением отключим сигнал автообновления ячейки
+        //        window->table->blockSignals(true);//перед обновлением отключим сигнал автообновления ячейки
         //window->table_set_update();
-//        window->table->blockSignals(false);
+        //        window->table->blockSignals(false);
     }
 
     DMA.timer_unlock();

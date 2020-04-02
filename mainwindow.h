@@ -46,7 +46,7 @@ public slots:
     void updateRAM(int row, int column)
     {
         CustomTableWidget *table = qobject_cast<CustomTableWidget*>( sender() );
-//        mapWidget *_mapwidget = qvariant_cast<mapWidget*>( tablewidget->property("addr") ); // указатель на окно
+
         uint pos;
         if (table->Table_Decl.Table.swapxy)
         {

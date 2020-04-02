@@ -18,6 +18,10 @@ struct Tracer_marker
     int Ytrace;
     int k;                         //добавочные индексы для краев диапазона, их нужно сохранять на случай резкого измения сигнала от края до нуля
     int j;
+    QColor predColorA;
+    QColor predColorB;
+    QColor predColorC;
+    QColor predColorD;
 };
 
 class CustomTableWidget: public QTableWidget
@@ -25,7 +29,7 @@ class CustomTableWidget: public QTableWidget
     Q_OBJECT
 public:
     tableDeclaration Table_Decl;               //Описание таблицы
-    Tracer_marker tracer_marker;
+    Tracer_marker tracer_marker = {};
     Tracer_marker tracer_marker_pred = {};
     QVector <float> x_axis={};    //костыли с содержимым осей
     QVector <float> y_axis={};
@@ -46,6 +50,7 @@ public:
         {
             QTableWidgetItem *item = new QTableWidgetItem();
             item->setData( Qt::DisplayRole, QString::number(x_axis.at(i)));
+
             setHorizontalHeaderItem(i, item);
         }
         //----------------------------------------------------------------------------------------------
@@ -56,11 +61,11 @@ public:
             setVerticalHeaderItem(i, item);
         }
         //заполним таблицу что бы два раза не бегать
-        table_set_update(map);   //создаем обновляем таблицу
+        table_set_update(map, 200, 200);   //создаем обновляем таблицу
         //----------------------------------
         QSize Size( 30, 10 );
 
-//setHorizontalHeaderLabels("fghshshf");
+        //setHorizontalHeaderLabels("fghshshf");
         resizeRowsToContents();
         resizeColumnsToContents();
         //--------------------------------------расчет размеров таблицы-------------------------------------------------
@@ -68,7 +73,7 @@ public:
         {                                                                       //|
             Size.setWidth( Size.width() + columnWidth( i));              //|накапливаем ширину столбцов
         }                                                                       //|
-                //|
+        //|
         for( int i = 0; i < Table_Decl.Y_axis.elements; i++)                           //|
         {                                                                       //|
             Size.setHeight( Size.height() + rowHeight( i));              //| накапливаем высоту строк
@@ -92,7 +97,7 @@ protected:
     }
 private:
 
-    void table_set_update(QVector <float>* map)
+    void table_set_update(QVector <float>* map, int saturation, int alpha)
     {
         long long variable_value;
         uint c = 0;
@@ -108,6 +113,12 @@ private:
             swapXyLen = Table_Decl.Y_axis.elements;
         }
         int swapxyX, swapxyY;
+        QColor color;
+        int britghtnes = 200;
+        int minDesireHUE = 0;
+        int maxDesireHUE = 240;
+        int desire_hue;
+
         for (int x = 0; x < swapXyLen; x++)
         {
             for (int y = 0; y < swapYxLen; y++)
@@ -117,10 +128,45 @@ private:
                 else {swapxyX = y; swapxyY = x;}
                 if (item(swapxyY, swapxyX) == nullptr)  //если итема нет создадим
                     setItem(swapxyY, swapxyX, new QTableWidgetItem());
+
+                // normalize input
+                float kColor = Table_Decl.Table.rom_scaling.max - Table_Decl.Table.rom_scaling.min;
+                kColor = fabs(map->at(c)/kColor);
+                britghtnes = 200;
+                if ( map->at(c) > Table_Decl.Table.rom_scaling.max)
+                {
+                    britghtnes = 80;
+                    kColor = 1;
+                }
+                else if ( map->at(c) < Table_Decl.Table.rom_scaling.min )
+                {
+                    britghtnes = 80;
+                    kColor = 0;
+                }
+
+                {// normalize hue
+                    int kHue = maxDesireHUE - minDesireHUE;
+                    desire_hue = qRound(kHue * kColor);
+                    desire_hue += minDesireHUE;
+                }
+                color.setHsv( desire_hue , saturation, britghtnes, alpha);
+                item(swapxyY, swapxyX)->setBackground(color);
                 item(swapxyY, swapxyX)->setData( Qt::DisplayRole, map->at(c));
                 c++;
             }
         }
+        //init marker
+        tracer_marker_pred.predColorA = item(0, 0)->background().color();
+        if ( Table_Decl.X_axis.elements > 1 )
+            tracer_marker_pred.predColorB = item(0, 1)->background().color();
+        if ( Table_Decl.Y_axis.elements > 1 )
+            tracer_marker_pred.predColorC = item(1, 0)->background().color();
+        if ( Table_Decl.Y_axis.elements > 1 && Table_Decl.X_axis.elements > 1 )
+            tracer_marker_pred.predColorD = item(1, 1)->background().color();
+        tracer_marker.Xtrace = 1;
+        tracer_marker.Ytrace = 1;
+        tracer_marker_pred.Xtrace = 1;
+        tracer_marker_pred.Ytrace = 1;
     }
 
 private slots:
@@ -154,11 +200,17 @@ private slots:
     }
     void slotIncrease()
     {
-
+        QItemSelectionRange range = selectionModel()->selection().first();
+        for (auto i = range.top(); i <= range.bottom(); ++i)
+            for (auto j = range.left(); j <= range.right(); ++j)
+                model()->setData( model()->index(i,j), model()->index(i,j).data().toFloat() + Table_Decl.Table.rom_scaling.increment, Qt::DisplayRole );
     }
     void slotDecrease()
     {
-
+        QItemSelectionRange range = selectionModel()->selection().first();
+        for (auto i = range.top(); i <= range.bottom(); ++i)
+            for (auto j = range.left(); j <= range.right(); ++j)
+                model()->setData( model()->index(i,j), model()->index(i,j).data().toFloat() - Table_Decl.Table.rom_scaling.increment, Qt::DisplayRole );
     }
 
 };

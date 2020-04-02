@@ -16,6 +16,9 @@ struct Scaling                          //структура скалингов 
     QString toexpr;
     QString frexpr;
     bool endian = false;
+    int min = 0;
+    int max = 0;
+    float increment = 0;
     QString Original;
     QString Patched;
 };
