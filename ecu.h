@@ -49,6 +49,9 @@ class ecu
 public:
     quint32 RAM_MUT_addr;
     quint32 DEAD_var;
+
+    QHash<QString, tableDeclaration> RAMtables;
+
     QHash<QString, tableDeclaration> not_loggingRAMtables;
     QHash<QString, tableDeclaration> loggingRAMtables;
     QHash<QString, mutParam> RAM_MUT;

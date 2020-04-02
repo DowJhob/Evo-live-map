@@ -37,7 +37,7 @@ HEADERS  += mainwindow.h \
     ecu.h \
     qhexedit/chunks.h \
     qhexedit/commands.h \
-qhexedit/qhexedit.h \
+    qhexedit/qhexedit.h \
     libs/J2534.h \
     libs/j2534_tactrix.h \
     #libs/libusb/include/libusb.h \
@@ -59,8 +59,9 @@ CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
 LIBS += -lSetupapi
 
 #QMAKE_LFLAGS_RELEASE += -static -static-libgcc
-#QMAKE_CXXFLAGS  += # -flto -funroll-loops
-QMAKE_CXXFLAGS  += -Ofast -march=core2 -mfpmath=both
+QMAKE_CXXFLAGS  += -flto -funroll-loops
+QMAKE_CXXFLAGS  += -fforce-addr
+QMAKE_CXXFLAGS  += -m32 -O3 -march=core2 -mtune=intel -mfpmath=sse
 DEFINES += QHEXEDIT_EXPORTS
 
 DISTFILES +=

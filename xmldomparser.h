@@ -12,7 +12,7 @@ public:
 
     DomParser()
     {}
-    void _parser(QIODevice *device, ecu *_ecu)
+    void _parser(QIODevice *device, ecu *_ecu, QTreeWidget *tr)
     {
         this->_ecu = _ecu;
         QString errorStr;
@@ -68,6 +68,14 @@ public:
             }
             if (node.toElement().tagName() == "table")                                                   // находим таблицу
             {
+
+                QTreeWidgetItem* item = new QTreeWidgetItem(QStringList() << node.toElement().attribute("name"));
+                item->setFlags(item->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable);
+                item->setCheckState(0, Qt::Unchecked);
+                tr->addTopLevelItem(item);
+   //             connect(item, SIGNAL(itemClicked(QTreeWidgetItem* item, int)), this, SLOT(itemChecks(QTreeWidgetItem*, int)));
+
+
                 if (node.toElement().attribute("name") == "RAM_MUT")                                     //
                 {
                     _ecu->RAM_MUT_addr = node.toElement().attribute("address").toUInt(nullptr, 16);
@@ -83,10 +91,12 @@ public:
                     getTableDeclaration(node, &mainTableDeclaration.Table);                              // сохраняем заголовок таблицы
                     parseEntry(node.toElement());                                                        // парсим оси
 
-                    if ( mainTableDeclaration.X_axis.ram_addr || mainTableDeclaration.X_axis.ram_addr )
-                        _ecu->loggingRAMtables.insert(mainTableDeclaration.Table.Name, mainTableDeclaration);
-                    else
-                        _ecu->not_loggingRAMtables.insert(mainTableDeclaration.Table.Name, mainTableDeclaration);
+                    _ecu->RAMtables.insert(mainTableDeclaration.Table.Name, mainTableDeclaration);
+
+//                    if ( mainTableDeclaration.X_axis.ram_addr || mainTableDeclaration.X_axis.ram_addr )
+//                        _ecu->loggingRAMtables.insert(mainTableDeclaration.Table.Name, mainTableDeclaration);
+//                    else
+//                        _ecu->not_loggingRAMtables.insert(mainTableDeclaration.Table.Name, mainTableDeclaration);
                 }
             }
             node = node.nextSibling();

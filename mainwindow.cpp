@@ -22,13 +22,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(&DMA, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
 
     timer->setInterval( 1000/ui->logger_rate_textedit->text().toUInt()  );
-//    ui->StartButton->setDisabled(true);
+//    ui->StartButton_slot->setDisabled(true);
 
     ui->read_RAM_Button->setDisabled(true);
     Enumerator.enumerateUSB_Device_by_guid();
     statusBar()->showMessage(Enumerator.result);
-//    ui->StartButton->setDisabled(!Enumerator.VechicleInterfaceState);
-
 
     //Подписываемся на события
     Enumerator.NotifyRegister((HWND)this->winId());
@@ -37,13 +35,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     hexEdit->setAddressOffset(ui->start_addr_lineEdit->text().toUInt(nullptr, 16));
     ui->RAMeditorLayout->addWidget(hexEdit, 3,0,1,2);
 
-    start_action =  ui->toolBar->addAction( QIcon( ":ico/connect.png" ), "Start", this, SLOT(on_StartButton_clicked()));
+    start_action =  ui->toolBar->addAction( QIcon( ":ico/connect.png" ), "Start", this, SLOT(StartButton_slot()));
     start_action->setDisabled(!Enumerator.VechicleInterfaceState);
-    debug_action =  ui->toolBar->addAction(QIcon( ":ico/screwdriver.png" ), "Debug", this, SLOT(on_debugButton_clicked()));
+    debug_action =  ui->toolBar->addAction(QIcon( ":ico/screwdriver.png" ), "Debug", this, SLOT(debugButton_slot()));
+    ram_reset = ui->toolBar->addAction(QIcon( ":ico/Memory-Freer-icon.png" ), "RAM refresh", this, SLOT(RAM_reset_slot()));
+    ram_reset->setDisabled(!Enumerator.VechicleInterfaceState);
 
-    ram_reset = ui->toolBar->addAction(QIcon( ":ico/reload.png" ), "Debug", this, SLOT(on_RAM_reset_Button_clicked()));
-    ram_reset->setDisabled(true);
-   // debug->setDisabled();
+    connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(itemChecks(QTreeWidgetItem*, int)));
 }
 
 MainWindow::~MainWindow()
@@ -124,17 +122,11 @@ void MainWindow::create_table(tableDeclaration *tab)
         connect(table, SIGNAL(cellChanged(int, int)), this, SLOT(updateRAM(int, int)));
 
         QSize Size = table->size();
-        Size.setWidth( Size.width() + 8);
-        Size.setHeight( Size.height() + 8);
+        Size.setWidth( Size.width() + 20);
+        Size.setHeight( Size.height() + 20);
         mapWidget->setFixedSize( Size );
 
-        QPushButton *tableButton = new QPushButton(tab->Table.Name);
-        tableButton->setProperty("widget", QVariant::fromValue( mapWidget ));
-        ui->gridLayout_mapalloc->addWidget(tableButton);
-
-        connect(tableButton, SIGNAL(clicked(bool) ), this, SLOT( table_show_hide() ));
-
-        list_table.append( table );
+        ptrRAMtables.insert(tab->Table.Name, table );
     }
 }
 
@@ -148,7 +140,7 @@ bool MainWindow::ReadConfig(QString filename)
         return false;
     }
 
-    xmlParser._parser(file, _ecu);        // парсим файл
+    xmlParser._parser(file, _ecu, ui->treeWidget);        // парсим файл
     delete file;
     return true;
 }
@@ -181,14 +173,14 @@ bool MainWindow::StartLogging(QString filename)
     if (!ReadConfig(filename))
         return false;
     // переберем все описания таблиц
-    foreach ( tableDeclaration tab, _ecu->loggingRAMtables)
+    foreach ( tableDeclaration tab, _ecu->RAMtables)
     {
         create_table(&tab);
     }
-    foreach ( tableDeclaration tab, _ecu->not_loggingRAMtables)
-    {
-        create_table(&tab);
-    }
+//    foreach ( tableDeclaration tab, _ecu->not_loggingRAMtables)
+//    {
+//        create_table(&tab);
+//    }
     return true;
 }
 
@@ -205,7 +197,7 @@ void MainWindow::logger_and_tableWidget_trace()
     DMA.read_indirect(_ecu->RAM_MUT_addr, 16);
     float x = 0;
     float y = 0;
-    foreach (CustomTableWidget *table, list_table)
+    foreach (CustomTableWidget *table, ptrRAMtables)
     {
         if ( table->Table_Decl.X_axis.ram_mut_number >= 0 || table->Table_Decl.Y_axis.ram_mut_number >= 0 )
         {
@@ -288,7 +280,7 @@ void MainWindow::on_BaudRatelineEdit_textChanged(const QString &arg1)   // Об�
     DMA.baudRate = arg1.toUInt() ;
 }
 
-void MainWindow::on_StartButton_clicked()
+void MainWindow::StartButton_slot()
 {
     QString s;
     if (start_action->text() == "Start")
@@ -320,7 +312,7 @@ void MainWindow::on_StartButton_clicked()
     }
 }
 
-void MainWindow::on_RAM_reset_Button_clicked()
+void MainWindow::RAM_reset_slot()
 {
     DMA.timer_lock();
     DMA.MUT_Out_buffer[0] = 0x00;
@@ -353,7 +345,7 @@ void MainWindow::on_logger_rate_textedit_editingFinished()
     timer->setInterval(1000/ui->logger_rate_textedit->text().toUInt() );
 }
 
-void MainWindow::on_debugButton_clicked()
+void MainWindow::debugButton_slot()
 {
     debug = true;
     //emit Enumerator. InterfaceActive(20);

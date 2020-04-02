@@ -3,5 +3,6 @@
         <file>ico/connect.png</file>
         <file>ico/screwdriver.png</file>
         <file>ico/reload.png</file>
+        <file>ico/Memory-Freer-icon.png</file>
     </qresource>
 </RCC>

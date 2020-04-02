@@ -25,7 +25,9 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    QList<CustomTableWidget*> list_table;
+
+     QHash<QString, CustomTableWidget*> ptrRAMtables;
+
     QStringList listFiles;
     QString FirstFile_by_Name = {};
     ~MainWindow();
@@ -37,12 +39,6 @@ public:
 
 public slots:
     void logger_and_tableWidget_trace();
-    void table_show_hide()
-    {
-        QPushButton *tableButton = qobject_cast<QPushButton*>( sender() );
-        QWidget* window  = qvariant_cast<QWidget*>( tableButton->property("widget") );
-        window->setVisible( !window->isVisible());
-    }
     void updateRAM(int row, int column)
     {
         CustomTableWidget *table = qobject_cast<CustomTableWidget*>( sender() );
@@ -67,7 +63,7 @@ public slots:
         case Storagetype::uint32: pos *= 4; memcpy(&DMA.MUT_Out_buffer, (char*)&out, 4); break;
         default: break;
         }
-        qDebug() << "hop: " << table->Table_Decl.Table.Name << " : " << DMA.MUT_Out_buffer[0];
+
         DMA.write_direct(table->Table_Decl.Table.ram_addr + pos, 1);
     }
 signals:
@@ -81,11 +77,11 @@ protected :
 private slots:
     void create_table(tableDeclaration *tab);
     void on_BaudRatelineEdit_textChanged(const QString &arg1);
-    void on_StartButton_clicked();
-    void on_RAM_reset_Button_clicked();
+    void StartButton_slot();
+    void RAM_reset_slot();
     void on_read_RAM_Button_clicked();
     void on_logger_rate_textedit_editingFinished();
-    void on_debugButton_clicked();
+    void debugButton_slot();
     void on_loadbinbutton_clicked();
     void on_stop_live_clicked();
     void on_save_trace_pushButton_clicked();
@@ -93,7 +89,17 @@ private slots:
     void on_inno_initButton_clicked();
     void on_start_addr_lineEdit_returnPressed();
     void on_count_lineEdit_returnPressed();
+    void itemChecks(QTreeWidgetItem *item, int column)
+    {
+        if ( item->checkState(column) )
+            ptrRAMtables.value(item->text(column) )->parentWidget()->show();
 
+        else
+            ptrRAMtables.value(item->text(column) )->parentWidget()->hide();
+
+        qDebug() << "hop: " << item->text(column);
+
+    }
 private:
     void axread(sub_tableDeclaration *sub_tab, QVector<float> *axis);
     void evoX_Connect_Click()
@@ -282,7 +288,8 @@ private:
     DomParser xmlParser;
 
     QByteArray *binarray;                                  // массив с бинарником
-QHexEdit *hexEdit;
+
+    QHexEdit *hexEdit;
     void get_table(tableDeclaration *tab)
     {
    //     if ( tableQueue->isEmpty() )
@@ -309,8 +316,6 @@ QHexEdit *hexEdit;
         }
 
     }
-
-
 
     QString load_bin(QString bin_filename)
 {
