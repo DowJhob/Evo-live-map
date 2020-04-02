@@ -35,7 +35,6 @@ struct sub_tableDeclaration
 };
 struct tableDeclaration             // характеристики карт в памяти контроллера
 {
-    int tableNum;               //порядковый номер
     sub_tableDeclaration Table;                      //Структура заголовка  таблицы
     sub_tableDeclaration X_axis;                     //Структура заголовка оси
     sub_tableDeclaration Y_axis;                     //Структура заголовка оси

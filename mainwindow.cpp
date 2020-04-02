@@ -22,18 +22,28 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(&DMA, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
 
     timer->setInterval( 1000/ui->logger_rate_textedit->text().toUInt()  );
-    ui->StartButton->setDisabled(true);
-    ui->RAM_reset_Button->setDisabled(true);
+//    ui->StartButton->setDisabled(true);
+
     ui->read_RAM_Button->setDisabled(true);
     Enumerator.enumerateUSB_Device_by_guid();
     statusBar()->showMessage(Enumerator.result);
-    ui->StartButton->setDisabled(!Enumerator.VechicleInterfaceState);
+//    ui->StartButton->setDisabled(!Enumerator.VechicleInterfaceState);
+
+
     //Подписываемся на события
     Enumerator.NotifyRegister((HWND)this->winId());
     hexEdit = new QHexEdit;
     hexEdit->setAddressWidth(8);
     hexEdit->setAddressOffset(ui->start_addr_lineEdit->text().toUInt(nullptr, 16));
     ui->RAMeditorLayout->addWidget(hexEdit, 3,0,1,2);
+
+    start_action =  ui->toolBar->addAction( QIcon( ":ico/connect.png" ), "Start", this, SLOT(on_StartButton_clicked()));
+    start_action->setDisabled(!Enumerator.VechicleInterfaceState);
+    debug_action =  ui->toolBar->addAction(QIcon( ":ico/screwdriver.png" ), "Debug", this, SLOT(on_debugButton_clicked()));
+
+    ram_reset = ui->toolBar->addAction(QIcon( ":ico/reload.png" ), "Debug", this, SLOT(on_RAM_reset_Button_clicked()));
+    ram_reset->setDisabled(true);
+   // debug->setDisabled();
 }
 
 MainWindow::~MainWindow()
@@ -45,8 +55,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::OperateButtonsLockUnlock()
 {
-    ui->StartButton->setDisabled(!Enumerator.VechicleInterfaceState);
-    ui->RAM_reset_Button->setDisabled(!Enumerator.VechicleInterfaceState);
+    start_action->setDisabled(!Enumerator.VechicleInterfaceState);
+    ram_reset->setDisabled(!Enumerator.VechicleInterfaceState);
     ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
 }
 
@@ -71,7 +81,7 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
             qDebug() << "arrival or remove";
             Enumerator.enumerateUSB_Device_by_guid();
             statusBar()->showMessage(Enumerator.result);
-            ui->StartButton->setDisabled(!Enumerator.VechicleInterfaceState);
+            start_action->setDisabled(!Enumerator.VechicleInterfaceState);
 
             //            PDEV_BROADCAST_HDR pHdr = (PDEV_BROADCAST_HDR)msg->lParam;
             //            if( pHdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE)
@@ -124,7 +134,7 @@ void MainWindow::create_table(tableDeclaration *tab)
 
         connect(tableButton, SIGNAL(clicked(bool) ), this, SLOT( table_show_hide() ));
 
-        list_table.insert( tab->tableNum, table );
+        list_table.append( table );
     }
 }
 
@@ -281,20 +291,20 @@ void MainWindow::on_BaudRatelineEdit_textChanged(const QString &arg1)   // Об�
 void MainWindow::on_StartButton_clicked()
 {
     QString s;
-    if (ui->StartButton->text() == "Start")
+    if (start_action->text() == "Start")
     {
         QString romID = DMA.connect();
 
         if ( romID.isEmpty() )
         {
             ui->listWidget->addItem("connect failure");
-            ui->StartButton->setDown(false);
+//            start_action->setDown(false);
             return;
         }
         ui->listWidget->addItem(s);
-        ui->StartButton->setDown(true);
-        ui->StartButton->setText("Stop");
-        ui->RAM_reset_Button->setDisabled(!Enumerator.VechicleInterfaceState);
+//        start_action->setDown(true);
+        start_action->setText("Stop");
+        ram_reset->setDisabled(!Enumerator.VechicleInterfaceState);
         ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
         s = "romID " + romID;
         ui->listWidget->addItem(s);
@@ -304,8 +314,8 @@ void MainWindow::on_StartButton_clicked()
     }
     else
     {
-        ui->StartButton->setText("Start");
-        ui->StartButton->setDown(false);
+        start_action->setText("Start");
+//        start_action->setDown(false);
         TableDelete();
     }
 }

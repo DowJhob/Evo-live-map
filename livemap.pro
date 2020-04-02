@@ -62,3 +62,8 @@ LIBS += -lSetupapi
 #QMAKE_CXXFLAGS  += # -flto -funroll-loops
 QMAKE_CXXFLAGS  += -Ofast -march=core2 -mfpmath=both
 DEFINES += QHEXEDIT_EXPORTS
+
+DISTFILES +=
+
+RESOURCES += \
+    res.qrc

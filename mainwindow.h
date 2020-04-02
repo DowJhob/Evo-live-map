@@ -265,7 +265,9 @@ private:
 //            }
 //        }
     }
-
+    QAction *start_action;
+    QAction *debug_action;
+    QAction *ram_reset;
     ecu *_ecu;
 
     QString CurrDir;

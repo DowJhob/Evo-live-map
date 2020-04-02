@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ico/connect.png</file>
+        <file>ico/screwdriver.png</file>
+        <file>ico/reload.png</file>
+    </qresource>
+</RCC>

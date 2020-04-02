@@ -31,7 +31,6 @@ public:
             return;
         }
         QDomNode node = root.firstChild();
-        int i = 0;
         while (!node.isNull())
         {
             sc ={};                                                                                      //избавимся от мусора в неиспользуемых полях
@@ -83,13 +82,11 @@ public:
                     mainTableDeclaration = {};
                     getTableDeclaration(node, &mainTableDeclaration.Table);                              // сохраняем заголовок таблицы
                     parseEntry(node.toElement());                                                        // парсим оси
-                    mainTableDeclaration.tableNum = i;
 
                     if ( mainTableDeclaration.X_axis.ram_addr || mainTableDeclaration.X_axis.ram_addr )
                         _ecu->loggingRAMtables.insert(mainTableDeclaration.Table.Name, mainTableDeclaration);
                     else
                         _ecu->not_loggingRAMtables.insert(mainTableDeclaration.Table.Name, mainTableDeclaration);
-                    i++;
                 }
             }
             node = node.nextSibling();
