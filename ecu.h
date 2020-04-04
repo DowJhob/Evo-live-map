@@ -26,8 +26,8 @@ struct sub_tableDeclaration
 {
     int ram_mut_number = -1;
     QString Name;                         //Имя таблицы-карты, или оси
-    quint32 ram_addr;                     //Адрес таблицы в
-    quint32 rom_addr;
+    quint32 ram_addr = 0;                     //Адрес таблицы в
+    quint32 rom_addr = 0;
     int elements = 1;
     bool swapxy = false;
     Scaling rom_scaling;

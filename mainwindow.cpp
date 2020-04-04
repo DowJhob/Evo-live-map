@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(&DMA, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
 
     timer->setInterval( 1000/ui->logger_rate_textedit->text().toUInt()  );
-//    ui->StartButton_slot->setDisabled(true);
+    //    ui->StartButton_slot->setDisabled(true);
 
     ui->read_RAM_Button->setDisabled(true);
     Enumerator.enumerateUSB_Device_by_guid();
@@ -94,7 +94,29 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
     }
     return false;
 }
-
+void MainWindow::create_tree(tableDeclaration *tab)
+{
+    if (tab->Table.ram_addr != 0)                                    // проверим что это таблица карт, а не таблица патчей
+    {
+        QTreeWidgetItem* map_name_item = new QTreeWidgetItem(QStringList() << tab->Table.Name + " RAM address: " + QString::number(tab->Table.ram_addr, 16));
+        map_name_item->setFlags(map_name_item->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable);
+        map_name_item->setCheckState(0, Qt::Unchecked);
+        QTreeWidgetItem* axis_item;
+        if (tab->X_axis.rom_addr > 0)
+        {
+            axis_item = new QTreeWidgetItem(QStringList() << tab->X_axis.Name + "  ROM address: " + QString::number(tab->X_axis.rom_addr, 16) + "  scaling: " + tab->X_axis.rom_scaling.toexpr);
+            axis_item->setFlags(0);
+            map_name_item->addChild(axis_item);
+        }
+        if (tab->Y_axis.rom_addr > 0)
+        {
+            axis_item = new QTreeWidgetItem(QStringList() << tab->Y_axis.Name + "  ROM address: " + QString::number(tab->Y_axis.rom_addr, 16) + "  scaling: " + tab->X_axis.rom_scaling.toexpr);
+            axis_item->setFlags(0);
+            map_name_item->addChild(axis_item);
+        }
+        ui->treeWidget->addTopLevelItem(map_name_item);
+    }
+}
 void MainWindow::create_table(tableDeclaration *tab)
 {
     if (tab->Table.ram_addr != 0)                                    // проверим что это таблица карт, а не таблица патчей
@@ -176,11 +198,12 @@ bool MainWindow::StartLogging(QString filename)
     foreach ( tableDeclaration tab, _ecu->RAMtables)
     {
         create_table(&tab);
+        create_tree(&tab);
     }
-//    foreach ( tableDeclaration tab, _ecu->not_loggingRAMtables)
-//    {
-//        create_table(&tab);
-//    }
+    //    foreach ( tableDeclaration tab, _ecu->not_loggingRAMtables)
+    //    {
+    //        create_table(&tab);
+    //    }
     return true;
 }
 
@@ -252,13 +275,13 @@ void MainWindow::logger_and_tableWidget_trace()
                 }
 
 
-            //сохраняем  текущее положение для след расчета
-            table->tracer_marker_pred = table->tracer_marker;
-            table->tracer_marker_pred.predColorA = table->item(table->tracer_marker.Ytrace,                          table->tracer_marker.Xtrace                         )->background().color();
-            table->tracer_marker_pred.predColorB = table->item(table->tracer_marker.Ytrace,                          table->tracer_marker.Xtrace + table->tracer_marker.j)->background().color();
-            table->tracer_marker_pred.predColorC = table->item(table->tracer_marker.Ytrace + table->tracer_marker.k, table->tracer_marker.Xtrace                         )->background().color();
-            table->tracer_marker_pred.predColorD = table->item(table->tracer_marker.Ytrace + table->tracer_marker.k, table->tracer_marker.Xtrace + table->tracer_marker.j)->background().color();
-        }
+                //сохраняем  текущее положение для след расчета
+                table->tracer_marker_pred = table->tracer_marker;
+                table->tracer_marker_pred.predColorA = table->item(table->tracer_marker.Ytrace,                          table->tracer_marker.Xtrace                         )->background().color();
+                table->tracer_marker_pred.predColorB = table->item(table->tracer_marker.Ytrace,                          table->tracer_marker.Xtrace + table->tracer_marker.j)->background().color();
+                table->tracer_marker_pred.predColorC = table->item(table->tracer_marker.Ytrace + table->tracer_marker.k, table->tracer_marker.Xtrace                         )->background().color();
+                table->tracer_marker_pred.predColorD = table->item(table->tracer_marker.Ytrace + table->tracer_marker.k, table->tracer_marker.Xtrace + table->tracer_marker.j)->background().color();
+            }
             //         рисуем новое положение маркера
             table->item(table->tracer_marker.Ytrace,  table->tracer_marker.Xtrace)->setBackground(color_leftUP);//левый верхний
             table->item(table->tracer_marker.Ytrace,  table->tracer_marker.Xtrace + table->tracer_marker.j)->setBackground(color_rightUP);//правый верхний
@@ -290,11 +313,11 @@ void MainWindow::StartButton_slot()
         if ( romID.isEmpty() )
         {
             ui->listWidget->addItem("connect failure");
-//            start_action->setDown(false);
+            //            start_action->setDown(false);
             return;
         }
         ui->listWidget->addItem(s);
-//        start_action->setDown(true);
+        //        start_action->setDown(true);
         start_action->setText("Stop");
         ram_reset->setDisabled(!Enumerator.VechicleInterfaceState);
         ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
@@ -307,7 +330,7 @@ void MainWindow::StartButton_slot()
     else
     {
         start_action->setText("Start");
-//        start_action->setDown(false);
+        //        start_action->setDown(false);
         TableDelete();
     }
 }

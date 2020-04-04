@@ -91,16 +91,17 @@ private slots:
     void on_count_lineEdit_returnPressed();
     void itemChecks(QTreeWidgetItem *item, int column)
     {
+        CustomTableWidget *table = ptrRAMtables.value( item->text(column).split(" RAM").at(0), nullptr );
+        if (table == nullptr)
+            return;
+        qDebug() << "hop: " << item->text(column) << column << table;
         if ( item->checkState(column) )
-            ptrRAMtables.value(item->text(column) )->parentWidget()->show();
-
+            table->parentWidget()->show();
         else
-            ptrRAMtables.value(item->text(column) )->parentWidget()->hide();
-
-        qDebug() << "hop: " << item->text(column);
-
+            table->parentWidget()->hide();
     }
 private:
+    void create_tree(tableDeclaration *tab);
     void axread(sub_tableDeclaration *sub_tab, QVector<float> *axis);
     void evoX_Connect_Click()
     {

@@ -7,7 +7,7 @@
 
 class DomParser : public QObject
 {
-      Q_OBJECT
+    Q_OBJECT
 public:
 
     DomParser()
@@ -68,41 +68,32 @@ public:
             }
             if (node.toElement().tagName() == "table")                                                   // находим таблицу
             {
-
-                QTreeWidgetItem* item = new QTreeWidgetItem(QStringList() << node.toElement().attribute("name"));
-                item->setFlags(item->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable);
-                item->setCheckState(0, Qt::Unchecked);
-                tr->addTopLevelItem(item);
-   //             connect(item, SIGNAL(itemClicked(QTreeWidgetItem* item, int)), this, SLOT(itemChecks(QTreeWidgetItem*, int)));
-
-
-                if (node.toElement().attribute("name") == "RAM_MUT")                                     //
+                QString nodeName = node.toElement().attribute("name");
+                if (nodeName == "RAM_MUT")                                     //
                 {
                     _ecu->RAM_MUT_addr = node.toElement().attribute("address").toUInt(nullptr, 16);
                     _ecu->DEAD_var = node.toElement().attribute("DEAD_var").toUInt(nullptr, 16);
                     parseEntry(node.toElement());
                 }
-                if (node.toElement().attribute("name") == "DEAD var")                                    //
+                if (nodeName == "DEAD var")                                    //
                     _ecu->DEAD_var = node.toElement().attribute("address").toUInt(nullptr, 16);
                 if (!node.toElement().attribute("RAM_addr").isEmpty() ||                                 //  лайв таблица или
-                    !scaling_qmap.value(node.toElement().attribute("scaling")).Patched.isEmpty())    // это таблица с патчем?
+                        !scaling_qmap.value(node.toElement().attribute("scaling")).Patched.isEmpty())    // это таблица с патчем?
                 {
                     mainTableDeclaration = {};
                     getTableDeclaration(node, &mainTableDeclaration.Table);                              // сохраняем заголовок таблицы
                     parseEntry(node.toElement());                                                        // парсим оси
 
                     _ecu->RAMtables.insert(mainTableDeclaration.Table.Name, mainTableDeclaration);
-
-//                    if ( mainTableDeclaration.X_axis.ram_addr || mainTableDeclaration.X_axis.ram_addr )
-//                        _ecu->loggingRAMtables.insert(mainTableDeclaration.Table.Name, mainTableDeclaration);
-//                    else
-//                        _ecu->not_loggingRAMtables.insert(mainTableDeclaration.Table.Name, mainTableDeclaration);
+                    //                    if ( mainTableDeclaration.X_axis.ram_addr || mainTableDeclaration.X_axis.ram_addr )
+                    //                        _ecu->loggingRAMtables.insert(mainTableDeclaration.Table.Name, mainTableDeclaration);
+                    //                    else
+                    //                        _ecu->not_loggingRAMtables.insert(mainTableDeclaration.Table.Name, mainTableDeclaration);
                 }
             }
             node = node.nextSibling();
         }
     }
-
 
 private:
     ecu *_ecu;
