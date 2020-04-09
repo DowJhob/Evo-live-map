@@ -86,9 +86,9 @@ public:
 protected:
     void keyPressEvent(QKeyEvent *event)
     {
-        if( event==QKeySequence::ZoomIn )
+        if( event==QKeySequence::ZoomIn || event->matches(QKeySequence::MoveToNextPage) )
             slotIncrease();
-        else if( event->matches( QKeySequence::ZoomOut ) )
+        else if( event->matches( QKeySequence::ZoomOut) || event->matches(QKeySequence::MoveToPreviousPage) )
             slotDecrease();
         else if( event->matches( QKeySequence::Copy ) )
             slotCopy();
