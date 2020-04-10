@@ -465,9 +465,9 @@ private:
         {
             j2534->PassThruReadMsgs(chanID, &rx_msg[0], &NumMsgs, count*10000/baudRate + magic_adder_readTimeout);
             NumMsgs = 1;
-            j2534->PassThruReadMsgs(chanID_INNO, &inno_rx_msg[0], &NumMsgs, 10);
-            if (NumMsgs)
-                dump_inno(inno_rx_msg);
+//            j2534->PassThruReadMsgs(chanID_INNO, &inno_rx_msg[0], &NumMsgs, 10);
+//            if (NumMsgs)
+//                dump_inno(inno_rx_msg);
         }
 
         while(rx_msg[0].RxStatus == START_OF_MESSAGE);
