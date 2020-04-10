@@ -102,7 +102,7 @@ private slots:
     }
 private:
     void create_tree(tableDeclaration *tab);
-    void axread(sub_tableDeclaration *sub_tab, QVector<float> *axis);
+    void axread(sub_tableDeclaration *sub_tab, QVector<float> *axis, bool rom);
     void evoX_Connect_Click()
     {
 //        object obj2;
@@ -291,32 +291,32 @@ private:
     QByteArray *binarray;                                  // массив с бинарником
 
     QHexEdit *hexEdit;
-    void get_table(tableDeclaration *tab)
-    {
-   //     if ( tableQueue->isEmpty() )
-   //         return;
-   //     tab = tableQueue->dequeue();
+//    void get_table(tableDeclaration *tab)
+//    {
+//   //     if ( tableQueue->isEmpty() )
+//   //         return;
+//   //     tab = tableQueue->dequeue();
 
-        quint32 X_ax_ram_addr = 1;
+//        quint32 X_ax_ram_addr = 1;
 
-        quint32 Y_ax_ram_addr = 1;
+//        quint32 Y_ax_ram_addr = 1;
 
-        quint32 tab_ram_addr = tab->Table.ram_addr;
-        DMA.read_direct(tab_ram_addr, 11111111);
+//        quint32 tab_ram_addr = tab->Table.ram_addr;
+//        DMA.read_direct(tab_ram_addr, 11111111);
 
 
-        if ( tab->X_axis.elements > 1 )
-        {
-            X_ax_ram_addr = tab->X_axis.ram_addr;
-            DMA.read_direct(X_ax_ram_addr, tab->X_axis.elements);
-        }
-        if ( tab->Y_axis.elements > 1 )
-        {
-            Y_ax_ram_addr = tab->Y_axis.ram_addr;
-            DMA.read_direct(Y_ax_ram_addr, tab->Y_axis.elements);
-        }
+//        if ( tab->X_axis.elements > 1 )
+//        {
+//            X_ax_ram_addr = tab->X_axis.ram_addr;
+//            DMA.read_direct(X_ax_ram_addr, tab->X_axis.elements);
+//        }
+//        if ( tab->Y_axis.elements > 1 )
+//        {
+//            Y_ax_ram_addr = tab->Y_axis.ram_addr;
+//            DMA.read_direct(Y_ax_ram_addr, tab->Y_axis.elements);
+//        }
 
-    }
+//    }
 
     QString load_bin(QString bin_filename)
 {
@@ -366,19 +366,19 @@ if (binarray != nullptr)
         return axis_lenght - 1;
     }
 
-    float read_and_cast(bool ram_scaling_storagetype, QString storagetype, quint32 mut_number, bool scaling_endian, fast_calc_struct scaling_frexpr2 )
-    {
-        float x = 0;
-        if (!ram_scaling_storagetype)
-        {
-            x = typed(storagetype,
-                      DMA.rx_msg[1].Data,
-                    mut_number,                //номер запроса рам мут
-                    scaling_endian);
-            x = fast_calc(scaling_frexpr2, x);
-        }
-        return x;
-    }
+//    float read_and_cast(bool ram_scaling_storagetype, QString storagetype, quint32 mut_number, bool scaling_endian, fast_calc_struct scaling_frexpr2 )
+//    {
+//        float x = 0;
+//        if (!ram_scaling_storagetype)
+//        {
+//            x = typed(storagetype,
+//                      DMA.rx_msg[1].Data,
+//                    mut_number,                //номер запроса рам мут
+//                    scaling_endian);
+//            x = fast_calc(scaling_frexpr2, x);
+//        }
+//        return x;
+//    }
 
 };
 #endif // MAINWINDOW_H

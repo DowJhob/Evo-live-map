@@ -135,11 +135,11 @@ void MainWindow::create_table(tableDeclaration *tab)
         layout->setContentsMargins(1, 1, 1, 1);
 
         table->Table_Decl = *tab;
-        axread(&tab->X_axis, &table->x_axis);   // читаем оси
-        axread(&tab->Y_axis, &table->y_axis);   // читаем оси
+        axread(&tab->X_axis, &table->x_axis, true);   // читаем оси
+        axread(&tab->Y_axis, &table->y_axis, true);   // читаем оси
         QVector <float> map;
         tab->Table.elements = tab->X_axis.elements * tab->Y_axis.elements;
-        axread(&tab->Table, &map);
+        axread(&tab->Table, &map, false);
         table->create( &map);
         connect(table, SIGNAL(cellChanged(int, int)), this, SLOT(updateRAM(int, int)));
 
@@ -167,18 +167,23 @@ bool MainWindow::ReadConfig(QString filename)
     return true;
 }
 
-void MainWindow::axread(sub_tableDeclaration *sub_tab, QVector <float> *axis)
+void MainWindow::axread(sub_tableDeclaration *sub_tab, QVector <float> *axis, bool rom)
 {
     float variable_value;
+    quint32 addr;
+    if ( rom )
+        addr = sub_tab->rom_addr;
+    else
+        addr = sub_tab->ram_addr;
     //читаем таблицу заголовка-оси в буфер
     // прочитаем нужное количество данных в соответствии с типом
     switch (sub_tab->rom_scaling._storagetype) {                                //тип данных оси
     case Storagetype::int8:
-    case Storagetype::uint8:  DMA.read_direct( sub_tab->rom_addr, sub_tab->elements); break;
+    case Storagetype::uint8:  DMA.read_direct( addr, sub_tab->elements); break;
     case Storagetype::int16:
-    case Storagetype::uint16: DMA.read_direct( sub_tab->rom_addr, sub_tab->elements * 2); break;
+    case Storagetype::uint16: DMA.read_direct( addr, sub_tab->elements * 2); break;
     case Storagetype::int32:
-    case Storagetype::uint32: DMA.read_direct( sub_tab->rom_addr, sub_tab->elements * 4); break;
+    case Storagetype::uint32: DMA.read_direct( addr, sub_tab->elements * 4); break;
     default: break;
     }
     //заполняем в соотвествии с формулой

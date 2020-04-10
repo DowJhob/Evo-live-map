@@ -22,20 +22,23 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     #evox.cpp \
-    op20.cpp \
     qhexedit/chunks.cpp \
     qhexedit/commands.cpp \
     qhexedit/qhexedit.cpp \
     mainwindow.cpp \
     libs/J2534.cpp \
-    libs/ftdi.cpp
+    libs/ftdi.cpp \
+    test.cpp
 
 
 HEADERS  += mainwindow.h \
     #evox.h \
     #inno_mts.h \
+    DMA_2.h \
     custom_tablewidget.h \
     ecu.h \
+    ecu_comm.h \
+    op13.h \
     op20.h \
     qhexedit/chunks.h \
     qhexedit/commands.h \
@@ -48,6 +51,7 @@ HEADERS  += mainwindow.h \
     libs/ftdi_types.h \
     DMA.h \
     enumdev.h \
+    test.h \
     xmldomparser.h
 
 FORMS    += mainwindow.ui
@@ -63,7 +67,7 @@ LIBS += -lSetupapi
 #QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 QMAKE_CXXFLAGS  += -flto -funroll-loops
 QMAKE_CXXFLAGS  += -fforce-addr
-QMAKE_CXXFLAGS  += -m32 -O3 -march=core2 -mtune=intel -mfpmath=sse
+QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mtune=intel -mfpmath=sse
 DEFINES += QHEXEDIT_EXPORTS
 
 DISTFILES +=
