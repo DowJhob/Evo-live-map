@@ -60,7 +60,7 @@ public:
             item->setData( Qt::DisplayRole, QString::number(y_axis.at(i)));
             setVerticalHeaderItem(i, item);
         }
-        //заполним таблицу что бы два раза не бегать
+        //заполним таблицу
         table_set_update(map, 200, 200);   //создаем обновляем таблицу
         //----------------------------------
         QSize Size( 30, 10 );
@@ -119,6 +119,10 @@ private:
         int maxDesireHUE = 240;
         int desire_hue;
 
+        // normalize input
+        float inRange = Table_Decl.Table.rom_scaling.max - Table_Decl.Table.rom_scaling.min;
+        int kHue = maxDesireHUE - minDesireHUE;
+
         for (int x = 0; x < swapXyLen; x++)
         {
             for (int y = 0; y < swapYxLen; y++)
@@ -130,8 +134,7 @@ private:
                     setItem(swapxyY, swapxyX, new QTableWidgetItem());
 
                 // normalize input
-                float kColor = Table_Decl.Table.rom_scaling.max - Table_Decl.Table.rom_scaling.min;
-                kColor = fabs(map->at(c)/kColor);
+                float kColor = fabs(  (map->at(c) - Table_Decl.Table.rom_scaling.min) / inRange);
                 britghtnes = 200;
                 if ( map->at(c) > Table_Decl.Table.rom_scaling.max)
                 {
@@ -144,8 +147,8 @@ private:
                     kColor = 0;
                 }
 
-                {// normalize hue
-                    int kHue = maxDesireHUE - minDesireHUE;
+                {
+                    // normalize hue
                     desire_hue = qRound(kHue * kColor);
                     desire_hue += minDesireHUE;
                 }

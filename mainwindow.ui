@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1456</width>
-    <height>803</height>
+    <width>1034</width>
+    <height>596</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -68,8 +68,17 @@
    <layout class="QGridLayout" name="gridLayout_5">
     <item row="0" column="0">
      <widget class="QSplitter" name="splitter">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="handleWidth">
+       <number>20</number>
       </property>
       <widget class="QWidget" name="horizontalLayoutWidget">
        <layout class="QHBoxLayout" name="horizontalLayout">
@@ -85,13 +94,13 @@
            <enum>QFrame::WinPanel</enum>
           </property>
           <property name="headerHidden">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="columnCount">
            <number>1</number>
           </property>
           <attribute name="headerVisible">
-           <bool>true</bool>
+           <bool>false</bool>
           </attribute>
           <attribute name="headerDefaultSectionSize">
            <number>100</number>
@@ -123,7 +132,7 @@
            <bool>true</bool>
           </property>
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -137,9 +146,7 @@
           <property name="elideMode">
            <enum>Qt::ElideRight</enum>
           </property>
-          <property name="tabBarAutoHide">
-           <bool>true</bool>
-          </property>
+          
           <widget class="QWidget" name="live_tab">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">

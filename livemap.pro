@@ -27,14 +27,12 @@ SOURCES += main.cpp\
     qhexedit/qhexedit.cpp \
     mainwindow.cpp \
     libs/J2534.cpp \
-    libs/ftdi.cpp \
-    test.cpp
+    libs/ftdi.cpp
 
 
 HEADERS  += mainwindow.h \
     #evox.h \
     #inno_mts.h \
-    DMA_2.h \
     custom_tablewidget.h \
     ecu.h \
     ecu_comm.h \
@@ -49,9 +47,8 @@ HEADERS  += mainwindow.h \
     mathparser2.h \
     libs/ftdi.h \
     libs/ftdi_types.h \
-    DMA.h \
+    #DMA.h \
     enumdev.h \
-    test.h \
     xmldomparser.h
 
 FORMS    += mainwindow.ui
@@ -67,7 +64,7 @@ LIBS += -lSetupapi
 #QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 QMAKE_CXXFLAGS  += -flto -funroll-loops
 QMAKE_CXXFLAGS  += -fforce-addr
-QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mtune=intel -mfpmath=sse
+QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mtune=core2 -mfpmath=sse
 DEFINES += QHEXEDIT_EXPORTS
 
 DISTFILES +=

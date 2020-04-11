@@ -16,10 +16,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
     CurrDir = QApplication::applicationDirPath();   //текущая директории
     connect(timer, SIGNAL(timeout()), SLOT(logger_and_tableWidget_trace()));
-    connect(&Enumerator, SIGNAL(InterfaceActive(int)), &DMA, SLOT(dll_connect(int)));
-    connect(&Enumerator, SIGNAL(disconnectInterface()), &DMA, SLOT(dll_disconnect()));
 
-    connect(&DMA, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
+    connect(&Enumerator, SIGNAL(InterfaceActive(int)), SLOT(dll_connect(int)));
+    connect(&Enumerator, SIGNAL(disconnectInterface()), SLOT(dll_disconnect()));
 
     timer->setInterval( 1000/ui->logger_rate_textedit->text().toUInt()  );
     //    ui->StartButton_slot->setDisabled(true);
@@ -139,7 +138,9 @@ void MainWindow::create_table(tableDeclaration *tab)
         axread(&tab->Y_axis, &table->y_axis, true);   // читаем оси
         QVector <float> map;
         tab->Table.elements = tab->X_axis.elements * tab->Y_axis.elements;
+
         axread(&tab->Table, &map, false);
+
         table->create( &map);
         connect(table, SIGNAL(cellChanged(int, int)), this, SLOT(updateRAM(int, int)));
 
@@ -179,17 +180,18 @@ void MainWindow::axread(sub_tableDeclaration *sub_tab, QVector <float> *axis, bo
     // прочитаем нужное количество данных в соответствии с типом
     switch (sub_tab->rom_scaling._storagetype) {                                //тип данных оси
     case Storagetype::int8:
-    case Storagetype::uint8:  DMA.read_direct( addr, sub_tab->elements); break;
+    case Storagetype::uint8:  ecu_comm->sendDMAcomand(0xE1, addr, sub_tab->elements); break;
     case Storagetype::int16:
-    case Storagetype::uint16: DMA.read_direct( addr, sub_tab->elements * 2); break;
+    case Storagetype::uint16: ecu_comm->sendDMAcomand(0xE1, addr, sub_tab->elements * 2); break;
     case Storagetype::int32:
-    case Storagetype::uint32: DMA.read_direct( addr, sub_tab->elements * 4); break;
+    case Storagetype::uint32: ecu_comm->sendDMAcomand(0xE1, addr, sub_tab->elements * 4); break;
     default: break;
     }
+    ecu_comm->read();
     //заполняем в соотвествии с формулой
     for (int i = 0; i < sub_tab->elements; i++)
     {
-        variable_value = _ecu->mem_cast(sub_tab->rom_scaling, DMA.MUT_Out_buffer, i); //кастуем данные к определенному типу
+        variable_value = _ecu->mem_cast(sub_tab->rom_scaling, (uchar*)ecu_comm->in_buff, i); //кастуем данные к определенному типу
         axis->append(fast_calc(sub_tab->rom_scaling.toexpr2, variable_value));
     }
 }
@@ -205,10 +207,7 @@ bool MainWindow::StartLogging(QString filename)
         create_table(&tab);
         create_tree(&tab);
     }
-    //    foreach ( tableDeclaration tab, _ecu->not_loggingRAMtables)
-    //    {
-    //        create_table(&tab);
-    //    }
+
     return true;
 }
 
@@ -222,15 +221,17 @@ void MainWindow::logger_and_tableWidget_trace()
     QElapsedTimer t;
     t.start();
     timer->stop();
-    DMA.read_indirect(_ecu->RAM_MUT_addr, 16);
+    ecu_comm->sendDMAcomand(0xE0, _ecu->RAM_MUT_addr, 16);
+    ecu_comm->read();
+
     float x = 0;
     float y = 0;
     foreach (CustomTableWidget *table, ptrRAMtables)
     {
         if ( table->Table_Decl.X_axis.ram_mut_number >= 0 || table->Table_Decl.Y_axis.ram_mut_number >= 0 )
         {
-            x = _ecu->mut_cast(DMA.MUT_Out_buffer, table->Table_Decl.X_axis.RAM_MUT_scaling, table->Table_Decl.X_axis.ram_mut_number);
-            y = _ecu->mut_cast(DMA.MUT_Out_buffer, table->Table_Decl.Y_axis.RAM_MUT_scaling, table->Table_Decl.Y_axis.ram_mut_number);
+            x = _ecu->mut_cast((uchar*)ecu_comm->in_buff, table->Table_Decl.X_axis.RAM_MUT_scaling, table->Table_Decl.X_axis.ram_mut_number);
+            y = _ecu->mut_cast((uchar*)ecu_comm->in_buff, table->Table_Decl.Y_axis.RAM_MUT_scaling, table->Table_Decl.Y_axis.ram_mut_number);
             if (debug)
             {
                 x = QCursor::pos().x()*2.3;
@@ -305,7 +306,7 @@ void MainWindow::logger_and_tableWidget_trace()
 
 void MainWindow::on_BaudRatelineEdit_textChanged(const QString &arg1)   // Обновляем скорость обмена
 {
-    DMA.baudRate = arg1.toUInt() ;
+    //DMA.baudRate = arg1.toUInt() ;
 }
 
 void MainWindow::StartButton_slot()
@@ -313,7 +314,12 @@ void MainWindow::StartButton_slot()
     QString s;
     if (start_action->text() == "Start")
     {
-        QString romID = DMA.connect();
+        ecu_comm->connect( ISO9141_K, 15625);
+        if (!ecu_comm->five_baud_init())
+            return ;
+        ecu_comm->sendDMAcomand(0xE1, 0xF52, 4); //читаем номер калибровки
+        ecu_comm->read();
+        QString romID = QString::number( qFromBigEndian<quint32>(ecu_comm->in_buff), 16 );
 
         if ( romID.isEmpty() )
         {
@@ -329,6 +335,7 @@ void MainWindow::StartButton_slot()
         s = "romID " + romID;
         ui->listWidget->addItem(s);
         StartLogging(SearchFiles(CurrDir + "/xml/", romID)); //найдем файл конфига и парсим его
+        qDebug()<< "romID " + romID;
         timer->start(1000/ui->logger_rate_textedit->text().toUInt());
         s =   "CurrDir " + CurrDir;
     }
@@ -342,18 +349,17 @@ void MainWindow::StartButton_slot()
 
 void MainWindow::RAM_reset_slot()
 {
-    DMA.timer_lock();
-    DMA.MUT_Out_buffer[0] = 0x00;
-    DMA.MUT_Out_buffer[1] = 0x00;
 
-    DMA.write_direct(_ecu->DEAD_var, 2);
+    char buf[2];
+    buf[0] = 0x00;
+    buf[1] = 0x00;
+ecu_comm->sendDMAcomand(0xE2, _ecu->DEAD_var, 2, buf);
+
     on_read_RAM_Button_clicked();
-    DMA.timer_unlock();
 }
 
 void MainWindow::on_read_RAM_Button_clicked()
 {
-    DMA.timer_lock();
     //for(int i=0; i < list_window->count(); i++)
 
     //    foreach(mapWidget *window, list_window)
@@ -364,8 +370,6 @@ void MainWindow::on_read_RAM_Button_clicked()
         //window->table_set_update();
         //        window->table->blockSignals(false);
     }
-
-    DMA.timer_unlock();
 }
 
 void MainWindow::on_logger_rate_textedit_editingFinished()
@@ -376,16 +380,22 @@ void MainWindow::on_logger_rate_textedit_editingFinished()
 void MainWindow::debugButton_slot()
 {
     debug = true;
-    //emit Enumerator. InterfaceActive(20);
-    //QString romID = DMA.connect();
+    //ecu_comm = new OP20();
+    emit Enumerator. InterfaceActive(20);
+    ecu_comm->connect( ISO9141_K, 15625);
+    if (!ecu_comm->five_baud_init())
+        ;//return ;
+    ecu_comm->sendDMAcomand(0xE1, 0xF52, 4); //читаем номер калибровки
+    ecu_comm->read();
+    QString romID = QString::number( qFromBigEndian<quint32>(ecu_comm->in_buff), 16 );
+
     for (int i =0; i < 4000; i++)
     {
-        DMA.rx_msg[0].Data[i] = i;
-        DMA.MUT_Out_buffer[i] = i;
+        ecu_comm->in_buff[i] = i;
     }
     //SearchFiles(CurrDir + "/xml/", "80700010");   //найдем файл конфига
     StartLogging(SearchFiles(CurrDir + "/xml/", "90550001"));   	//найдем файл конфига							//парсим его
-    hexEdit->setData(QByteArray::fromRawData((char*)DMA.MUT_Out_buffer, 4000));
+    //hexEdit->setData(QByteArray::fromRawData((char*)DMA.MUT_Out_buffer, 4000));
     //CreateTable(SearchFiles(CurrDir + "/xml/", "88592715"));
     //    if ( "90550001" != load_bin(SearchFiles(CurrDir + "/bin/", "90550001")) )
     //         qDebug() << "bin mismatch";
@@ -435,19 +445,15 @@ void MainWindow::Log(QString str)
     ui->listWidget->addItem(str);
 }
 
-void MainWindow::on_inno_initButton_clicked()
-{
-    DMA.init_inno();
-}
-
 void MainWindow::on_start_addr_lineEdit_returnPressed()
 {
     int count = ui->count_lineEdit->text().toUInt(nullptr);
     quint64 addr = ui->start_addr_lineEdit->text().toUInt(nullptr, 16);
 
-    DMA.read_direct(addr, count);
-    QByteArray b = QByteArray::fromRawData( (char*)DMA.MUT_Out_buffer, count );
-    hexEdit->setData(b);
+    ecu_comm->sendDMAcomand(0xE1, addr, count);
+    ecu_comm->read();
+//
+    hexEdit->setData(QByteArray::fromRawData( (char*)ecu_comm->in_buff, count));
     hexEdit->setAddressOffset(addr);
 
 }
@@ -457,8 +463,9 @@ void MainWindow::on_count_lineEdit_returnPressed()
     int count = ui->count_lineEdit->text().toUInt(nullptr);
     quint64 addr = ui->start_addr_lineEdit->text().toUInt(nullptr, 16);
 
-    DMA.read_direct(addr, count);
-    QByteArray b = QByteArray::fromRawData( (char*)DMA.MUT_Out_buffer, count );
-    hexEdit->setData(b);
+    ecu_comm->sendDMAcomand(0xE1, addr, count);
+    ecu_comm->read();
+//
+    hexEdit->setData(QByteArray::fromRawData( (char*)ecu_comm->in_buff, count));
     hexEdit->setAddressOffset(addr);
 }

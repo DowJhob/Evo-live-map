@@ -10,11 +10,14 @@
 #include <QFileDialog>
 #include "enumdev.h"
 #include "custom_tablewidget.h"
-#include "DMA.h"
+//#include "DMA.h"
 #include "mathparser2.h"
 #include "ecu.h"
 #include "qhexedit/qhexedit.h"
 #include "xmldomparser.h"
+#include "ecu_comm.h"
+#include "op13.h"
+#include "op20.h"
 
 namespace Ui {
 class MainWindow;
@@ -52,19 +55,18 @@ public slots:
         {
             pos = row * table->Table_Decl.X_axis.elements + column;
         }
-
+char Out[4];
         qint64 out = qRound64(fast_calc(table->Table_Decl.Table.rom_scaling.frexpr2, table->item(row, column)->text().toDouble()));
         switch (table->Table_Decl.Table.rom_scaling._storagetype) {
         case Storagetype::int8:
-        case Storagetype::uint8:            memcpy(&DMA.MUT_Out_buffer, (char*)&out, 1); break;
+        case Storagetype::uint8:            memcpy(Out, (char*)&out, 1); break;
         case Storagetype::int16:
-        case Storagetype::uint16: pos *= 2; memcpy(&DMA.MUT_Out_buffer, (char*)&out, 2); break;
+        case Storagetype::uint16: pos *= 2; memcpy(Out, (char*)&out, 2); break;
         case Storagetype::int32:
-        case Storagetype::uint32: pos *= 4; memcpy(&DMA.MUT_Out_buffer, (char*)&out, 4); break;
+        case Storagetype::uint32: pos *= 4; memcpy(Out, (char*)&out, 4); break;
         default: break;
         }
-
-        DMA.write_direct(table->Table_Decl.Table.ram_addr + pos, 1);
+ecu_comm->sendDMAcomand(0xE2, table->Table_Decl.Table.ram_addr + pos, 1, Out);
     }
 signals:
     void timer_lock();
@@ -75,6 +77,22 @@ protected :
     bool nativeEvent(const QByteArray &eventType, void *message, long *result);
 
 private slots:
+    void dll_connect(int VechicleInterfaceType)                //по сигналу перечислителя
+    {
+        if (VechicleInterfaceType == 13 && ecu_comm == nullptr  )
+            ecu_comm = new OP13();
+
+        if (VechicleInterfaceType == 20 && ecu_comm == nullptr  )
+            ecu_comm = new OP20();
+        connect(ecu_comm, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
+        ecu_comm->init();
+    }
+    void dll_disconnect()
+    {
+        if (ecu_comm != nullptr)
+            ecu_comm->deleteLater();
+    }
+
     void create_table(tableDeclaration *tab);
     void on_BaudRatelineEdit_textChanged(const QString &arg1);
     void StartButton_slot();
@@ -86,7 +104,6 @@ private slots:
     void on_stop_live_clicked();
     void on_save_trace_pushButton_clicked();
     void Log(QString str);
-    void on_inno_initButton_clicked();
     void on_start_addr_lineEdit_returnPressed();
     void on_count_lineEdit_returnPressed();
     void itemChecks(QTreeWidgetItem *item, int column)
@@ -94,7 +111,6 @@ private slots:
         CustomTableWidget *table = ptrRAMtables.value( item->text(column).split(" RAM").at(0), nullptr );
         if (table == nullptr)
             return;
-        qDebug() << "hop: " << item->text(column) << column << table;
         if ( item->checkState(column) )
             table->parentWidget()->show();
         else
@@ -276,7 +292,7 @@ private:
     QAction *debug_action;
     QAction *ram_reset;
     ecu *_ecu;
-
+ECU_Comm *ecu_comm = nullptr;
     QString CurrDir;
     QString xml_filename;
     bool  debug = false;
@@ -284,39 +300,13 @@ private:
     void OperateButtonsLockUnlock();
     QTimer* timer = new QTimer(this);
     enumerator Enumerator;
-    dma DMA;
+//    dma DMA;
     bool save_trace = false;
     DomParser xmlParser;
 
     QByteArray *binarray;                                  // массив с бинарником
 
     QHexEdit *hexEdit;
-//    void get_table(tableDeclaration *tab)
-//    {
-//   //     if ( tableQueue->isEmpty() )
-//   //         return;
-//   //     tab = tableQueue->dequeue();
-
-//        quint32 X_ax_ram_addr = 1;
-
-//        quint32 Y_ax_ram_addr = 1;
-
-//        quint32 tab_ram_addr = tab->Table.ram_addr;
-//        DMA.read_direct(tab_ram_addr, 11111111);
-
-
-//        if ( tab->X_axis.elements > 1 )
-//        {
-//            X_ax_ram_addr = tab->X_axis.ram_addr;
-//            DMA.read_direct(X_ax_ram_addr, tab->X_axis.elements);
-//        }
-//        if ( tab->Y_axis.elements > 1 )
-//        {
-//            Y_ax_ram_addr = tab->Y_axis.ram_addr;
-//            DMA.read_direct(Y_ax_ram_addr, tab->Y_axis.elements);
-//        }
-
-//    }
 
     QString load_bin(QString bin_filename)
 {

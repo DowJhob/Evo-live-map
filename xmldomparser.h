@@ -45,8 +45,8 @@ public:
                 else
                 {
                     sc.increment = node.toElement().attribute("inc").toFloat(nullptr);
-                    sc.min = node.toElement().attribute("min").toInt(nullptr, 16);
-                    sc.max = node.toElement().attribute("max").toInt(nullptr, 16);
+                    sc.min = node.toElement().attribute("min").toInt(nullptr);
+                    sc.max = node.toElement().attribute("max").toInt(nullptr);
                     sc.toexpr = node.toElement().attribute("toexpr");
                     sc.frexpr = node.toElement().attribute("frexpr");
                     if (node.toElement().attribute("endian") == "big")

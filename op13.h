@@ -14,24 +14,22 @@ public:
     OP13()
     {
         op13 = new ftdi ;
-        qDebug() << " OP13 created!!";
-        init();
-        qDebug() << " OP13 dll inited!!";
+
         delay_after_command = 0;
     }
 
-    QString connect(unsigned long protocol, //ConnectFlag,
-                    unsigned int baudRate)
+    void connect(unsigned long protocol, //ConnectFlag,
+                 unsigned int baudRate)
     {
         this->protocol = protocol; this->baudRate = baudRate;
     }
     bool five_baud_init()
     {
         ftdi_low_baud_sender(5, 0x00);                                 //5 baud, 0x00 ecu addr, 0x05 TCU?
-        Sleep(400);
+        QThread::msleep(400);
         //Get bytes waiting to be read
         op13->ftStatus = op13->FT_GetQueueStatus(op13->ftHandle, &FT_RxQ_Bytes);
-        op13->ftStatus = op13->FT_Read(op13->ftHandle, buf, FT_RxQ_Bytes, &Reads);
+        op13->ftStatus = op13->FT_Read(op13->ftHandle, in_buff, FT_RxQ_Bytes, &Reads);
         if ((op13->ftStatus != FT_OK) || (FT_RxQ_Bytes < 1))
         {
             qDebug() << " FT_Read failed" << Reads << FT_RxQ_Bytes;
@@ -46,22 +44,16 @@ public:
         do
             op13->FT_GetQueueStatus(op13->ftHandle, &FT_RxQ_Bytes);
         while(FT_RxQ_Bytes < 1);
-        op13->FT_Read(op13->ftHandle, buf, FT_RxQ_Bytes, &Reads);
-        emit readyRead(QByteArray::fromRawData( buf, Reads));
+        op13->FT_Read(op13->ftHandle, in_buff, FT_RxQ_Bytes, &Reads);
+        //       emit readyRead(QByteArray::fromRawData( buf, Reads));
+        //return QByteArray::fromRawData( buf, Reads);
     }
-    void write(char* buf, uint count)
+    void write( uint count )
     {
-
+        op13->FT_Write(op13->ftHandle, out_buff, count, &Reads );
+        qDebug() << "Writed bytes " << Reads;
+        op13->FT_Read(op13->ftHandle, in_buff, count, &Reads);    //читаем эхо
     }
-
-private:
-    ftdi *op13;
-    byte delay_after_command = 4;
-    DWORD FT_RxQ_Bytes;
-    ulong Reads;
-    unsigned int baudRate = 15625;
-    unsigned long protocol;
-    char buf[4096];
     bool init()
     {
         if (op13->FT_Open(0, &op13->ftHandle) == FT_OK)
@@ -78,6 +70,14 @@ private:
         qDebug() << " FT_Open failed";
         return false;
     }
+
+private:
+    ftdi *op13;
+
+    DWORD FT_RxQ_Bytes;
+    ulong Reads;
+    unsigned int baudRate = 15625;
+    unsigned long protocol;
     void ftdi_low_baud_sender(uint baudRate, byte value)
     {
         byte p;
@@ -103,10 +103,8 @@ private:
         op13->ftStatus = op13->FT_SetBreakOff(op13->ftHandle);
     }
 
-
 signals:
-    void readyRead(QByteArray);
-    void Log(QString);
+
 };
 
 #endif // OP13_H

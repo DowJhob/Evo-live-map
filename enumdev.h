@@ -45,7 +45,7 @@ public:
         {
             NotificationFilter.dbcc_classguid = interfaces[i]; // подпишемся на все наши интерфейсы
             NotificationFilter.dbcc_name[0] = '\0';
-            NotificationHandle = RegisterDeviceNotification( hwnd,   //yoHoHo!!! Bingo!! Congrats!! Belissimo!!11
+            NotificationHandle = RegisterDeviceNotification( hwnd,
                                                              &NotificationFilter,
                                                              //DEVICE_NOTIFY_ALL_INTERFACE_CLASSES
                                                              DEVICE_NOTIFY_WINDOW_HANDLE
