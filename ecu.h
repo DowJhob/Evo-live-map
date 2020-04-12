@@ -8,7 +8,7 @@
 
 enum Storagetype { int8, int16, int32, uint8, uint16, uint32 };
 
-struct Scaling                          //структура скалингов для помещения в контейнер
+typedef struct                          //структура скалингов для помещения в контейнер
 {
     Storagetype _storagetype = Storagetype::int8;
     fast_calc_struct toexpr2;
@@ -21,8 +21,8 @@ struct Scaling                          //структура скалингов 
     float increment = 0;
     QString Original;
     QString Patched;
-};
-struct sub_tableDeclaration
+} Scaling;
+typedef struct
 {
     int ram_mut_number = -1;
     QString Name;                         //Имя таблицы-карты, или оси
@@ -32,18 +32,18 @@ struct sub_tableDeclaration
     bool swapxy = false;
     Scaling rom_scaling;
     Scaling RAM_MUT_scaling;
-};
-struct tableDeclaration             // характеристики карт в памяти контроллера
+}sub_tableDeclaration;
+typedef struct                                       // характеристики карт в памяти контроллера
 {
     sub_tableDeclaration Table;                      //Структура заголовка  таблицы
     sub_tableDeclaration X_axis;                     //Структура заголовка оси
     sub_tableDeclaration Y_axis;                     //Структура заголовка оси
-};
-struct mutParam
+} tableDeclaration;
+typedef struct
 {
     Scaling ram_mut_param_scaling;
     int ram_mut_offset;
-};
+} mutParam;
 class ecu
 {
 public:

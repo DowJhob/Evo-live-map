@@ -32,7 +32,8 @@ public:
     virtual bool five_baud_init() = 0;
     virtual void read() = 0;
     virtual void write( uint count) = 0;
-
+    virtual void start_inno() = 0;
+virtual void close() = 0;
     void sendDMAcomand(char command, unsigned long addr, unsigned long count, char* buf = nullptr)
     {
         out_buff[0] = command;

@@ -17,6 +17,10 @@ public:
 
         delay_after_command = 0;
     }
+    ~OP13()
+    {
+        close();
+    }
 
     void connect(unsigned long protocol, //ConnectFlag,
                  unsigned int baudRate)
@@ -53,6 +57,12 @@ public:
         op13->FT_Write(op13->ftHandle, out_buff, count, &Reads );
         qDebug() << "Writed bytes " << Reads;
         op13->FT_Read(op13->ftHandle, in_buff, count, &Reads);    //читаем эхо
+    }
+    void start_inno()
+    {}
+    void close()
+    {
+
     }
     bool init()
     {

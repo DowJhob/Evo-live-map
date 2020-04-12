@@ -86,6 +86,8 @@ private slots:
             ecu_comm = new OP20();
         connect(ecu_comm, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
         ecu_comm->init();
+
+        ecu_comm->start_inno();
     }
     void dll_disconnect()
     {

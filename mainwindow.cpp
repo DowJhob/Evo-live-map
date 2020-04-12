@@ -36,9 +36,24 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     start_action =  ui->toolBar->addAction( QIcon( ":ico/connect.png" ), "Start", this, SLOT(StartButton_slot()));
     start_action->setDisabled(!Enumerator.VechicleInterfaceState);
-    debug_action =  ui->toolBar->addAction(QIcon( ":ico/screwdriver.png" ), "Debug", this, SLOT(debugButton_slot()));
     ram_reset = ui->toolBar->addAction(QIcon( ":ico/Memory-Freer-icon.png" ), "RAM refresh", this, SLOT(RAM_reset_slot()));
     ram_reset->setDisabled(!Enumerator.VechicleInterfaceState);
+    ui->toolBar->addSeparator();
+    QWidget* empty = new QWidget();
+    empty->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+    ui->toolBar->addWidget(empty);
+    debug_action =  ui->toolBar->addAction(QIcon( ":ico/screwdriver.png" ), "Debug", this, SLOT(debugButton_slot()));
+
+QLCDNumber *afr_lcd = new QLCDNumber(4, this);
+afr_lcd->setMinimumWidth(afr_lcd->width()+1);
+
+QFont myFont1 = afr_lcd->font();
+myFont1.setPixelSize (64);
+afr_lcd->setFont(myFont1);
+afr_lcd->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+ui->toolBar->addWidget(afr_lcd);
+afr_lcd->display("----");
+
 
     connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(itemChecks(QTreeWidgetItem*, int)));
 }

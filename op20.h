@@ -3,8 +3,11 @@
 
 #include <QObject>
 #include <QDebug>
+#include <QThread>
+#include "inno.h"
 #include "libs/J2534.h"
 #include "ecu_comm.h"
+
 
 struct
 {
@@ -17,6 +20,7 @@ struct
     unsigned int length;
     unsigned char data[256];
 } outbuf;
+
 class OP20: public ECU_Comm
 {
     Q_OBJECT
@@ -25,6 +29,10 @@ public:
     {
         j2534 = new J2534 ;
         delay_after_command = 4;
+    }
+    ~OP20()
+    {
+        close();
     }
     bool init()
     {
@@ -166,6 +174,32 @@ public:
         j2534->PassThruWriteMsgs(chanID, &tx_msg, &NumMsgs, writeTimeout);
     }
 
+    void close()
+    {
+        // shut down the channel
+        if (j2534->PassThruDisconnect(chanID))
+        {
+            reportJ2534Error();
+        }
+        if (j2534->PassThruDisconnect(chanID_INNO))
+        {
+            reportJ2534Error();
+        }
+        // close the device
+        if (j2534->PassThruClose(devID))
+        {
+            reportJ2534Error();
+        }
+    }
+
+    void start_inno()
+    {
+        inno *i = new inno(j2534, devID);
+        i->moveToThread(&inno_thread);
+        inno_thread.start();
+        i->_connect();
+        i->start();
+    }
 private:
 
     // J2534
@@ -174,7 +208,6 @@ private:
     unsigned long magic_adder_readTimeout = 25;
     unsigned long writeTimeout = 0;
 
-
     unsigned long devID;
     unsigned long chanID;
     unsigned long chanID_INNO;
@@ -182,6 +215,9 @@ private:
     unsigned long protocol_inno = ISO9141_INNO;
     unsigned long protocol = ISO9141_K;
     unsigned long ConnectFlag = ISO9141_NO_CHECKSUM;  //        || ISO9141_K_LINE_ONLY ;
+
+    QThread inno_thread;
+
     QString reportJ2534Error()
     {
         char err[512];
@@ -210,5 +246,6 @@ private:
 signals:
 
 };
+
 
 #endif // OP20_H
