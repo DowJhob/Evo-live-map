@@ -22,7 +22,6 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     #evox.cpp \
-    inno.cpp \
     qhexedit/chunks.cpp \
     qhexedit/commands.cpp \
     qhexedit/qhexedit.cpp \
@@ -37,7 +36,7 @@ HEADERS  += mainwindow.h \
     custom_tablewidget.h \
     ecu.h \
     ecu_comm.h \
-    inno.h \
+    inno_interface.h \
     op13.h \
     op20.h \
     qhexedit/chunks.h \
@@ -51,6 +50,7 @@ HEADERS  += mainwindow.h \
     libs/ftdi_types.h \
     #DMA.h \
     enumdev.h \
+    tactrix_inno.h \
     xmldomparser.h
 
 FORMS    += mainwindow.ui

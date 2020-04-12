@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QDebug>
 #include <QThread>
-#include "inno.h"
+#include "tactrix_inno.h"
 #include "libs/J2534.h"
 #include "ecu_comm.h"
 
@@ -80,7 +80,7 @@ public:
         return true;
     }
 
-    void connect(unsigned long protocol, //ConnectFlag,
+    void _connect(unsigned long protocol, //ConnectFlag,
                     unsigned int baudRate)
     {
         this->protocol = protocol; this->baudRate = baudRate;
@@ -192,9 +192,10 @@ public:
         }
     }
 
-    void start_inno()
+    void start_tactrix_inno()
     {
-        inno *i = new inno(j2534, devID);
+        inno_interface *i = new tactrix_inno(j2534, devID);
+        connect(i, SIGNAL(AFR(QString)), SIGNAL(AFR(QString)));
         i->moveToThread(&inno_thread);
         inno_thread.start();
         i->_connect();

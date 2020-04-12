@@ -1,4 +1,4 @@
-﻿#include <QtWidgets>
+﻿
 #include <QtCore>
 #include "DMA.h"
 #include <QDebug>
@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->toolBar->addWidget(empty);
     debug_action =  ui->toolBar->addAction(QIcon( ":ico/screwdriver.png" ), "Debug", this, SLOT(debugButton_slot()));
 
-QLCDNumber *afr_lcd = new QLCDNumber(4, this);
+afr_lcd = new QLCDNumber(4, this);
 afr_lcd->setMinimumWidth(afr_lcd->width()+1);
 
 QFont myFont1 = afr_lcd->font();
@@ -329,7 +329,7 @@ void MainWindow::StartButton_slot()
     QString s;
     if (start_action->text() == "Start")
     {
-        ecu_comm->connect( ISO9141_K, 15625);
+        ecu_comm->_connect( ISO9141_K, 15625);
         if (!ecu_comm->five_baud_init())
             return ;
         ecu_comm->sendDMAcomand(0xE1, 0xF52, 4); //читаем номер калибровки
@@ -397,7 +397,7 @@ void MainWindow::debugButton_slot()
     debug = true;
     //ecu_comm = new OP20();
     emit Enumerator. InterfaceActive(20);
-    ecu_comm->connect( ISO9141_K, 15625);
+    ecu_comm->_connect( ISO9141_K, 15625);
     if (!ecu_comm->five_baud_init())
         ;//return ;
     ecu_comm->sendDMAcomand(0xE1, 0xF52, 4); //читаем номер калибровки

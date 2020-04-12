@@ -22,7 +22,7 @@ public:
         close();
     }
 
-    void connect(unsigned long protocol, //ConnectFlag,
+    void _connect(unsigned long protocol, //ConnectFlag,
                  unsigned int baudRate)
     {
         this->protocol = protocol; this->baudRate = baudRate;
@@ -58,7 +58,7 @@ public:
         qDebug() << "Writed bytes " << Reads;
         op13->FT_Read(op13->ftHandle, in_buff, count, &Reads);    //читаем эхо
     }
-    void start_inno()
+    void start_tactrix_inno()
     {}
     void close()
     {

@@ -27,12 +27,12 @@ public:
 
     }
     virtual bool init() = 0;
-    virtual void connect(unsigned long protocol, //ConnectFlag,
+    virtual void _connect(unsigned long protocol, //ConnectFlag,
                             unsigned int baudRate) = 0;
     virtual bool five_baud_init() = 0;
     virtual void read() = 0;
     virtual void write( uint count) = 0;
-    virtual void start_inno() = 0;
+    virtual void start_tactrix_inno() = 0;
 virtual void close() = 0;
     void sendDMAcomand(char command, unsigned long addr, unsigned long count, char* buf = nullptr)
     {
@@ -56,6 +56,7 @@ private:
 
 signals:
     void readyRead(QByteArray);
+    void AFR(QString);
     void Log(QString);
 };
 

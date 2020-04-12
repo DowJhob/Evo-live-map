@@ -10,7 +10,10 @@
 #include <QFileDialog>
 #include "enumdev.h"
 #include "custom_tablewidget.h"
-//#include "DMA.h"
+#include <QtWidgets>
+
+
+
 #include "mathparser2.h"
 #include "ecu.h"
 #include "qhexedit/qhexedit.h"
@@ -85,9 +88,10 @@ private slots:
         if (VechicleInterfaceType == 20 && ecu_comm == nullptr  )
             ecu_comm = new OP20();
         connect(ecu_comm, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
+        connect(ecu_comm, SIGNAL(AFR(QString)), afr_lcd, SLOT(display(QString)));
         ecu_comm->init();
 
-        ecu_comm->start_inno();
+        ecu_comm->start_tactrix_inno();
     }
     void dll_disconnect()
     {
@@ -119,6 +123,7 @@ private slots:
             table->parentWidget()->hide();
     }
 private:
+    QLCDNumber *afr_lcd;
     void create_tree(tableDeclaration *tab);
     void axread(sub_tableDeclaration *sub_tab, QVector<float> *axis, bool rom);
     void evoX_Connect_Click()
