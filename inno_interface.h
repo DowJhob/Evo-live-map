@@ -90,7 +90,6 @@ public:
     virtual void _connect() = 0;
     virtual void start() = 0;
 
-
     void dump_inno(uchar* data, uint DataSize)
     {
 
