@@ -33,6 +33,8 @@ public:
     }
     ~OP20()
     {
+        _inno_interface->deleteLater();
+        inno_thread.terminate();
         close();
     }
     bool init()
@@ -196,17 +198,18 @@ public:
 
     void start_tactrix_inno()
     {
-        inno_interface *i = new tactrix_inno(j2534, devID);
-        connect(i, SIGNAL(AFR(QString)), SIGNAL(AFR(QString)));
-        i->moveToThread(&inno_thread);
+        _inno_interface = new tactrix_inno(j2534, devID);
+        connect(_inno_interface, SIGNAL(AFR(QString)), SIGNAL(AFR(QString)));
+        _inno_interface->moveToThread(&inno_thread);
         inno_thread.start();
-        i->_connect();
-        i->start();
+        _inno_interface->_connect();
+        _inno_interface->start();
     }
 private:
 
     // J2534
     J2534 *j2534;
+    inno_interface *_inno_interface;
     unsigned int baudRate = 15625;
     unsigned long magic_adder_readTimeout = 25;
     unsigned long writeTimeout = 0;
