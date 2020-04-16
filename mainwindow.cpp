@@ -14,6 +14,8 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    afr_lcd = new QLCDNumber(4, this);
+    afr_lcd->setMinimumWidth(afr_lcd->width()+1);
     CurrDir = QApplication::applicationDirPath();   //текущая директории
     connect(timer, SIGNAL(timeout()), SLOT(logger_and_tableWidget_trace()));
 
@@ -44,8 +46,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->toolBar->addWidget(empty);
     debug_action =  ui->toolBar->addAction(QIcon( ":ico/screwdriver.png" ), "Debug", this, SLOT(debugButton_slot()));
 
-afr_lcd = new QLCDNumber(4, this);
-afr_lcd->setMinimumWidth(afr_lcd->width()+1);
+
 
 QFont myFont1 = afr_lcd->font();
 myFont1.setPixelSize (64);
@@ -329,7 +330,7 @@ void MainWindow::StartButton_slot()
     QString s;
     if (start_action->text() == "Start")
     {
-        ecu_comm->_connect( ISO9141_K, 15625);
+        ecu_comm->_connect( ISO9141_K, ISO9141_NO_CHECKSUM, 15625);
         if (!ecu_comm->five_baud_init())
             return ;
         ecu_comm->sendDMAcomand(0xE1, 0xF52, 4); //читаем номер калибровки
@@ -397,7 +398,7 @@ void MainWindow::debugButton_slot()
     debug = true;
     //ecu_comm = new OP20();
     emit Enumerator. InterfaceActive(20);
-    ecu_comm->_connect( ISO9141_K, 15625);
+    ecu_comm->_connect( ISO9141_K, ISO9141_NO_CHECKSUM, 15625);
     if (!ecu_comm->five_baud_init())
         ;//return ;
     ecu_comm->sendDMAcomand(0xE1, 0xF52, 4); //читаем номер калибровки

@@ -63,11 +63,11 @@ public:
 public slots:
     void inno_read()
     {
-        numRxMsg = -1;
-        j2534->PassThruReadMsgs(chanID_INNO,&rxmsg,&numRxMsg,1000);
+        numRxMsg = 1;
+        j2534->PassThruReadMsgs(chanID_INNO,&rxmsg,&numRxMsg,100);
         if (numRxMsg)
             dump_msg(&rxmsg);
-        QThread::msleep(10);
+        QThread::msleep(50);
         emit _tick();
     }
 private:

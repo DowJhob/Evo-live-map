@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 CONFIG += c++11
-
+CONFIG   += rtti
 QT       += core gui xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -21,7 +21,6 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-    #evox.cpp \
     qhexedit/chunks.cpp \
     qhexedit/commands.cpp \
     qhexedit/qhexedit.cpp \
@@ -29,13 +28,11 @@ SOURCES += main.cpp\
     libs/J2534.cpp \
     libs/ftdi.cpp
 
-
 HEADERS  += mainwindow.h \
-    #evox.h \
-    #inno_mts.h \
     custom_tablewidget.h \
     ecu.h \
     ecu_comm.h \
+    #ecu_x_comm.h \
     inno_interface.h \
     op13.h \
     op20.h \
@@ -66,7 +63,7 @@ LIBS += -lSetupapi
 #QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 QMAKE_CXXFLAGS  += -flto -funroll-loops
 QMAKE_CXXFLAGS  += -fforce-addr
-QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mtune=core2 -mfpmath=sse
+QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mtune=intel -mfpmath=sse
 DEFINES += QHEXEDIT_EXPORTS
 
 DISTFILES +=

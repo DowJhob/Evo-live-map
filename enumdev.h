@@ -67,7 +67,6 @@ public:
             if (enumerateUSB_Device_by_VID_PID(interfaces[i]))
             {
                 VechicleInterfaceState = true;
-
                 return true;
             }
         }

@@ -27,8 +27,7 @@ public:
 
     }
     virtual bool init() = 0;
-    virtual void _connect(unsigned long protocol, //ConnectFlag,
-                            unsigned int baudRate) = 0;
+    virtual void _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate) = 0;
     virtual bool five_baud_init() = 0;
     virtual void read() = 0;
     virtual void write( uint count) = 0;

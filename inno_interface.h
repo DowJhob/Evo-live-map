@@ -137,7 +137,7 @@ public:
                         payload -= 4;
 
                         func_check(pkt.func, pkt.afr_msb * 128 + pkt.afr, pkt.lambda_hi * 128 + pkt.lambda);
-
+qDebug() << "-- LC-1 packet -- phase 2";
                     }
                     else if ((*msgptr & 0xA2) == 0x80) // LM-1 packet (within v2 header)
                     {

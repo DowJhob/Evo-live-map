@@ -22,8 +22,7 @@ public:
         close();
     }
 
-    void _connect(unsigned long protocol, //ConnectFlag,
-                 unsigned int baudRate)
+    void _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate)
     {
         this->protocol = protocol; this->baudRate = baudRate;
     }

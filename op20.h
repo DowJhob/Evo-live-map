@@ -25,6 +25,7 @@ class OP20: public ECU_Comm
 {
     Q_OBJECT
 public:
+    unsigned long chanID;
     OP20()
     {
         j2534 = new J2534 ;
@@ -36,11 +37,6 @@ public:
     }
     bool init()
     {
-        tx_msg.ProtocolID = protocol;
-        for (int r = 0; r < 2; r++)
-        {
-            rx_msg[r] = tx_msg;
-        }
         if (!j2534->init())
         {
             emit Log( "can't connect to J2534 DLL." );
@@ -80,10 +76,16 @@ public:
         return true;
     }
 
-    void _connect(unsigned long protocol, //ConnectFlag,
-                    unsigned int baudRate)
+    void _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate)
     {
-        this->protocol = protocol; this->baudRate = baudRate;
+        this->protocol = protocol;
+        this->ConnectFlag = ConnectFlag;
+        this->baudRate = baudRate;
+        tx_msg.ProtocolID = protocol;
+        for (int r = 0; r < 2; r++)
+        {
+            rx_msg[r] = tx_msg;
+        }
         if (j2534->PassThruConnect(devID, protocol, ConnectFlag, baudRate, &chanID))
         {
             emit Log( "PassThruConnect: not ok" + reportJ2534Error() );
@@ -210,7 +212,7 @@ private:
     unsigned long writeTimeout = 0;
 
     unsigned long devID;
-    unsigned long chanID;
+
     unsigned long chanID_INNO;
     unsigned long NumMsgs ;
     unsigned long protocol_inno = ISO9141_INNO;
