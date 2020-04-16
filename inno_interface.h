@@ -93,7 +93,7 @@ public:
     void dump_inno(uchar* data, uint DataSize)
     {
 
-        qDebug() << "-- dump --";
+        //qDebug() << "-- dump --";
         inno_v1_mts_hdr hdrv1;
         inno_v2_mts_hdr hdrv2;
 
@@ -111,7 +111,7 @@ public:
         {
             if (validV2Hdr)
             {
-                qDebug() << "-- V2 header --";
+                //qDebug() << "-- V2 header --";
                 payload = 2 * (hdrv2.length_msb * 128 + hdrv2.length);
             }
             else
@@ -129,7 +129,7 @@ public:
                 {
                     if ((*msgptr & 0xE2) == 0x42)
                     {
-                        qDebug() << "-- LC-1 packet --";
+                        //qDebug() << "-- LC-1 packet --";
                         // LC-1 packet
                         inno_v2_lc1_pkt pkt;
                         *((int*)&pkt) = (msgptr[0]<<24) + (msgptr[1]<<16) + (msgptr[2]<<8) + msgptr[3];
@@ -159,7 +159,7 @@ public:
                 }
                 else  // -- LM-1 packet --
                 {
-                    qDebug() << "-- LM-1 packet --";
+                    //qDebug() << "-- LM-1 packet --";
                     // LM-1 packet
                     inno_v1_lm1_pkt pkt;
                     *((int*)&pkt) = (msgptr[0]<<24) + (msgptr[1]<<16) + (msgptr[2]<<8) + msgptr[3];

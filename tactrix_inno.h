@@ -88,7 +88,7 @@ private:
         if (msg->DataSize < 2)
             return;
 
-        qDebug() << "-- dump --";
+        //qDebug() << "-- dump --";
        dump_inno(msg->Data, msg->DataSize);
 
     }

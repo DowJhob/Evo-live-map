@@ -82,11 +82,15 @@ protected :
 private slots:
     void dll_connect(int VechicleInterfaceType)                //по сигналу перечислителя
     {
+qDebug() << ecu_comm;
         if (VechicleInterfaceType == 13 && ecu_comm == nullptr  )
             ecu_comm = new OP13();
 
         if (VechicleInterfaceType == 20 && ecu_comm == nullptr  )
             ecu_comm = new OP20();
+
+        qDebug() << ecu_comm;
+
         connect(ecu_comm, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
         connect(ecu_comm, SIGNAL(AFR(QString)), afr_lcd, SLOT(display(QString)));
         ecu_comm->init();
@@ -96,7 +100,11 @@ private slots:
     void dll_disconnect()
     {
         if (ecu_comm != nullptr)
+        {
             ecu_comm->deleteLater();
+            ecu_comm = nullptr;
+        }
+        qDebug() << "DELETE: " << ecu_comm;
     }
 
     void create_table(tableDeclaration *tab);
