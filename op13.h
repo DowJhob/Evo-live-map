@@ -26,6 +26,10 @@ public:
     {
         this->protocol = protocol; this->baudRate = baudRate;
     }
+    void e7_connect()
+    {
+        _connect( ISO9141_K, ISO9141_NO_CHECKSUM, 15625);
+    }
     bool five_baud_init()
     {
         ftdi_low_baud_sender(5, 0x00);                                 //5 baud, 0x00 ecu addr, 0x05 TCU?
@@ -59,6 +63,7 @@ public:
     }
     void start_tactrix_inno()
     {}
+
     void close()
     {
 

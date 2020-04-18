@@ -1,7 +1,7 @@
 #ifndef ECU_H
 #define ECU_H
 
-#include <QObject>
+//#include <QObject>
 
 #include <mathparser2.h>
 

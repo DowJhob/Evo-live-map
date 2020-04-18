@@ -15,7 +15,7 @@ public:
     uchar* out_buff = tx_msg.Data;
     PASSTHRU_MSG  tx_msg = {};
     PASSTHRU_MSG  rx_msg[2] = {};
-    PASSTHRU_MSG  inno_rx_msg[2] = {};
+    PASSTHRU_MSG  inno_rx_msg = {};
 
     char delay_after_command = 4;
     explicit ECU_Comm()
@@ -28,6 +28,7 @@ public:
     }
     virtual bool init() = 0;
     virtual void _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate) = 0;
+    virtual void e7_connect() = 0;
     virtual bool five_baud_init() = 0;
     virtual void read() = 0;
     virtual void write( uint count) = 0;

@@ -1,13 +1,15 @@
 ﻿
 #include <QtCore>
-#include "DMA.h"
+//#include "DMA.h"
 #include <QDebug>
-#include <setupapi.h>
+//#include <setupapi.h>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 #include <dbt.h>
 #include <QtGlobal>
+
+
 
 //#include "common/ecutools.h"
 
@@ -26,11 +28,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     //    ui->StartButton_slot->setDisabled(true);
 
     ui->read_RAM_Button->setDisabled(true);
+
     Enumerator.enumerateUSB_Device_by_guid();
     statusBar()->showMessage(Enumerator.result);
 
     //Подписываемся на события
     Enumerator.NotifyRegister((HWND)this->winId());
+
     hexEdit = new QHexEdit;
     hexEdit->setAddressWidth(8);
     hexEdit->setAddressOffset(ui->start_addr_lineEdit->text().toUInt(nullptr, 16));
@@ -95,16 +99,6 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
             Enumerator.enumerateUSB_Device_by_guid();
             statusBar()->showMessage(Enumerator.result);
             start_action->setDisabled(!Enumerator.VechicleInterfaceState);
-
-            //            PDEV_BROADCAST_HDR pHdr = (PDEV_BROADCAST_HDR)msg->lParam;
-            //            if( pHdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE)
-            //            {
-            //                PDEV_BROADCAST_DEVICEINTERFACE pDevInf = (PDEV_BROADCAST_DEVICEINTERFACE)msg->lParam;
-            //                QString s;
-
-            //                qDebug() << s.fromWCharArray(pDevInf->dbcc_name);
-            //                qDebug() << s;
-            //            }
         }
     }
     return false;
@@ -330,7 +324,7 @@ void MainWindow::StartButton_slot()
     QString s;
     if (start_action->text() == "Start")
     {
-        ecu_comm->_connect( ISO9141_K, ISO9141_NO_CHECKSUM, 15625);
+        ecu_comm->e7_connect();
         if (!ecu_comm->five_baud_init())
             return ;
         ecu_comm->sendDMAcomand(0xE1, 0xF52, 4); //читаем номер калибровки

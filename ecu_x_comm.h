@@ -19,111 +19,12 @@ public:
     //                return "";
     //            }
 
-     void read()
-    {
-        
-    }
-    void Connect()
-    {
-        if ((GlobalDeviceID == 0) | (GlobalChannelID == 0))
-        {
-            uint pDeviceID = GlobalDeviceID;
-            uint pChannelID = GlobalChannelID;
-            Disconnect();
-            if (PassThruOpen(null, out pDeviceID) != 0)
-            {
-                throw new ApplicationException("Error: PassThruOpen - " + J2534_Error());
-            }
-            GlobalDeviceID = pDeviceID;
-            if (PassThruConnect(GlobalDeviceID, 6u, 0u, 500000u, out pChannelID) != 0)
-            {
-                throw new ApplicationException("Error: PassThruConnect - " + J2534_Error());
-            }
-            GlobalChannelID = pChannelID;
-            if (PassThruIoctl(GlobalChannelID, 7u, IntPtr.Zero, IntPtr.Zero) != 0)
-            {
-                throw new ApplicationException("Error: PassThruIoctl - " + J2534_Error());
-            }
-            if (PassThruIoctl(GlobalChannelID, 8u, IntPtr.Zero, IntPtr.Zero) != 0)
-            {
-                throw new ApplicationException("Error: PassThruIoctl - " + J2534_Error());
-            }
-            if (PassThruIoctl(GlobalChannelID, 10u, IntPtr.Zero, IntPtr.Zero) != 0)
-            {
-                throw new ApplicationException("Error: PassThruIoctl - " + J2534_Error());
-            }
-            IntPtr ptr = Marshal.AllocHGlobal(16);
-            Marshal.WriteInt32(ptr, 0, 30);
-            Marshal.WriteInt32(ptr, 4, 32);
-            Marshal.WriteInt32(ptr, 8, 31);
-            Marshal.WriteInt32(ptr, 12, 0);
-            IntPtr intPtr = Marshal.AllocHGlobal(8);
-            Marshal.WriteInt32(intPtr, 0, 2);
-            Marshal.WriteInt32(intPtr, 4, ptr.ToInt32());
-            PassThruIoctl(GlobalChannelID, 2u, intPtr, IntPtr.Zero);
-            IntPtr intPtr2 = Marshal.AllocHGlobal(28);
-            Marshal.WriteInt32(intPtr2, 0, 6);
-            Marshal.WriteInt32(intPtr2, 4, 0);
-            Marshal.WriteInt32(intPtr2, 8, 64);
-            Marshal.WriteInt32(intPtr2, 12, 0);
-            Marshal.WriteInt32(intPtr2, 16, 4);
-            Marshal.WriteInt32(intPtr2, 20, 0);
-            Marshal.WriteByte(intPtr2, 24, byte.MaxValue);
-            Marshal.WriteByte(intPtr2, 25, byte.MaxValue);
-            Marshal.WriteByte(intPtr2, 26, byte.MaxValue);
-            Marshal.WriteByte(intPtr2, 27, byte.MaxValue);
-            IntPtr intPtr3 = Marshal.AllocHGlobal(28);
-            Marshal.WriteInt32(intPtr3, 0, 6);
-            Marshal.WriteInt32(intPtr3, 4, 0);
-            Marshal.WriteInt32(intPtr3, 8, 64);
-            Marshal.WriteInt32(intPtr3, 12, 0);
-            Marshal.WriteInt32(intPtr3, 16, 4);
-            Marshal.WriteInt32(intPtr3, 20, 0);
-            Marshal.WriteByte(intPtr3, 24, 0);
-            Marshal.WriteByte(intPtr3, 25, 0);
-            Marshal.WriteByte(intPtr3, 26, 7);
-            Marshal.WriteByte(intPtr3, 27, 232);
-            IntPtr intPtr4 = Marshal.AllocHGlobal(28);
-            Marshal.WriteInt32(intPtr4, 0, 6);
-            Marshal.WriteInt32(intPtr4, 4, 0);
-            Marshal.WriteInt32(intPtr4, 8, 64);
-            Marshal.WriteInt32(intPtr4, 12, 0);
-            Marshal.WriteInt32(intPtr4, 16, 4);
-            Marshal.WriteInt32(intPtr4, 20, 0);
-            Marshal.WriteByte(intPtr4, 24, 0);
-            Marshal.WriteByte(intPtr4, 25, 0);
-            Marshal.WriteByte(intPtr4, 26, 7);
-            Marshal.WriteByte(intPtr4, 27, 224);
-            if (PassThruStartMsgFilter(GlobalChannelID, 3u, intPtr2, intPtr3, intPtr4, out uint _) != 0)
-            {
-                throw new ApplicationException("Error: PassThruStartMsgFilter - " + J2534_Error());
-            }
-            Marshal.FreeHGlobal(intPtr2);
-            Marshal.FreeHGlobal(intPtr3);
-            Marshal.FreeHGlobal(intPtr4);
-            Thread.Sleep(100);
-        }
-    }
-
-    void Disconnect()
-    {
-        if (GlobalChannelID != 0)
-        {
-            PassThruDisconnect(GlobalChannelID);
-        }
-        GlobalChannelID = 0u;
-        if (GlobalDeviceID != 0)
-        {
-            PassThruClose(GlobalDeviceID);
-        }
-        GlobalDeviceID = 0u;
-    }
 
     void ISO15765_Mode23_Query(uint address, uint length)
     {
         byte array[12];
         byte *array2;
-        Connect();
+//        _connect();
         out_buff[0] = 0;
         out_buff[1] = 0;
         out_buff[2] = 7;
@@ -134,7 +35,7 @@ public:
         out_buff[7] = (byte)(address - (address >> 8 << 8));
         out_buff[8] = (byte)length;
         int num = 0;
-        uint num2 = 0u;
+        uint num2 = 0;
         bool flag = false;
         //    IntPtr intPtr = Marshal.AllocHGlobal(1048);
         while (!flag && num2 < 5)
@@ -146,7 +47,7 @@ public:
             int num4 = 0;
             while (!flag2 && num4 < num3)
             {
-                uint pNumMsgs = 1;
+                ulong pNumMsgs = 1;
 //                try
                 {
                     if ((num = j2534->PassThruReadMsgs(chanID, &rx_msg[0], &pNumMsgs, 10)) != 0)
@@ -165,7 +66,7 @@ public:
                   else
                     {
                         uint num5 = rx_msg[0].Data[0];                                //rx_msg.Data[0]  ???
-                        if (num5 == 99 && rx_msg[0].Timestamp == length + 5)          //rx_msg.Timestamp  ???
+                        if (num5 == 0x63 && rx_msg[0].Timestamp == length + 5)          //rx_msg.Timestamp  ???
                         {
                             array2 = new byte[length];
                             for (int i = 0; i < length; i++)
@@ -195,13 +96,13 @@ public:
 //        return array2;
     }
 
-    bool ISO15765_Mode3D_Query(uint address, byte[] Payload, uint length, uint requested_timeout)
+    bool ISO15765_Mode3D_Query(uint address, uchar* Payload, uint length, uint requested_timeout)
     {
-        byte[] array = new byte[9 + length];
+        byte* array = new byte[9 + length];
         int num = 0;
         uint num2 = 0u;
         bool flag = false;
-        Connect();
+        //Connect();
         while (!flag)
         {
             num2++;
@@ -211,8 +112,8 @@ public:
             array[3] = 0xE0;
             array[4] = 0x3D;
             array[5] = (byte)(address >> 16);
-            array[6] = (byte)(address - (address >> 16 << 16) >> 8);
-            array[7] = (byte)(address - (address >> 8 << 8));
+            array[6] = (byte)((address & 0xFF00) >> 8);
+            array[7] = (byte)(address & 0xFF);
             array[8] = (byte)length;
             for (int i = 0; i < length; i++)
             {
@@ -226,29 +127,28 @@ public:
             {
                 num4 = (int)requested_timeout;
             }
-            IntPtr intPtr;
-            for (; !flag2 && num3 < num4; Marshal.FreeHGlobal(intPtr))
+//            IntPtr intPtr;
+            for (; !flag2 && num3 < num4; )
             {
-                uint pNumMsgs = 1u;
-                intPtr = Marshal.AllocHGlobal(4120);
-                if ((num = PassThruReadMsgs(GlobalChannelID, intPtr, out pNumMsgs, 0u)) != 0)
+                uint pNumMsgs = 1;
+//                intPtr = Marshal.AllocHGlobal(4120);
+                if ((num = PassThruReadMsgs(chanID, rx_msg, &pNumMsgs, 0)) != 0)
                 {
-                    if (num == 9 || num == 16)
+                    if (num == ERR_TIMEOUT || num == ERR_BUFFER_EMPTY)
                     {
-                        Thread.Sleep(1);
+                        QThread::msleep(1);
                         num3++;
                         continue;
                     }
                     throw new ApplicationException("Error: Mode3D - PassThruReadMsgs = " + J2534_Error());
                 }
-                switch (Marshal.ReadByte(intPtr, 28))
+                switch (rx_msg->Data[4])
                 {
-                case 125:
-                    break;
-                case 127:
-                    if (Marshal.ReadByte(intPtr, 30) == 120)
+                case 0x7D: break;
+                case 0x7F:
+                    if (rx_msg->Data[6] == 0x78)
                     {
-                        Thread.Sleep(2);
+                        QThread::msleep(2);
                     }
                     continue;
                 default:
@@ -264,8 +164,8 @@ public:
 
     bool ISO15765_Mode3D_Test_Query(uint e85, uint afr, uint fuel_temp)
     {
-        byte[] array = new byte[9];
-        Connect();
+        byte* array = new byte[9];
+        //Connect();
         array[0] = 0;
         array[1] = 0;
         array[2] = 7;
@@ -275,7 +175,7 @@ public:
         array[6] = (byte)e85;
         array[7] = (byte)afr;
         array[8] = (byte)fuel_temp;
-        J2534_Send(6u, 64u, array, 9u);
+        J2534_Send(6u, 64, array, 9);
         return true;
     }
 
@@ -298,7 +198,7 @@ public:
  //       return fetched_array;
     }
 
-    int Write_and_Verify(uint address, byte[] Payload, uint length)
+    int Write_and_Verify(uint address, byte* Payload, uint length)
     {
         int num = 0;
         uint num2 = 0;
@@ -310,16 +210,16 @@ public:
             {
                 num3 = 64;
             }
-            byte[] array = new byte[length];
+            byte* array = new byte[length];
             Array.ConstrainedCopy(Payload, (int)num2, array, 0, (int)num3);
-            if (!ISO15765_Mode3D_Query(address + num2, array, num3, 0u))
+            if (!ISO15765_Mode3D_Query(address + num2, array, num3, 0))
             {
                 flag = true;
                 num++;
             }
             else
             {
-                byte[] array2 = ISO15765_Mode23_Query(address + num2, num3);
+                byte* array2 = ISO15765_Mode23_Query(address + num2, num3);
                 if (array2 == null)
                 {
                     flag = true;

@@ -3,7 +3,7 @@
 #include <string.h>
 #include <QDebug>
 
-#include "j2534.h"
+#include "J2534.h"
 #if defined(_WIN32) || defined(WIN32) || defined (_WIN64) || defined (WIN64)
 #else
 #include <dlfcn.h>
@@ -11,14 +11,16 @@
 #include <unistd.h>
 #endif
 
-J2534::J2534(void)
+J2534::J2534(TCHAR *_dllName)
 {
     hDLL = nullptr;
     debugMode = false;
     isLibraryInitialized = false;
     // default to the Openport 2.0 J2534 DLL
 #if defined(_WIN32) || defined(WIN32) || defined (_WIN64) || defined (WIN64)
-    strcpy(dllName,"op20pt32.dll");
+memcpy(dllName, _dllName, 256);
+//    strcpy(dllName, _dllName);
+//    strcpy(dllName,"op20pt32.dll");
 #else
     strcpy(dllName,"op20pt32.dylib");
 #endif
@@ -26,7 +28,7 @@ J2534::J2534(void)
 
 void J2534::setDllName(const char* name)
 {
-    strcpy(dllName,name);
+    //strcpy(dllName,name);
 }
 
 char* J2534::getLastError()
@@ -162,7 +164,7 @@ void J2534::dbgprintptmsg(const PASSTHRU_MSG *pMsg,int kind)
     dbgdump(pMsg->Data,pMsg->DataSize,kind);
 }
 
-long J2534::LoadJ2534DLL(const char* szDLL)
+long J2534::LoadJ2534DLL(const TCHAR* szDLL)
 {
 #if defined(OP20PT32_USE_LIB)
     szDLL; // unused
@@ -184,9 +186,11 @@ long J2534::LoadJ2534DLL(const char* szDLL)
 
 #if defined(_WIN32) || defined(WIN32) || defined (_WIN64) || defined (WIN64)
 
-    hDLL = LoadLibraryA(szDLL);
+    qDebug() << "j2534 DllPath: " << QString::fromWCharArray(szDLL);
+    hDLL = LoadLibrary((const wchar_t*)szDLL);
     if (!(hDLL))
     {
+        qDebug() << "error loading J2534 DLL";
         strcpy(lastError,"error loading J2534 DLL");
         return false;
     }
@@ -690,5 +694,7 @@ long J2534::PassThruIoctl(unsigned long ChannelID, unsigned long IoctlID, const 
     DBGPRINT(("PassThruIoctl returned result %d\n",result));
     return result;
 }
+
+
 
 

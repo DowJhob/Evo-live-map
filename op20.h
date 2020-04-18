@@ -26,9 +26,9 @@ class OP20: public ECU_Comm
     Q_OBJECT
 public:
     unsigned long chanID;
-    OP20()
+    OP20(TCHAR *dllName)
     {
-        j2534 = new J2534 ;
+        j2534 = new J2534(dllName) ;
         delay_after_command = 4;
     }
     ~OP20()
@@ -37,7 +37,7 @@ public:
         inno_thread.terminate();
         close();
     }
-    bool init()
+    bool init()               // Get devID
     {
         if (!j2534->init())
         {
@@ -70,24 +70,21 @@ public:
             emit Log( "Device Serial Number: " +  QString(strSerial) );
         else
             emit Log( "get_serial_num: not ok" + reportJ2534Error() );
-
-
         emit Log( "common_init_j2534 OK" );
 
-        //        init_inno();
         return true;
     }
-
-    void _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate)
+    void _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate)     //get  chanID
     {
         this->protocol = protocol;
         this->ConnectFlag = ConnectFlag;
         this->baudRate = baudRate;
+
         tx_msg.ProtocolID = protocol;
-        for (int r = 0; r < 2; r++)
-        {
-            rx_msg[r] = tx_msg;
-        }
+        tx_msg.TxFlags = ConnectFlag;
+        rx_msg[0].ProtocolID = protocol;
+        rx_msg[1].ProtocolID = protocol;
+
         if (j2534->PassThruConnect(devID, protocol, ConnectFlag, baudRate, &chanID))
         {
             emit Log( "PassThruConnect: not ok" + reportJ2534Error() );
@@ -95,21 +92,117 @@ public:
         }
         emit Log( "PassThruConnect: OK  -  chanel ID: " + QString::number(chanID));
     }
-    bool five_baud_init()
+    void set_config(SCONFIG_LIST *scl)
     {
-        //-======================================== SET CONFIG ===========================================
-        // set timing
-        SCONFIG_LIST scl;
-        SCONFIG scp[6] = { {DATA_RATE, baudRate}, {P1_MAX, 0}, {P2_MAX, 0}, {P3_MIN, 0}, {P4_MIN, 0}, {LOOPBACK, 0} };
-
-        scl.NumOfParams = 6;
-        scl.ConfigPtr = scp;
-        if (j2534->PassThruIoctl(chanID, SET_CONFIG, &scl, nullptr))
+        if (j2534->PassThruIoctl(chanID, SET_CONFIG, scl, nullptr))
         {
             emit Log( "PassThruIoctl - SET_CONFIG : not ok  " + reportJ2534Error() );
-            return false;
+            //         return false;
         }
+    }
+    void e7_connect()
+    {
+        protocol = ISO9141_K;
+        ConnectFlag = ISO9141_NO_CHECKSUM;
+        baudRate = 15625;
+        //==========================================   get  chanID  ================================
+        _connect(protocol, ConnectFlag, baudRate);
+        //-======================================== SET CONFIG ===========================================
+        SCONFIG_LIST scl;
+        SCONFIG scp[6] = { {DATA_RATE, baudRate}, {P1_MAX, 0}, {P2_MAX, 0}, {P3_MIN, 0}, {P4_MIN, 0}, {LOOPBACK, 0} };        // set timing
+        scl.NumOfParams = 6;
+        scl.ConfigPtr = scp;
+        set_config(&scl);
+        //==================================   5 baud init  ========================================
+        five_baud_init();
+        // ============================ setup filter(s) =========================
+        PASSTHRU_MSG msgMask, msgPattern;
+        unsigned long msgId;
+        msgMask.ProtocolID = protocol;
+        msgMask.DataSize = 1;
+        msgPattern.ProtocolID = protocol;
+        msgPattern.DataSize = 1;
+        msgMask.Data[0] = 0; // mask the first byte to 0
+        msgPattern.Data[0] = 0; // match it with 0 (i.e. pass everything)
+        msgId = set_filter(PASS_FILTER, &msgMask, &msgPattern, nullptr);
 
+    }
+    void e10_connect()
+    {
+        protocol = ISO15765;
+        ConnectFlag = 0;
+        baudRate = 500000;
+        //==========================================   get  chanID  ================================
+        _connect(protocol, ConnectFlag, baudRate);
+
+
+            j2534->PassThruIoctl(chanID, CLEAR_TX_BUFFER, nullptr, nullptr);
+            j2534->PassThruIoctl(chanID, CLEAR_RX_BUFFER, nullptr, nullptr);
+            j2534->PassThruIoctl(chanID, CLEAR_MSG_FILTERS, nullptr, nullptr);
+
+            //-======================================== SET CONFIG ===========================================
+            SCONFIG_LIST scl;
+            SCONFIG scp[2] = { {ISO15765_BS   , 0x20},     //For protocol ID of ISO 15765, this sets the block size the interface should report to the vehicle for receiving segmented transfers.
+                               {ISO15765_STMIN, 0x00} }; //For protocol ID of ISO 15765, this sets the separation time the interface should report to the vehicle for receiving segmented transfers.
+            scl.NumOfParams = 2;
+            scl.ConfigPtr = scp;
+            set_config(&scl);
+            // ============================ setup the filter(s) =========================
+            unsigned long msgId;
+
+            PASSTHRU_MSG msgMask, msgPattern, msgFlowControl;
+
+            msgMask.ProtocolID = ISO15765;
+            msgMask.RxStatus   = 0;
+            msgMask.TxFlags    = ISO15765_FRAME_PAD;
+            msgMask.Timestamp  = 0;
+            msgMask.DataSize   = 4;
+            msgMask.ExtraDataIndex = 0;
+            msgMask.Data[0] = 0xFF;
+            msgMask.Data[1] = 0xFF;
+            msgMask.Data[2] = 0xFF;
+            msgMask.Data[3] = 0xFF;
+
+            msgPattern.ProtocolID = ISO15765;
+            msgPattern.RxStatus = 0;
+            msgPattern.TxFlags = ISO15765_FRAME_PAD;
+            msgPattern.Timestamp = 0;
+            msgPattern.DataSize = 4;
+            msgPattern.ExtraDataIndex = 0;
+            msgPattern.Data[0] = 0;
+            msgPattern.Data[1] = 0;
+            msgPattern.Data[2] = 7;
+            msgPattern.Data[3] = 0xE8;
+
+            msgFlowControl.ProtocolID = ISO15765;
+            msgFlowControl.RxStatus = 0;
+            msgFlowControl.TxFlags = ISO15765_FRAME_PAD;
+            msgFlowControl.Timestamp = 0;
+            msgFlowControl.DataSize = 4;
+            msgFlowControl.ExtraDataIndex = 0;
+            msgFlowControl.Data[0] = 0;
+            msgFlowControl.Data[1] = 0;
+            msgFlowControl.Data[2] = 7;
+            msgFlowControl.Data[3] = 0xE0;
+
+            msgId = set_filter( FLOW_CONTROL_FILTER, &msgMask, &msgPattern, &msgFlowControl);
+
+            QThread::msleep(100);
+    }
+
+    ulong set_filter(ulong type, PASSTHRU_MSG *msgMask, PASSTHRU_MSG *msgPattern, PASSTHRU_MSG *msgFlowcontrol)
+    {
+        ulong msgId;
+        if (j2534->PassThruStartMsgFilter(chanID, type, msgMask, msgPattern, msgFlowcontrol, &msgId))
+        {
+            emit Log( "PassThruIoctl - PassThruStartMsgFilter : not ok  " + reportJ2534Error() );
+            //           return false;
+        }
+        return msgId;
+    }
+
+    bool five_baud_init()
+    {
         //==========================================   5 baud init  ================================
         SBYTE_ARRAY inputMsg, outputMsg;
         unsigned char EcuAddr[1]; /* ECU target address array */
@@ -127,31 +220,9 @@ public:
         }
         Log( "PassThruIoctl - FIVE_BAUD_INIT : OK " + QString::number(KeyWord[0], 16) + " " + QString::number(KeyWord[1], 16) + " " + QString::number(KeyWord[2], 16));
 
-        j2534->PassThruIoctl(chanID, GET_CONFIG, &scl, nullptr)   ;
-        baudRate = scl.ConfigPtr[0].Value;                                //
+        //        j2534->PassThruIoctl(chanID, GET_CONFIG, &scl, nullptr)   ;
+        //        baudRate = scl.ConfigPtr[0].Value;                                //
         Log( "PassThruIoctl - GET_CONFIG : baudRate = " + QString::number( baudRate ));
-
-        // ============================ now setup the filter(s) =========================
-        //   PASSTHRU_MSG  txmsg;
-        PASSTHRU_MSG msgMask, msgPattern;
-        unsigned long msgId;
-
-        // simply create a "pass all" filter so that we can see
-        // everything unfiltered in the raw stream
-        tx_msg.ProtocolID = protocol;
-
-        tx_msg.DataSize = 1;
-
-        msgMask = msgPattern = tx_msg;
-
-        msgMask.Data[0] = 0; // mask the first byte to 0
-        msgPattern.Data[0] = 0; // match it with 0 (i.e. pass everything)
-
-        if (j2534->PassThruStartMsgFilter(chanID, PASS_FILTER, &msgMask, &msgPattern, nullptr, &msgId))
-        {
-            emit Log( "PassThruIoctl - PassThruStartMsgFilter : not ok  " + reportJ2534Error() );
-            return false;
-        }
         return true;
     }
 
@@ -160,10 +231,10 @@ public:
         NumMsgs = 1;
         rx_msg[0].RxStatus = 0;
         do
-            j2534->PassThruReadMsgs(chanID, &rx_msg[0], &NumMsgs, magic_adder_readTimeout+200);
+            j2534->PassThruReadMsgs(chanID, &rx_msg[0], &NumMsgs, _readTimeout);
         while(rx_msg[0].RxStatus == START_OF_MESSAGE);
-//        memcpy(buffer, rx_msg[0].Data, rx_msg[0].DataSize);
-//        qDebug()<< rx_msg[0].DataSize;
+        //        memcpy(buffer, rx_msg[0].Data, rx_msg[0].DataSize);
+        //        qDebug()<< rx_msg[0].DataSize;
 
         //emit readyRead(QByteArray::fromRawData( (char*)rx_msg[0].Data, rx_msg[0].DataSize));
         //return QByteArray::fromRawData( (char*)rx_msg[0].Data, rx_msg[0].DataSize);
@@ -173,7 +244,7 @@ public:
     {
         NumMsgs = 1;
         tx_msg.DataSize = count;
-//        memcpy(tx_msg.Data, buf, count);
+        //        memcpy(tx_msg.Data, buf, count);
 
         j2534->PassThruWriteMsgs(chanID, &tx_msg, &NumMsgs, writeTimeout);
     }
@@ -211,13 +282,13 @@ private:
     J2534 *j2534;
     inno_interface *_inno_interface;
     unsigned int baudRate = 15625;
-    unsigned long magic_adder_readTimeout = 25;
+    unsigned long _readTimeout = 225;
     unsigned long writeTimeout = 0;
 
     unsigned long devID;
 
     unsigned long chanID_INNO;
-    unsigned long NumMsgs ;
+    unsigned long NumMsgs;
     unsigned long protocol_inno = ISO9141_INNO;
     unsigned long protocol = ISO9141_K;
     unsigned long ConnectFlag = ISO9141_NO_CHECKSUM;  //        || ISO9141_K_LINE_ONLY ;

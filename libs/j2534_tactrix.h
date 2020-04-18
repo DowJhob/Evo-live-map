@@ -322,13 +322,13 @@ typedef void (*PF_StatusCallback)(const char *,int,int);
 
 typedef struct
 {
-	unsigned long ProtocolID;
-	unsigned long RxStatus;
-	unsigned long TxFlags;
-	unsigned long Timestamp;
-	unsigned long DataSize;
-	unsigned long ExtraDataIndex;
-    unsigned char Data[PASSTHRU_MSG_DATA_SIZE];
+    unsigned long ProtocolID;                               //0
+    unsigned long RxStatus;                                 //4
+    unsigned long TxFlags;                                  //8
+    unsigned long Timestamp;                                //12
+    unsigned long DataSize;                                 //16
+    unsigned long ExtraDataIndex;                           //20
+    unsigned char Data[PASSTHRU_MSG_DATA_SIZE];             //24
 } PASSTHRU_MSG;
 
 
