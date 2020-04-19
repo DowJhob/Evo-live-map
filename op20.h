@@ -269,12 +269,13 @@ public:
 
     void start_tactrix_inno()
     {
-        _inno_interface = new tactrix_inno(j2534, devID);
+        _inno_interface = new tactrix_inno(50, j2534, devID);
         connect(_inno_interface, SIGNAL(AFR(QString)), SIGNAL(AFR(QString)));
+        connect(&inno_thread, &QThread::started, _inno_interface, &inno_interface::start);
         _inno_interface->moveToThread(&inno_thread);
         inno_thread.start();
         _inno_interface->_connect();
-        _inno_interface->start();
+        //_inno_interface->start();
     }
 private:
 

@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QDebug>
+#include <QTimer>
+#include <QElapsedTimer>
 
 class inno_interface:public QObject
 {
@@ -82,13 +84,12 @@ class inno_interface:public QObject
 
     Q_OBJECT
 public:
-    inno_interface()
+    inno_interface(int polling_interval = 100)
     {
-
+        this->polling_interval = polling_interval;
     }
 
     virtual void _connect() = 0;
-    virtual void start() = 0;
 
     void dump_inno(uchar* data, uint DataSize)
     {
@@ -183,6 +184,30 @@ public:
         }
     }
 
+    public slots:
+    void start()
+    {
+        _timer = new QTimer();
+        _timer->setInterval(polling_interval);
+        connect(_timer, &QTimer::timeout, this, &inno_interface::read, Qt::QueuedConnection);
+        _timer->start();
+    }
+
+private slots:
+    void read()
+    {
+        t.start();
+        _timer->stop();
+        inno_read();
+        _timer->start();
+        qDebug() << (float)t.nsecsElapsed()/1000000;
+    }
+    virtual void inno_read() = 0;
+private:
+    QElapsedTimer t;
+    QTimer* _timer;
+    QString result;
+    int polling_interval =100;
     void func_check(int func, uint _afr, uint _lambda)
     {
         double lambda,afr;
@@ -212,8 +237,7 @@ result.clear();
 //        110 Error code in Lambda value
 
     }
-private:
-    QString result;
+
 signals:
     void AFR(QString);
 };

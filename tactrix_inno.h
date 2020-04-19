@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QThread>
-#include <QTimer>
 
 #include "libs/J2534.h"
 #include "inno_interface.h"
@@ -12,18 +11,12 @@ class tactrix_inno: public inno_interface
 {
     Q_OBJECT
 public:
-    tactrix_inno(J2534 *j2534, unsigned long devID)
+    tactrix_inno(int polling_interval = 100, J2534 *j2534 = nullptr, unsigned long devID = 0)
     {
         this->j2534 = j2534;
         this->devID = devID;
-        _timer.setInterval(10);
-        connect(&_timer, &QTimer::timeout, this, &tactrix_inno::inno_read, Qt::QueuedConnection);
-       // connect(this, SIGNAL(_tick()), this, SLOT(inno_read()));
     }
-    void start()
-    {
-        _timer.start();
-    }
+
     void _connect()
     {
         //emit AFR("20.4");
@@ -66,14 +59,16 @@ public:
 private slots:
     void inno_read()
     {
+//        t.start();
         numRxMsg = 1;
-        j2534->PassThruReadMsgs(chanID_INNO,&rxmsg,&numRxMsg,100);
+        j2534->PassThruReadMsgs(chanID_INNO,&rxmsg,&numRxMsg,40);
         if (numRxMsg)
             dump_msg(&rxmsg);
+//        qDebug() << t.nsecsElapsed();
     }
 private:
     J2534 *j2534;
-    QTimer _timer;
+
     unsigned long devID;
     unsigned long chanID_INNO;
     PASSTHRU_MSG rxmsg;
