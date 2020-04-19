@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QThread>
+#include <QTimer>
 
 #include "libs/J2534.h"
 #include "inno_interface.h"
@@ -15,15 +16,17 @@ public:
     {
         this->j2534 = j2534;
         this->devID = devID;
-        connect(this, SIGNAL(_tick()), this, SLOT(inno_read()));
+        _timer.setInterval(10);
+        connect(&_timer, &QTimer::timeout, this, &tactrix_inno::inno_read, Qt::QueuedConnection);
+       // connect(this, SIGNAL(_tick()), this, SLOT(inno_read()));
     }
     void start()
     {
-        emit _tick();
+        _timer.start();
     }
     void _connect()
     {
-        emit AFR("20.4");
+        //emit AFR("20.4");
         // try to connect to the specific channel we would like to use
         //
         // in this case, it is the 2.5mm jack on the Openport 2.0 which can be used as
@@ -45,13 +48,13 @@ public:
         // in this case, we simply create a "pass all" filter so that we can see
         // everything unfiltered in the raw stream
 
-        txmsg.ProtocolID = ISO9141_INNO;
-        txmsg.RxStatus = 0;
-        txmsg.TxFlags = 0;
-        txmsg.Timestamp = 0;
-        txmsg.DataSize = 1;
-        txmsg.ExtraDataIndex = 0;
-        msgMask = msgPattern  = txmsg;
+        rxmsg.ProtocolID = ISO9141_INNO;
+        rxmsg.RxStatus = 0;
+        rxmsg.TxFlags = 0;
+        rxmsg.Timestamp = 0;
+        rxmsg.DataSize = 1;
+        rxmsg.ExtraDataIndex = 0;
+        msgMask = msgPattern  = rxmsg;
         msgMask.Data[0] = 0; // mask the first byte to 0
         msgPattern.Data[0] = 0; // match it with 0 (i.e. pass everything)
         if (j2534->PassThruStartMsgFilter(chanID_INNO, PASS_FILTER,&msgMask,&msgPattern,NULL,&msgId))
@@ -60,21 +63,20 @@ public:
             //            return 0;
         }
     }
-public slots:
+private slots:
     void inno_read()
     {
         numRxMsg = 1;
         j2534->PassThruReadMsgs(chanID_INNO,&rxmsg,&numRxMsg,100);
         if (numRxMsg)
             dump_msg(&rxmsg);
-        QThread::msleep(50);
-        emit _tick();
     }
 private:
     J2534 *j2534;
+    QTimer _timer;
     unsigned long devID;
     unsigned long chanID_INNO;
-    PASSTHRU_MSG rxmsg,txmsg;
+    PASSTHRU_MSG rxmsg;
     PASSTHRU_MSG msgMask,msgPattern;
     unsigned long msgId;
     unsigned long numRxMsg;
@@ -94,7 +96,6 @@ private:
     }
 
 signals:
-    void _tick();
 
 };
 

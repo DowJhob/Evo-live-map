@@ -1,0 +1,1 @@
+handle SIGILL pass nostop noprint

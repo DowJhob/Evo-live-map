@@ -186,26 +186,25 @@ public:
     void func_check(int func, uint _afr, uint _lambda)
     {
         double lambda,afr;
-
+result.clear();
         switch (func) {
         case 0b000: {
             lambda = 0.5 + 0.001 * _lambda;
             afr = _lambda * 0.1 * _afr;
-            emit AFR(QString::number(afr));
-            qDebug() << "lambda: " << lambda << "  afr: "<< afr; } break;
+            result = QString::number(afr);} break;
         case 0b001: {
             double pct_o2;
             pct_o2 = 0.1 * _lambda;
-            emit AFR(QString::number(pct_o2));
+            result = QString::number(pct_o2);
             qDebug() << "O2: " << pct_o2;} break;
-        case 0b010: emit AFR(" Cal"); break;
-        case 0b011: emit AFR("sCal"); break;
-        case 0b100: emit AFR("Heat"); break;
-        case 0b101: emit AFR("hCal"); break;
-        case 0b110: emit AFR("E" + QString::number(_lambda, 16)); break;
+        case 0b010: result =" Cal"; break;
+        case 0b011: result = "sCal"; break;
+        case 0b100: result = "Heat"; break;
+        case 0b101: result = "hCal"; break;
+        case 0b110: result = "E" + QString::number(_lambda, 16); break;
 
         }
-
+ emit AFR(result);
 //        010 Free air calibration in progress, Lambda data not valid
 //        011 Need Free air Calibration Request, Lambda data not valid
 //        100 Warming up, Lambda value is temp in 1/10% of operating temp.
@@ -213,6 +212,8 @@ public:
 //        110 Error code in Lambda value
 
     }
+private:
+    QString result;
 signals:
     void AFR(QString);
 };

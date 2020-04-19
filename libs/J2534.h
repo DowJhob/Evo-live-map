@@ -69,7 +69,7 @@ public:
 private:
 
     bool getPTfns();
-    long LoadJ2534DLL(const TCHAR *szDLL);
+    long LoadJ2534DLL(TCHAR *szDLL);
     bool checkDLL();
     void dbgprint(const char* Format, ...);
     void dbgdump(const unsigned char *data,unsigned int datalen,int kind);

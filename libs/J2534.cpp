@@ -18,7 +18,7 @@ J2534::J2534(TCHAR *_dllName)
     isLibraryInitialized = false;
     // default to the Openport 2.0 J2534 DLL
 #if defined(_WIN32) || defined(WIN32) || defined (_WIN64) || defined (WIN64)
-memcpy(dllName, _dllName, 256);
+memcpy(dllName, _dllName, 512);
 //    strcpy(dllName, _dllName);
 //    strcpy(dllName,"op20pt32.dll");
 #else
@@ -164,7 +164,7 @@ void J2534::dbgprintptmsg(const PASSTHRU_MSG *pMsg,int kind)
     dbgdump(pMsg->Data,pMsg->DataSize,kind);
 }
 
-long J2534::LoadJ2534DLL(const TCHAR* szDLL)
+long J2534::LoadJ2534DLL( TCHAR* szDLL)
 {
 #if defined(OP20PT32_USE_LIB)
     szDLL; // unused
@@ -186,8 +186,8 @@ long J2534::LoadJ2534DLL(const TCHAR* szDLL)
 
 #if defined(_WIN32) || defined(WIN32) || defined (_WIN64) || defined (WIN64)
 
-    qDebug() << "j2534 DllPath: " << QString::fromWCharArray(szDLL);
-    hDLL = LoadLibrary((const wchar_t*)szDLL);
+//    qDebug() << "j2534 DllPath: " << QString::fromWCharArray(szDLL);
+    hDLL = LoadLibrary(szDLL);
     if (!(hDLL))
     {
         qDebug() << "error loading J2534 DLL";

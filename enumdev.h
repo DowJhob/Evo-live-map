@@ -21,7 +21,9 @@ class enumerator:public QObject
 public:
 
     enumerator()
-    {}
+    {
+
+    }
     ~enumerator()
     {
         if (NotificationHandle != nullptr)
@@ -78,19 +80,14 @@ public:
     //заглушка для прогона по всему вектору гуидовб нужна для запуска с подключенным устройством
     bool enumerateUSB_Device_by_guid()
     {
-
-
-
         for (int i = 0; i < J2543_interfaces.size(); i++)
         {
             //            if (enumerateUSB_Device_by_VID_PID(J2543_interfaces[i]))
             if (checkGUID(J2543_interfaces[i]))
             {
                 VechicleInterfaceType = J2534_INTERFACE;
-                //     get_dll_path2("Tactrix");
                 emit InterfaceActive(VechicleInterfaceType);
                 VechicleInterfaceState = true;
-
                 return true;
             }
         }
@@ -113,18 +110,18 @@ public:
     }
 
 signals:
-    void InterfaceActive(int );
+    void InterfaceActive( int );
     void disconnectInterface();
 
 private:
     QString VID_tactrix = "VID_0403";
     QString PID_OP13 = "PID_CC4A";
     QString PID_OP20 = "PID_CC4C";
-    QVector<GUID> J2543_interfaces = {//массив гуидов
+    QVector<GUID> J2543_interfaces = {
                                       { 0xfb1cf0c4, 0xb412, 0x451f, {0x9f, 0x04, 0xdf, 0x75, 0x37, 0xa5, 0x00, 0x3c}},  // VehiclePassThru j2534 class adapter?
                                       { 0x5a929f4c, 0x6f07, 0x426d, {0xa9, 0x70, 0x90, 0x3d, 0x25, 0xd4, 0x45, 0xb3}}   //Scanmatic
                                      };
-    QVector<GUID> serial_interfaces = {//массив гуидов
+    QVector<GUID> serial_interfaces = {
                                        { 0x4d36e978, 0xe325, 0x11ce, {0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18}},   //Serial and parralel ports change or add OP1.3
                                       };
     HDEVNOTIFY NotificationHandle;
@@ -136,7 +133,7 @@ private:
         qDebug() << "input vendor_name: " << vendor_name;
 
         HKEY  childKEY, sub_child;
-        DWORD KeyType, KeySize = 300;
+        DWORD KeyType, KeySize = 256;
 
         DWORD lpcnumOfValues;
         DWORD lpcmaxValueNameLen;
@@ -158,7 +155,7 @@ private:
                 {
                     if (RegOpenKeyEx(childKEY, SKName, 0, KEY_READ, &sub_child) == ERROR_SUCCESS)           //открыли ключ подраздел с каким то вендором
                     {
-                        KeySize = 300;
+                        KeySize = 256;
                         if (RegQueryValueEx(sub_child, L"Vendor", 0, &KeyType, (uchar*)DllLibraryPath, &KeySize) == ERROR_SUCCESS)
                         {
                             qDebug() << "Vendor: " << QString::fromWCharArray(DllLibraryPath) ;             //в DllLibraryPath имя вендора!
@@ -207,8 +204,6 @@ private:
             //qDebug() << "SPDRP_: " << result;
             if ( !get_dll_path2(result) )
                 return false;
-
-
             DeviceDesc(SPDRP_DEVICEDESC);
             SetupDiDestroyDeviceInfoList(hDevInfo);
             if (!result.isEmpty())
