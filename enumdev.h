@@ -7,14 +7,14 @@
 #include <QVector>
 
 #include <QUuid>
-#include <QString>
+#include <QAbstractNativeEventFilter>
 #include <QDebug>
 //#include <QSettings>
 
 #define SERIAL_INTERFACE 13;
 #define J2534_INTERFACE 20;
 
-class enumerator:public QObject
+class enumerator: public QObject, public QAbstractNativeEventFilter
 {
     Q_OBJECT
 
@@ -31,6 +31,7 @@ public:
     }
 
     QString result;
+
     QString dllName;
     bool VechicleInterfaceState;
     int VechicleInterfaceType;
@@ -43,46 +44,43 @@ public:
         ZeroMemory( &NotificationFilter, sizeof(NotificationFilter) );   //???
         NotificationFilter.dbcc_size = sizeof(NotificationFilter);
         NotificationFilter.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
-        for (int i = 0; i < J2543_interfaces.size(); i++)
+        //                for (int i = 0; i < J2543_interfaces.size(); i++)
         {
-            NotificationFilter.dbcc_classguid = J2543_interfaces[i]; // подпишемся на все наши интерфейсы
+            NotificationFilter.dbcc_classguid = {0xa5dcbf10, 0x6530, 0x11d2, {0x90, 0x1f, 0x0, 0xc0, 0x4f, 0xb9, 0x51, 0xed}} ; // подпишемся на все наши интерфейсы
             NotificationFilter.dbcc_name[0] = '\0';
             NotificationHandle = RegisterDeviceNotification( hwnd,
                                                              &NotificationFilter,
-                                                             //DEVICE_NOTifY_ALL_INTERFACE_CLASSES
-                                                             DEVICE_NOTIFY_WINDOW_HANDLE
+                                                             DEVICE_NOTIFY_ALL_INTERFACE_CLASSES
+                                                             //DEVICE_NOTIFY_WINDOW_HANDLE
                                                              );
             if ( NotificationHandle == nullptr )
             {
                 qDebug() << " event not register!!";
             }
             else
-                qDebug() << J2543_interfaces[i] << " event registered!!";
+                qDebug() << " event registered!!";
         }
-        for (int i = 0; i < serial_interfaces.size(); i++)
-        {
-            NotificationFilter.dbcc_classguid = serial_interfaces[i]; // подпишемся на все наши интерфейсы
-            NotificationFilter.dbcc_name[0] = '\0';
-            NotificationHandle = RegisterDeviceNotification( hwnd,
-                                                             &NotificationFilter,
-                                                             //DEVICE_NOTifY_ALL_INTERFACE_CLASSES
-                                                             DEVICE_NOTIFY_WINDOW_HANDLE
-                                                             );
-            if ( NotificationHandle == nullptr )
-            {
-                qDebug() << " event not register!!";
-            }
-            else
-                qDebug() << serial_interfaces[i] << " event registered!!";
-        }
+        //        for (int i = 0; i < serial_interfaces.size(); i++)
+        //        {
+        //            NotificationFilter.dbcc_classguid = serial_interfaces[i]; // подпишемся на все наши интерфейсы
+        //            NotificationFilter.dbcc_name[0] = '\0';
+        //            NotificationHandle = RegisterDeviceNotification( hwnd,
+        //                                                             &NotificationFilter,
+        //                                                             DEVICE_NOTIFY_ALL_INTERFACE_CLASSES
+        //                                                             //DEVICE_NOTIFY_WINDOW_HANDLE
+        //                                                             );
+        //            if ( NotificationHandle == nullptr )
+        //            {
+        //                qDebug() << " event not register!!";
+        //            }
+        //            else
+        //                qDebug() << &serial_interfaces[i] << " event registered!!";
+        //        }
     }
-
-    //заглушка для прогона по всему вектору гуидовб нужна для запуска с подключенным устройством
     bool enumerateUSB_Device_by_guid()
     {
         for (int i = 0; i < J2543_interfaces.size(); i++)
         {
-            //            if (enumerateUSB_Device_by_VID_PID(J2543_interfaces[i]))
             if (checkGUID(J2543_interfaces[i]))
             {
                 VechicleInterfaceType = J2534_INTERFACE;
@@ -93,7 +91,6 @@ public:
         }
         for (int i = 0; i < serial_interfaces.size(); i++)
         {
-            //            if (enumerateUSB_Device_by_VID_PID(J2543_interfaces[i]))
             if (checkGUID(serial_interfaces[i]))
             {
                 VechicleInterfaceType = SERIAL_INTERFACE;
@@ -109,6 +106,44 @@ public:
         return false;
     }
 
+    //заглушка для прогона по всему вектору гуидовб нужна для запуска с подключенным устройством
+    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result ) Q_DECL_OVERRIDE
+    {
+        Q_UNUSED( result )
+        Q_UNUSED( eventType )
+
+        auto pWindowsMessage = static_cast<MSG*>(message);
+        if(pWindowsMessage->message == WM_DEVICECHANGE)
+        {
+            auto wParam = pWindowsMessage->wParam;
+            auto lParam = pWindowsMessage->lParam;
+            switch(wParam)
+            {
+
+            case DBT_DEVICEREMOVECOMPLETE:emit disconnectInterface();
+
+            case DBT_DEVICEARRIVAL:{
+                auto device = reinterpret_cast<PDEV_BROADCAST_HDR>(lParam);
+                qDebug() << "DBT_DEVICEARRIVAL deviceType: " << device->dbch_devicetype ;
+                switch( device->dbch_devicetype )
+                {
+                case DBT_DEVTYP_DEVICEINTERFACE:{
+                    //                   PDEV_BROADCAST_DEVICEINTERFACE pDevInf = (PDEV_BROADCAST_DEVICEINTERFACE)lParam;
+                    enumerateUSB_Device_by_guid();
+                    qDebug() << "dll path" << QString::fromWCharArray( DllLibraryPath );
+                }break;
+                }
+            }break;
+                //enumerateUSB_Device_by_guid();
+                //  statusBar()->showMessage(Enumerator.result);
+                //    start_action->setDisabled(!Enumerator.VechicleInterfaceState);
+
+            }
+            return false;
+        }
+        return false;
+    }
+
 signals:
     void InterfaceActive( int );
     void disconnectInterface();
@@ -118,12 +153,12 @@ private:
     QString PID_OP13 = "PID_CC4A";
     QString PID_OP20 = "PID_CC4C";
     QVector<GUID> J2543_interfaces = {
-                                      { 0xfb1cf0c4, 0xb412, 0x451f, {0x9f, 0x04, 0xdf, 0x75, 0x37, 0xa5, 0x00, 0x3c}},  // VehiclePassThru j2534 class adapter?
-                                      { 0x5a929f4c, 0x6f07, 0x426d, {0xa9, 0x70, 0x90, 0x3d, 0x25, 0xd4, 0x45, 0xb3}}   //Scanmatic
-                                     };
+        { 0xfb1cf0c4, 0xb412, 0x451f, {0x9f, 0x04, 0xdf, 0x75, 0x37, 0xa5, 0x00, 0x3c}},  // VehiclePassThru j2534 class adapter?
+        { 0x5a929f4c, 0x6f07, 0x426d, {0xa9, 0x70, 0x90, 0x3d, 0x25, 0xd4, 0x45, 0xb3}}   //raw usb device for Scanmatic
+    };
     QVector<GUID> serial_interfaces = {
-                                       { 0x4d36e978, 0xe325, 0x11ce, {0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18}},   //Serial and parralel ports change or add OP1.3
-                                      };
+        { 0x4d36e978, 0xe325, 0x11ce, {0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18}},   //Serial and parralel ports change or add OP1.3
+    };
     HDEVNOTIFY NotificationHandle;
     HDEVINFO hDevInfo;
     SP_DEVINFO_DATA DeviceInfoData;
@@ -144,21 +179,21 @@ private:
         if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"SOFTWARE\\WOW6432Node\\PassThruSupport.04.04", 0, KEY_READ , &childKEY) == ERROR_SUCCESS)
         {        //=========== найдем подразделы ====================
             RegQueryInfoKey(childKEY, NULL, NULL, NULL, &lpcnumOfSubKeys, &lpcmaxSubKeyLen, NULL, &lpcnumOfValues, &lpcmaxValueNameLen, &lpcmaxValueLen, NULL, NULL);
-            qDebug() << " lpcnumOfSubKeys: " << lpcnumOfSubKeys << " lpcmaxSubKeyLen: " << lpcmaxSubKeyLen << " lpcnumOfValues: " << lpcnumOfValues << " lpcmaxValueNameLen: " << lpcmaxValueNameLen;
+            //qDebug() << " lpcnumOfSubKeys: " << lpcnumOfSubKeys << " lpcmaxSubKeyLen: " << lpcmaxSubKeyLen << " lpcnumOfValues: " << lpcnumOfValues << " lpcmaxValueNameLen: " << lpcmaxValueNameLen;
             TCHAR *SKName = new TCHAR[lpcmaxSubKeyLen];
             // check SubKey's
             for (int i = 0; i < (int)lpcnumOfSubKeys; i++)
             {
                 DWORD keyNameLen = lpcmaxSubKeyLen + 1;
                 RegEnumKeyEx(childKEY, i, SKName, &keyNameLen, NULL, NULL, NULL, NULL);
-                qDebug() << "subgroup: " << QString::fromWCharArray(SKName);
+                //qDebug() << "subgroup: " << QString::fromWCharArray(SKName);
                 {
                     if (RegOpenKeyEx(childKEY, SKName, 0, KEY_READ, &sub_child) == ERROR_SUCCESS)           //открыли ключ подраздел с каким то вендором
                     {
                         KeySize = 256;
                         if (RegQueryValueEx(sub_child, L"Vendor", 0, &KeyType, (uchar*)DllLibraryPath, &KeySize) == ERROR_SUCCESS)
                         {
-                            qDebug() << "Vendor: " << QString::fromWCharArray(DllLibraryPath) ;             //в DllLibraryPath имя вендора!
+                            //qDebug() << "Vendor: " << QString::fromWCharArray(DllLibraryPath) ;             //в DllLibraryPath имя вендора!
                             if ( QString::fromWCharArray(DllLibraryPath).indexOf( vendor_name ) >= 0 )
                             {
                                 KeySize = 256;                                                              //MAGICK

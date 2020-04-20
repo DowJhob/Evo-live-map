@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 CONFIG += c++11
-CONFIG   += rtti
+#CONFIG   += rtti
 QT       += core gui xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -45,7 +45,6 @@ HEADERS  += mainwindow.h \
     mathparser2.h \
     libs/ftdi.h \
     libs/ftdi_types.h \
-    #DMA.h \
     enumdev.h \
     tactrix_inno.h \
     xmldomparser.h
@@ -55,15 +54,15 @@ FORMS    += mainwindow.ui
 #DISTFILES +=
 
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
-
+CONFIG += debug
 #INCLUDEPATH += libs/libusb/include
 #LIBS += -Llibs/libusb/MinGW64/dll -lusb-1.0
 LIBS += -lSetupapi
 
-QMAKE_LFLAGS_RELEASE += -static -static-libgcc
+CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 QMAKE_CXXFLAGS  += -flto -funroll-loops
 QMAKE_CXXFLAGS  += -fforce-addr
-QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mfpmath=sse -mtune=intel
+QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mfpmath=sse #-mtune=intel
 DEFINES += QHEXEDIT_EXPORTS
 
 DISTFILES +=

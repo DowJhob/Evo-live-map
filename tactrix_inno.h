@@ -59,12 +59,10 @@ public:
 private slots:
     void inno_read()
     {
-//        t.start();
         numRxMsg = 1;
         j2534->PassThruReadMsgs(chanID_INNO,&rxmsg,&numRxMsg,40);
         if (numRxMsg)
             dump_msg(&rxmsg);
-//        qDebug() << t.nsecsElapsed();
     }
 private:
     J2534 *j2534;
@@ -87,7 +85,6 @@ private:
 
         //qDebug() << "-- dump --";
        dump_inno(msg->Data, msg->DataSize);
-
     }
 
 signals:

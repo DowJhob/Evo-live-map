@@ -36,6 +36,7 @@ public:
         _inno_interface->deleteLater();
         inno_thread.terminate();
         close();
+        delete j2534;
     }
     bool init()               // Get devID
     {
@@ -47,7 +48,7 @@ public:
         //получаем дескриптор
         if (j2534->PassThruOpen(nullptr, &devID))
         {// читаем и выводим ошибку
-            emit Log( "PassThruOpen: not ok" + reportJ2534Error() );
+            emit Log( "PassThruOpen: not ok  | " + reportJ2534Error() );
             return false;
         }
         emit Log( "PassThruOpen:  devID = " + QString::number(devID) );
@@ -58,7 +59,7 @@ public:
         char strSerial[256];
         if ( j2534->PassThruReadVersion(strApiVersion, strDllVersion, strFirmwareVersion, devID) )
         {
-            emit Log( "PassThruReadVersion: not ok" + reportJ2534Error() );
+            emit Log( "PassThruReadVersion: not ok  | " + reportJ2534Error() );
         }
         else
         {
@@ -69,7 +70,7 @@ public:
         if (get_serial_num(devID, strSerial))
             emit Log( "Device Serial Number: " +  QString(strSerial) );
         else
-            emit Log( "get_serial_num: not ok" + reportJ2534Error() );
+            emit Log( "get_serial_num: not ok  | " + reportJ2534Error() );
         emit Log( "common_init_j2534 OK" );
 
         return true;
@@ -87,7 +88,7 @@ public:
 
         if (j2534->PassThruConnect(devID, protocol, ConnectFlag, baudRate, &chanID))
         {
-            emit Log( "PassThruConnect: not ok" + reportJ2534Error() );
+            emit Log( "PassThruConnect: not ok  | " + reportJ2534Error() );
             return;
         }
         emit Log( "PassThruConnect: OK  -  chanel ID: " + QString::number(chanID));
@@ -215,7 +216,7 @@ public:
 
         if (j2534->PassThruIoctl(chanID, FIVE_BAUD_INIT, (void *)(&inputMsg), (void *)(&outputMsg)))
         {
-            emit Log( "PassThruIoctl - FIVE_BAUD_INIT : not ok" + reportJ2534Error() );
+            emit Log( "PassThruIoctl - FIVE_BAUD_INIT : not ok  | " + reportJ2534Error() );
             return false;
         }
         Log( "PassThruIoctl - FIVE_BAUD_INIT : OK " + QString::number(KeyWord[0], 16) + " " + QString::number(KeyWord[1], 16) + " " + QString::number(KeyWord[2], 16));
@@ -275,7 +276,6 @@ public:
         _inno_interface->moveToThread(&inno_thread);
         inno_thread.start();
         _inno_interface->_connect();
-        //_inno_interface->start();
     }
 private:
 

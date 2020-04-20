@@ -196,11 +196,11 @@ public:
 private slots:
     void read()
     {
-        t.start();
+//        t.start();
         _timer->stop();
         inno_read();
         _timer->start();
-        qDebug() << (float)t.nsecsElapsed()/1000000;
+//        qDebug() << (float)t.nsecsElapsed()/1000000;
     }
     virtual void inno_read() = 0;
 private:
