@@ -85,7 +85,7 @@ class inno_interface:public QObject
 
     Q_OBJECT
 public:
-    inno_interface(int polling_interval = 100)
+    inno_interface()
     {
         //this->polling_interval = polling_interval;
     }
@@ -182,34 +182,25 @@ public:
             }
         }
     }
-    int polling_interval = 100;
 
 public slots:
     void start()
     {
-  //      qDebug() << "polling_interval: " << polling_interval;
-  //      _timer = new QTimer();
-  //      _timer->setInterval(polling_interval);
-  //      connect(_timer, &QTimer::timeout, this, &inno_interface::read, Qt::QueuedConnection);
-       // _timer->start();
-
+        _timer = new QTimer();
+        _timer->setInterval(200);
+        connect(_timer, &QTimer::timeout, this, [=](){emit AFR("----");});
         while (true)
         {
-            inno_read();
+            if ( inno_read() )
+                _timer->start();
             QCoreApplication::processEvents() ;
         }
     }
 
 private slots:
-    void read()
-    {
-        //        t.start();
-    //    _timer->stop();
-        inno_read();
-   //     _timer->start();
-        //        qDebug() << (float)t.nsecsElapsed()/1000000;
-    }
-    virtual void inno_read() = 0;
+
+    virtual bool inno_read() = 0;
+
 private:
     QElapsedTimer t;
     QTimer* _timer;
@@ -232,12 +223,11 @@ private:
         } break;
         case 0b010: result =" CAl"; break;
         case 0b011: result = "SCAl"; break;
-        case 0b100: result = "Htr"; break;
+        case 0b100: result = "H" + QString::number(_lambda/10); break;
         case 0b101: result = "hCAl"; break;
         case 0b110: result = "E" + QString::number(_lambda, 16); break;
 
         }
-        //    qDebug() << "result: " << result;
         emit AFR(result);
         //        010 Free air calibration in progress, Lambda data not valid
         //        011 Need Free air Calibration Request, Lambda data not valid

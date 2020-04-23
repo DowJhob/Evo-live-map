@@ -11,9 +11,8 @@ class tactrix_inno: public inno_interface
 {
     Q_OBJECT
 public:
-    tactrix_inno(int polling_interval = 100, J2534 *j2534 = nullptr, unsigned long devID = 0)
+    tactrix_inno(J2534 *j2534 = nullptr, unsigned long devID = 0)
     {
-        this->polling_interval = polling_interval;
         this->j2534 = j2534;
         this->devID = devID;
     }
@@ -58,12 +57,13 @@ public:
         }
     }
 private slots:
-    void inno_read()
+    bool inno_read()
     {
         numRxMsg = 1;
         j2534->PassThruReadMsgs(chanID_INNO,&rxmsg,&numRxMsg,40);
         if (numRxMsg)
-            dump_msg(&rxmsg);
+            return dump_msg(&rxmsg);
+        return false;
     }
 private:
     J2534 *j2534;
@@ -76,17 +76,16 @@ private:
     unsigned long numRxMsg;
     unsigned long protocol_inno = ISO9141_INNO;
 
-    void dump_msg(PASSTHRU_MSG* msg)
+    bool dump_msg(PASSTHRU_MSG* msg)
     {
         if (msg->RxStatus & START_OF_MESSAGE)
-            return; // skip
+            return false; // skip
 
         if (msg->DataSize < 2)
-            return;
+            return false;
 
-        //qDebug() << "-- dump --";
        dump_inno(msg->Data, msg->DataSize);
-       msg->RxStatus = 0xFF;
+       return true;
     }
 
 signals:

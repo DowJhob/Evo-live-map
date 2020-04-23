@@ -54,7 +54,7 @@ FORMS    += mainwindow.ui
 #DISTFILES +=
 
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
-CONFIG += debug
+
 #INCLUDEPATH += libs/libusb/include
 #LIBS += -Llibs/libusb/MinGW64/dll -lusb-1.0
 LIBS += -lSetupapi
@@ -62,7 +62,7 @@ LIBS += -lSetupapi
 CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 QMAKE_CXXFLAGS  += -flto -funroll-loops
 QMAKE_CXXFLAGS  += -fforce-addr
-QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mfpmath=sse #-mtune=intel
+QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mfpmath=sse -mtune=intel
 DEFINES += QHEXEDIT_EXPORTS
 
 DISTFILES +=
