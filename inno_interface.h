@@ -1,6 +1,7 @@
 #ifndef INNO_INTERFACE_H
 #define INNO_INTERFACE_H
 
+#include <QCoreApplication>
 #include <QObject>
 #include <QDebug>
 #include <QTimer>
@@ -86,7 +87,7 @@ class inno_interface:public QObject
 public:
     inno_interface(int polling_interval = 100)
     {
-        this->polling_interval = polling_interval;
+        //this->polling_interval = polling_interval;
     }
 
     virtual void _connect() = 0;
@@ -181,58 +182,68 @@ public:
             }
         }
     }
+    int polling_interval = 100;
 
-    public slots:
+public slots:
     void start()
     {
-        _timer = new QTimer();
-        _timer->setInterval(polling_interval);
-        connect(_timer, &QTimer::timeout, this, &inno_interface::read, Qt::QueuedConnection);
-        _timer->start();
+  //      qDebug() << "polling_interval: " << polling_interval;
+  //      _timer = new QTimer();
+  //      _timer->setInterval(polling_interval);
+  //      connect(_timer, &QTimer::timeout, this, &inno_interface::read, Qt::QueuedConnection);
+       // _timer->start();
+
+        while (true)
+        {
+            inno_read();
+            QCoreApplication::processEvents() ;
+        }
     }
 
 private slots:
     void read()
     {
-//        t.start();
-        _timer->stop();
+        //        t.start();
+    //    _timer->stop();
         inno_read();
-        _timer->start();
-//        qDebug() << (float)t.nsecsElapsed()/1000000;
+   //     _timer->start();
+        //        qDebug() << (float)t.nsecsElapsed()/1000000;
     }
     virtual void inno_read() = 0;
 private:
     QElapsedTimer t;
     QTimer* _timer;
     QString result;
-    int polling_interval = 100;
+
     void func_check(int func, uint _afr, uint _lambda)
     {
         double lambda,afr;
-result.clear();
+        result.clear();
         switch (func) {
         case 0b000: {
-            lambda = 0.5 + _lambda / 1000;
-            afr = lambda * _afr / 10;
-            result = QString::number(afr);} break;
+            lambda = 0.5 + 0.001 * _lambda;
+            afr = lambda * 0.1 * _afr;
+            result = QString::number(afr, '.', 1);} break;
         case 0b001: {
             double pct_o2;
             pct_o2 = 0.1 * _lambda;
             result = QString::number(pct_o2);
-            qDebug() << "O2: " << pct_o2;} break;
-        case 0b010: result =" Cal"; break;
-        case 0b011: result = "sCal"; break;
-        case 0b100: result = "Heat"; break;
-        case 0b101: result = "hCal"; break;
+            //         qDebug() << "O2: " << pct_o2;
+        } break;
+        case 0b010: result =" CAl"; break;
+        case 0b011: result = "SCAl"; break;
+        case 0b100: result = "Htr"; break;
+        case 0b101: result = "hCAl"; break;
         case 0b110: result = "E" + QString::number(_lambda, 16); break;
 
         }
- emit AFR(result);
-//        010 Free air calibration in progress, Lambda data not valid
-//        011 Need Free air Calibration Request, Lambda data not valid
-//        100 Warming up, Lambda value is temp in 1/10% of operating temp.
-//        101 Heater Calibration, Lambda value contains calibration countdown.
-//        110 Error code in Lambda value
+        //    qDebug() << "result: " << result;
+        emit AFR(result);
+        //        010 Free air calibration in progress, Lambda data not valid
+        //        011 Need Free air Calibration Request, Lambda data not valid
+        //        100 Warming up, Lambda value is temp in 1/10% of operating temp.
+        //        101 Heater Calibration, Lambda value contains calibration countdown.
+        //        110 Error code in Lambda value
 
     }
 

@@ -13,6 +13,7 @@ class tactrix_inno: public inno_interface
 public:
     tactrix_inno(int polling_interval = 100, J2534 *j2534 = nullptr, unsigned long devID = 0)
     {
+        this->polling_interval = polling_interval;
         this->j2534 = j2534;
         this->devID = devID;
     }
@@ -85,6 +86,7 @@ private:
 
         //qDebug() << "-- dump --";
        dump_inno(msg->Data, msg->DataSize);
+       msg->RxStatus = 0xFF;
     }
 
 signals:
