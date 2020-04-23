@@ -128,17 +128,14 @@ public:
             {
                 if (validV2Hdr && !is_lm1_packet)
                 {
-                    if ((*msgptr & 0xE2) == 0x42)
+                    if ((*msgptr & 0xE2) == 0x42)// LC-1 packet
                     {
                         //qDebug() << "-- LC-1 packet --";
-                        // LC-1 packet
                         inno_v2_lc1_pkt pkt;
                         *((int*)&pkt) = (msgptr[0]<<24) + (msgptr[1]<<16) + (msgptr[2]<<8) + msgptr[3];
                         msgptr += 4;
                         payload -= 4;
-
                         func_check(pkt.func, pkt.afr_msb * 128 + pkt.afr, pkt.lambda_hi * 128 + pkt.lambda);
-
                     }
                     else if ((*msgptr & 0xA2) == 0x80) // LM-1 packet (within v2 header)
                     {
@@ -147,6 +144,7 @@ public:
                         is_lm1_packet = true;
                         msgptr += 2;
                         payload -= 2;
+                        func_check(hdrv1.func, hdrv1.afr_msb * 128 + hdrv1.afr, 1);
                     }
                     else  // must be AUX packet
                     {
@@ -207,15 +205,15 @@ private:
     QElapsedTimer t;
     QTimer* _timer;
     QString result;
-    int polling_interval =100;
+    int polling_interval = 100;
     void func_check(int func, uint _afr, uint _lambda)
     {
         double lambda,afr;
 result.clear();
         switch (func) {
         case 0b000: {
-            lambda = 0.5 + 0.001 * _lambda;
-            afr = _lambda * 0.1 * _afr;
+            lambda = 0.5 + _lambda / 1000;
+            afr = lambda * _afr / 10;
             result = QString::number(afr);} break;
         case 0b001: {
             double pct_o2;
