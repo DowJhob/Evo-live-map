@@ -18,9 +18,9 @@ public:
     PASSTHRU_MSG  inno_rx_msg = {};
 
     char delay_after_command = 4;
-    explicit ECU_Comm()
+    explicit ECU_Comm(TCHAR *dllName = nullptr)
     {
-
+        this->dllName = dllName;
     }
     ~ECU_Comm()
     {
@@ -33,6 +33,7 @@ public:
     virtual void read() = 0;
     virtual void write( uint count) = 0;
     virtual void start_tactrix_inno() = 0;
+    TCHAR *dllName;
 virtual void close() = 0;
     void sendDMAcomand(char command, unsigned long addr, unsigned long count, char* buf = nullptr)
     {

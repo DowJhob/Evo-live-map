@@ -26,20 +26,24 @@ class OP20: public ECU_Comm
     Q_OBJECT
 public:
     unsigned long chanID;
-    OP20(TCHAR *dllName)
+    OP20(TCHAR *dllName = nullptr)
     {
-        j2534 = new J2534(dllName) ;
-        delay_after_command = 4;
+        this->dllName = dllName;
     }
     ~OP20()
     {
+        _inno_interface->stop();
+        _inno_interface->AFR("----");
         _inno_interface->deleteLater();
-        inno_thread.terminate();
+        inno_thread->quit();
+        inno_thread->wait(100);
         close();
         delete j2534;
     }
     bool init()               // Get devID
     {
+        j2534 = new J2534(dllName) ;
+        delay_after_command = 4;
         if (!j2534->init())
         {
             emit Log( "can't connect to J2534 DLL." );
@@ -72,7 +76,7 @@ public:
         else
             emit Log( "get_serial_num: not ok  | " + reportJ2534Error() );
         emit Log( "common_init_j2534 OK" );
-
+start_tactrix_inno();
         return true;
     }
     void _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate)     //get  chanID
@@ -257,10 +261,7 @@ public:
         {
             reportJ2534Error();
         }
-        if (j2534->PassThruDisconnect(chanID_INNO))
-        {
-            reportJ2534Error();
-        }
+
         // close the device
         if (j2534->PassThruClose(devID))
         {
@@ -270,18 +271,20 @@ public:
 
     void start_tactrix_inno()
     {
+        inno_thread = new QThread();
         _inno_interface = new tactrix_inno(j2534, devID);
         connect(_inno_interface, SIGNAL(AFR(QString)), SIGNAL(AFR(QString)));
-        connect(&inno_thread, &QThread::started, _inno_interface, &inno_interface::start);
-        _inno_interface->moveToThread(&inno_thread);
-        inno_thread.start();
-        _inno_interface->_connect();
+        connect(inno_thread, &QThread::started, _inno_interface, &inno_interface::start);
+        connect(inno_thread, &QThread::finished, [=](){inno_thread->deleteLater();});
+
+        _inno_interface->moveToThread(inno_thread);
+        inno_thread->start();
     }
 private:
 
     // J2534
     J2534 *j2534;
-    inno_interface *_inno_interface;
+
     unsigned int baudRate = 15625;
     unsigned long _readTimeout = 225;
     unsigned long writeTimeout = 0;
@@ -293,8 +296,8 @@ private:
     unsigned long protocol_inno = ISO9141_INNO;
     unsigned long protocol = ISO9141_K;
     unsigned long ConnectFlag = ISO9141_NO_CHECKSUM;  //        || ISO9141_K_LINE_ONLY ;
-
-    QThread inno_thread;
+inno_interface *_inno_interface;
+    QThread *inno_thread;
 
     QString reportJ2534Error()
     {

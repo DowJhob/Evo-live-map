@@ -16,7 +16,13 @@ public:
         this->j2534 = j2534;
         this->devID = devID;
     }
-
+    ~tactrix_inno()
+    {
+        if (j2534->PassThruDisconnect(chanID_INNO))
+        {
+            //   reportJ2534Error();
+        }
+    }
     void _connect()
     {
         //emit AFR("20.4");
@@ -55,6 +61,7 @@ public:
             //            reportJ2534Error();
             //            return 0;
         }
+
     }
 private slots:
     bool inno_read()
@@ -84,8 +91,8 @@ private:
         if (msg->DataSize < 2)
             return false;
 
-       dump_inno(msg->Data, msg->DataSize);
-       return true;
+        dump_inno(msg->Data, msg->DataSize);
+        return true;
     }
 
 signals:

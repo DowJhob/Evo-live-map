@@ -85,16 +85,18 @@ private slots:
         if (ecu_comm == nullptr  )
         {
             if (VechicleInterfaceType == 13  )
-                ecu_comm = new OP13();
-
+                ecu_comm = new OP13(Enumerator.DllLibraryPath);
             if (VechicleInterfaceType == 20  )
                 ecu_comm = new OP20(Enumerator.DllLibraryPath);
-
             connect(ecu_comm, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
             connect(ecu_comm, SIGNAL(AFR(QString)), afr_lcd, SLOT(display(QString)));
-            ecu_comm->init();
 
-            ecu_comm->start_tactrix_inno();
+//=============================================================================
+            connect(&interface_thread, &QThread::started, ecu_comm, &ECU_Comm::init);
+            ecu_comm->moveToThread(&interface_thread);
+            interface_thread.start();
+//=============================================================================
+      //      ecu_comm->start_tactrix_inno();
         }
     }
     void dll_disconnect()
@@ -102,6 +104,8 @@ private slots:
         if (ecu_comm != nullptr)
         {
             ecu_comm->deleteLater();
+            interface_thread.quit();
+            interface_thread.wait(100);
             ecu_comm = nullptr;
         }
     }
@@ -306,7 +310,7 @@ private:
     QAction *start_action;
     QAction *debug_action;
     QAction *ram_reset;
-
+QThread interface_thread;
     ecu *_ecu;
     ECU_Comm *ecu_comm = nullptr;
     QString CurrDir;

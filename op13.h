@@ -11,11 +11,9 @@ class OP13: public ECU_Comm
     Q_OBJECT
 public:
 
-    OP13()
+    OP13(TCHAR *dllName = nullptr)
     {
-        op13 = new ftdi ;
-
-        delay_after_command = 0;
+        this->dllName = dllName;
     }
     ~OP13()
     {
@@ -70,6 +68,9 @@ public:
     }
     bool init()
     {
+        op13 = new ftdi ;
+
+        delay_after_command = 0;
         if (op13->FT_Open(0, &op13->ftHandle) == FT_OK)
         {
             //   error_out = "FT_Open OK";

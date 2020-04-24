@@ -124,7 +124,7 @@ public:
 
             case DBT_DEVICEARRIVAL:{
                 auto device = reinterpret_cast<PDEV_BROADCAST_HDR>(lParam);
-                qDebug() << "DBT_DEVICEARRIVAL deviceType: " << device->dbch_devicetype ;
+                qDebug() << "DBT_DEVICEARRIVAL or remove deviceType: " << device->dbch_devicetype ;
                 switch( device->dbch_devicetype )
                 {
                 case DBT_DEVTYP_DEVICEINTERFACE:{

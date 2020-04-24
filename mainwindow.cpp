@@ -71,9 +71,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 MainWindow::~MainWindow()
 {
+    dll_disconnect();
     TableDelete();
     delete ui;
-    delete timer;
+    //delete timer;
 }
 
 void MainWindow::OperateButtonsLockUnlock()

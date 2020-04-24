@@ -85,10 +85,16 @@ class inno_interface:public QObject
 
     Q_OBJECT
 public:
+    bool flag = true;
     inno_interface()
     {
         //this->polling_interval = polling_interval;
     }
+    ~inno_interface()
+    {
+        emit AFR("----");
+    }
+
 
     virtual void _connect() = 0;
 
@@ -186,17 +192,23 @@ public:
 public slots:
     void start()
     {
+        _connect();
         _timer = new QTimer();
         _timer->setInterval(200);
         connect(_timer, &QTimer::timeout, this, [=](){emit AFR("----");});
-        while (true)
+        while (flag)
         {
             if ( inno_read() )
                 _timer->start();
             QCoreApplication::processEvents() ;
         }
+        //emit AFR("----");
     }
 
+    void stop()
+    {
+        flag = false;
+    }
 private slots:
 
     virtual bool inno_read() = 0;
