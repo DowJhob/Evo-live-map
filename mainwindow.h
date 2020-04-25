@@ -118,8 +118,6 @@ void interfaceLock()
 {
    interfaceThumbler(true);
 }
-
-
 void interfaceThumbler(bool lockFlag)
 {
     start_action->setDisabled(lockFlag);
@@ -127,12 +125,6 @@ void interfaceThumbler(bool lockFlag)
     debug_action->setDisabled(lockFlag);
     //ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
 }
-
-
-
-
-
-
 
     void create_table(tableDeclaration *tab);
     void on_BaudRatelineEdit_textChanged(const QString &arg1);

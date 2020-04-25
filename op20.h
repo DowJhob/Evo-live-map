@@ -33,7 +33,7 @@ public:
     ~OP20()
     {
         stop_tactrix_inno();
-        //close();
+        close();
         delete j2534;
     }
     void _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate)     //get  chanID
@@ -249,7 +249,13 @@ public slots:
             emit Log( "can't connect to J2534 DLL." );
             return false;
         }
-
+        //получаем дескриптор
+        if (j2534->PassThruOpen(nullptr, &devID))         // Get devID
+        {// читаем и выводим ошибку
+            emit Log( "PassThruOpen: not ok  | " + reportJ2534Error() );
+            //  return false;
+        }
+        emit Log( "PassThruOpen:  devID = " + QString::number(devID) );
         //читаем версию и прочюю требуху
         char strApiVersion[256];
         char strDllVersion[256];
@@ -270,7 +276,11 @@ public slots:
         else
             emit Log( "get_serial_num: not ok  | " + reportJ2534Error() );
         emit Log( "init_j2534 OK" );
-
+        // close the device
+        if (j2534->PassThruClose(devID))
+        {
+            reportJ2534Error();
+        }
         emit interfaceReady();
 
         return true;
