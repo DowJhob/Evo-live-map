@@ -6,7 +6,7 @@
 #include <QThread>
 #include "tactrix_inno.h"
 #include "libs/J2534.h"
-#include "ecu_comm.h"
+#include "ecu_interface.h"
 
 
 struct
@@ -21,7 +21,7 @@ struct
     unsigned char data[256];
 } outbuf;
 
-class OP20: public ECU_Comm
+class OP20: public ECU_interface
 {
     Q_OBJECT
 public:
@@ -32,55 +32,26 @@ public:
     }
     ~OP20()
     {
-        _inno_interface->stop();
-        _inno_interface->AFR("----");
-        _inno_interface->deleteLater();
-        inno_thread->quit();
-        inno_thread->wait(100);
-        close();
+        stop_tactrix_inno();
+        //close();
         delete j2534;
-    }
-    bool init()               // Get devID
-    {
-        j2534 = new J2534(dllName) ;
-        delay_after_command = 4;
-        if (!j2534->init())
-        {
-            emit Log( "can't connect to J2534 DLL." );
-            return false;
-        }
-        //получаем дескриптор
-        if (j2534->PassThruOpen(nullptr, &devID))
-        {// читаем и выводим ошибку
-            emit Log( "PassThruOpen: not ok  | " + reportJ2534Error() );
-            return false;
-        }
-        emit Log( "PassThruOpen:  devID = " + QString::number(devID) );
-        //читаем версию и прочюю требуху
-        char strApiVersion[256];
-        char strDllVersion[256];
-        char strFirmwareVersion[256];
-        char strSerial[256];
-        if ( j2534->PassThruReadVersion(strApiVersion, strDllVersion, strFirmwareVersion, devID) )
-        {
-            emit Log( "PassThruReadVersion: not ok  | " + reportJ2534Error() );
-        }
-        else
-        {
-            emit Log( "J2534 API Version: " + QString(strApiVersion) );
-            emit Log( "J2534 DLL Version: " +  QString(strDllVersion));
-            emit Log( "Device Firmware Version: " +  QString(strFirmwareVersion) );
-        }
-        if (get_serial_num(devID, strSerial))
-            emit Log( "Device Serial Number: " +  QString(strSerial) );
-        else
-            emit Log( "get_serial_num: not ok  | " + reportJ2534Error() );
-        emit Log( "common_init_j2534 OK" );
-start_tactrix_inno();
-        return true;
     }
     void _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate)     //get  chanID
     {
+
+        //получаем дескриптор
+        if (j2534->PassThruOpen(nullptr, &devID))         // Get devID
+        {// читаем и выводим ошибку
+            emit Log( "PassThruOpen: not ok  | " + reportJ2534Error() );
+            //  return false;
+        }
+        emit Log( "PassThruOpen:  devID = " + QString::number(devID) );
+
+
+        start_tactrix_inno();
+
+
+
         this->protocol = protocol;
         this->ConnectFlag = ConnectFlag;
         this->baudRate = baudRate;
@@ -141,58 +112,58 @@ start_tactrix_inno();
         _connect(protocol, ConnectFlag, baudRate);
 
 
-            j2534->PassThruIoctl(chanID, CLEAR_TX_BUFFER, nullptr, nullptr);
-            j2534->PassThruIoctl(chanID, CLEAR_RX_BUFFER, nullptr, nullptr);
-            j2534->PassThruIoctl(chanID, CLEAR_MSG_FILTERS, nullptr, nullptr);
+        j2534->PassThruIoctl(chanID, CLEAR_TX_BUFFER, nullptr, nullptr);
+        j2534->PassThruIoctl(chanID, CLEAR_RX_BUFFER, nullptr, nullptr);
+        j2534->PassThruIoctl(chanID, CLEAR_MSG_FILTERS, nullptr, nullptr);
 
-            //-======================================== SET CONFIG ===========================================
-            SCONFIG_LIST scl;
-            SCONFIG scp[2] = { {ISO15765_BS   , 0x20},     //For protocol ID of ISO 15765, this sets the block size the interface should report to the vehicle for receiving segmented transfers.
-                               {ISO15765_STMIN, 0x00} }; //For protocol ID of ISO 15765, this sets the separation time the interface should report to the vehicle for receiving segmented transfers.
-            scl.NumOfParams = 2;
-            scl.ConfigPtr = scp;
-            set_config(&scl);
-            // ============================ setup the filter(s) =========================
-            unsigned long msgId;
+        //-======================================== SET CONFIG ===========================================
+        SCONFIG_LIST scl;
+        SCONFIG scp[2] = { {ISO15765_BS   , 0x20},     //For protocol ID of ISO 15765, this sets the block size the interface should report to the vehicle for receiving segmented transfers.
+                           {ISO15765_STMIN, 0x00} }; //For protocol ID of ISO 15765, this sets the separation time the interface should report to the vehicle for receiving segmented transfers.
+        scl.NumOfParams = 2;
+        scl.ConfigPtr = scp;
+        set_config(&scl);
+        // ============================ setup the filter(s) =========================
+        unsigned long msgId;
 
-            PASSTHRU_MSG msgMask, msgPattern, msgFlowControl;
+        PASSTHRU_MSG msgMask, msgPattern, msgFlowControl;
 
-            msgMask.ProtocolID = ISO15765;
-            msgMask.RxStatus   = 0;
-            msgMask.TxFlags    = ISO15765_FRAME_PAD;
-            msgMask.Timestamp  = 0;
-            msgMask.DataSize   = 4;
-            msgMask.ExtraDataIndex = 0;
-            msgMask.Data[0] = 0xFF;
-            msgMask.Data[1] = 0xFF;
-            msgMask.Data[2] = 0xFF;
-            msgMask.Data[3] = 0xFF;
+        msgMask.ProtocolID = ISO15765;
+        msgMask.RxStatus   = 0;
+        msgMask.TxFlags    = ISO15765_FRAME_PAD;
+        msgMask.Timestamp  = 0;
+        msgMask.DataSize   = 4;
+        msgMask.ExtraDataIndex = 0;
+        msgMask.Data[0] = 0xFF;
+        msgMask.Data[1] = 0xFF;
+        msgMask.Data[2] = 0xFF;
+        msgMask.Data[3] = 0xFF;
 
-            msgPattern.ProtocolID = ISO15765;
-            msgPattern.RxStatus = 0;
-            msgPattern.TxFlags = ISO15765_FRAME_PAD;
-            msgPattern.Timestamp = 0;
-            msgPattern.DataSize = 4;
-            msgPattern.ExtraDataIndex = 0;
-            msgPattern.Data[0] = 0;
-            msgPattern.Data[1] = 0;
-            msgPattern.Data[2] = 7;
-            msgPattern.Data[3] = 0xE8;
+        msgPattern.ProtocolID = ISO15765;
+        msgPattern.RxStatus = 0;
+        msgPattern.TxFlags = ISO15765_FRAME_PAD;
+        msgPattern.Timestamp = 0;
+        msgPattern.DataSize = 4;
+        msgPattern.ExtraDataIndex = 0;
+        msgPattern.Data[0] = 0;
+        msgPattern.Data[1] = 0;
+        msgPattern.Data[2] = 7;
+        msgPattern.Data[3] = 0xE8;
 
-            msgFlowControl.ProtocolID = ISO15765;
-            msgFlowControl.RxStatus = 0;
-            msgFlowControl.TxFlags = ISO15765_FRAME_PAD;
-            msgFlowControl.Timestamp = 0;
-            msgFlowControl.DataSize = 4;
-            msgFlowControl.ExtraDataIndex = 0;
-            msgFlowControl.Data[0] = 0;
-            msgFlowControl.Data[1] = 0;
-            msgFlowControl.Data[2] = 7;
-            msgFlowControl.Data[3] = 0xE0;
+        msgFlowControl.ProtocolID = ISO15765;
+        msgFlowControl.RxStatus = 0;
+        msgFlowControl.TxFlags = ISO15765_FRAME_PAD;
+        msgFlowControl.Timestamp = 0;
+        msgFlowControl.DataSize = 4;
+        msgFlowControl.ExtraDataIndex = 0;
+        msgFlowControl.Data[0] = 0;
+        msgFlowControl.Data[1] = 0;
+        msgFlowControl.Data[2] = 7;
+        msgFlowControl.Data[3] = 0xE0;
 
-            msgId = set_filter( FLOW_CONTROL_FILTER, &msgMask, &msgPattern, &msgFlowControl);
+        msgId = set_filter( FLOW_CONTROL_FILTER, &msgMask, &msgPattern, &msgFlowControl);
 
-            QThread::msleep(100);
+        QThread::msleep(100);
     }
 
     ulong set_filter(ulong type, PASSTHRU_MSG *msgMask, PASSTHRU_MSG *msgPattern, PASSTHRU_MSG *msgFlowcontrol)
@@ -268,6 +239,42 @@ start_tactrix_inno();
             reportJ2534Error();
         }
     }
+public slots:
+    bool init()
+    {
+        j2534 = new J2534(dllName) ;
+        delay_after_command = 4;
+        if (!j2534->init())
+        {
+            emit Log( "can't connect to J2534 DLL." );
+            return false;
+        }
+
+        //читаем версию и прочюю требуху
+        char strApiVersion[256];
+        char strDllVersion[256];
+        char strFirmwareVersion[256];
+        char strSerial[256];
+        if ( j2534->PassThruReadVersion(strApiVersion, strDllVersion, strFirmwareVersion, devID) )
+        {
+            emit Log( "PassThruReadVersion: not ok  | " + reportJ2534Error() );
+        }
+        else
+        {
+            emit Log( "J2534 API Version: " + QString(strApiVersion) );
+            emit Log( "J2534 DLL Version: " +  QString(strDllVersion));
+            emit Log( "Device Firmware Version: " +  QString(strFirmwareVersion) );
+        }
+        if (get_serial_num(devID, strSerial))
+            emit Log( "Device Serial Number: " +  QString(strSerial) );
+        else
+            emit Log( "get_serial_num: not ok  | " + reportJ2534Error() );
+        emit Log( "init_j2534 OK" );
+
+        emit interfaceReady();
+
+        return true;
+    }
 
     void start_tactrix_inno()
     {
@@ -279,6 +286,18 @@ start_tactrix_inno();
 
         _inno_interface->moveToThread(inno_thread);
         inno_thread->start();
+    }
+
+    void stop_tactrix_inno()
+    {
+        if (_inno_interface != nullptr )
+        {
+            _inno_interface->stop();
+            _inno_interface->AFR("----");
+            _inno_interface->deleteLater();
+            inno_thread->quit();
+            inno_thread->wait(100);
+        }
     }
 private:
 
@@ -296,7 +315,7 @@ private:
     unsigned long protocol_inno = ISO9141_INNO;
     unsigned long protocol = ISO9141_K;
     unsigned long ConnectFlag = ISO9141_NO_CHECKSUM;  //        || ISO9141_K_LINE_ONLY ;
-inno_interface *_inno_interface;
+    inno_interface *_inno_interface = nullptr;
     QThread *inno_thread;
 
     QString reportJ2534Error()

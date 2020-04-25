@@ -25,7 +25,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(&Enumerator, SIGNAL(disconnectInterface()), SLOT(dll_disconnect()));
 
     timer->setInterval( 1000/ui->logger_rate_textedit->text().toUInt()  );
-    //    ui->StartButton_slot->setDisabled(true);
 
     ui->read_RAM_Button->setDisabled(true);
 
@@ -33,13 +32,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     statusBar()->showMessage(Enumerator.result);
 
     //Подписываемся на события нет нужды в подписке WM_change broadcast!
-        Enumerator.NotifyRegister((HWND)this->winId());
-
-    //QAbstractEventDispatcher::instance()->installNativeEventFilter( &Enumerator );
-
-
-
-
+    Enumerator.NotifyRegister((HWND)this->winId());
 
     hexEdit = new QHexEdit;
     hexEdit->setAddressWidth(8);
@@ -47,16 +40,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->RAMeditorLayout->addWidget(hexEdit, 3,0,1,2);
 
     start_action =  ui->toolBar->addAction( QIcon( ":ico/connect.png" ), "Start", this, SLOT(StartButton_slot()));
-    start_action->setDisabled(!Enumerator.VechicleInterfaceState);
+
     ram_reset = ui->toolBar->addAction(QIcon( ":ico/Memory-Freer-icon.png" ), "RAM refresh", this, SLOT(RAM_reset_slot()));
-    ram_reset->setDisabled(!Enumerator.VechicleInterfaceState);
+
+
     ui->toolBar->addSeparator();
     QWidget* empty = new QWidget();
     empty->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
     ui->toolBar->addWidget(empty);
     debug_action =  ui->toolBar->addAction(QIcon( ":ico/screwdriver.png" ), "Debug", this, SLOT(debugButton_slot()));
 
-
+interfaceLock();
 
     QFont myFont1 = afr_lcd->font();
     myFont1.setPixelSize (64);
@@ -64,7 +58,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     afr_lcd->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     ui->toolBar->addWidget(afr_lcd);
     afr_lcd->display("----");
-
 
     connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(itemChecks(QTreeWidgetItem*, int)));
 }
@@ -77,91 +70,6 @@ MainWindow::~MainWindow()
     //delete timer;
 }
 
-void MainWindow::OperateButtonsLockUnlock()
-{
-    start_action->setDisabled(!Enumerator.VechicleInterfaceState);
-    ram_reset->setDisabled(!Enumerator.VechicleInterfaceState);
-    ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
-}
-
-//bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *result)
-//{
-////    Q_UNUSED( result )
-////    Q_UNUSED( eventType )
-
-
-////    //            DEV_BROADCAST_DEVICEINTERFACE pdbch = (DEV_BROADCAST_DEVICEINTERFACE)msg->lParam;
-////    //        if( &pdbch!=NULL //&& pdbch->dbcc_devicetype==DBT_DEVTYP_DEVICEINTERFACE
-////    //                   )
-////    //                qDebug() << "PDEV_BROADCAST_DEVICEINTERFACE" << QString::fromWCharArray( pdbch->dbcc_name );
-////    auto pWindowsMessage = static_cast<MSG*>(message);
-////    if(pWindowsMessage->message == WM_DEVICECHANGE)
-////    {
-////        auto wParam = pWindowsMessage->wParam;
-////        auto lParam = pWindowsMessage->lParam;
-////PDEV_BROADCAST_HDR lpdb = (PDEV_BROADCAST_HDR)lParam;
-
-////        switch(wParam)
-////        {
-////        case DBT_DEVICEARRIVAL:
-////        //{
-////            //            auto device = reinterpret_cast<DEV_BROADCAST_DEVICEINTERFACE*>(lParam);
-////            //            auto deviceType = reinterpret_cast<DEV_BROADCAST_HDR*>(lParam)->dbch_devicetype;
-////            //            qDebug() << "deviceType: " << deviceType << "     device->dbcc_name: " << *device->dbcc_name;
-////            //
-////            //        }
-////        case DBT_DEVICEREMOVECOMPLETE:
-////        {
-//////            DEV_BROADCAST_HDR *hdr = reinterpret_cast<DEV_BROADCAST_HDR *>(lParam);
-//////            qDebug() << "DBT_DEVICEREMOVECOMPLETE: " << hdr->dbch_devicetype;
-//////            if(hdr && hdr->dbch_devicetype == DBT_DEVTYP_VOLUME)
-//////            { /* появился или удалился новый раздел, делаем свои чёрные делишки тут */ }
-////        }
-////        case DBT_DEVNODES_CHANGED:
-////        {
-////            qDebug() << "DBT_DEVNODES_CHANGED: " ;
-////            auto pdbch = reinterpret_cast<DEV_BROADCAST_DEVICEINTERFACE*>(lParam);
-
-////            qDebug() << "pdbch: " << pdbch->dbcc_devicetype;
-////            //auto device = reinterpret_cast<DEV_BROADCAST_DEVICEINTERFACE*>(lParam);
-////            //auto deviceType = reinterpret_cast<DEV_BROADCAST_HDR*>(lParam)->dbch_devicetype;
-////            if (pdbch->dbcc_devicetype == 0x219)
-////            {
-////                qDebug() << "DBT_DEVTYP_DEVICEINTERFACE: " << pdbch->dbcc_classguid;
-////                //                //                        auto unitmask = reinterpret_cast<DEV_BROADCAST_VOLUME*>(lParam)->dbcv_unitmask;
-////                //                //                        for (int i = 0; i < 32; ++i) {
-////                //                //                            if ((unitmask & (1 << i)) != 0) {
-////                //                //                                setDriveChanged('A' + i, wParam == DBT_DEVICEARRIVAL);
-////                //                //                            }
-////                //                //                        }
-////            }
-////        }
-////            break;
-////        }
-
-
-
-
-
-
-
-
-
-
-
-
-////        //        if (wParam == DBT_DEVICEARRIVAL || wParam == DBT_DEVICEREMOVECOMPLETE )
-////        //
-
-
-////        //qDebug() << "arrival or remove";
-////        Enumerator.enumerateUSB_Device_by_guid();
-////        statusBar()->showMessage(Enumerator.result);
-////        start_action->setDisabled(!Enumerator.VechicleInterfaceState);
-
-////    }
-////    return false;
-//}
 void MainWindow::create_tree(tableDeclaration *tab)
 {
     if (tab->Table.ram_addr != 0)                                    // проверим что это таблица карт, а не таблица патчей
@@ -372,8 +280,6 @@ void MainWindow::logger_and_tableWidget_trace()
 
     timer->start();
 }
-
-
 
 void MainWindow::on_BaudRatelineEdit_textChanged(const QString &arg1)   // Обновляем скорость обмена
 {

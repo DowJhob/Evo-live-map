@@ -18,7 +18,7 @@
 #include "ecu.h"
 #include "qhexedit/qhexedit.h"
 #include "xmldomparser.h"
-#include "ecu_comm.h"
+#include "ecu_interface.h"
 #include "op13.h"
 #include "op20.h"
 
@@ -90,9 +90,9 @@ private slots:
                 ecu_comm = new OP20(Enumerator.DllLibraryPath);
             connect(ecu_comm, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
             connect(ecu_comm, SIGNAL(AFR(QString)), afr_lcd, SLOT(display(QString)));
-
+connect(ecu_comm, &ECU_interface::interfaceReady, this, &MainWindow::interfaceUnlock);
 //=============================================================================
-            connect(&interface_thread, &QThread::started, ecu_comm, &ECU_Comm::init);
+            connect(&interface_thread, &QThread::started, ecu_comm, &ECU_interface::init);
             ecu_comm->moveToThread(&interface_thread);
             interface_thread.start();
 //=============================================================================
@@ -103,12 +103,36 @@ private slots:
     {
         if (ecu_comm != nullptr)
         {
+            interfaceLock();
             ecu_comm->deleteLater();
             interface_thread.quit();
-            interface_thread.wait(100);
+            interface_thread.wait(1000);
             ecu_comm = nullptr;
         }
     }
+void interfaceUnlock()
+{
+   interfaceThumbler(false);
+}
+void interfaceLock()
+{
+   interfaceThumbler(true);
+}
+
+
+void interfaceThumbler(bool lockFlag)
+{
+    start_action->setDisabled(lockFlag);
+    ram_reset->setDisabled(lockFlag);
+    debug_action->setDisabled(lockFlag);
+    //ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
+}
+
+
+
+
+
+
 
     void create_table(tableDeclaration *tab);
     void on_BaudRatelineEdit_textChanged(const QString &arg1);
@@ -312,15 +336,12 @@ private:
     QAction *ram_reset;
 QThread interface_thread;
     ecu *_ecu;
-    ECU_Comm *ecu_comm = nullptr;
+    ECU_interface *ecu_comm = nullptr;
     QString CurrDir;
     QString xml_filename;
     bool  debug = false;
     Ui::MainWindow *ui;
-    void OperateButtonsLockUnlock();
     QTimer* timer = new QTimer(this);
-
-
     bool save_trace = false;
     DomParser xmlParser;
 
@@ -375,20 +396,6 @@ QThread interface_thread;
                 return i;
         return axis_lenght - 1;
     }
-
-    //    float read_and_cast(bool ram_scaling_storagetype, QString storagetype, quint32 mut_number, bool scaling_endian, fast_calc_struct scaling_frexpr2 )
-    //    {
-    //        float x = 0;
-    //        if (!ram_scaling_storagetype)
-    //        {
-    //            x = typed(storagetype,
-    //                      DMA.rx_msg[1].Data,
-    //                    mut_number,                //номер запроса рам мут
-    //                    scaling_endian);
-    //            x = fast_calc(scaling_frexpr2, x);
-    //        }
-    //        return x;
-    //    }
 
 };
 #endif // MAINWINDOW_H

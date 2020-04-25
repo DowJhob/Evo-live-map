@@ -7,7 +7,7 @@
 #include <QDebug>
 #include "libs/J2534.h"
 
-class ECU_Comm:public QObject
+class ECU_interface:public QObject
 {
     Q_OBJECT
 public:
@@ -18,23 +18,22 @@ public:
     PASSTHRU_MSG  inno_rx_msg = {};
 
     char delay_after_command = 4;
-    explicit ECU_Comm(TCHAR *dllName = nullptr)
+    explicit ECU_interface(TCHAR *dllName = nullptr)
     {
         this->dllName = dllName;
     }
-    ~ECU_Comm()
+    ~ECU_interface()
     {
 
     }
-    virtual bool init() = 0;
+
     virtual void _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate) = 0;
     virtual void e7_connect() = 0;
     virtual bool five_baud_init() = 0;
     virtual void read() = 0;
     virtual void write( uint count) = 0;
-    virtual void start_tactrix_inno() = 0;
     TCHAR *dllName;
-virtual void close() = 0;
+    virtual void close() = 0;
     void sendDMAcomand(char command, unsigned long addr, unsigned long count, char* buf = nullptr)
     {
         out_buff[0] = command;
@@ -53,10 +52,16 @@ virtual void close() = 0;
             write( count);
         }
     }
+public slots:
+    virtual bool init() = 0;
+    virtual void start_tactrix_inno() = 0;
+    virtual void stop_tactrix_inno() = 0;
+
 private:
 
 signals:
     void readyRead(QByteArray);
+    void interfaceReady();
     void AFR(QString);
     void Log(QString);
 };

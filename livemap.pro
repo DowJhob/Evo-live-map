@@ -31,8 +31,8 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     custom_tablewidget.h \
     ecu.h \
-    ecu_comm.h \
     #ecu_x_comm.h \
+    ecu_interface.h \
     inno_interface.h \
     op13.h \
     op20.h \

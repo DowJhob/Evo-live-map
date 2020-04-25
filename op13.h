@@ -4,9 +4,9 @@
 #include <QObject>
 #include <QDebug>
 #include "libs/ftdi.h"
-#include "ecu_comm.h"
+#include "ecu_interface.h"
 
-class OP13: public ECU_Comm
+class OP13: public ECU_interface
 {
     Q_OBJECT
 public:
@@ -59,13 +59,12 @@ public:
         qDebug() << "Writed bytes " << Reads;
         op13->FT_Read(op13->ftHandle, in_buff, count, &Reads);    //читаем эхо
     }
-    void start_tactrix_inno()
-    {}
 
     void close()
     {
 
     }
+public slots:
     bool init()
     {
         op13 = new ftdi ;
@@ -85,7 +84,10 @@ public:
         qDebug() << " FT_Open failed";
         return false;
     }
-
+    void start_tactrix_inno()
+    {}
+    void stop_tactrix_inno()
+    {}
 private:
     ftdi *op13;
 
