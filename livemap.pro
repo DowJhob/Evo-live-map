@@ -62,7 +62,10 @@ LIBS += -lSetupapi
 CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 QMAKE_CXXFLAGS  += -flto -funroll-loops
 QMAKE_CXXFLAGS  += -fforce-addr
-QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mfpmath=sse -mtune=intel
+QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mtune=core2
+#QMAKE_CXXFLAGS  += -mfpmath=sse
+QMAKE_CXXFLAGS  += -msse4
+
 DEFINES += QHEXEDIT_EXPORTS
 
 DISTFILES +=

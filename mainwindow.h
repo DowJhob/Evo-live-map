@@ -71,13 +71,9 @@ public slots:
         }
         ecu_comm->sendDMAcomand(0xE2, table->Table_Decl.Table.ram_addr + pos, 1, Out);
     }
-signals:
-    void timer_lock();
-    void timer_unlock();
+
 
 protected :
-    //bool nativeEventFilter(const QByteArray &eventType, void *message, long *result){}
-    //    bool nativeEvent(const QByteArray &eventType, void *message, long *result);
 
 private slots:
     void dll_connect(int VechicleInterfaceType)                //по сигналу перечислителя
@@ -90,13 +86,13 @@ private slots:
                 ecu_comm = new OP20(Enumerator.DllLibraryPath);
             connect(ecu_comm, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
             connect(ecu_comm, SIGNAL(AFR(QString)), afr_lcd, SLOT(display(QString)));
-connect(ecu_comm, &ECU_interface::interfaceReady, this, &MainWindow::interfaceUnlock);
-//=============================================================================
+            connect(ecu_comm, &ECU_interface::interfaceReady, this, &MainWindow::interfaceUnlock);
+            //=============================================================================
             connect(&interface_thread, &QThread::started, ecu_comm, &ECU_interface::init);
             ecu_comm->moveToThread(&interface_thread);
             interface_thread.start();
-//=============================================================================
-      //      ecu_comm->start_tactrix_inno();
+            //=============================================================================
+            //      ecu_comm->start_tactrix_inno();
         }
     }
     void dll_disconnect()
@@ -110,23 +106,23 @@ connect(ecu_comm, &ECU_interface::interfaceReady, this, &MainWindow::interfaceUn
             ecu_comm = nullptr;
         }
     }
-void interfaceUnlock()
-{
-   interfaceThumbler(false);
-}
-void interfaceLock()
-{
-   interfaceThumbler(true);
-}
-void interfaceThumbler(bool lockFlag)
-{
-    start_action->setDisabled(lockFlag);
-    ram_reset->setDisabled(lockFlag);
-    debug_action->setDisabled(lockFlag);
-    //ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
-}
+    void interfaceUnlock()
+    {
+        interfaceThumbler(false);
+    }
+    void interfaceLock()
+    {
+        interfaceThumbler(true);
+    }
+    void interfaceThumbler(bool lockFlag)
+    {
+        start_action->setDisabled(lockFlag);
+        ram_reset->setDisabled(lockFlag);
+        debug_action->setDisabled(lockFlag);
+        //ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
+    }
 
-    void create_table(tableDeclaration *tab);
+
     void on_BaudRatelineEdit_textChanged(const QString &arg1);
     void StartButton_slot();
     void RAM_reset_slot();
@@ -149,9 +145,54 @@ void interfaceThumbler(bool lockFlag)
         else
             table->parentWidget()->hide();
     }
-private:
 
-    QLCDNumber *afr_lcd;
+private:
+    QString load_bin(QString bin_filename)
+    {
+        QFile binfile(bin_filename);
+        if (!binfile.open(QIODevice::ReadWrite ))
+            return "";
+        if (binarray != nullptr)
+            delete binarray;
+        binarray = new QByteArray( binfile.read(binfile.size()));     // новый массив
+
+        //uint romIDnum = qFromBigEndian<quint32>(binarray->mid(0xf52, 4)); // номер калибровки
+        //return QString::number( romIDnum, 16 );
+    }
+    QString SearchFiles(QString path, QString CalID)       // Для поиска файлов в каталоге
+    {
+        // Пытаемся найти правильные файлы, в текущем каталоге
+        listFiles = QDir(path).entryList((CalID + "*.xml ").split(" "), QDir::Files);  //выборка файлов по маскам
+        if (listFiles.size()  == 0)            // если файл не найдем вернем егог
+            return QFileDialog::getOpenFileName(this, tr("Open xml"), path, tr("xml files (*.xml)"));
+        else
+            return path + listFiles.at(0);
+    }
+    int modul(int a, int b)
+    {
+        int mod = qRound(sqrt(pow(a, 2) + pow(b, 2)));
+        if (mod > 255)
+            mod = 255;
+
+        mod = (255 - mod);
+        if (mod < 30)
+            mod = 30;
+        return mod;
+    }
+    int  axis_lookup2(float in, int axis_lenght, QVector<float> axis)    //возвращает меньший индекс
+    {
+        if (axis_lenght <= 1 )
+            return 0;
+        if (in < axis[0])
+            return 0;
+        if (in > axis[axis_lenght - 1])
+            return axis_lenght - 1;
+        for (int i = 0; i < axis_lenght-1; i++)
+            if (  in >= axis[i] && in < axis[i+1])
+                return i;
+        return axis_lenght - 1;
+    }
+    void create_table(tableDeclaration *tab);
     void create_tree(tableDeclaration *tab);
     void axread(sub_tableDeclaration *sub_tab, QVector<float> *axis, bool rom);
     void evoX_Connect_Click()
@@ -323,10 +364,12 @@ private:
         //            }
         //        }
     }
+
+    QLCDNumber *afr_lcd;
     QAction *start_action;
     QAction *debug_action;
     QAction *ram_reset;
-QThread interface_thread;
+    QThread interface_thread;
     ecu *_ecu;
     ECU_interface *ecu_comm = nullptr;
     QString CurrDir;
@@ -336,58 +379,9 @@ QThread interface_thread;
     QTimer* timer = new QTimer(this);
     bool save_trace = false;
     DomParser xmlParser;
-
     QByteArray *binarray;                                  // массив с бинарником
-
     QHexEdit *hexEdit;
 
-    QString load_bin(QString bin_filename)
-    {
-        QFile binfile(bin_filename);
-        if (!binfile.open(QIODevice::ReadWrite ))
-            return "";
-        if (binarray != nullptr)
-            delete binarray;
-        binarray = new QByteArray( binfile.read(binfile.size()));     // новый массив
-
-        //uint romIDnum = qFromBigEndian<quint32>(binarray->mid(0xf52, 4)); // номер калибровки
-        //return QString::number( romIDnum, 16 );
-    }
-
-    QString SearchFiles(QString path, QString CalID)       // Для поиска файлов в каталоге
-    {
-        // Пытаемся найти правильные файлы, в текущем каталоге
-        listFiles = QDir(path).entryList((CalID + "*.xml ").split(" "), QDir::Files);  //выборка файлов по маскам
-        if (listFiles.size()  == 0)            // если файл не найдем вернем егог
-            return QFileDialog::getOpenFileName(this, tr("Open xml"), path, tr("xml files (*.xml)"));
-        else
-            return path + listFiles.at(0);
-    }
-    int modul(int a, int b)
-    {
-        int mod = qRound(sqrt(pow(a, 2) + pow(b, 2)));
-        if (mod > 255)
-            mod = 255;
-
-        mod = (255 - mod);
-        if (mod < 30)
-            mod = 30;
-        return mod;
-    }
-
-    int  axis_lookup2(float in, int axis_lenght, QVector<float> axis)    //возвращает меньший индекс
-    {
-        if (axis_lenght <= 1 )
-            return 0;
-        if (in < axis[0])
-            return 0;
-        if (in > axis[axis_lenght - 1])
-            return axis_lenght - 1;
-        for (int i = 0; i < axis_lenght-1; i++)
-            if (  in >= axis[i] && in < axis[i+1])
-                return i;
-        return axis_lenght - 1;
-    }
-
+signals:
 };
 #endif // MAINWINDOW_H

@@ -101,7 +101,7 @@ public:
         msgMask.Data[0] = 0; // mask the first byte to 0
         msgPattern.Data[0] = 0; // match it with 0 (i.e. pass everything)
         msgId = set_filter(PASS_FILTER, &msgMask, &msgPattern, nullptr);
-
+emit DMA_Ready();
     }
     void e10_connect()
     {

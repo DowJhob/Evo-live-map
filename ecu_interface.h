@@ -62,6 +62,7 @@ private:
 signals:
     void readyRead(QByteArray);
     void interfaceReady();
+    void DMA_Ready();
     void AFR(QString);
     void Log(QString);
 };
