@@ -96,11 +96,20 @@ public:
         unsigned long msgId;
         msgMask.ProtocolID = protocol;
         msgMask.DataSize = 1;
-        msgPattern.ProtocolID = protocol;
-        msgPattern.DataSize = 1;
-        msgMask.Data[0] = 0; // mask the first byte to 0
-        msgPattern.Data[0] = 0; // match it with 0 (i.e. pass everything)
+        msgMask.RxStatus = 0;
+        msgMask.TxFlags = 0;
+        msgMask.Timestamp = 0;
+        msgMask.DataSize = 1;
+        msgMask.ExtraDataIndex = 0;
+
+
+
+        msgPattern  = msgMask;
+        memset(msgMask.Data,0,1); // mask the first 4 byte to 0
+        memset(msgPattern.Data,0,1);// match it with 0 (i.e. pass everything)
+
         msgId = set_filter(PASS_FILTER, &msgMask, &msgPattern, nullptr);
+
 emit DMA_Ready();
     }
     void e10_connect()
