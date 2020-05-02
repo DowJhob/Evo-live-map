@@ -292,8 +292,8 @@ void MainWindow::StartButton_slot()
     if (start_action->text() == "Start")
     {
         ecu_comm->e7_connect();
-        if (!ecu_comm->five_baud_init())
-            return ;
+        //if (!ecu_comm->five_baud_init())
+        //    return ;
         ecu_comm->sendDMAcomand(0xE1, 0xF52, 4); //читаем номер калибровки
         ecu_comm->read();
         QString romID = QString::number( qFromBigEndian<quint32>(ecu_comm->in_buff), 16 );
@@ -360,7 +360,7 @@ void MainWindow::debugButton_slot()
     //ecu_comm = new OP20();
     emit Enumerator. InterfaceActive(20);
     ecu_comm->_connect( ISO9141_K, ISO9141_NO_CHECKSUM, 15625);
-    if (!ecu_comm->five_baud_init())
+    //if (!ecu_comm->five_baud_init())
         ;//return ;
     ecu_comm->sendDMAcomand(0xE1, 0xF52, 4); //читаем номер калибровки
     ecu_comm->read();
