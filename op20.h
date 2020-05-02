@@ -179,10 +179,9 @@ emit DMA_Ready();
     {
         ulong msgId;
         if (j2534->PassThruStartMsgFilter(chanID, type, msgMask, msgPattern, msgFlowcontrol, &msgId))
-        {
             emit Log( "PassThruIoctl - PassThruStartMsgFilter : not ok  " + reportJ2534Error() );
-            //           return false;
-        }
+        else
+            emit Log( "PassThruIoctl - PassThruStartMsgFilter : OK" );
         return msgId;
     }
 
@@ -203,11 +202,11 @@ emit DMA_Ready();
             emit Log( "PassThruIoctl - FIVE_BAUD_INIT : not ok  | " + reportJ2534Error() );
             return false;
         }
-        Log( "PassThruIoctl - FIVE_BAUD_INIT : OK " + QString::number(KeyWord[0], 16) + " " + QString::number(KeyWord[1], 16) + " " + QString::number(KeyWord[2], 16));
+        Log( "PassThruIoctl - FIVE_BAUD_INIT : OK  |  0x" + QString::number(KeyWord[0], 16) + " 0x" + QString::number(KeyWord[1], 16) + " 0x" + QString::number(KeyWord[2], 16));
 
         //        j2534->PassThruIoctl(chanID, GET_CONFIG, &scl, nullptr)   ;
         //        baudRate = scl.ConfigPtr[0].Value;                                //
-        Log( "PassThruIoctl - GET_CONFIG : baudRate = " + QString::number( baudRate ));
+        //Log( "PassThruIoctl - GET_CONFIG : baudRate = " + QString::number( baudRate ));
         return true;
     }
 
