@@ -69,7 +69,7 @@
 		<table name="Load" address="4fdc" type="X Axis" elements="18" scaling="Load" RAM_mut_number="0x00" ram_mut_scaling="Load"/>
 		<table name="RPM" address="4fb4" type="Y Axis" elements="15" scaling="RPM" RAM_mut_number="0x02" ram_mut_scaling="RPM"/>
 	</table> 
-	<table name="High Octane Ignition Map" category="LiveMap" address="37CA9" type="3D" swapxy="true" scaling="Timing" RAM_addr="FFFF9DBF">
+	<table name="High Octane Ignition Map" category="LiveMap" address="37CAF" type="3D" swapxy="true" scaling="Timing" RAM_addr="FFFF9DBF">
 		<table name="Load" address="503a" type="X Axis" elements="19" scaling="Load" RAM_mut_number="0x00" ram_mut_scaling="Load"/>
 		<table name="RPM" address="500a" type="Y Axis" elements="19" scaling="RPM" RAM_mut_number="0x02" ram_mut_scaling="RPM"/>
 	</table>
