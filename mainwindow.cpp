@@ -1,18 +1,12 @@
-﻿
-#include <QtCore>
-//#include "DMA.h"
+﻿#include <QtCore>
 #include <QDebug>
-//#include <setupapi.h>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 #include <dbt.h>
 #include <QtGlobal>
 
-
-
 //#include "common/ecutools.h"
-
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -61,7 +55,6 @@ interfaceLock();
 
     connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(itemChecks(QTreeWidgetItem*, int)));
 }
-
 MainWindow::~MainWindow()
 {
     dll_disconnect();
@@ -129,7 +122,6 @@ void MainWindow::create_table(tableDeclaration *tab)
         ptrRAMtables.insert(tab->Table.Name, table );
     }
 }
-
 bool MainWindow::ReadConfig(QString filename)
 {
     // Открываем конфиг:
@@ -144,7 +136,6 @@ bool MainWindow::ReadConfig(QString filename)
     delete file;
     return true;
 }
-
 void MainWindow::axread(sub_tableDeclaration *sub_tab, QVector <float> *axis, bool rom)
 {
     float variable_value;
@@ -172,7 +163,6 @@ void MainWindow::axread(sub_tableDeclaration *sub_tab, QVector <float> *axis, bo
         axis->append(fast_calc(sub_tab->rom_scaling.toexpr2, variable_value));
     }
 }
-
 bool MainWindow::StartLogging(QString filename)
 {
     _ecu = new ecu;
@@ -187,12 +177,10 @@ bool MainWindow::StartLogging(QString filename)
 
     return true;
 }
-
 void MainWindow::TableDelete()
 {
 
 }
-
 void MainWindow::logger_and_tableWidget_trace()
 {
     QElapsedTimer t;
@@ -280,12 +268,10 @@ void MainWindow::logger_and_tableWidget_trace()
 
     timer->start();
 }
-
 void MainWindow::on_BaudRatelineEdit_textChanged(const QString &arg1)   // Обновляем скорость обмена
 {
     //DMA.baudRate = arg1.toUInt() ;
 }
-
 void MainWindow::StartButton_slot()
 {
     QString s;
@@ -323,7 +309,6 @@ void MainWindow::StartButton_slot()
         TableDelete();
     }
 }
-
 void MainWindow::RAM_reset_slot()
 {
 
@@ -334,7 +319,6 @@ void MainWindow::RAM_reset_slot()
 
     on_read_RAM_Button_clicked();
 }
-
 void MainWindow::on_read_RAM_Button_clicked()
 {
     //for(int i=0; i < list_window->count(); i++)
@@ -348,18 +332,16 @@ void MainWindow::on_read_RAM_Button_clicked()
         //        window->table->blockSignals(false);
     }
 }
-
 void MainWindow::on_logger_rate_textedit_editingFinished()
 {
     timer->setInterval(1000/ui->logger_rate_textedit->text().toUInt() );
 }
-
 void MainWindow::debugButton_slot()
 {
     debug = true;
     //ecu_comm = new OP20();
     emit Enumerator. InterfaceActive(20);
-    ecu_comm->_connect( ISO9141_K, ISO9141_NO_CHECKSUM, 15625);
+    ecu_comm->e7_connect();
     //if (!ecu_comm->five_baud_init())
         ;//return ;
     ecu_comm->sendDMAcomand(0xE1, 0xF52, 4); //читаем номер калибровки
@@ -378,8 +360,10 @@ void MainWindow::debugButton_slot()
     //         qDebug() << "bin mismatch";
 
     timer->start(1000/ui->logger_rate_textedit->text().toUInt());
-}
 
+    ui->listWidget->addItem("romID 90550001");
+
+}
 void MainWindow::on_loadbinbutton_clicked()
 {
     QString CurrDir = QApplication::applicationDirPath()+ "\\"  ;   //текущая директория
@@ -404,24 +388,20 @@ void MainWindow::on_loadbinbutton_clicked()
     qDebug() << "";
 
 }
-
 void MainWindow::on_stop_live_clicked()
 {
     TableDelete();
     debug = false;
 }
-
 void MainWindow::on_save_trace_pushButton_clicked()
 {
     save_trace = !save_trace;
     ui->save_trace_pushButton->setDown(save_trace);
 }
-
 void MainWindow::Log(QString str)
 {
     ui->listWidget->addItem(str);
 }
-
 void MainWindow::on_start_addr_lineEdit_returnPressed()
 {
     int count = ui->count_lineEdit->text().toUInt(nullptr);
@@ -434,7 +414,6 @@ void MainWindow::on_start_addr_lineEdit_returnPressed()
     hexEdit->setAddressOffset(addr);
 
 }
-
 void MainWindow::on_count_lineEdit_returnPressed()
 {
     int count = ui->count_lineEdit->text().toUInt(nullptr);

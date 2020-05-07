@@ -60,22 +60,22 @@ public:
             else
                 qDebug() << " event registered!!";
         }
-        //        for (int i = 0; i < serial_interfaces.size(); i++)
-        //        {
-        //            NotificationFilter.dbcc_classguid = serial_interfaces[i]; // подпишемся на все наши интерфейсы
-        //            NotificationFilter.dbcc_name[0] = '\0';
-        //            NotificationHandle = RegisterDeviceNotification( hwnd,
-        //                                                             &NotificationFilter,
-        //                                                             DEVICE_NOTIFY_ALL_INTERFACE_CLASSES
-        //                                                             //DEVICE_NOTIFY_WINDOW_HANDLE
-        //                                                             );
-        //            if ( NotificationHandle == nullptr )
-        //            {
-        //                qDebug() << " event not register!!";
-        //            }
-        //            else
-        //                qDebug() << &serial_interfaces[i] << " event registered!!";
-        //        }
+                for (int i = 0; i < serial_interfaces.size(); i++)
+                {
+                    NotificationFilter.dbcc_classguid = serial_interfaces[i]; // подпишемся на все наши интерфейсы
+                    NotificationFilter.dbcc_name[0] = '\0';
+                    NotificationHandle = RegisterDeviceNotification( hwnd,
+                                                                     &NotificationFilter,
+                                                                     DEVICE_NOTIFY_ALL_INTERFACE_CLASSES
+                                                                     //DEVICE_NOTIFY_WINDOW_HANDLE
+                                                                     );
+                    if ( NotificationHandle == nullptr )
+                    {
+                        qDebug() << " event not register!!";
+                    }
+                    else
+                        qDebug() << &serial_interfaces[i] << " event registered!!";
+                }
     }
     bool enumerateUSB_Device_by_guid()
     {
