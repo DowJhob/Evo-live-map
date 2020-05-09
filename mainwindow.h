@@ -40,10 +40,7 @@ public:
     QString FirstFile_by_Name = {};
     ~MainWindow();
     explicit MainWindow(QWidget *parent = nullptr);
-    bool ReadConfig(QString filename);
-    bool getECU(QString filename);
-    //bool VechicleInterfaceState;
-    void TableDelete();
+
 
 public slots:
     void logger_and_tableWidget_trace(QByteArray in);
@@ -125,7 +122,6 @@ private slots:
     }
     void interfaceThumbler(bool lockFlag);
 
-
     void on_BaudRatelineEdit_textChanged(const QString &arg1);
     void StartButton_slot();
     void RAM_reset_slot();
@@ -133,7 +129,7 @@ private slots:
     void on_logger_rate_textedit_editingFinished();
     void debugButton_slot();
     void on_loadbinbutton_clicked();
-    void on_stop_live_clicked();
+
     void on_save_trace_pushButton_clicked();
     void Log(QString str);
     void on_start_addr_lineEdit_returnPressed();
@@ -150,6 +146,9 @@ private slots:
     }
 
 private:
+    bool ReadConfig(QString filename);
+    bool getECU(QString filename);
+    void TableDelete();
     QString load_bin(QString bin_filename)
     {
         QFile binfile(bin_filename);
@@ -199,177 +198,7 @@ private:
     void create_tree(tableDeclaration *tab);
     void create_gauge(QString name, mutParam *param);
     void axread(sub_tableDeclaration *sub_tab, QVector<float> *axis, bool rom);
-    void evoX_Connect_Click()
-    {
-        //        object obj2;
-        //       if (!this.b_Connect.Text.Equals("Connect and Live Tune"))
-        //        {
-        //            if (this.b_Connect.Text.Equals("Disconnect"))
-        //            {
-        //                this.b_Connect.Text = "Connect and Live Tune";
-        //                byte[] buffer5 = new byte[] { 0 };
-        //                obj2 = ECU_Communications;
-        //                lock (obj2)
-        //                {
-        //                    this.Write_Activity_Log_Entry("80501A: " + BitConverter.ToString(buffer5));
-        //                    if (this._j2534.Write_and_Verify(0x80_501a, buffer5, 1) != 0)
-        //                    {
-        //                        throw new ApplicationException("Error: Retry rewrite exceeded for 0x80501A\nECU Memory inconsistant!!\nYou should immediatley stop tuning and power off the car to clear Live Tuning state");
-        //                    }
-        //                }
-        //                this.b_RAM_ROM_Compare.Enabled = false;
-        //                this.b_Open_ROM_File.Enabled = true;
-        //                this.live_tuner_connected = false;
-        //                this.button1.Enabled = true;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            try
-        //            {
-        //                byte[] buffer2;
-        //                byte[] buffer = this.LocalROM_Query(0xb_fff0, 4);
-        //                obj2 = ECU_Communications;
-        //                lock (obj2)
-        //                {
-        //                    buffer2 = this._j2534.ISO15765_Mode23_Query(0xb_fff0, 4);
-        //                }
-        //                if (buffer2 == null)
-        //                {
-        //                    throw new ApplicationException("Error: Couldn't retrieve the ECU Checksum\nPlease try again with the OP20 actually connected to the vehicle...");
-        //                }
-        //                int index = 0;
-        //                while (true)
-        //                {
-        //                    if (index >= 4)
-        //                    {
-        //                        obj2 = ECU_Communications;
-        //                        lock (obj2)
-        //                        {
-        //                            this.Current_Alt_Map = this._j2534.ISO15765_Mode23_Query(0x80_5018, 1)[0];
-        //                        }
-        //                        this.Populate_MapSelector();
-        //                        uint num = 0;
-        //                        foreach (string str , this.MapSelector.Items)
-        //                        {
-        //                            if (!str.Equals("---------------------- 'ALL' MAPS BELOW ----------------------"))
-        //                            {
-        //                                num += uint.Parse(((Hashtable) this.maps[str])["x-axis-elements"].ToString());
-        //                            }
-        //                        }
-        //                        this.panel1.Dock = DockStyle.Fill;
-        //                        this.panel1.Show();
-        //                        this.panel1.BringToFront();
-        //                        this.progressBar1.BringToFront();
-        //                        this.progressBar1.Maximum = (int) num;
-        //                        this.progressBar1.Step = 1;
-        //                        this.progressBar1.Minimum = 0;
-        //                        this.progressBar1.Value = 0;
-        //                        obj2 = ECU_Communications;
-        //                        lock (obj2)
-        //                        {
-        //                            this.Write_Activity_Log_Entry("80501A: 69");
-        //                            byte[] payload = new byte[] { 0x45 };
-        //                            if (this._j2534.Write_and_Verify(0x80_501a, payload, 1) != 0)
-        //                            {
-        //                                throw new ApplicationException("Error: Retry rewrite exceeded for 0x80501A\nECU Memory inconsistant!!\nYou should immediatley stop tuning and power off the car to clear Live Tuning state");
-        //                            }
-        //                            foreach (string str2 , this.MapSelector.Items)
-        //                            {
-        //                                if (!str2.Equals("---------------------- 'ALL' MAPS BELOW ----------------------"))
-        //                                {
-        //                                    byte[] buffer3;
-        //                                    this.Write_Activity_Log_Entry("... uploading " + str2);
-        //                                    this.label1.Text = "... uploading " + str2;
-        //                                    Hashtable hashtable = (Hashtable) this.maps[str2];
-        //                                    if (hashtable["lt-memory-blk"] == null)
-        //                                    {
-        //                                        throw new ApplicationException("Error: No lt-memory-blk attribute setup for map \"" + str2 + "\"");
-        //                                    }
-        //                                    uint address = uint.Parse(hashtable["lt-memory-blk"].ToString(), NumberStyles.HexNumber);
-        //                                    uint num4 = (uint) hashtable["x-axis-elements"];
-        //                                    uint num5 = (uint) hashtable["y-axis-elements"];
-        //                                    uint num6 = (uint) hashtable["element-size"];
-        //                                    if (hashtable["header"] != null)
-        //                                    {
-        //                                        uint length = (uint) ((byte[]) hashtable["header"]).Length;
-        //                                        buffer3 = this.LocalROM_Query(uint.Parse(hashtable["address"].ToString(), NumberStyles.HexNumber) - length, length);
-        //                                        this.Write_Activity_Log_Entry(address.ToString("X") + ": " + BitConverter.ToString(buffer3));
-        //                                        if (this._j2534.Write_and_Verify(address, buffer3, length) != 0)
-        //                                        {
-        //                                            throw new ApplicationException("Error: Retry rewrite exceeded for 0x" + address.ToString("X") + "\nECU Memory inconsistant!!\nYou should immediatley stop tuning and power off the car to clear Live Tuning state");
-        //                                        }
-        //                                        address += length;
-        //                                    }
-        //                                    for (int i = 0; i < num4; i++)
-        //                                    {
-        //                                        buffer3 = this.LocalROM_Query(uint.Parse(hashtable["address"].ToString(), NumberStyles.HexNumber) + ((uint) ((i * num5) * num6)), num6 * num5);
-        //                                        this.Write_Activity_Log_Entry(address.ToString("X") + ": " + BitConverter.ToString(buffer3));
-        //                                        if (this._j2534.Write_and_Verify(address, buffer3, num6 * num5) != 0)
-        //                                        {
-        //                                            throw new ApplicationException("Error: Retry rewrite exceeded for 0x" + address.ToString("X") + "\nECU Memory inconsistant!!\nYou should immediatley stop tuning and power off the car to clear Live Tuning state");
-        //                                        }
-        //                                        address += num6 * num5;
-        //                                        this.progressBar1.PerformStep();
-        //                                        Thread.Sleep(1);
-        //                                        Application.DoEvents();
-        //                                    }
-        //                                }
-        //                            }
-        //                            this.label1.Text = "";
-        //                            this.panel1.SendToBack();
-        //                            this.panel1.Hide();
-        //                            this.panel1.Dock = DockStyle.None;
-        //                            this.Write_Activity_Log_Entry("... writing memory pointer overrides");
-        //                            foreach (string str3 , this.MapSelector.Items)
-        //                            {
-        //                                if (!str3.Equals("---------------------- 'ALL' MAPS BELOW ----------------------"))
-        //                                {
-        //                                    Hashtable hashtable2 = (Hashtable) this.maps[str3];
-        //                                    if (!hashtable2["type"].ToString().Equals("1D"))
-        //                                    {
-        //                                        if (hashtable2["lt-memory-ptr"] == null)
-        //                                        {
-        //                                            throw new ApplicationException("Error: No lt-memory-ptr attribute setup for map \"" + str3 + "\"");
-        //                                        }
-        //                                        uint address = uint.Parse(hashtable2["lt-memory-ptr"].ToString(), NumberStyles.HexNumber);
-        //                                        uint num10 = uint.Parse(hashtable2["lt-memory-blk"].ToString(), NumberStyles.HexNumber);
-        //                                        byte[] buffer4 = new byte[] { (byte) (num10 >> 0x18), (byte) ((num10 - ((num10 >> 0x18) << 0x18)) >> 0x10), (byte) ((num10 - ((num10 >> 0x10) << 0x10)) >> 8), (byte) (num10 - ((num10 >> 8) << 8)) };
-        //                                        string[] textArray1 = new string[] { address.ToString("X"), " (", str3, "): ", BitConverter.ToString(buffer4) };
-        //                                        this.Write_Activity_Log_Entry(string.Concat(textArray1));
-        //                                        if (this._j2534.Write_and_Verify(address, buffer4, 4) != 0)
-        //                                        {
-        //                                            throw new ApplicationException("Error: Retry rewrite exceeded for 0x" + address.ToString("X") + "\nECU Memory inconsistant!!\nYou should immediatley stop tuning and power off the car to clear Live Tuning state");
-        //                                        }
-        //                                    }
-        //                                }
-        //                            }
-        //                        }
-        //                        break;
-        //                    }
-        //                    if (buffer[index] != buffer2[index])
-        //                    {
-        //                        throw new ApplicationException("Error: ECU Checksum doesn't match ROM checksum\nPlease try again with the actual ROM file you last flashed...");
-        //                    }
-        //                    index++;
-        //                }
-        //                this.b_Connect.Text = "Disconnect";
-        //                this.b_Open_ROM_File.Enabled = false;
-        //                this.b_RAM_ROM_Compare.Enabled = true;
-        //                this.live_tuner_connected = true;
-        //                this.button1.Enabled = false;
-        //            }
-        //            catch (Exception exception)
-        //            {
-        //                this.panel1.SendToBack();
-        //                this.panel1.Hide();
-        //                this.panel1.Dock = DockStyle.None;
-        //                MessageBox.Show("Connect error: " + exception.Message);
-        //            }
-        //        }
-    }
 
-    gauge_widget *afr_lcd;
     QAction *start_action;
     QAction *debug_action;
     QAction *ram_reset;
@@ -384,10 +213,13 @@ private:
     bool save_trace = false;
     DomParser xmlParser;
     QByteArray *binarray;                                  // массив с бинарником
+    //======================== widget's =================================
     QHexEdit *hexEdit;
+    gauge_widget *afr_lcd;
     //======================== widget lists =================================
     QSet<gauge_widget*> gauge_set;
     QSet<QWidget*> widget_set;
+    QSet<CustomTableWidget*> table_set;
 
 signals:
     void startLogger(quint32, quint16);

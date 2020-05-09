@@ -665,7 +665,7 @@ public:
         groupBox_8->setTitle(QApplication::translate("MainWindow", "Connection parameter", nullptr));
         BaudRatelabel_7->setText(QApplication::translate("MainWindow", "Baud rate:", nullptr));
         BaudRatelineEdit->setText(QApplication::translate("MainWindow", "15625", nullptr));
-        logger_rate_textedit->setText(QApplication::translate("MainWindow", "100", nullptr));
+        logger_rate_textedit->setText(QApplication::translate("MainWindow", "25", nullptr));
         logger_rate_textedit->setPlaceholderText(QString());
         BaudRatelabel_8->setText(QApplication::translate("MainWindow", "Hz", nullptr));
         BaudRatelabel_9->setText(QApplication::translate("MainWindow", "Logging rate:", nullptr));

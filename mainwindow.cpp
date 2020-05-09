@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(&Enumerator, SIGNAL(InterfaceActive(int)), SLOT(dll_connect(int)));
     connect(&Enumerator, SIGNAL(disconnectInterface()), SLOT(dll_disconnect()));
 
-//    timer->setInterval( 1000/ui->logger_rate_textedit->text().toUInt()  );
+    //    timer->setInterval( 1000/ui->logger_rate_textedit->text().toUInt()  );
 
     ui->read_RAM_Button->setDisabled(true);
 
@@ -109,6 +109,7 @@ void MainWindow::create_table(tableDeclaration *tab)
         mapWidget->setLayout(layout);
         //создаем таблицу с заданной размерностью
         CustomTableWidget *table = new CustomTableWidget(tab->Y_axis.elements, tab->X_axis.elements, mapWidget);
+        table_set.insert(table);
         layout->addWidget(table);
         mapWidget->setContentsMargins(1, 1, 1, 1);
         layout->setMargin(1);
@@ -203,9 +204,9 @@ void MainWindow::logger_and_tableWidget_trace(QByteArray in)
 {
     QElapsedTimer t;
     t.start();
-//    timer->stop();
-//    ecu_comm->sendDMAcomand(0xE0, _ecu->RAM_MUT_addr, 16);
-//    ecu_comm->read();
+    //    timer->stop();
+    //    ecu_comm->sendDMAcomand(0xE0, _ecu->RAM_MUT_addr, 16);
+    //    ecu_comm->read();
     foreach (gauge_widget *gauge, gauge_set)
     {
 
@@ -290,7 +291,7 @@ void MainWindow::logger_and_tableWidget_trace(QByteArray in)
     }
     ui->trace_time_label->setText(QString::number(t.nsecsElapsed()/1000) + "us");
 
-//    timer->start();
+    //    timer->start();
 }
 
 void MainWindow::interfaceThumbler(bool lockFlag)
@@ -302,7 +303,7 @@ void MainWindow::interfaceThumbler(bool lockFlag)
     foreach( QObject *w, ui->toolBar->children())
         if (w->isWidgetType())
             reinterpret_cast<QWidget*>(w)->setDisabled(lockFlag) ;
- //   ui->toolBar.
+    //   ui->toolBar.
     //ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
 }
 void MainWindow::on_BaudRatelineEdit_textChanged(const QString &arg1)   // Обновляем скорость обмена
@@ -315,7 +316,7 @@ void MainWindow::StartButton_slot()
     {
         if (!ecu_comm->e7_connect())
             return ;
-            ;
+        ;
         quint32 *calID = reinterpret_cast<quint32*>(ecu_comm->in_buff);
         *calID = 0;                                                     //занулим 4 ре байта
         ecu_comm->sendDMAcomand(0xE1, 0xF52, 4);                        //читаем номер калибровки
@@ -345,7 +346,7 @@ void MainWindow::StartButton_slot()
     }
     else
     {
-//        timer->stop();
+        //        timer->stop();
         emit stopLogger();
         ecu_comm->disconnect();
         TableDelete();
@@ -361,7 +362,7 @@ void MainWindow::debugButton_slot()
     emit Enumerator. InterfaceActive(20);
     ecu_comm->e7_connect();
     //if (!ecu_comm->five_baud_init())
-        ;//return ;
+    ;//return ;
     ecu_comm->sendDMAcomand(0xE1, 0xF52, 4); //читаем номер калибровки
     ecu_comm->read();
     QString romID = QString::number( qFromBigEndian<quint32>(ecu_comm->in_buff), 16 );
@@ -385,13 +386,23 @@ void MainWindow::debugButton_slot()
 }
 void MainWindow::RAM_reset_slot()
 {
-
+    emit stopLogger();
     char buf[2];
     buf[0] = 0x00;
     buf[1] = 0x00;
     ecu_comm->sendDMAcomand(0xE2, _ecu->DEAD_var, 2, buf);
+    QVector <float> map;
 
-    on_read_RAM_Button_clicked();
+    foreach (CustomTableWidget *t, table_set)
+    {
+        t->Table_Decl.Table.elements = t->Table_Decl.X_axis.elements * t->Table_Decl.Y_axis.elements;
+
+        axread(&t->Table_Decl.Table, &map, false);
+        t->table_set_update(&map, 200, 200);
+        map.clear();
+
+    }
+    emit startLogger(_ecu->RAM_MUT_addr, 16);
 }
 void MainWindow::on_read_RAM_Button_clicked()
 {
@@ -434,11 +445,7 @@ void MainWindow::on_loadbinbutton_clicked()
     qDebug() << "";
 
 }
-void MainWindow::on_stop_live_clicked()
-{
-    TableDelete();
-    debug = false;
-}
+
 void MainWindow::on_save_trace_pushButton_clicked()
 {
     save_trace = !save_trace;

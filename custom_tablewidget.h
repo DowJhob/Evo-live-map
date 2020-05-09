@@ -83,23 +83,11 @@ public:
         //--------------------------------------------
         setFixedSize(Size);
     }
-protected:
-    void keyPressEvent(QKeyEvent *event)
-    {
-        if( event==QKeySequence::ZoomIn || event->matches(QKeySequence::MoveToNextPage) )
-            slotIncrease();
-        else if( event->matches( QKeySequence::ZoomOut) || event->matches(QKeySequence::MoveToPreviousPage) )
-            slotDecrease();
-        else if( event->matches( QKeySequence::Copy ) )
-            slotCopy();
-        else if( event->matches( QKeySequence::Paste ) )
-            slotPaste();
-    }
-private:
 
     void table_set_update(QVector <float>* map, int saturation, int alpha)
     {
-        long long variable_value;
+
+
         uint c = 0;
         int swapXyLen, swapYxLen;
         if ( Table_Decl.Table.swapxy )
@@ -132,7 +120,7 @@ private:
                 else {swapxyX = y; swapxyY = x;}
                 if (item(swapxyY, swapxyX) == nullptr)  //если итема нет создадим
                     setItem(swapxyY, swapxyX, new QTableWidgetItem());
-
+qDebug() << Table_Decl.Table.Name;
                 // normalize input
                 float kColor = fabs(  (map->at(c) - Table_Decl.Table.rom_scaling.min) / inRange);
                 britghtnes = 200;
@@ -171,6 +159,20 @@ private:
         tracer_marker_pred.Xtrace = 1;
         tracer_marker_pred.Ytrace = 1;
     }
+
+protected:
+    void keyPressEvent(QKeyEvent *event)
+    {
+        if( event==QKeySequence::ZoomIn || event->matches(QKeySequence::MoveToNextPage) )
+            slotIncrease();
+        else if( event->matches( QKeySequence::ZoomOut) || event->matches(QKeySequence::MoveToPreviousPage) )
+            slotDecrease();
+        else if( event->matches( QKeySequence::Copy ) )
+            slotCopy();
+        else if( event->matches( QKeySequence::Paste ) )
+            slotPaste();
+    }
+private:
 
 private slots:
     void slotCopy(){
