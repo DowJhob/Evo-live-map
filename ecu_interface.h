@@ -5,6 +5,8 @@
 #include <QThread>
 #include <QtEndian>
 #include <QDebug>
+#include <QTimer>
+#include <QElapsedTimer>
 #include "libs/J2534.h"
 
 class ECU_interface:public QObject
@@ -16,8 +18,8 @@ public:
     PASSTHRU_MSG  tx_msg = {};
     PASSTHRU_MSG  rx_msg[2] = {};
     PASSTHRU_MSG  inno_rx_msg = {};
-
     char delay_after_command = 4;
+
     explicit ECU_interface(TCHAR *dllName = nullptr)
     {
         this->dllName = dllName;
@@ -27,8 +29,9 @@ public:
 
     }
 
-    virtual void _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate) = 0;
-    virtual void e7_connect() = 0;
+    virtual bool _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate) = 0;
+    virtual bool disconnect() = 0;
+    virtual bool e7_connect() = 0;
     virtual bool five_baud_init() = 0;
     virtual void read() = 0;
     virtual void write( uint count) = 0;
@@ -52,12 +55,52 @@ public:
             write( count);
         }
     }
+
 public slots:
-    virtual bool init() = 0;
+
+    bool init()
+    {
+        timer = new QTimer(this);
+        connect(timer, &QTimer::timeout, this, &ECU_interface::timerTick);
+        timer->setInterval(50);
+        return _init();
+    }
+
+    void startLogger(quint32 addr, quint16 len)
+    {
+        this->addr = addr;
+        this->len = len;
+
+        timer->start();
+    }
+
+    void stopLogger()
+    {
+        timer->stop();
+    }
+
+    void timerTick()
+    {
+        QElapsedTimer t;
+        t.start();
+        timer->stop();
+        sendDMAcomand(0xE0, addr, len);
+        read();
+        timer->start();
+        emit readyRead(a.fromRawData((char*)in_buff, len));
+    }
+
     virtual void start_tactrix_inno() = 0;
     virtual void stop_tactrix_inno() = 0;
 
+private slots:
+    virtual bool _init() = 0;
+
 private:
+    QTimer* timer;
+    quint32 addr;
+    quint16 len;
+    QByteArray a;
 
 signals:
     void readyRead(QByteArray);

@@ -10,17 +10,19 @@
 #include <QFileDialog>
 #include "enumdev.h"
 #include "custom_tablewidget.h"
-#include <QtWidgets>
+#include <QLCDNumber>
 
 
 
 #include "mathparser2.h"
-#include "ecu.h"
+//#include "ecu.h"
 #include "qhexedit/qhexedit.h"
 #include "xmldomparser.h"
 #include "ecu_interface.h"
 #include "op13.h"
 #include "op20.h"
+#include "gauge_widget.h"
+
 
 namespace Ui {
 class MainWindow;
@@ -39,12 +41,12 @@ public:
     ~MainWindow();
     explicit MainWindow(QWidget *parent = nullptr);
     bool ReadConfig(QString filename);
-    bool StartLogging(QString filename);
+    bool getECU(QString filename);
     //bool VechicleInterfaceState;
     void TableDelete();
 
 public slots:
-    void logger_and_tableWidget_trace();
+    void logger_and_tableWidget_trace(QByteArray in);
     void updateRAM(int row, int column)
     {
         CustomTableWidget *table = qobject_cast<CustomTableWidget*>( sender() );
@@ -84,15 +86,19 @@ private slots:
                 ecu_comm = new OP13(Enumerator.DllLibraryPath);
             if (VechicleInterfaceType == 20  )
                 ecu_comm = new OP20(Enumerator.DllLibraryPath);
+
+            connect(this, SIGNAL(startLogger(quint32, quint16)), ecu_comm, SLOT(startLogger(quint32, quint16)));
+            connect(ecu_comm, SIGNAL(readyRead(QByteArray)), this, SLOT(logger_and_tableWidget_trace(QByteArray)));
+
             connect(ecu_comm, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
-            connect(ecu_comm, SIGNAL(AFR(QString)), afr_lcd, SLOT(display(QString)));
+            if ( afr_lcd != nullptr )
+                connect(ecu_comm, SIGNAL(AFR(QString)), afr_lcd, SLOT(display(QString)));
             connect(ecu_comm, &ECU_interface::interfaceReady, this, &MainWindow::interfaceUnlock);
             //=============================================================================
             connect(&interface_thread, &QThread::started, ecu_comm, &ECU_interface::init);
             ecu_comm->moveToThread(&interface_thread);
             interface_thread.start();
-            //=============================================================================
-            //      ecu_comm->start_tactrix_inno();
+
         }
     }
     void dll_disconnect()
@@ -114,13 +120,7 @@ private slots:
     {
         interfaceThumbler(true);
     }
-    void interfaceThumbler(bool lockFlag)
-    {
-        start_action->setDisabled(lockFlag);
-        ram_reset->setDisabled(lockFlag);
-        debug_action->setDisabled(lockFlag);
-        //ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
-    }
+    void interfaceThumbler(bool lockFlag);
 
 
     void on_BaudRatelineEdit_textChanged(const QString &arg1);
@@ -194,6 +194,7 @@ private:
     }
     void create_table(tableDeclaration *tab);
     void create_tree(tableDeclaration *tab);
+    void create_gauge(QString name, mutParam *param);
     void axread(sub_tableDeclaration *sub_tab, QVector<float> *axis, bool rom);
     void evoX_Connect_Click()
     {
@@ -365,7 +366,7 @@ private:
         //        }
     }
 
-    QLCDNumber *afr_lcd;
+    gauge_widget *afr_lcd;
     QAction *start_action;
     QAction *debug_action;
     QAction *ram_reset;
@@ -383,5 +384,6 @@ private:
     QHexEdit *hexEdit;
 
 signals:
+    void startLogger(quint32, quint16);
 };
 #endif // MAINWINDOW_H

@@ -5,7 +5,6 @@
 
 #include <mathparser2.h>
 
-
 enum Storagetype { int8, int16, int32, uint8, uint16, uint32 };
 
 typedef struct                          //структура скалингов для помещения в контейнер
@@ -52,11 +51,9 @@ public:
 
     QHash<QString, tableDeclaration> RAMtables;
 
-    QHash<QString, tableDeclaration> not_loggingRAMtables;
-    QHash<QString, tableDeclaration> loggingRAMtables;
     QHash<QString, mutParam> RAM_MUT;
     ecu(){}
-public slots:
+//public slots:
 
     qint64 mem_cast(Scaling scaling, uchar *in_buf, uint offset)   //кастуем данные к определенному типу
     {

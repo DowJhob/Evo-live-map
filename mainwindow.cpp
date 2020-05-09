@@ -5,13 +5,16 @@
 
 #include <dbt.h>
 #include <QtGlobal>
+#include <QMessageBox>
+
 
 //#include "common/ecutools.h"
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    afr_lcd = new QLCDNumber(4, this);
-    afr_lcd->setMinimumWidth(afr_lcd->width()+1);
+    afr_lcd = new gauge_widget(4, ui->toolBar);
+
+
     CurrDir = QApplication::applicationDirPath();   //текущая директории
     connect(timer, SIGNAL(timeout()), SLOT(logger_and_tableWidget_trace()));
 
@@ -28,12 +31,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     //Подписываемся на события нет нужды в подписке WM_change broadcast!
     Enumerator.NotifyRegister((HWND)this->winId());
 
+
     hexEdit = new QHexEdit;
     hexEdit->setAddressWidth(8);
     hexEdit->setAddressOffset(ui->start_addr_lineEdit->text().toUInt(nullptr, 16));
     ui->RAMeditorLayout->addWidget(hexEdit, 3,0,1,2);
 
-    start_action =  ui->toolBar->addAction( QIcon( ":ico/connect.png" ), "Start", this, SLOT(StartButton_slot()));
+    start_action = ui->toolBar->addAction( QIcon( ":ico/connect.png" ), "Start", this, SLOT(StartButton_slot()));
 
     ram_reset = ui->toolBar->addAction(QIcon( ":ico/Memory-Freer-icon.png" ), "RAM refresh", this, SLOT(RAM_reset_slot()));
 
@@ -44,14 +48,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->toolBar->addWidget(empty);
     debug_action =  ui->toolBar->addAction(QIcon( ":ico/screwdriver.png" ), "Debug", this, SLOT(debugButton_slot()));
 
-interfaceLock();
 
-    QFont myFont1 = afr_lcd->font();
-    myFont1.setPixelSize (64);
-    afr_lcd->setFont(myFont1);
-    afr_lcd->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-    ui->toolBar->addWidget(afr_lcd);
-    afr_lcd->display("----");
+
+    //=============================================================================
+    if ( ecu_comm != nullptr )
+    {
+        ecu_comm->start_tactrix_inno();
+        connect(ecu_comm, SIGNAL(AFR(QString)), afr_lcd, SLOT(display(QString)));
+    }
+ui->toolBar->addWidget(afr_lcd);
+
+
+
+    interfaceLock();
 
     connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(itemChecks(QTreeWidgetItem*, int)));
 }
@@ -85,6 +94,12 @@ void MainWindow::create_tree(tableDeclaration *tab)
         }
         ui->treeWidget->addTopLevelItem(map_name_item);
     }
+}
+
+void MainWindow::create_gauge(QString name, mutParam *param)
+{
+    gauge_widget *gauge_lcd = new gauge_widget(4, ui->toolBar);
+    ui->toolBar->addWidget(gauge_lcd);
 }
 void MainWindow::create_table(tableDeclaration *tab)
 {
@@ -163,7 +178,7 @@ void MainWindow::axread(sub_tableDeclaration *sub_tab, QVector <float> *axis, bo
         axis->append(fast_calc(sub_tab->rom_scaling.toexpr2, variable_value));
     }
 }
-bool MainWindow::StartLogging(QString filename)
+bool MainWindow::getECU(QString filename)
 {
     _ecu = new ecu;
     if (!ReadConfig(filename))
@@ -174,20 +189,22 @@ bool MainWindow::StartLogging(QString filename)
         create_table(&tab);
         create_tree(&tab);
     }
-
+    QHash<QString, mutParam>::iterator i;
+    for (i = _ecu->RAM_MUT.begin(); i != _ecu->RAM_MUT.end(); ++i)
+        create_gauge(i.key(), &i.value());
     return true;
 }
 void MainWindow::TableDelete()
 {
 
 }
-void MainWindow::logger_and_tableWidget_trace()
+void MainWindow::logger_and_tableWidget_trace(QByteArray in)
 {
     QElapsedTimer t;
     t.start();
-    timer->stop();
-    ecu_comm->sendDMAcomand(0xE0, _ecu->RAM_MUT_addr, 16);
-    ecu_comm->read();
+//    timer->stop();
+//    ecu_comm->sendDMAcomand(0xE0, _ecu->RAM_MUT_addr, 16);
+//    ecu_comm->read();
 
     float x = 0;
     float y = 0;
@@ -195,8 +212,8 @@ void MainWindow::logger_and_tableWidget_trace()
     {
         if ( table->Table_Decl.X_axis.ram_mut_number >= 0 || table->Table_Decl.Y_axis.ram_mut_number >= 0 )
         {
-            x = _ecu->mut_cast((uchar*)ecu_comm->in_buff, table->Table_Decl.X_axis.RAM_MUT_scaling, table->Table_Decl.X_axis.ram_mut_number);
-            y = _ecu->mut_cast((uchar*)ecu_comm->in_buff, table->Table_Decl.Y_axis.RAM_MUT_scaling, table->Table_Decl.Y_axis.ram_mut_number);
+            x = _ecu->mut_cast((uchar*)in.data(), table->Table_Decl.X_axis.RAM_MUT_scaling, table->Table_Decl.X_axis.ram_mut_number);
+            y = _ecu->mut_cast((uchar*)in.data(), table->Table_Decl.Y_axis.RAM_MUT_scaling, table->Table_Decl.Y_axis.ram_mut_number);
             if (debug)
             {
                 x = QCursor::pos().x()*2.3;
@@ -268,45 +285,64 @@ void MainWindow::logger_and_tableWidget_trace()
 
     timer->start();
 }
+
+void MainWindow::interfaceThumbler(bool lockFlag)
+{
+    start_action->setDisabled(lockFlag);
+    ram_reset->setDisabled(lockFlag);
+    debug_action->setDisabled(lockFlag);
+
+    foreach( QObject *w, ui->toolBar->children())
+        if (w->isWidgetType())
+            reinterpret_cast<QWidget*>(w)->setDisabled(lockFlag) ;
+ //   ui->toolBar.
+    //ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
+}
 void MainWindow::on_BaudRatelineEdit_textChanged(const QString &arg1)   // Обновляем скорость обмена
 {
     //DMA.baudRate = arg1.toUInt() ;
 }
 void MainWindow::StartButton_slot()
 {
-    QString s;
     if (start_action->text() == "Start")
     {
-        ecu_comm->e7_connect();
-        //if (!ecu_comm->five_baud_init())
-        //    return ;
+        if (!ecu_comm->e7_connect())
+            return ;
+            ;
+        quint32 *calID = reinterpret_cast<quint32*>(ecu_comm->in_buff);
+        *calID = 0;                   //занулим 4 ре байта
         ecu_comm->sendDMAcomand(0xE1, 0xF52, 4); //читаем номер калибровки
         ecu_comm->read();
-        QString romID = QString::number( qFromBigEndian<quint32>(ecu_comm->in_buff), 16 );
-
-        if ( romID.isEmpty() )
+        if ( *calID == 0 )
         {
-            ui->listWidget->addItem("connect failure");
-            //            start_action->setDown(false);
+            ui->listWidget->addItem("ECU connect failure");
             return;
         }
-        ui->listWidget->addItem(s);
-        //        start_action->setDown(true);
+        QString romID = QString::number( qFromBigEndian<quint32>(ecu_comm->in_buff), 16 );
+        ui->listWidget->addItem("romID: " + romID);
+        qDebug()<< "romID: " + romID;
+
+        start_action->setChecked(true);
+
         start_action->setText("Stop");
-        ram_reset->setDisabled(!Enumerator.VechicleInterfaceState);
+        ram_reset->setDisabled(false);
+
         ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
-        s = "romID " + romID;
-        ui->listWidget->addItem(s);
-        StartLogging(SearchFiles(CurrDir + "/xml/", romID)); //найдем файл конфига и парсим его
-        qDebug()<< "romID " + romID;
-        timer->start(1000/ui->logger_rate_textedit->text().toUInt());
-        s =   "CurrDir " + CurrDir;
+
+        getECU(SearchFiles(CurrDir + "/xml/", romID)); //найдем файл конфига и парсим его
+
+        //timer->start(1000/ui->logger_rate_textedit->text().toUInt());
+        ui->listWidget->addItem("CurrDir: " + CurrDir);
+
+        emit startLogger(_ecu->RAM_MUT_addr, 16);
     }
     else
     {
-        start_action->setText("Start");
-        //        start_action->setDown(false);
+        timer->stop();
+        ecu_comm->disconnect();
         TableDelete();
+        delete _ecu;
+        start_action->setText("Start");
     }
 }
 void MainWindow::RAM_reset_slot()
@@ -353,7 +389,7 @@ void MainWindow::debugButton_slot()
         ecu_comm->in_buff[i] = i;
     }
     //SearchFiles(CurrDir + "/xml/", "80700010");   //найдем файл конфига
-    StartLogging(SearchFiles(CurrDir + "/xml/", "90550001"));   	//найдем файл конфига							//парсим его
+    getECU(SearchFiles(CurrDir + "/xml/", "90550001"));   	//найдем файл конфига							//парсим его
     //hexEdit->setData(QByteArray::fromRawData((char*)DMA.MUT_Out_buffer, 4000));
     //CreateTable(SearchFiles(CurrDir + "/xml/", "88592715"));
     //    if ( "90550001" != load_bin(SearchFiles(CurrDir + "/bin/", "90550001")) )

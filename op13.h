@@ -20,11 +20,15 @@ public:
         close();
     }
 
-    void _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate)
+    bool _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate)
     {
         this->protocol = protocol; this->baudRate = baudRate;
     }
-    void e7_connect()
+    bool disconnect()
+    {
+
+    }
+    bool e7_connect()
     {
         _connect( ISO9141_K, ISO9141_NO_CHECKSUM, 15625);
     }
@@ -64,8 +68,15 @@ public:
     {
 
     }
+
 public slots:
-    bool init()
+
+    void start_tactrix_inno()
+    {}
+    void stop_tactrix_inno()
+    {}
+private slots:
+    bool _init()
     {
         op13 = new ftdi ;
 
@@ -84,10 +95,8 @@ public slots:
         qDebug() << " FT_Open failed";
         return false;
     }
-    void start_tactrix_inno()
-    {}
-    void stop_tactrix_inno()
-    {}
+
+
 private:
     ftdi *op13;
 

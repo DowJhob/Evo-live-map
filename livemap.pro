@@ -33,6 +33,7 @@ HEADERS  += mainwindow.h \
     ecu.h \
     #ecu_x_comm.h \
     ecu_interface.h \
+    gauge_widget.h \
     inno_interface.h \
     op13.h \
     op20.h \

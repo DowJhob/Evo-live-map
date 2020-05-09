@@ -36,21 +36,18 @@ public:
         close();
         delete j2534;
     }
-    void _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate)     //get  chanID
+    bool _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate)     //get  chanID
     {
 
         //получаем дескриптор
         if (j2534->PassThruOpen(nullptr, &devID))         // Get devID
         {// читаем и выводим ошибку
             emit Log( "PassThruOpen: not ok  | " + reportJ2534Error() );
-            //  return false;
+              return false;
         }
         emit Log( "PassThruOpen:  devID = " + QString::number(devID) );
 
-
-        start_tactrix_inno();
-
-
+        //start_tactrix_inno();
 
         this->protocol = protocol;
         this->ConnectFlag = ConnectFlag;
@@ -64,33 +61,56 @@ public:
         if (j2534->PassThruConnect(devID, protocol, ConnectFlag, baudRate, &chanID))
         {
             emit Log( "PassThruConnect: not ok  | " + reportJ2534Error() );
-            return;
+            return false;
         }
         emit Log( "PassThruConnect: OK  -  chanel ID: " + QString::number(chanID));
+        return true;
     }
-    void set_config(SCONFIG_LIST *scl)
+    bool disconnect()
+    {
+        // shut down the channel
+        if (j2534->PassThruDisconnect(chanID))
+        {
+            reportJ2534Error();
+//            return false;
+        }
+
+        // close the device
+        if (j2534->PassThruClose(devID))
+        {
+            reportJ2534Error();
+            return false;
+        }
+        return true;
+    }
+
+    bool set_config(SCONFIG_LIST *scl)
     {
         if (j2534->PassThruIoctl(chanID, SET_CONFIG, scl, nullptr))
         {
             emit Log( "PassThruIoctl - SET_CONFIG : not ok  " + reportJ2534Error() );
-            //         return false;
+            return false;
         }
+        return true;
     }
-    void e7_connect()
+    bool e7_connect()
     {
         protocol = ISO9141_K;
         ConnectFlag = ISO9141_NO_CHECKSUM;
         baudRate = 15625;
         //==========================================   get  chanID  ================================
-        _connect(protocol, ConnectFlag, baudRate);
+        if ( !_connect(protocol, ConnectFlag, baudRate) )
+            return false;
         //-======================================== SET CONFIG ===========================================
         SCONFIG_LIST scl;
         SCONFIG scp[6] = { {DATA_RATE, baudRate}, {P1_MAX, 0}, {P2_MAX, 0}, {P3_MIN, 0}, {P4_MIN, 0}, {LOOPBACK, 0} };        // set timing
         scl.NumOfParams = 6;
         scl.ConfigPtr = scp;
-        set_config(&scl);
+        if ( !set_config(&scl) )
+            return false;
         //==================================   5 baud init  ========================================
-        five_baud_init();
+        if ( !five_baud_init() )
+            return false;
         // ============================ setup filter(s) =========================
         PASSTHRU_MSG msgMask, msgPattern;
         unsigned long msgId;
@@ -102,15 +122,16 @@ public:
         msgMask.DataSize = 1;
         msgMask.ExtraDataIndex = 0;
 
-
-
         msgPattern  = msgMask;
         memset(msgMask.Data,0,1); // mask the first 4 byte to 0
         memset(msgPattern.Data,0,1);// match it with 0 (i.e. pass everything)
 
         msgId = set_filter(PASS_FILTER, &msgMask, &msgPattern, nullptr);
+        if ( msgId < 0 )
+            return false;
 
-emit DMA_Ready();
+        emit DMA_Ready();
+        return true;
     }
     void e10_connect()
     {
@@ -175,12 +196,14 @@ emit DMA_Ready();
         QThread::msleep(100);
     }
 
-    ulong set_filter(ulong type, PASSTHRU_MSG *msgMask, PASSTHRU_MSG *msgPattern, PASSTHRU_MSG *msgFlowcontrol)
+    long set_filter(ulong type, PASSTHRU_MSG *msgMask, PASSTHRU_MSG *msgPattern, PASSTHRU_MSG *msgFlowcontrol)
     {
         ulong msgId;
         if (j2534->PassThruStartMsgFilter(chanID, type, msgMask, msgPattern, msgFlowcontrol, &msgId))
+        {
             emit Log( "PassThruIoctl - PassThruStartMsgFilter : not ok  " + reportJ2534Error() );
-        else
+            return -1;
+        }
             emit Log( "PassThruIoctl - PassThruStartMsgFilter : OK" );
         return msgId;
     }
@@ -248,7 +271,32 @@ emit DMA_Ready();
         }
     }
 public slots:
-    bool init()
+
+    void start_tactrix_inno()
+    {
+        inno_thread = new QThread();
+        _inno_interface = new tactrix_inno(j2534, devID);
+        connect(_inno_interface, SIGNAL(AFR(QString)), SIGNAL(AFR(QString)));
+        connect(inno_thread, &QThread::started, _inno_interface, &inno_interface::start);
+        connect(inno_thread, &QThread::finished, [=](){inno_thread->deleteLater();});
+
+        _inno_interface->moveToThread(inno_thread);
+        inno_thread->start();
+    }
+
+    void stop_tactrix_inno()
+    {
+        if (_inno_interface != nullptr )
+        {
+            _inno_interface->stop();
+            _inno_interface->AFR("----");
+            _inno_interface->deleteLater();
+            inno_thread->quit();
+            inno_thread->wait(100);
+        }
+    }
+private slots:
+    bool _init()
     {
         j2534 = new J2534(dllName) ;
         delay_after_command = 4;
@@ -294,29 +342,6 @@ public slots:
         return true;
     }
 
-    void start_tactrix_inno()
-    {
-        inno_thread = new QThread();
-        _inno_interface = new tactrix_inno(j2534, devID);
-        connect(_inno_interface, SIGNAL(AFR(QString)), SIGNAL(AFR(QString)));
-        connect(inno_thread, &QThread::started, _inno_interface, &inno_interface::start);
-        connect(inno_thread, &QThread::finished, [=](){inno_thread->deleteLater();});
-
-        _inno_interface->moveToThread(inno_thread);
-        inno_thread->start();
-    }
-
-    void stop_tactrix_inno()
-    {
-        if (_inno_interface != nullptr )
-        {
-            _inno_interface->stop();
-            _inno_interface->AFR("----");
-            _inno_interface->deleteLater();
-            inno_thread->quit();
-            inno_thread->wait(100);
-        }
-    }
 private:
 
     // J2534
