@@ -341,6 +341,7 @@ void MainWindow::StartButton_slot()
         timer->stop();
         ecu_comm->disconnect();
         TableDelete();
+        ui->treeWidget->clear();
         delete _ecu;
         start_action->setText("Start");
     }
