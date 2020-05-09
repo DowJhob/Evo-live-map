@@ -125,7 +125,6 @@ private slots:
     void on_BaudRatelineEdit_textChanged(const QString &arg1);
     void StartButton_slot();
     void RAM_reset_slot();
-    void on_read_RAM_Button_clicked();
     void on_logger_rate_textedit_editingFinished();
     void debugButton_slot();
     void on_loadbinbutton_clicked();

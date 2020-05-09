@@ -22,8 +22,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     //    timer->setInterval( 1000/ui->logger_rate_textedit->text().toUInt()  );
 
-    ui->read_RAM_Button->setDisabled(true);
-
     Enumerator.enumerateUSB_Device_by_guid();
     statusBar()->showMessage(Enumerator.result);
 
@@ -335,8 +333,6 @@ void MainWindow::StartButton_slot()
         start_action->setText("Stop");
         ram_reset->setDisabled(false);
 
-        ui->read_RAM_Button->setDisabled(!Enumerator.VechicleInterfaceState);
-
         getECU(SearchFiles(CurrDir + "/xml/", romID)); //найдем файл конфига и парсим его
 
         //timer->start(1000/ui->logger_rate_textedit->text().toUInt());
@@ -404,19 +400,7 @@ void MainWindow::RAM_reset_slot()
     }
     emit startLogger(_ecu->RAM_MUT_addr, 16);
 }
-void MainWindow::on_read_RAM_Button_clicked()
-{
-    //for(int i=0; i < list_window->count(); i++)
 
-    //    foreach(mapWidget *window, list_window)
-    {
-        //DynamicWindow *tablewindow = qobject_cast<DynamicWindow*>(list_window[i]);
-        //DynamicTableWidget *tablewidget = qobject_cast<DynamicTableWidget*>(list_widget[i]);
-        //        window->table->blockSignals(true);//перед обновлением отключим сигнал автообновления ячейки
-        //window->table_set_update();
-        //        window->table->blockSignals(false);
-    }
-}
 void MainWindow::on_logger_rate_textedit_editingFinished()
 {
     emit setLoggingInterval(1000/ui->logger_rate_textedit->text().toUInt() );

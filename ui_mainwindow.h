@@ -70,7 +70,6 @@ public:
     QGroupBox *groupBox_7;
     QGridLayout *gridLayout_18;
     QVBoxLayout *verticalLayout_5;
-    QPushButton *read_RAM_Button;
     QPushButton *save_trace_pushButton;
     QPushButton *stop_live;
     QWidget *verticalLayoutWidget_6;
@@ -354,15 +353,6 @@ public:
         verticalLayout_5 = new QVBoxLayout();
         verticalLayout_5->setSpacing(6);
         verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
-        read_RAM_Button = new QPushButton(groupBox_7);
-        read_RAM_Button->setObjectName(QString::fromUtf8("read_RAM_Button"));
-        read_RAM_Button->setEnabled(true);
-        sizePolicy7.setHeightForWidth(read_RAM_Button->sizePolicy().hasHeightForWidth());
-        read_RAM_Button->setSizePolicy(sizePolicy7);
-        read_RAM_Button->setCheckable(false);
-
-        verticalLayout_5->addWidget(read_RAM_Button);
-
         save_trace_pushButton = new QPushButton(groupBox_7);
         save_trace_pushButton->setObjectName(QString::fromUtf8("save_trace_pushButton"));
         sizePolicy7.setHeightForWidth(save_trace_pushButton->sizePolicy().hasHeightForWidth());
@@ -676,7 +666,6 @@ public:
         trace_time_label->setText(QApplication::translate("MainWindow", "0", nullptr));
         label_7->setText(QApplication::translate("MainWindow", "redraw time all tables", nullptr));
         groupBox_7->setTitle(QApplication::translate("MainWindow", "Control section", nullptr));
-        read_RAM_Button->setText(QApplication::translate("MainWindow", "read RAM", nullptr));
         save_trace_pushButton->setText(QApplication::translate("MainWindow", "save_trace", nullptr));
         stop_live->setText(QApplication::translate("MainWindow", "Stop for debug", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(live_tab), QApplication::translate("MainWindow", "live", nullptr));

@@ -86,8 +86,6 @@ public:
 
     void table_set_update(QVector <float>* map, int saturation, int alpha)
     {
-
-
         uint c = 0;
         int swapXyLen, swapYxLen;
         if ( Table_Decl.Table.swapxy )
@@ -120,7 +118,7 @@ public:
                 else {swapxyX = y; swapxyY = x;}
                 if (item(swapxyY, swapxyX) == nullptr)  //если итема нет создадим
                     setItem(swapxyY, swapxyX, new QTableWidgetItem());
-qDebug() << Table_Decl.Table.Name;
+
                 // normalize input
                 float kColor = fabs(  (map->at(c) - Table_Decl.Table.rom_scaling.min) / inRange);
                 britghtnes = 200;
