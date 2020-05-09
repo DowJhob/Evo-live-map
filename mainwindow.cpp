@@ -12,16 +12,15 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    afr_lcd = new gauge_widget(4, ui->toolBar);
-
+    afr_lcd = new gauge_widget("AFR", 4, 0, nullptr, ui->toolBar);
 
     CurrDir = QApplication::applicationDirPath();   //текущая директории
-    connect(timer, SIGNAL(timeout()), SLOT(logger_and_tableWidget_trace()));
+    //connect(timer, SIGNAL(timeout()), SLOT(logger_and_tableWidget_trace()));
 
     connect(&Enumerator, SIGNAL(InterfaceActive(int)), SLOT(dll_connect(int)));
     connect(&Enumerator, SIGNAL(disconnectInterface()), SLOT(dll_disconnect()));
 
-    timer->setInterval( 1000/ui->logger_rate_textedit->text().toUInt()  );
+//    timer->setInterval( 1000/ui->logger_rate_textedit->text().toUInt()  );
 
     ui->read_RAM_Button->setDisabled(true);
 
@@ -30,7 +29,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     //Подписываемся на события нет нужды в подписке WM_change broadcast!
     Enumerator.NotifyRegister((HWND)this->winId());
-
 
     hexEdit = new QHexEdit;
     hexEdit->setAddressWidth(8);
@@ -41,14 +39,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     ram_reset = ui->toolBar->addAction(QIcon( ":ico/Memory-Freer-icon.png" ), "RAM refresh", this, SLOT(RAM_reset_slot()));
 
-
     ui->toolBar->addSeparator();
     QWidget* empty = new QWidget();
     empty->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
     ui->toolBar->addWidget(empty);
     debug_action =  ui->toolBar->addAction(QIcon( ":ico/screwdriver.png" ), "Debug", this, SLOT(debugButton_slot()));
-
-
 
     //=============================================================================
     if ( ecu_comm != nullptr )
@@ -56,9 +51,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         ecu_comm->start_tactrix_inno();
         connect(ecu_comm, SIGNAL(AFR(QString)), afr_lcd, SLOT(display(QString)));
     }
-ui->toolBar->addWidget(afr_lcd);
 
-
+    ui->toolBar->addWidget(afr_lcd);
 
     interfaceLock();
 
@@ -98,8 +92,9 @@ void MainWindow::create_tree(tableDeclaration *tab)
 
 void MainWindow::create_gauge(QString name, mutParam *param)
 {
-    gauge_widget *gauge_lcd = new gauge_widget(4, ui->toolBar);
+    gauge_widget *gauge_lcd = new gauge_widget(name, 4, param->ram_mut_offset, &param->ram_mut_param_scaling, ui->toolBar);
     ui->toolBar->addWidget(gauge_lcd);
+    gauge_set.insert(gauge_lcd);
 }
 void MainWindow::create_table(tableDeclaration *tab)
 {
@@ -107,6 +102,7 @@ void MainWindow::create_table(tableDeclaration *tab)
     {
         qDebug() << "====================== Create table : " << tab->Table.Name << " ================================";
         QWidget *mapWidget = new QWidget(this, Qt::Window | Qt::WindowCloseButtonHint);
+        widget_set.insert(mapWidget);
         mapWidget->setWindowTitle(tab->Table.Name);
         //mapWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         QGridLayout *layout = new QGridLayout(mapWidget);
@@ -174,7 +170,7 @@ void MainWindow::axread(sub_tableDeclaration *sub_tab, QVector <float> *axis, bo
     //заполняем в соотвествии с формулой
     for (int i = 0; i < sub_tab->elements; i++)
     {
-        variable_value = _ecu->mem_cast(sub_tab->rom_scaling, (uchar*)ecu_comm->in_buff, i); //кастуем данные к определенному типу
+        variable_value = _ecu->mem_cast(&sub_tab->rom_scaling, (uchar*)ecu_comm->in_buff, i); //кастуем данные к определенному типу
         axis->append(fast_calc(sub_tab->rom_scaling.toexpr2, variable_value));
     }
 }
@@ -196,7 +192,12 @@ bool MainWindow::getECU(QString filename)
 }
 void MainWindow::TableDelete()
 {
-
+    foreach (gauge_widget *gauge, gauge_set)
+        gauge->deleteLater();
+    gauge_set.clear();
+    foreach (QWidget *w, widget_set)
+        w->deleteLater();
+    widget_set.clear();
 }
 void MainWindow::logger_and_tableWidget_trace(QByteArray in)
 {
@@ -205,6 +206,12 @@ void MainWindow::logger_and_tableWidget_trace(QByteArray in)
 //    timer->stop();
 //    ecu_comm->sendDMAcomand(0xE0, _ecu->RAM_MUT_addr, 16);
 //    ecu_comm->read();
+    foreach (gauge_widget *gauge, gauge_set)
+    {
+
+        gauge->display( QString::number(_ecu->mut_cast((uchar*)in.data(), gauge->scaling, gauge->offset)) );
+    }
+
 
     float x = 0;
     float y = 0;
@@ -212,8 +219,8 @@ void MainWindow::logger_and_tableWidget_trace(QByteArray in)
     {
         if ( table->Table_Decl.X_axis.ram_mut_number >= 0 || table->Table_Decl.Y_axis.ram_mut_number >= 0 )
         {
-            x = _ecu->mut_cast((uchar*)in.data(), table->Table_Decl.X_axis.RAM_MUT_scaling, table->Table_Decl.X_axis.ram_mut_number);
-            y = _ecu->mut_cast((uchar*)in.data(), table->Table_Decl.Y_axis.RAM_MUT_scaling, table->Table_Decl.Y_axis.ram_mut_number);
+            x = _ecu->mut_cast((uchar*)in.data(), &table->Table_Decl.X_axis.RAM_MUT_scaling, table->Table_Decl.X_axis.ram_mut_number);
+            y = _ecu->mut_cast((uchar*)in.data(), &table->Table_Decl.Y_axis.RAM_MUT_scaling, table->Table_Decl.Y_axis.ram_mut_number);
             if (debug)
             {
                 x = QCursor::pos().x()*2.3;
@@ -283,7 +290,7 @@ void MainWindow::logger_and_tableWidget_trace(QByteArray in)
     }
     ui->trace_time_label->setText(QString::number(t.nsecsElapsed()/1000) + "us");
 
-    timer->start();
+//    timer->start();
 }
 
 void MainWindow::interfaceThumbler(bool lockFlag)
@@ -307,16 +314,16 @@ void MainWindow::StartButton_slot()
     if (start_action->text() == "Start")
     {
         if (!ecu_comm->e7_connect())
-            return ;
+//            return ;
             ;
         quint32 *calID = reinterpret_cast<quint32*>(ecu_comm->in_buff);
-        *calID = 0;                   //занулим 4 ре байта
-        ecu_comm->sendDMAcomand(0xE1, 0xF52, 4); //читаем номер калибровки
+        *calID = 0;                                                     //занулим 4 ре байта
+        ecu_comm->sendDMAcomand(0xE1, 0xF52, 4);                        //читаем номер калибровки
         ecu_comm->read();
         if ( *calID == 0 )
         {
             ui->listWidget->addItem("ECU connect failure");
-            return;
+//            return;
         }
         QString romID = QString::number( qFromBigEndian<quint32>(ecu_comm->in_buff), 16 );
         ui->listWidget->addItem("romID: " + romID);
@@ -338,13 +345,43 @@ void MainWindow::StartButton_slot()
     }
     else
     {
-        timer->stop();
+//        timer->stop();
+        emit stopLogger();
         ecu_comm->disconnect();
         TableDelete();
         ui->treeWidget->clear();
         delete _ecu;
         start_action->setText("Start");
     }
+}
+void MainWindow::debugButton_slot()
+{
+    debug = true;
+
+    emit Enumerator. InterfaceActive(20);
+    ecu_comm->e7_connect();
+    //if (!ecu_comm->five_baud_init())
+        ;//return ;
+    ecu_comm->sendDMAcomand(0xE1, 0xF52, 4); //читаем номер калибровки
+    ecu_comm->read();
+    QString romID = QString::number( qFromBigEndian<quint32>(ecu_comm->in_buff), 16 );
+
+    for (int i =0; i < 4000; i++)
+    {
+        ecu_comm->in_buff[i] = i;
+    }
+    //SearchFiles(CurrDir + "/xml/", "80700010");   //найдем файл конфига
+    getECU(SearchFiles(CurrDir + "/xml/", "90550001"));   	//найдем файл конфига							//парсим его
+    //hexEdit->setData(QByteArray::fromRawData((char*)DMA.MUT_Out_buffer, 4000));
+    //CreateTable(SearchFiles(CurrDir + "/xml/", "88592715"));
+    //    if ( "90550001" != load_bin(SearchFiles(CurrDir + "/bin/", "90550001")) )
+    //         qDebug() << "bin mismatch";
+
+    //timer->start(1000/ui->logger_rate_textedit->text().toUInt());
+
+    ui->listWidget->addItem("romID 90550001");
+    emit startLogger(_ecu->RAM_MUT_addr, 16);
+
 }
 void MainWindow::RAM_reset_slot()
 {
@@ -371,35 +408,7 @@ void MainWindow::on_read_RAM_Button_clicked()
 }
 void MainWindow::on_logger_rate_textedit_editingFinished()
 {
-    timer->setInterval(1000/ui->logger_rate_textedit->text().toUInt() );
-}
-void MainWindow::debugButton_slot()
-{
-    debug = true;
-    //ecu_comm = new OP20();
-    emit Enumerator. InterfaceActive(20);
-    ecu_comm->e7_connect();
-    //if (!ecu_comm->five_baud_init())
-        ;//return ;
-    ecu_comm->sendDMAcomand(0xE1, 0xF52, 4); //читаем номер калибровки
-    ecu_comm->read();
-    QString romID = QString::number( qFromBigEndian<quint32>(ecu_comm->in_buff), 16 );
-
-    for (int i =0; i < 4000; i++)
-    {
-        ecu_comm->in_buff[i] = i;
-    }
-    //SearchFiles(CurrDir + "/xml/", "80700010");   //найдем файл конфига
-    getECU(SearchFiles(CurrDir + "/xml/", "90550001"));   	//найдем файл конфига							//парсим его
-    //hexEdit->setData(QByteArray::fromRawData((char*)DMA.MUT_Out_buffer, 4000));
-    //CreateTable(SearchFiles(CurrDir + "/xml/", "88592715"));
-    //    if ( "90550001" != load_bin(SearchFiles(CurrDir + "/bin/", "90550001")) )
-    //         qDebug() << "bin mismatch";
-
-    timer->start(1000/ui->logger_rate_textedit->text().toUInt());
-
-    ui->listWidget->addItem("romID 90550001");
-
+    emit setLoggingInterval(1000/ui->logger_rate_textedit->text().toUInt() );
 }
 void MainWindow::on_loadbinbutton_clicked()
 {

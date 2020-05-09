@@ -88,9 +88,12 @@ private slots:
                 ecu_comm = new OP20(Enumerator.DllLibraryPath);
 
             connect(this, SIGNAL(startLogger(quint32, quint16)), ecu_comm, SLOT(startLogger(quint32, quint16)));
-            connect(ecu_comm, SIGNAL(readyRead(QByteArray)), this, SLOT(logger_and_tableWidget_trace(QByteArray)));
+            connect(this, &MainWindow::stopLogger, ecu_comm, &ECU_interface::stopLogger);
+            connect(this, SIGNAL(setLoggingInterval(int)), ecu_comm, SLOT(setLoggingInterval(int)));
 
+            connect(ecu_comm, SIGNAL(readyRead(QByteArray)), this, SLOT(logger_and_tableWidget_trace(QByteArray)));
             connect(ecu_comm, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
+
             if ( afr_lcd != nullptr )
                 connect(ecu_comm, SIGNAL(AFR(QString)), afr_lcd, SLOT(display(QString)));
             connect(ecu_comm, &ECU_interface::interfaceReady, this, &MainWindow::interfaceUnlock);
@@ -377,13 +380,18 @@ private:
     QString xml_filename;
     bool  debug = false;
     Ui::MainWindow *ui;
-    QTimer* timer = new QTimer(this);
+//    QTimer* timer = new QTimer(this);
     bool save_trace = false;
     DomParser xmlParser;
     QByteArray *binarray;                                  // массив с бинарником
     QHexEdit *hexEdit;
+    //======================== widget lists =================================
+    QSet<gauge_widget*> gauge_set;
+    QSet<QWidget*> widget_set;
 
 signals:
     void startLogger(quint32, quint16);
+    void stopLogger();
+    void setLoggingInterval(int);
 };
 #endif // MAINWINDOW_H

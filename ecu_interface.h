@@ -66,6 +66,11 @@ public slots:
         return _init();
     }
 
+    void setLoggingInterval(int im)
+    {
+        timer->setInterval(im);
+    }
+
     void startLogger(quint32 addr, quint16 len)
     {
         this->addr = addr;

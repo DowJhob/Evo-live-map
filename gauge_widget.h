@@ -3,23 +3,39 @@
 
 #include <QObject>
 #include <QWidget>
+#include <QLayout>
+#include <QLabel>
+#include <ecu.h>
 #include <QLCDNumber>
 
-class gauge_widget:public QLCDNumber
+class gauge_widget:public QWidget
 {
     Q_OBJECT
 public:
-    gauge_widget(uint DigitNum = 4, QWidget* parent = nullptr):QLCDNumber(parent)
+    uint offset;
+    Scaling *scaling;
+    QLCDNumber lcd;
+    gauge_widget(QString name, uint DigitNum = 4, uint offset = 0, Scaling *scaling = nullptr, QWidget* parent = nullptr):QWidget(parent), offset(offset), scaling(scaling)
     {
-        setDigitCount(DigitNum);
-        setMinimumWidth(this->width()+1);
-        QFont myFont1 = this->font();
+        lcd.setDigitCount(DigitNum);
+        lcd.setMinimumWidth( this->width() + 1 );
+        QFont myFont1 = lcd.font();
         myFont1.setPixelSize (64);
-        setFont(myFont1);
-        setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+        lcd.setFont(myFont1);
+        lcd.setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
         QString s;
         s.fill ('-', DigitNum);
-        display(s);
+        lcd.display(s);
+        QVBoxLayout *lay = new QVBoxLayout(this);
+        lay->addWidget( new QLabel(name, this));
+        lay->addWidget(&lcd);
+        setLayout( lay );
+    }
+
+public slots:
+    void display(QString s)
+    {
+        lcd.display(s);
     }
 };
 

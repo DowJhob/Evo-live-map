@@ -55,9 +55,9 @@ public:
     ecu(){}
 //public slots:
 
-    qint64 mem_cast(Scaling scaling, uchar *in_buf, uint offset)   //кастуем данные к определенному типу
+    qint64 mem_cast(Scaling *scaling, uchar *in_buf, uint offset)   //кастуем данные к определенному типу
     {
-        switch (scaling._storagetype) {
+        switch (scaling->_storagetype) {
         case Storagetype::int8:
         case Storagetype::uint8:  return type_cast(scaling, in_buf + offset); break;
         case Storagetype::int16:
@@ -67,10 +67,10 @@ public:
         default: break;
         }
     }
-    qint64 type_cast(Scaling scaling, uchar *in_buf)          //кастуем данные к определенному типу
+    qint64 type_cast(Scaling *scaling, uchar *in_buf)          //кастуем данные к определенному типу
     {
-        if (scaling.endian)
-            switch (scaling._storagetype) {
+        if (scaling->endian)
+            switch (scaling->_storagetype) {
             case Storagetype::int8:   return (qint8)in_buf[0];                break;
             case Storagetype::int16:  return qFromBigEndian<qint16>(in_buf);  break;
             case Storagetype::int32:  return qFromBigEndian<qint32>(in_buf);  break;
@@ -80,7 +80,7 @@ public:
             default: break;
             }
         else
-            switch (scaling._storagetype) {
+            switch (scaling->_storagetype) {
             case Storagetype::int8:   return (qint8)in_buf[0];           break;
             case Storagetype::int16:  return qFromLittleEndian<qint16>(in_buf); break;
             case Storagetype::int32:  return qFromLittleEndian<qint32>(in_buf); break;
@@ -90,10 +90,10 @@ public:
             default: break;
             }
     }
-    float mut_cast( uchar* in_buf, Scaling scaling, int mut_offset )
+    float mut_cast( uchar* in_buf, Scaling *scaling, int mut_offset )
     {
         float x = type_cast(scaling, in_buf + mut_offset );
-        x = fast_calc(scaling.toexpr2, x);
+        x = fast_calc(scaling->toexpr2, x);
         return x;
     }
 };
