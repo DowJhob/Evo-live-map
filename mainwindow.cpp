@@ -314,7 +314,7 @@ void MainWindow::StartButton_slot()
     if (start_action->text() == "Start")
     {
         if (!ecu_comm->e7_connect())
-//            return ;
+            return ;
             ;
         quint32 *calID = reinterpret_cast<quint32*>(ecu_comm->in_buff);
         *calID = 0;                                                     //занулим 4 ре байта
@@ -323,7 +323,7 @@ void MainWindow::StartButton_slot()
         if ( *calID == 0 )
         {
             ui->listWidget->addItem("ECU connect failure");
-//            return;
+            return;
         }
         QString romID = QString::number( qFromBigEndian<quint32>(ecu_comm->in_buff), 16 );
         ui->listWidget->addItem("romID: " + romID);
