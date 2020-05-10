@@ -632,6 +632,9 @@ public:
         sizePolicy2.setHeightForWidth(statusBar->sizePolicy().hasHeightForWidth());
         statusBar->setSizePolicy(sizePolicy2);
         statusBar->setMinimumSize(QSize(0, 20));
+        QFont font1;
+        font1.setFamily(QString::fromUtf8("Segoe UI Semibold"));
+        statusBar->setFont(font1);
         statusBar->setFocusPolicy(Qt::ClickFocus);
         statusBar->setAutoFillBackground(false);
         statusBar->setSizeGripEnabled(true);

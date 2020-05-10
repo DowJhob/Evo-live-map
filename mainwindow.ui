@@ -797,6 +797,11 @@ p, li { white-space: pre-wrap; }
      <height>20</height>
     </size>
    </property>
+   <property name="font">
+    <font>
+     <family>Segoe UI Semibold</family>
+    </font>
+   </property>
    <property name="focusPolicy">
     <enum>Qt::ClickFocus</enum>
    </property>

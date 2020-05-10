@@ -2,20 +2,15 @@
 #define MAINWINDOW_H
 
 #include <time.h>
-//#include <windows.h>
-//#include <qt_windows.h>
 #include <QMainWindow>
 #include <QPushButton>
 #include <QTimer>
 #include <QFileDialog>
-#include "enumdev.h"
-#include "custom_tablewidget.h"
 #include <QLCDNumber>
 
-
-
+#include "enumdev.h"
+#include "custom_tablewidget.h"
 #include "mathparser2.h"
-//#include "ecu.h"
 #include "qhexedit/qhexedit.h"
 #include "xmldomparser.h"
 #include "ecu_interface.h"
@@ -40,7 +35,6 @@ public:
     QString FirstFile_by_Name = {};
     ~MainWindow();
     explicit MainWindow(QWidget *parent = nullptr);
-
 
 public slots:
     void logger_and_tableWidget_trace(QByteArray in);
@@ -70,7 +64,6 @@ public slots:
         }
         ecu_comm->sendDMAcomand(0xE2, table->Table_Decl.Table.ram_addr + pos, 1, Out);
     }
-
 
 protected :
 
