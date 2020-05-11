@@ -68,43 +68,8 @@ public slots:
 protected :
 
 private slots:
-    void dll_connect(int VechicleInterfaceType)                //по сигналу перечислителя
-    {
-        if (ecu_comm == nullptr  )
-        {
-            if (VechicleInterfaceType == 13  )
-                ecu_comm = new OP13(Enumerator.DllLibraryPath);
-            if (VechicleInterfaceType == 20  )
-                ecu_comm = new OP20(Enumerator.DllLibraryPath);
-
-            connect(this, SIGNAL(startLogger(quint32, quint16)), ecu_comm, SLOT(startLogger(quint32, quint16)));
-            connect(this, &MainWindow::stopLogger, ecu_comm, &ECU_interface::stopLogger);
-            connect(this, SIGNAL(setLoggingInterval(int)), ecu_comm, SLOT(setLoggingInterval(int)));
-
-            connect(ecu_comm, SIGNAL(readyRead(QByteArray)), this, SLOT(logger_and_tableWidget_trace(QByteArray)));
-            connect(ecu_comm, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
-
-            if ( afr_lcd != nullptr )
-                connect(ecu_comm, SIGNAL(AFR(QString)), afr_lcd, SLOT(display(QString)));
-            connect(ecu_comm, &ECU_interface::interfaceReady, this, &MainWindow::interfaceUnlock);
-            //=============================================================================
-            connect(&interface_thread, &QThread::started, ecu_comm, &ECU_interface::init);
-            ecu_comm->moveToThread(&interface_thread);
-            interface_thread.start();
-
-        }
-    }
-    void dll_disconnect()
-    {
-        if (ecu_comm != nullptr)
-        {
-            interfaceLock();
-            ecu_comm->deleteLater();
-            interface_thread.quit();
-            interface_thread.wait(1000);
-            ecu_comm = nullptr;
-        }
-    }
+    void dll_connect(int VechicleInterfaceType);
+    void dll_disconnect();
     void interfaceUnlock()
     {
         interfaceThumbler(false);
@@ -207,7 +172,7 @@ private:
     QByteArray *binarray;                                  // массив с бинарником
     //======================== widget's =================================
     QHexEdit *hexEdit;
-    gauge_widget *afr_lcd;
+    gauge_widget *tactrix_afr_lcd = nullptr;
     //======================== widget lists =================================
     QSet<gauge_widget*> gauge_set;
     QSet<QWidget*> widget_set;

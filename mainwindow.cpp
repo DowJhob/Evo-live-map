@@ -12,22 +12,20 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    afr_lcd = new gauge_widget("AFR", 4, 0, nullptr, ui->toolBar);
-
     CurrDir = QApplication::applicationDirPath();   //текущая директории
-//=============================================================================
+    //=============================================================================
     connect(&Enumerator, SIGNAL(InterfaceActive(int)), SLOT(dll_connect(int)));
     connect(&Enumerator, SIGNAL(disconnectInterface()), SLOT(dll_disconnect()));
     connect(&Enumerator, SIGNAL(Log(QString)), statusBar(), SLOT(showMessage(QString)));
     Enumerator.enumerateUSB_Device_by_guid();
     //Подписываемся на события нет нужды в подписке WM_change broadcast!
     Enumerator.NotifyRegister((HWND)this->winId());
-//=============================================================================
+    //=============================================================================
     hexEdit = new QHexEdit;
     hexEdit->setAddressWidth(8);
     hexEdit->setAddressOffset(ui->start_addr_lineEdit->text().toUInt(nullptr, 16));
     ui->RAMeditorLayout->addWidget(hexEdit, 3,0,1,2);
-//=============================================================================
+    //=============================================================================
     start_action = ui->toolBar->addAction( QIcon( ":ico/connect.png" ), "Start", this, SLOT(StartButton_slot()));
     ram_reset = ui->toolBar->addAction(QIcon( ":ico/Memory-Freer-icon.png" ), "RAM refresh", this, SLOT(RAM_reset_slot()));
 
@@ -37,14 +35,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->toolBar->addWidget(empty);
     debug_action =  ui->toolBar->addAction(QIcon( ":ico/screwdriver.png" ), "Debug", this, SLOT(debugButton_slot()));
     interfaceLock();
-//=============================================================================
-    if ( ecu_comm != nullptr )
-    {
-        ecu_comm->start_tactrix_inno();
-        connect(ecu_comm, SIGNAL(AFR(QString)), afr_lcd, SLOT(display(QString)));
-    }
-
-    ui->toolBar->addWidget(afr_lcd);
 
     connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(itemChecks(QTreeWidgetItem*, int)));
 }
@@ -203,7 +193,6 @@ void MainWindow::logger_and_tableWidget_trace(QByteArray in)
         gauge->display( QString::number(_ecu->mut_cast((uchar*)in.data(), gauge->scaling, gauge->offset)) );
     }
 
-
     float x = 0;
     float y = 0;
     foreach (CustomTableWidget *table, ptrRAMtables)
@@ -282,6 +271,58 @@ void MainWindow::logger_and_tableWidget_trace(QByteArray in)
     ui->trace_time_label->setText(QString::number(t.nsecsElapsed()/1000) + "us");
 
     //    timer->start();
+}
+
+void MainWindow::dll_connect(int VechicleInterfaceType)                //по сигналу перечислителя
+{
+    if (ecu_comm == nullptr  )
+    {
+        if (VechicleInterfaceType == 13  )
+            ecu_comm = new OP13(Enumerator.DllLibraryPath);
+        if (VechicleInterfaceType == 20  )
+            ecu_comm = new OP20(Enumerator.DllLibraryPath);
+
+        connect(this, SIGNAL(startLogger(quint32, quint16)), ecu_comm, SLOT(startLogger(quint32, quint16)));
+        connect(this, &MainWindow::stopLogger, ecu_comm, &ECU_interface::stopLogger);
+        connect(this, SIGNAL(setLoggingInterval(int)), ecu_comm, SLOT(setLoggingInterval(int)));
+connect(ecu_comm, &ECU_interface::interfaceReady, this, &MainWindow::interfaceUnlock);
+        connect(ecu_comm, SIGNAL(readyRead(QByteArray)), this, SLOT(logger_and_tableWidget_trace(QByteArray)));
+        connect(ecu_comm, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
+        //=============================================================================
+        connect(&interface_thread, &QThread::started, ecu_comm, &ECU_interface::init);
+        ecu_comm->moveToThread(&interface_thread);
+        interface_thread.start();
+        //=============================================================================//=============================================================================
+        if ( Enumerator.isTactrix )
+        {
+            if( tactrix_afr_lcd == nullptr )
+            {
+                tactrix_afr_lcd = new gauge_widget("tactrixAFR", 4, 0, nullptr, ui->toolBar);
+                ui->toolBar->addWidget(tactrix_afr_lcd);
+                connect(ecu_comm, SIGNAL(AFR(QString)), tactrix_afr_lcd, SLOT(display(QString)));
+            }
+            connect(ecu_comm, SIGNAL(AFR(QString)), tactrix_afr_lcd, SLOT(display(QString)));
+            ecu_comm->start_tactrix_inno();
+        }
+    }
+}
+
+void MainWindow::dll_disconnect()
+{
+    if (ecu_comm != nullptr)
+    {
+        interfaceLock();
+        ecu_comm->deleteLater();
+        interface_thread.quit();
+        interface_thread.wait(1000);
+        ecu_comm = nullptr;
+    }
+    if( tactrix_afr_lcd != nullptr )
+    {
+
+        tactrix_afr_lcd->deleteLater();
+        tactrix_afr_lcd = nullptr;
+    }
 }
 
 void MainWindow::interfaceThumbler(bool lockFlag)

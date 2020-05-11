@@ -7,7 +7,7 @@
 #include <setupapi.h>
 #include <QObject>
 #include <QVector>
-#include <Cfgmgr32.h>
+//#include <Cfgmgr32.h>
 #include <QUuid>
 #include <QAbstractNativeEventFilter>
 #include <QDebug>
@@ -154,13 +154,9 @@ signals:
     void disconnectInterface();
     void Log(QString);
 
-
 private:
-    QString predDeviceUniqueID;
-
-    QString tactrixDeviceInstanceId = "VID_0403&PID_CC4C";
-    QString PID_OP13 = "PID_CC4A";
-    QString PID_OP20 = "PID_CC4C";
+    QString tactrixOP20_DeviceInstanceId = "VID_0403&PID_CC4C";
+    QString tactrixOP13_DeviceInstanceId = "VID_0403&PID_CC4A";
     QVector<GUID> J2543_interfaces = {
  //       { 0xfb1cf0c4, 0xb412, 0x451f, {0x9f, 0x04, 0xdf, 0x75, 0x37, 0xa5, 0x00, 0x3c}},  // VehiclePassThru j2534 class adapter?
         { 0x6d1781b7, 0xc987, 0x4f6c, {0x8d, 0x4f, 0x1e, 0xfc, 0x09, 0x8b, 0xea, 0x67}},  // ??????????????????????????????????????????????????????????????
@@ -301,20 +297,14 @@ KeySize = 512;
         return false;
     }
 
-    //HDEVINFO deviceInfoSet;             //A list of all the devices
-    SP_DEVINFO_DATA deviceInfoData;     //A device from deviceInfoSet
-
-    SP_DEVICE_INTERFACE_DATA deviceInterfaceData;
-    SP_DEVICE_INTERFACE_DETAIL_DATA deviceInterfaceDetailedData;
-
     void checkTactrix(QString DeviceInstanceId)
     {
         isTactrix = false;
-        if ( DeviceInstanceId  == tactrixDeviceInstanceId)
+        if ( DeviceInstanceId.mid(0, 17)  == tactrixOP20_DeviceInstanceId )
             isTactrix = true;
         else
             isTactrix = false;
-//        qDebug() << "HardwareID: " << DeviceInstanceId << isTactrix;
+        qDebug() << "HardwareID: " << DeviceInstanceId << isTactrix;
     }
 
     void DeviceDesc(uint SPDRP)
