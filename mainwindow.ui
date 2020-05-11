@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1034</width>
-    <height>596</height>
+    <width>1157</width>
+    <height>636</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -66,7 +66,7 @@
     </size>
    </property>
    <layout class="QGridLayout" name="gridLayout_5">
-    <item row="0" column="0">
+    <item row="1" column="0">
      <widget class="QSplitter" name="splitter">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -194,7 +194,7 @@
                    <item row="1" column="0" colspan="2">
                     <layout class="QGridLayout" name="gridLayout_20">
                      <item row="3" column="0">
-                      <widget class="QLabel" name="BaudRatelabel_7">
+                      <widget class="QLabel" name="BaudRate_label">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                          <horstretch>0</horstretch>
@@ -263,7 +263,7 @@
                       </widget>
                      </item>
                      <item row="1" column="2">
-                      <widget class="QLabel" name="BaudRatelabel_8">
+                      <widget class="QLabel" name="logRate_hz_label">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                          <horstretch>0</horstretch>
@@ -279,7 +279,7 @@
                       </widget>
                      </item>
                      <item row="1" column="0">
-                      <widget class="QLabel" name="BaudRatelabel_9">
+                      <widget class="QLabel" name="logRate_label">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                          <horstretch>0</horstretch>
@@ -311,7 +311,7 @@
                       </widget>
                      </item>
                      <item row="5" column="2">
-                      <widget class="QRadioButton" name="radioButton_7">
+                      <widget class="QRadioButton" name="_115200_radioButton">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                          <horstretch>0</horstretch>
@@ -324,7 +324,7 @@
                       </widget>
                      </item>
                      <item row="4" column="2">
-                      <widget class="QRadioButton" name="radioButton_8">
+                      <widget class="QRadioButton" name="_62200_radioButton">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                          <horstretch>0</horstretch>
@@ -337,7 +337,7 @@
                       </widget>
                      </item>
                      <item row="3" column="2">
-                      <widget class="QRadioButton" name="radioButton_9">
+                      <widget class="QRadioButton" name="_15625_radioButton">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                          <horstretch>0</horstretch>
@@ -353,7 +353,7 @@
                       </widget>
                      </item>
                      <item row="3" column="3">
-                      <widget class="QLabel" name="label_3">
+                      <widget class="QLabel" name="baud_label">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                          <horstretch>0</horstretch>
@@ -373,7 +373,7 @@
                       </widget>
                      </item>
                      <item row="4" column="0">
-                      <widget class="QLabel" name="label_7">
+                      <widget class="QLabel" name="redraw_time_label">
                        <property name="text">
                         <string>redraw time all tables</string>
                        </property>
@@ -436,7 +436,7 @@
                 <item>
                  <widget class="QListWidget" name="listWidget">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>

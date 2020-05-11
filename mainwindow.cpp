@@ -17,15 +17,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(&Enumerator, SIGNAL(InterfaceActive(int)), SLOT(dll_connect(int)));
     connect(&Enumerator, SIGNAL(disconnectInterface()), SLOT(dll_disconnect()));
     connect(&Enumerator, SIGNAL(Log(QString)), statusBar(), SLOT(showMessage(QString)));
-    Enumerator.enumerateUSB_Device_by_guid();
-    //Подписываемся на события нет нужды в подписке WM_change broadcast!
-    Enumerator.NotifyRegister((HWND)this->winId());
+
     //=============================================================================
     hexEdit = new QHexEdit;
     hexEdit->setAddressWidth(8);
     hexEdit->setAddressOffset(ui->start_addr_lineEdit->text().toUInt(nullptr, 16));
     ui->RAMeditorLayout->addWidget(hexEdit, 3,0,1,2);
     //=============================================================================
+//    QHBoxLayout *layout = new QHBoxLayout(ui->toolBar);
+//    ui->toolBar->setLayout(layout);
+
     start_action = ui->toolBar->addAction( QIcon( ":ico/connect.png" ), "Start", this, SLOT(StartButton_slot()));
     ram_reset = ui->toolBar->addAction(QIcon( ":ico/Memory-Freer-icon.png" ), "RAM refresh", this, SLOT(RAM_reset_slot()));
 
@@ -33,7 +34,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     QWidget* empty = new QWidget(this);
     empty->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
     ui->toolBar->addWidget(empty);
-    debug_action =  ui->toolBar->addAction(QIcon( ":ico/screwdriver.png" ), "Debug", this, SLOT(debugButton_slot()));
+    debug_action = ui->toolBar->addAction(QIcon( ":ico/screwdriver.png" ), "Debug", this, SLOT(debugButton_slot()));
+
+
+    //Подписываемся на события нет нужды в подписке WM_change broadcast!
+    Enumerator.NotifyRegister((HWND)this->winId());
+    Enumerator.enumerateUSB_Device_by_guid();
+
     interfaceLock();
 
     connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(itemChecks(QTreeWidgetItem*, int)));

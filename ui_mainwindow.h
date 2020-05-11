@@ -55,18 +55,18 @@ public:
     QGroupBox *groupBox_8;
     QGridLayout *gridLayout_19;
     QGridLayout *gridLayout_20;
-    QLabel *BaudRatelabel_7;
+    QLabel *BaudRate_label;
     QLineEdit *BaudRatelineEdit;
     QLineEdit *logger_rate_textedit;
-    QLabel *BaudRatelabel_8;
-    QLabel *BaudRatelabel_9;
+    QLabel *logRate_hz_label;
+    QLabel *logRate_label;
     QFrame *line_4;
-    QRadioButton *radioButton_7;
-    QRadioButton *radioButton_8;
-    QRadioButton *radioButton_9;
-    QLabel *label_3;
+    QRadioButton *_115200_radioButton;
+    QRadioButton *_62200_radioButton;
+    QRadioButton *_15625_radioButton;
+    QLabel *baud_label;
     QLabel *trace_time_label;
-    QLabel *label_7;
+    QLabel *redraw_time_label;
     QGroupBox *groupBox_7;
     QGridLayout *gridLayout_18;
     QVBoxLayout *verticalLayout_5;
@@ -122,7 +122,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(1034, 596);
+        MainWindow->resize(1157, 636);
         QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -228,18 +228,18 @@ public:
         gridLayout_20 = new QGridLayout();
         gridLayout_20->setSpacing(6);
         gridLayout_20->setObjectName(QString::fromUtf8("gridLayout_20"));
-        BaudRatelabel_7 = new QLabel(groupBox_8);
-        BaudRatelabel_7->setObjectName(QString::fromUtf8("BaudRatelabel_7"));
+        BaudRate_label = new QLabel(groupBox_8);
+        BaudRate_label->setObjectName(QString::fromUtf8("BaudRate_label"));
         QSizePolicy sizePolicy3(QSizePolicy::Minimum, QSizePolicy::Minimum);
         sizePolicy3.setHorizontalStretch(0);
         sizePolicy3.setVerticalStretch(0);
-        sizePolicy3.setHeightForWidth(BaudRatelabel_7->sizePolicy().hasHeightForWidth());
-        BaudRatelabel_7->setSizePolicy(sizePolicy3);
-        BaudRatelabel_7->setFrameShape(QFrame::StyledPanel);
-        BaudRatelabel_7->setFrameShadow(QFrame::Sunken);
-        BaudRatelabel_7->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
+        sizePolicy3.setHeightForWidth(BaudRate_label->sizePolicy().hasHeightForWidth());
+        BaudRate_label->setSizePolicy(sizePolicy3);
+        BaudRate_label->setFrameShape(QFrame::StyledPanel);
+        BaudRate_label->setFrameShadow(QFrame::Sunken);
+        BaudRate_label->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
 
-        gridLayout_20->addWidget(BaudRatelabel_7, 3, 0, 1, 1);
+        gridLayout_20->addWidget(BaudRate_label, 3, 0, 1, 1);
 
         BaudRatelineEdit = new QLineEdit(groupBox_8);
         BaudRatelineEdit->setObjectName(QString::fromUtf8("BaudRatelineEdit"));
@@ -265,22 +265,22 @@ public:
 
         gridLayout_20->addWidget(logger_rate_textedit, 1, 1, 1, 1);
 
-        BaudRatelabel_8 = new QLabel(groupBox_8);
-        BaudRatelabel_8->setObjectName(QString::fromUtf8("BaudRatelabel_8"));
-        sizePolicy3.setHeightForWidth(BaudRatelabel_8->sizePolicy().hasHeightForWidth());
-        BaudRatelabel_8->setSizePolicy(sizePolicy3);
-        BaudRatelabel_8->setFrameShadow(QFrame::Raised);
+        logRate_hz_label = new QLabel(groupBox_8);
+        logRate_hz_label->setObjectName(QString::fromUtf8("logRate_hz_label"));
+        sizePolicy3.setHeightForWidth(logRate_hz_label->sizePolicy().hasHeightForWidth());
+        logRate_hz_label->setSizePolicy(sizePolicy3);
+        logRate_hz_label->setFrameShadow(QFrame::Raised);
 
-        gridLayout_20->addWidget(BaudRatelabel_8, 1, 2, 1, 1);
+        gridLayout_20->addWidget(logRate_hz_label, 1, 2, 1, 1);
 
-        BaudRatelabel_9 = new QLabel(groupBox_8);
-        BaudRatelabel_9->setObjectName(QString::fromUtf8("BaudRatelabel_9"));
-        sizePolicy3.setHeightForWidth(BaudRatelabel_9->sizePolicy().hasHeightForWidth());
-        BaudRatelabel_9->setSizePolicy(sizePolicy3);
-        BaudRatelabel_9->setLayoutDirection(Qt::LeftToRight);
-        BaudRatelabel_9->setFrameShadow(QFrame::Sunken);
+        logRate_label = new QLabel(groupBox_8);
+        logRate_label->setObjectName(QString::fromUtf8("logRate_label"));
+        sizePolicy3.setHeightForWidth(logRate_label->sizePolicy().hasHeightForWidth());
+        logRate_label->setSizePolicy(sizePolicy3);
+        logRate_label->setLayoutDirection(Qt::LeftToRight);
+        logRate_label->setFrameShadow(QFrame::Sunken);
 
-        gridLayout_20->addWidget(BaudRatelabel_9, 1, 0, 1, 1);
+        gridLayout_20->addWidget(logRate_label, 1, 0, 1, 1);
 
         line_4 = new QFrame(groupBox_8);
         line_4->setObjectName(QString::fromUtf8("line_4"));
@@ -294,44 +294,44 @@ public:
 
         gridLayout_20->addWidget(line_4, 2, 0, 1, 4);
 
-        radioButton_7 = new QRadioButton(groupBox_8);
-        radioButton_7->setObjectName(QString::fromUtf8("radioButton_7"));
-        sizePolicy3.setHeightForWidth(radioButton_7->sizePolicy().hasHeightForWidth());
-        radioButton_7->setSizePolicy(sizePolicy3);
+        _115200_radioButton = new QRadioButton(groupBox_8);
+        _115200_radioButton->setObjectName(QString::fromUtf8("_115200_radioButton"));
+        sizePolicy3.setHeightForWidth(_115200_radioButton->sizePolicy().hasHeightForWidth());
+        _115200_radioButton->setSizePolicy(sizePolicy3);
 
-        gridLayout_20->addWidget(radioButton_7, 5, 2, 1, 1);
+        gridLayout_20->addWidget(_115200_radioButton, 5, 2, 1, 1);
 
-        radioButton_8 = new QRadioButton(groupBox_8);
-        radioButton_8->setObjectName(QString::fromUtf8("radioButton_8"));
-        sizePolicy3.setHeightForWidth(radioButton_8->sizePolicy().hasHeightForWidth());
-        radioButton_8->setSizePolicy(sizePolicy3);
+        _62200_radioButton = new QRadioButton(groupBox_8);
+        _62200_radioButton->setObjectName(QString::fromUtf8("_62200_radioButton"));
+        sizePolicy3.setHeightForWidth(_62200_radioButton->sizePolicy().hasHeightForWidth());
+        _62200_radioButton->setSizePolicy(sizePolicy3);
 
-        gridLayout_20->addWidget(radioButton_8, 4, 2, 1, 1);
+        gridLayout_20->addWidget(_62200_radioButton, 4, 2, 1, 1);
 
-        radioButton_9 = new QRadioButton(groupBox_8);
-        radioButton_9->setObjectName(QString::fromUtf8("radioButton_9"));
-        sizePolicy3.setHeightForWidth(radioButton_9->sizePolicy().hasHeightForWidth());
-        radioButton_9->setSizePolicy(sizePolicy3);
-        radioButton_9->setChecked(true);
+        _15625_radioButton = new QRadioButton(groupBox_8);
+        _15625_radioButton->setObjectName(QString::fromUtf8("_15625_radioButton"));
+        sizePolicy3.setHeightForWidth(_15625_radioButton->sizePolicy().hasHeightForWidth());
+        _15625_radioButton->setSizePolicy(sizePolicy3);
+        _15625_radioButton->setChecked(true);
 
-        gridLayout_20->addWidget(radioButton_9, 3, 2, 1, 1);
+        gridLayout_20->addWidget(_15625_radioButton, 3, 2, 1, 1);
 
-        label_3 = new QLabel(groupBox_8);
-        label_3->setObjectName(QString::fromUtf8("label_3"));
-        sizePolicy3.setHeightForWidth(label_3->sizePolicy().hasHeightForWidth());
-        label_3->setSizePolicy(sizePolicy3);
+        baud_label = new QLabel(groupBox_8);
+        baud_label->setObjectName(QString::fromUtf8("baud_label"));
+        sizePolicy3.setHeightForWidth(baud_label->sizePolicy().hasHeightForWidth());
+        baud_label->setSizePolicy(sizePolicy3);
 
-        gridLayout_20->addWidget(label_3, 3, 3, 1, 1);
+        gridLayout_20->addWidget(baud_label, 3, 3, 1, 1);
 
         trace_time_label = new QLabel(groupBox_8);
         trace_time_label->setObjectName(QString::fromUtf8("trace_time_label"));
 
         gridLayout_20->addWidget(trace_time_label, 4, 1, 1, 1);
 
-        label_7 = new QLabel(groupBox_8);
-        label_7->setObjectName(QString::fromUtf8("label_7"));
+        redraw_time_label = new QLabel(groupBox_8);
+        redraw_time_label->setObjectName(QString::fromUtf8("redraw_time_label"));
 
-        gridLayout_20->addWidget(label_7, 4, 0, 1, 1);
+        gridLayout_20->addWidget(redraw_time_label, 4, 0, 1, 1);
 
 
         gridLayout_19->addLayout(gridLayout_20, 1, 0, 1, 2);
@@ -383,8 +383,8 @@ public:
         verticalLayout_6->setContentsMargins(0, 0, 0, 0);
         listWidget = new QListWidget(verticalLayoutWidget_6);
         listWidget->setObjectName(QString::fromUtf8("listWidget"));
-        sizePolicy.setHeightForWidth(listWidget->sizePolicy().hasHeightForWidth());
-        listWidget->setSizePolicy(sizePolicy);
+        sizePolicy1.setHeightForWidth(listWidget->sizePolicy().hasHeightForWidth());
+        listWidget->setSizePolicy(sizePolicy1);
         listWidget->setFrameShape(QFrame::WinPanel);
         listWidget->setFrameShadow(QFrame::Raised);
         listWidget->setLayoutMode(QListView::SinglePass);
@@ -624,7 +624,7 @@ public:
 
         splitter->addWidget(horizontalLayoutWidget_2);
 
-        gridLayout_5->addWidget(splitter, 0, 0, 1, 1);
+        gridLayout_5->addWidget(splitter, 1, 0, 1, 1);
 
         MainWindow->setCentralWidget(centralWidget);
         statusBar = new QStatusBar(MainWindow);
@@ -656,18 +656,18 @@ public:
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "eulle@ya.ru     v 1.0", nullptr));
         groupBox_8->setTitle(QApplication::translate("MainWindow", "Connection parameter", nullptr));
-        BaudRatelabel_7->setText(QApplication::translate("MainWindow", "Baud rate:", nullptr));
+        BaudRate_label->setText(QApplication::translate("MainWindow", "Baud rate:", nullptr));
         BaudRatelineEdit->setText(QApplication::translate("MainWindow", "15625", nullptr));
         logger_rate_textedit->setText(QApplication::translate("MainWindow", "25", nullptr));
         logger_rate_textedit->setPlaceholderText(QString());
-        BaudRatelabel_8->setText(QApplication::translate("MainWindow", "Hz", nullptr));
-        BaudRatelabel_9->setText(QApplication::translate("MainWindow", "Logging rate:", nullptr));
-        radioButton_7->setText(QApplication::translate("MainWindow", "115200", nullptr));
-        radioButton_8->setText(QApplication::translate("MainWindow", "62200", nullptr));
-        radioButton_9->setText(QApplication::translate("MainWindow", "15625", nullptr));
-        label_3->setText(QApplication::translate("MainWindow", "baud", nullptr));
+        logRate_hz_label->setText(QApplication::translate("MainWindow", "Hz", nullptr));
+        logRate_label->setText(QApplication::translate("MainWindow", "Logging rate:", nullptr));
+        _115200_radioButton->setText(QApplication::translate("MainWindow", "115200", nullptr));
+        _62200_radioButton->setText(QApplication::translate("MainWindow", "62200", nullptr));
+        _15625_radioButton->setText(QApplication::translate("MainWindow", "15625", nullptr));
+        baud_label->setText(QApplication::translate("MainWindow", "baud", nullptr));
         trace_time_label->setText(QApplication::translate("MainWindow", "0", nullptr));
-        label_7->setText(QApplication::translate("MainWindow", "redraw time all tables", nullptr));
+        redraw_time_label->setText(QApplication::translate("MainWindow", "redraw time all tables", nullptr));
         groupBox_7->setTitle(QApplication::translate("MainWindow", "Control section", nullptr));
         save_trace_pushButton->setText(QApplication::translate("MainWindow", "save_trace", nullptr));
         stop_live->setText(QApplication::translate("MainWindow", "Stop for debug", nullptr));
