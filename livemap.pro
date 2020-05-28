@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 CONFIG += c++11
+#CONFIG += qwt
 #CONFIG   += rtti
 QT       += core gui xml
 
@@ -59,8 +60,14 @@ CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
 #INCLUDEPATH += libs/libusb/include
 #LIBS += -Llibs/libusb/MinGW64/dll -lusb-1.0
 LIBS += -lSetupapi
+#LIBS += -ladvapi32
+#LIBS += -luser32
 
 CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
+
+QMAKE_LFLAGS_RELEASE += /LTCG
+QMAKE_CXXFLAGS  += /Ox
+
 QMAKE_CXXFLAGS  += -flto -funroll-loops
 QMAKE_CXXFLAGS  += -fforce-addr
 QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mtune=core2

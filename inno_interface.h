@@ -4,6 +4,7 @@
 #include <QCoreApplication>
 #include <QObject>
 #include <QDebug>
+#include <QThread>
 #include <QTimer>
 #include <QElapsedTimer>
 
@@ -193,14 +194,18 @@ public slots:
     void start()
     {
         _connect();
-        _timer = new QTimer();
+        _timer = new QTimer(this);
         _timer->setInterval(200);
         connect(_timer, &QTimer::timeout, this, [=](){emit AFR("----");});
-        while (flag)
+
+        while (true)
         {
+            if (!flag)
+                return;
             if ( inno_read() )
                 _timer->start();
             QCoreApplication::processEvents() ;
+            QThread::msleep(10);
         }
         //emit AFR("----");
     }
@@ -208,6 +213,7 @@ public slots:
     void stop()
     {
         flag = false;
+        _timer->deleteLater();
     }
 private slots:
 

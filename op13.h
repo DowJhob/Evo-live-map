@@ -22,15 +22,18 @@ public:
 
     bool _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate)
     {
-        this->protocol = protocol; this->baudRate = baudRate;
+        ConnectFlag = 0;
+        this->protocol = protocol;
+        this->baudRate = baudRate;
+        return true;
     }
     bool disconnect()
     {
-
+return true;
     }
     bool e7_connect()
     {
-        _connect( ISO9141_K, ISO9141_NO_CHECKSUM, 15625);
+        return _connect( ISO9141_K, ISO9141_NO_CHECKSUM, 15625);
     }
     bool five_baud_init()
     {

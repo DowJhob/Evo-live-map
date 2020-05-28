@@ -3,7 +3,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <dbt.h>
+//#include <dbt.h>
 #include <QtGlobal>
 #include <QMessageBox>
 
@@ -308,8 +308,9 @@ connect(ecu_comm, &ECU_interface::interfaceReady, this, &MainWindow::interfaceUn
                 ui->toolBar->addWidget(tactrix_afr_lcd);
                 connect(ecu_comm, SIGNAL(AFR(QString)), tactrix_afr_lcd, SLOT(display(QString)));
             }
-            connect(ecu_comm, SIGNAL(AFR(QString)), tactrix_afr_lcd, SLOT(display(QString)));
-            ecu_comm->start_tactrix_inno();
+            connect(this, &MainWindow::start_inno, ecu_comm, &ECU_interface::start_tactrix_inno);
+            emit start_inno();
+            //ecu_comm->start_tactrix_inno();
         }
     }
 }
@@ -326,7 +327,6 @@ void MainWindow::dll_disconnect()
     }
     if( tactrix_afr_lcd != nullptr )
     {
-
         tactrix_afr_lcd->deleteLater();
         tactrix_afr_lcd = nullptr;
     }

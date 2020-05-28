@@ -168,7 +168,7 @@ private:
     Ui::MainWindow *ui;
 //    QTimer* timer = new QTimer(this);
     bool save_trace = false;
-    DomParser xmlParser;
+    xmlParser xmlParser;
     QByteArray *binarray;                                  // массив с бинарником
     //======================== widget's =================================
     QHexEdit *hexEdit;
@@ -180,6 +180,7 @@ private:
 
 signals:
     void startLogger(quint32, quint16);
+    void start_inno();
     void stopLogger();
     void setLoggingInterval(int);
 };

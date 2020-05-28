@@ -66,8 +66,10 @@ public:
 private slots:
     bool inno_read()
     {
+        //qDebug() << "hop: " ;
         numRxMsg = 1;
         j2534->PassThruReadMsgs(chanID_INNO,&rxmsg,&numRxMsg,40);
+       // qDebug() << "hop22: " ;
         if (numRxMsg)
             return dump_msg(&rxmsg);
         return false;

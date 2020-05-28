@@ -9,13 +9,13 @@
 #include "ecu_interface.h"
 
 
-struct
+typedef struct
 {
     unsigned int length;
     unsigned int svcid;
     unsigned short infosvcid;
 } inbuf;
-struct
+typedef struct
 {
     unsigned int length;
     unsigned char data[256];
@@ -33,6 +33,7 @@ public:
     ~OP20()
     {
         stop_tactrix_inno();
+        _inno_interface->deleteLater();
         close();
         delete j2534;
     }
@@ -43,7 +44,7 @@ public:
         if (j2534->PassThruOpen(nullptr, &devID))         // Get devID
         {// читаем и выводим ошибку
             emit Log( "PassThruOpen: not ok  | " + reportJ2534Error() );
-              return false;
+            return false;
         }
         emit Log( "PassThruOpen:  devID = " + QString::number(devID) );
 
@@ -72,7 +73,7 @@ public:
         if (j2534->PassThruDisconnect(chanID))
         {
             reportJ2534Error();
-//            return false;
+            //            return false;
         }
 
         // close the device
@@ -204,7 +205,7 @@ public:
             emit Log( "PassThruIoctl - PassThruStartMsgFilter : not ok  " + reportJ2534Error() );
             return -1;
         }
-            emit Log( "PassThruIoctl - PassThruStartMsgFilter : OK" );
+        emit Log( "PassThruIoctl - PassThruStartMsgFilter : OK" );
         return msgId;
     }
 
@@ -274,25 +275,28 @@ public slots:
 
     void start_tactrix_inno()
     {
-        inno_thread = new QThread();
-        _inno_interface = new tactrix_inno(j2534, devID);
-        connect(_inno_interface, SIGNAL(AFR(QString)), SIGNAL(AFR(QString)));
-        connect(inno_thread, &QThread::started, _inno_interface, &inno_interface::start);
-        connect(inno_thread, &QThread::finished, [=](){inno_thread->deleteLater();});
-
-        _inno_interface->moveToThread(inno_thread);
-        inno_thread->start();
+        if (inno_thread == nullptr)
+            inno_thread = new QThread(this);
+        if (_inno_interface == nullptr)
+        {
+            _inno_interface = new tactrix_inno(j2534, devID);
+            connect(_inno_interface, SIGNAL(AFR(QString)), SIGNAL(AFR(QString)));
+            connect(this, &OP20::stop_inno, _inno_interface, &inno_interface::stop);
+            connect(inno_thread, &QThread::started, _inno_interface, &inno_interface::start);
+//          connect(inno_thread, &QThread::finished, [=](){inno_thread->deleteLater();});
+            _inno_interface->moveToThread(inno_thread);
+        }
+        if (!inno_thread->isRunning())
+            inno_thread->start();
     }
 
     void stop_tactrix_inno()
     {
         if (_inno_interface != nullptr )
         {
-            _inno_interface->stop();
-            _inno_interface->AFR("----");
-            _inno_interface->deleteLater();
+            emit stop_inno();
             inno_thread->quit();
-            inno_thread->wait(100);
+            inno_thread->wait(1000);
         }
     }
 private slots:
@@ -359,7 +363,7 @@ private:
     unsigned long protocol = ISO9141_K;
     unsigned long ConnectFlag = ISO9141_NO_CHECKSUM;  //        || ISO9141_K_LINE_ONLY ;
     inno_interface *_inno_interface = nullptr;
-    QThread *inno_thread;
+    QThread *inno_thread = nullptr;
 
     QString reportJ2534Error()
     {
@@ -369,6 +373,8 @@ private:
     }
     bool get_serial_num(unsigned long devID, char* serial)
     {
+        inbuf inbuf;
+        outbuf outbuf;
         inbuf.length = 2;
         inbuf.svcid = 5; // info
         inbuf.infosvcid = 1; // serial
@@ -387,7 +393,7 @@ private:
     }
 
 signals:
-
+    void stop_inno();
 };
 
 

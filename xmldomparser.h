@@ -5,12 +5,12 @@
 #include "ecu.h"
 #include <math.h>
 
-class DomParser : public QObject
+class xmlParser : public QObject
 {
     Q_OBJECT
 public:
 
-    DomParser()
+    xmlParser()
     {}
     void _parser(QIODevice *device, ecu *_ecu, QTreeWidget *tr)
     {
@@ -98,7 +98,7 @@ public:
 private:
     ecu *_ecu;
     Scaling sc;                                               //промежуточная структура для помещения в контейнер
-    QHash<QString, Scaling> scaling_qmap;                      //контейнер скалингов
+    QHash<QString, Scaling> scaling_qmap;                     //контейнер скалингов
     sub_tableDeclaration axisDeclaration;                     //структура оси
     tableDeclaration mainTableDeclaration;                    //структура таблицы
 
