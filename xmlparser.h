@@ -1,5 +1,5 @@
-#ifndef DOMPARSER_H
-#define DOMPARSER_H
+#ifndef XMLPARSER_H
+#define XMLPARSER_H
 #include <QtXml/QDomDocument>
 #include <mathparser2.h>
 #include "ecu.h"
@@ -155,4 +155,4 @@ private:
     }
 };
 
-#endif // DOMPARSER_H
+#endif // XMLPARSER_H

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.12.4
+** Created by: Qt User Interface Compiler version 5.15.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -654,40 +654,40 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "eulle@ya.ru     v 1.0", nullptr));
-        groupBox_8->setTitle(QApplication::translate("MainWindow", "Connection parameter", nullptr));
-        BaudRate_label->setText(QApplication::translate("MainWindow", "Baud rate:", nullptr));
-        BaudRatelineEdit->setText(QApplication::translate("MainWindow", "15625", nullptr));
-        logger_rate_textedit->setText(QApplication::translate("MainWindow", "25", nullptr));
+        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "eulle@ya.ru     v 1.0", nullptr));
+        groupBox_8->setTitle(QCoreApplication::translate("MainWindow", "Connection parameter", nullptr));
+        BaudRate_label->setText(QCoreApplication::translate("MainWindow", "Baud rate:", nullptr));
+        BaudRatelineEdit->setText(QCoreApplication::translate("MainWindow", "15625", nullptr));
+        logger_rate_textedit->setText(QCoreApplication::translate("MainWindow", "25", nullptr));
         logger_rate_textedit->setPlaceholderText(QString());
-        logRate_hz_label->setText(QApplication::translate("MainWindow", "Hz", nullptr));
-        logRate_label->setText(QApplication::translate("MainWindow", "Logging rate:", nullptr));
-        _115200_radioButton->setText(QApplication::translate("MainWindow", "115200", nullptr));
-        _62200_radioButton->setText(QApplication::translate("MainWindow", "62200", nullptr));
-        _15625_radioButton->setText(QApplication::translate("MainWindow", "15625", nullptr));
-        baud_label->setText(QApplication::translate("MainWindow", "baud", nullptr));
-        trace_time_label->setText(QApplication::translate("MainWindow", "0", nullptr));
-        redraw_time_label->setText(QApplication::translate("MainWindow", "redraw time all tables", nullptr));
-        groupBox_7->setTitle(QApplication::translate("MainWindow", "Control section", nullptr));
-        save_trace_pushButton->setText(QApplication::translate("MainWindow", "save_trace", nullptr));
-        stop_live->setText(QApplication::translate("MainWindow", "Stop for debug", nullptr));
-        tabWidget->setTabText(tabWidget->indexOf(live_tab), QApplication::translate("MainWindow", "live", nullptr));
-        groupBox_2->setTitle(QApplication::translate("MainWindow", "edit", nullptr));
-        groupBox_3->setTitle(QApplication::translate("MainWindow", "Address", nullptr));
-        label->setText(QApplication::translate("MainWindow", "TextLabel", nullptr));
-        groupBox_4->setTitle(QApplication::translate("MainWindow", "Lenght", nullptr));
-        label_2->setText(QApplication::translate("MainWindow", "TextLabel", nullptr));
-        groupBox->setTitle(QApplication::translate("MainWindow", "control", nullptr));
-        create->setText(QApplication::translate("MainWindow", "Create", nullptr));
-        delete_2->setText(QApplication::translate("MainWindow", "Delete", nullptr));
-        loadbinbutton->setText(QApplication::translate("MainWindow", "Load .bin", nullptr));
-        savebinbutton->setText(QApplication::translate("MainWindow", "Save .bin", nullptr));
-        loadpatchbutton->setText(QApplication::translate("MainWindow", "Load .patch", nullptr));
-        savepatchbutton->setText(QApplication::translate("MainWindow", "Save .patch", nullptr));
-        groupBox_5->setTitle(QApplication::translate("MainWindow", "patch list", nullptr));
-        tabWidget->setTabText(tabWidget->indexOf(patcher), QApplication::translate("MainWindow", "patcher", nullptr));
-        groupBox_11->setTitle(QApplication::translate("MainWindow", "HowTo", nullptr));
-        label_4->setText(QApplication::translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+        logRate_hz_label->setText(QCoreApplication::translate("MainWindow", "Hz", nullptr));
+        logRate_label->setText(QCoreApplication::translate("MainWindow", "Logging rate:", nullptr));
+        _115200_radioButton->setText(QCoreApplication::translate("MainWindow", "115200", nullptr));
+        _62200_radioButton->setText(QCoreApplication::translate("MainWindow", "62200", nullptr));
+        _15625_radioButton->setText(QCoreApplication::translate("MainWindow", "15625", nullptr));
+        baud_label->setText(QCoreApplication::translate("MainWindow", "baud", nullptr));
+        trace_time_label->setText(QCoreApplication::translate("MainWindow", "0", nullptr));
+        redraw_time_label->setText(QCoreApplication::translate("MainWindow", "redraw time all tables", nullptr));
+        groupBox_7->setTitle(QCoreApplication::translate("MainWindow", "Control section", nullptr));
+        save_trace_pushButton->setText(QCoreApplication::translate("MainWindow", "save_trace", nullptr));
+        stop_live->setText(QCoreApplication::translate("MainWindow", "Stop for debug", nullptr));
+        tabWidget->setTabText(tabWidget->indexOf(live_tab), QCoreApplication::translate("MainWindow", "live", nullptr));
+        groupBox_2->setTitle(QCoreApplication::translate("MainWindow", "edit", nullptr));
+        groupBox_3->setTitle(QCoreApplication::translate("MainWindow", "Address", nullptr));
+        label->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
+        groupBox_4->setTitle(QCoreApplication::translate("MainWindow", "Lenght", nullptr));
+        label_2->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
+        groupBox->setTitle(QCoreApplication::translate("MainWindow", "control", nullptr));
+        create->setText(QCoreApplication::translate("MainWindow", "Create", nullptr));
+        delete_2->setText(QCoreApplication::translate("MainWindow", "Delete", nullptr));
+        loadbinbutton->setText(QCoreApplication::translate("MainWindow", "Load .bin", nullptr));
+        savebinbutton->setText(QCoreApplication::translate("MainWindow", "Save .bin", nullptr));
+        loadpatchbutton->setText(QCoreApplication::translate("MainWindow", "Load .patch", nullptr));
+        savepatchbutton->setText(QCoreApplication::translate("MainWindow", "Save .patch", nullptr));
+        groupBox_5->setTitle(QCoreApplication::translate("MainWindow", "patch list", nullptr));
+        tabWidget->setTabText(tabWidget->indexOf(patcher), QCoreApplication::translate("MainWindow", "patcher", nullptr));
+        groupBox_11->setTitle(QCoreApplication::translate("MainWindow", "HowTo", nullptr));
+        label_4->setText(QCoreApplication::translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
@@ -713,15 +713,15 @@ public:
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Helvetica,Arial,sans-serif'; font-size:10pt; color:#1d2129;\">tuner pro from </span><a href=\"http://www.tunerpro.net/downloadApp.htm\"><span style=\" font-size:10pt; text-decoration: underline; color:#0000ff;\">http://www.tunerpro.net/downloadApp.htm</span></a><span style=\" font-family:'Helvetica,Arial,sans-serif'; font-size:10pt; color:#1d2129;\">, and </span></p>\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Helvetica,Arial,sans-serif'; font-size:10pt; color:#1d2129;\">xdf file.</span></p></b"
                         "ody></html>", nullptr));
-        groupBox_12->setTitle(QApplication::translate("MainWindow", "Parents", nullptr));
-        label_5->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:10pt;\">John Banks: aka JCSBanks on </span><a href=\"http://evolutionM.net\"><span style=\" font-size:10pt; text-decoration: underline; color:#0000ff;\">http://evolutionM.net</span></a><span style=\" font-size:10pt;\"> creator </span></p><p><span style=\" font-size:10pt;\">DMA logging for Mitsu.</span></p></body></html>", nullptr));
-        tabWidget->setTabText(tabWidget->indexOf(about), QApplication::translate("MainWindow", "about", nullptr));
-        start_addr_lineEdit->setText(QApplication::translate("MainWindow", "ffffa800", nullptr));
-        count_lineEdit->setText(QApplication::translate("MainWindow", "100", nullptr));
-        label_6->setText(QApplication::translate("MainWindow", "count", nullptr));
-        label_8->setText(QApplication::translate("MainWindow", "Start addr", nullptr));
-        tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("MainWindow", "direct RAM-ROM reader", nullptr));
-        toolBar->setWindowTitle(QApplication::translate("MainWindow", "toolBar", nullptr));
+        groupBox_12->setTitle(QCoreApplication::translate("MainWindow", "Parents", nullptr));
+        label_5->setText(QCoreApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:10pt;\">John Banks: aka JCSBanks on </span><a href=\"http://evolutionM.net\"><span style=\" font-size:10pt; text-decoration: underline; color:#0000ff;\">http://evolutionM.net</span></a><span style=\" font-size:10pt;\"> creator </span></p><p><span style=\" font-size:10pt;\">DMA logging for Mitsu.</span></p></body></html>", nullptr));
+        tabWidget->setTabText(tabWidget->indexOf(about), QCoreApplication::translate("MainWindow", "about", nullptr));
+        start_addr_lineEdit->setText(QCoreApplication::translate("MainWindow", "ffffa800", nullptr));
+        count_lineEdit->setText(QCoreApplication::translate("MainWindow", "100", nullptr));
+        label_6->setText(QCoreApplication::translate("MainWindow", "count", nullptr));
+        label_8->setText(QCoreApplication::translate("MainWindow", "Start addr", nullptr));
+        tabWidget->setTabText(tabWidget->indexOf(tab), QCoreApplication::translate("MainWindow", "direct RAM-ROM reader", nullptr));
+        toolBar->setWindowTitle(QCoreApplication::translate("MainWindow", "toolBar", nullptr));
     } // retranslateUi
 
 };

@@ -42,7 +42,7 @@ static  fast_calc_struct int_temp_fs;
 static  postfix_unit int_temp_postfix_unit;
 
 
-static   char counter = 0;
+static char counter = 0;
 inline void set_op(QChar s)
 {
     QString swst = "+-*/^";

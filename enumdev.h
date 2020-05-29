@@ -85,7 +85,7 @@ public:
             if (checkGUID(J2543_interfaces[i]))
             {
                 VechicleInterfaceType = J2534_INTERFACE;
-                emit InterfaceActive(VechicleInterfaceType);
+                emit InterfaceActive(VechicleInterfaceType, DllLibraryPath, isTactrix);
                 emit Log(interfaceName);
                 return true;
             }
@@ -93,7 +93,7 @@ public:
             if (checkGUID(serial_interfaces[i]))
             {
                 VechicleInterfaceType = SERIAL_INTERFACE;
-                emit InterfaceActive(VechicleInterfaceType);
+                emit InterfaceActive(VechicleInterfaceType, DllLibraryPath, isTactrix);
                 emit Log(interfaceName);
                 return true;
             }
@@ -138,9 +138,9 @@ public:
                     {
                         emit Log(interfaceName);
                         if ( pDevInf->dbcc_classguid == serial_interfaces.at(0) )
-                            emit InterfaceActive(13);   //SERIAL_INTERFACE
+                            emit InterfaceActive(13, DllLibraryPath, isTactrix);   //SERIAL_INTERFACE
                         else
-                            emit InterfaceActive(20);    //J2534_INTERFACE
+                            emit InterfaceActive(20, DllLibraryPath, isTactrix);    //J2534_INTERFACE
                     }
                 }
             }break;
@@ -150,7 +150,7 @@ public:
     }
 
 signals:
-    void InterfaceActive( int );
+    void InterfaceActive( int, TCHAR*, bool isTactrix );
     void disconnectInterface();
     void Log(QString);
 

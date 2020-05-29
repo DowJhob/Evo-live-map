@@ -14,9 +14,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
     CurrDir = QApplication::applicationDirPath();   //текущая директории
     //=============================================================================
-    connect(&Enumerator, SIGNAL(InterfaceActive(int)), SLOT(dll_connect(int)));
-    connect(&Enumerator, SIGNAL(disconnectInterface()), SLOT(dll_disconnect()));
-    connect(&Enumerator, SIGNAL(Log(QString)), statusBar(), SLOT(showMessage(QString)));
+//    connect(&Enumerator, SIGNAL(InterfaceActive(int)), SLOT(dll_connect(int)));
+//    connect(&Enumerator, SIGNAL(disconnectInterface()), SLOT(dll_disconnect()));
+//    connect(&Enumerator, SIGNAL(Log(QString)), statusBar(), SLOT(showMessage(QString)));
 
     //=============================================================================
     hexEdit = new QHexEdit;
@@ -38,8 +38,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 
     //Подписываемся на события нет нужды в подписке WM_change broadcast!
-    Enumerator.NotifyRegister((HWND)this->winId());
-    Enumerator.enumerateUSB_Device_by_guid();
+//    Enumerator.NotifyRegister((HWND)this->winId());
+//    Enumerator.enumerateUSB_Device_by_guid();
 
     interfaceLock();
 
@@ -280,14 +280,14 @@ void MainWindow::logger_and_tableWidget_trace(QByteArray in)
     //    timer->start();
 }
 
-void MainWindow::dll_connect(int VechicleInterfaceType)                //по сигналу перечислителя
+void MainWindow::dll_connect(int VechicleInterfaceType, TCHAR *DllLibraryPath, bool isTactrix)                //по сигналу перечислителя
 {
     if (ecu_comm == nullptr  )
     {
         if (VechicleInterfaceType == 13  )
-            ecu_comm = new OP13(Enumerator.DllLibraryPath);
+            ecu_comm = new OP13(DllLibraryPath);
         if (VechicleInterfaceType == 20  )
-            ecu_comm = new OP20(Enumerator.DllLibraryPath);
+            ecu_comm = new OP20(DllLibraryPath);
 
         connect(this, SIGNAL(startLogger(quint32, quint16)), ecu_comm, SLOT(startLogger(quint32, quint16)));
         connect(this, &MainWindow::stopLogger, ecu_comm, &ECU_interface::stopLogger);
@@ -300,7 +300,7 @@ connect(ecu_comm, &ECU_interface::interfaceReady, this, &MainWindow::interfaceUn
         ecu_comm->moveToThread(&interface_thread);
         interface_thread.start();
         //=============================================================================//=============================================================================
-        if ( Enumerator.isTactrix )
+        if ( isTactrix )
         {
             if( tactrix_afr_lcd == nullptr )
             {
@@ -393,7 +393,7 @@ void MainWindow::debugButton_slot()
 {
     debug = true;
 
-    emit Enumerator. InterfaceActive(20);
+    //emit Enumerator. InterfaceActive(20);
     ecu_comm->e7_connect();
     //if (!ecu_comm->five_baud_init())
     ;//return ;

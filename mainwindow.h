@@ -8,11 +8,11 @@
 #include <QFileDialog>
 #include <QLCDNumber>
 
-#include "enumdev.h"
+
 #include "custom_tablewidget.h"
 #include "mathparser2.h"
 #include "qhexedit/qhexedit.h"
-#include "xmldomparser.h"
+#include "xmlparser.h"
 #include "ecu_interface.h"
 #include "op13.h"
 #include "op20.h"
@@ -30,7 +30,7 @@ class MainWindow : public QMainWindow
 public:
 
     QHash<QString, CustomTableWidget*> ptrRAMtables;
-    enumerator Enumerator;
+//    enumerator Enumerator;
     QStringList listFiles;
     QString FirstFile_by_Name = {};
     ~MainWindow();
@@ -64,12 +64,13 @@ public slots:
         }
         ecu_comm->sendDMAcomand(0xE2, table->Table_Decl.Table.ram_addr + pos, 1, Out);
     }
+    void dll_connect(int VechicleInterfaceType, TCHAR* DllLibraryPath, bool isTactrix);
+    void dll_disconnect();
 
 protected :
 
 private slots:
-    void dll_connect(int VechicleInterfaceType);
-    void dll_disconnect();
+
     void interfaceUnlock()
     {
         interfaceThumbler(false);

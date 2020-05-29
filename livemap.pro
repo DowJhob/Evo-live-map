@@ -49,7 +49,7 @@ HEADERS  += mainwindow.h \
     libs/ftdi_types.h \
     enumdev.h \
     tactrix_inno.h \
-    xmldomparser.h
+    xmlparser.h
 
 FORMS    += mainwindow.ui
 
@@ -60,8 +60,8 @@ CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
 #INCLUDEPATH += libs/libusb/include
 #LIBS += -Llibs/libusb/MinGW64/dll -lusb-1.0
 LIBS += -lSetupapi
-#LIBS += -ladvapi32
-#LIBS += -luser32
+LIBS += -ladvapi32
+LIBS += -luser32
 
 CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 
