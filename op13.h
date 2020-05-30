@@ -81,7 +81,7 @@ public slots:
 private slots:
     bool _init()
     {
-        op13 = new ftdi ;
+        op13 = new ftdi(dllName);
 
         delay_after_command = 0;
         if (op13->FT_Open(0, &op13->ftHandle) == FT_OK)

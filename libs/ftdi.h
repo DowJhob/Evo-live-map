@@ -30,7 +30,7 @@
 class ftdi
 {
 public:
-    ftdi(void);
+    ftdi(TCHAR *_dllName);
     ~ftdi(void);
     bool init() { return checkDLL(); }
     void setDllName(const char* name);

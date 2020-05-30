@@ -36,6 +36,8 @@ public:
     bool isTactrix = false;
     int VechicleInterfaceType;
     TCHAR DllLibraryPath[256];
+    WCHAR Vendor[256];
+    WCHAR deviceDesc[256];
     void NotifyRegister(HWND hwnd)
     {
         //Подписываемся на события
@@ -45,7 +47,7 @@ public:
         NotificationFilter.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
         for (int i = 0; i < J2543_interfaces.size(); i++)
         {
-            //   NotificationFilter.dbcc_classguid = {0xa5dcbf10, 0x6530, 0x11d2, {0x90, 0x1f, 0x0, 0xc0, 0x4f, 0xb9, 0x51, 0xed}} ; // подпишемся на все наши интерфейсы
+      //         NotificationFilter.dbcc_classguid = {0xa5dcbf10, 0x6530, 0x11d2, {0x90, 0x1f, 0x0, 0xc0, 0x4f, 0xb9, 0x51, 0xed}} ; // подпишемся на все наши интерфейсы
             NotificationFilter.dbcc_classguid = J2543_interfaces.at(i);
             NotificationFilter.dbcc_name[0] = '\0';
             NotificationHandle = RegisterDeviceNotification( hwnd,
@@ -58,24 +60,24 @@ public:
                 qDebug() << " event not register!!";
             }
             else
-                qDebug() << " event registered!!";
+                qDebug() <<  " event registered!!";
         }
-        for (int i = 0; i < serial_interfaces.size(); i++)
-        {
-            NotificationFilter.dbcc_classguid = serial_interfaces[i]; // подпишемся на все наши интерфейсы
-            NotificationFilter.dbcc_name[0] = '\0';
-            NotificationHandle = RegisterDeviceNotification( hwnd,
-                                                             &NotificationFilter,
-                                                             //DEVICE_NOTIFY_ALL_INTERFACE_CLASSES
-                                                             DEVICE_NOTIFY_WINDOW_HANDLE
-                                                             );
-            if ( NotificationHandle == nullptr )
-            {
-                qDebug() << " event not register!!";
-            }
-            else
-                qDebug() << &serial_interfaces[i] << " event registered!!";
-        }
+//        for (int i = 0; i < serial_interfaces.size(); i++)
+//        {
+//            NotificationFilter.dbcc_classguid = serial_interfaces[i]; // подпишемся на все наши интерфейсы
+//            NotificationFilter.dbcc_name[0] = '\0';
+//            NotificationHandle = RegisterDeviceNotification( hwnd,
+//                                                             &NotificationFilter,
+//                                                             //DEVICE_NOTIFY_ALL_INTERFACE_CLASSES
+//                                                             DEVICE_NOTIFY_WINDOW_HANDLE
+//                                                             );
+//            if ( NotificationHandle == nullptr )
+//            {
+//                qDebug() << " event not register!!";
+//            }
+//            else
+//                qDebug() << &serial_interfaces[i] << " event registered!!";
+//        }
     }
 
     //заглушка для прогона по всему вектору гуидов, нужна для запуска с подключенным устройством
@@ -159,9 +161,9 @@ private:
     QString tactrixOP13_DeviceInstanceId = "VID_0403&PID_CC4A";
     QVector<GUID> J2543_interfaces = {
  //       { 0xfb1cf0c4, 0xb412, 0x451f, {0x9f, 0x04, 0xdf, 0x75, 0x37, 0xa5, 0x00, 0x3c}},  // VehiclePassThru j2534 class adapter?
-        { 0x6d1781b7, 0xc987, 0x4f6c, {0x8d, 0x4f, 0x1e, 0xfc, 0x09, 0x8b, 0xea, 0x67}},  // ??????????????????????????????????????????????????????????????
+        { 0x6d1781b7, 0xc987, 0x4f6c, {0x8d, 0x4f, 0x1e, 0xfc, 0x09, 0x8b, 0xea, 0x67}}  // tactrix VehiclePassThru j2534 ???????
         //        { 0x5a929f4c, 0x6f07, 0x426d, {0xa9, 0x70, 0x90, 0x3d, 0x25, 0xd4, 0x45, 0xb3}},   //raw usb device for Scanmatic??
-        { 0xa5dcbf10, 0x6530, 0x11d2, {0x90, 0x1f, 0x00, 0xc0, 0x4f, 0xb9, 0x51, 0xed}}   //raw usb device for Scanmatic
+        ,{ 0xa5dcbf10, 0x6530, 0x11d2, {0x90, 0x1f, 0x00, 0xc0, 0x4f, 0xb9, 0x51, 0xed}}   //raw usb device for Scanmatic
     };
     QVector<GUID> serial_interfaces = {
         { 0x4d36e978, 0xe325, 0x11ce, {0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18}}   //Serial and parralel ports change or add OP1.3
@@ -171,46 +173,53 @@ private:
     SP_DEVINFO_DATA DeviceInfoData;
     TCHAR propertyBuffer[512];       // массив для данных
 
-    bool checkDev(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
+    bool checkGUID(GUID guid)
     {
-        DWORD KeyType, KeySize = 256;
-        QStringList Parts = QString::fromWCharArray((wchar_t*)pDevInf->dbcc_name).split('#');
-        if (Parts.length() >= 3)
+        // Получаем указатель на множество устройств, присутствующих в системе
+        hDevInfo = SetupDiGetClassDevs(&guid, nullptr, nullptr,  DIGCF_PRESENT|DIGCF_DEVICEINTERFACE );
+        if ( hDevInfo == INVALID_HANDLE_VALUE )
         {
-            QString DevType = Parts[0].mid(Parts[0].indexOf("?\\") + 2 );
-            QString DeviceInstanceId = Parts[1];
-            QString DeviceUniqueID = Parts[2];
-            QString RegPath = "SYSTEM\\CurrentControlSet\\Enum\\" + DevType + "\\" + DeviceInstanceId + "\\" + DeviceUniqueID;
-            HKEY key;
-            //qDebug() << "RegPath: " << RegPath;
-            if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, (WCHAR*)RegPath.utf16(), 0, KEY_READ , &key) == ERROR_SUCCESS)
+            qDebug() << "err create list dev";
+        }
+        ZeroMemory(&DeviceInfoData, sizeof(SP_DEVINFO_DATA));
+        DeviceInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
+        // Перебор всех устройств из набора
+        for (uint i = 0; SetupDiEnumDeviceInfo(hDevInfo, i, &DeviceInfoData); i++)
+        {
+            // SPDRP_HARDWAREID
+            // SPDRP_CLASS
+            // SPDRP_MFG   //vendor
+            DeviceDesc(SPDRP_MFG);
+            if ( get_dll_path_j2534(propertyBuffer) )
             {
-                KeySize = 256;
-                if ( RegQueryValueEx(key, L"Mfg", 0, &KeyType, (uchar*)DllLibraryPath, &KeySize) == ERROR_SUCCESS)
-                {
-                    WCHAR* t = wcstok (DllLibraryPath, L";");
-                    t = wcstok (NULL, L";");
-                    qDebug() << "Vendor: " << QString::fromWCharArray(t) ;             //в DllLibraryPath имя вендора!
-                    if ( get_dll_path2( t ) )
-                    {
-                        checkTactrix( DeviceInstanceId);
-KeySize = 512;
-                        if ( RegQueryValueEx(key, L"DeviceDesc", 0, &KeyType, (uchar*)propertyBuffer, &KeySize) == ERROR_SUCCESS)
-                        {
-                            t = wcstok (propertyBuffer, L";");
-                            t = wcstok (NULL, L";");
-                            interfaceName = interfaceName.fromWCharArray(t) ;
-                 //           qDebug() << "DeviceDesc: " << QString::fromWCharArray( propertyBuffer );
-                        }
-                        return true;
-                    }
-                }
+                DeviceDesc(SPDRP_HARDWAREID);
+                checkTactrix( QString::fromWCharArray( propertyBuffer ).mid(4, 17));
+                DeviceDesc(SPDRP_DEVICEDESC);
+                interfaceName = interfaceName.fromWCharArray(propertyBuffer);
+                return true;
             }
         }
+        SetupDiDestroyDeviceInfoList(hDevInfo);
         return false;
     }
 
-    bool get_dll_path2(TCHAR *vendor_name)
+    bool checkDev(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
+    {
+
+                    WCHAR* t = getVendorDesc_frRegistry(pDevInf);
+
+//pDevInf->dbcc_classguid
+                    if ( get_dll_path_j2534( t ) )
+                    {
+
+
+                        return true;
+                    }
+
+        return false;
+    }
+
+    bool get_dll_path_j2534(TCHAR *vendor_name)
     {
         //        qDebug() << "input vendor_name: " << vendor_name;
 
@@ -245,7 +254,7 @@ KeySize = 512;
                                 KeySize = 256;                                                              //MAGICK
                                 if (RegQueryValueEx(sub_child, L"FunctionLibrary", 0, &KeyType, (uchar*)DllLibraryPath, &KeySize) == ERROR_SUCCESS)
                                 {
-                                    //                                    qDebug() << "DllLibraryPath: " << QString::fromWCharArray(DllLibraryPath);  //в DllLibraryPath собственно путь до драйвера!
+//                                    qDebug() << "DllLibraryPath: " << QString::fromWCharArray(DllLibraryPath);  //в DllLibraryPath собственно путь до драйвера!
                                     RegCloseKey(childKEY);
                                     RegCloseKey(sub_child);
                                     return true;
@@ -267,36 +276,6 @@ KeySize = 512;
         return false;
     }
 
-    bool checkGUID(GUID guid)
-    {
-        // Получаем указатель на множество устройств, присутствующих в системе
-        hDevInfo = SetupDiGetClassDevs(&guid, nullptr, nullptr,  DIGCF_PRESENT|DIGCF_DEVICEINTERFACE );
-        if ( hDevInfo == INVALID_HANDLE_VALUE )
-        {
-            qDebug() << "err create list dev";
-        }
-        ZeroMemory(&DeviceInfoData, sizeof(SP_DEVINFO_DATA));
-        DeviceInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
-        // Перебор всех устройств из набора
-        for (uint i = 0; SetupDiEnumDeviceInfo(hDevInfo, i, &DeviceInfoData); i++)
-        {
-            // SPDRP_HARDWAREID
-            // SPDRP_CLASS
-            // SPDRP_MFG   //vendor
-            DeviceDesc(SPDRP_MFG);
-            if ( get_dll_path2(propertyBuffer) )
-            {
-                DeviceDesc(SPDRP_HARDWAREID);
-                checkTactrix( QString::fromWCharArray( propertyBuffer ).mid(4, 17));
-                DeviceDesc(SPDRP_DEVICEDESC);
-                interfaceName = interfaceName.fromWCharArray(propertyBuffer);
-                return true;
-            }
-        }
-        SetupDiDestroyDeviceInfoList(hDevInfo);
-        return false;
-    }
-
     void checkTactrix(QString DeviceInstanceId)
     {
         isTactrix = false;
@@ -315,6 +294,56 @@ KeySize = 512;
         SetupDiGetDeviceRegistryProperty( hDevInfo,&DeviceInfoData, SPDRP, nullptr, (UCHAR*)propertyBuffer, requiredPropertySize, nullptr );
 //        qDebug() << "DeviceDesc: " << QString::fromWCharArray( propertyBuffer );
     }
+
+
+
+
+
+    WCHAR* getVendorDesc_frRegistry(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
+    {
+        DWORD KeyType, KeySize = 256;
+        QStringList Parts = QString::fromWCharArray((wchar_t*)pDevInf->dbcc_name).split('#');
+        if (Parts.length() >= 3)
+        {
+            QString DevType = Parts[0].mid(Parts[0].indexOf("?\\") + 2 );
+            QString DeviceInstanceId = Parts[1];
+
+            checkTactrix( DeviceInstanceId);
+
+            QString DeviceUniqueID = Parts[2];
+            QString RegPath = "SYSTEM\\CurrentControlSet\\Enum\\" + DevType + "\\" + DeviceInstanceId + "\\" + DeviceUniqueID;
+            HKEY key;
+            //qDebug() << "RegPath: " << RegPath;
+            if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, (WCHAR*)RegPath.utf16(), 0, KEY_READ , &key) == ERROR_SUCCESS)
+            {
+                KeySize = 256;
+                if ( RegQueryValueEx(key, L"Mfg", 0, &KeyType, (uchar*)Vendor, &KeySize) == ERROR_SUCCESS)
+                {
+                    WCHAR* vendor = wcstok (Vendor, L";");
+                    vendor = wcstok (NULL, L";");
+                    qDebug() << "Vendor: " << QString::fromWCharArray(vendor) ;
+
+                    KeySize = 512;
+                    if ( RegQueryValueEx(key, L"DeviceDesc", 0, &KeyType, (uchar*)deviceDesc, &KeySize) == ERROR_SUCCESS)
+                    {
+                        WCHAR *t = wcstok (deviceDesc, L";");
+                        t = wcstok (NULL, L";");
+                        interfaceName = interfaceName.fromWCharArray(t) ;
+                        qDebug() << "DeviceDesc: " <<    interfaceName;
+                    }
+                    return vendor;
+                }
+            }
+        }
+return nullptr;
+    }
+
+
+
+
+
+
+
 };
 
 

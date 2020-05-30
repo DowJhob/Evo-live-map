@@ -284,22 +284,23 @@ void MainWindow::dll_connect(int VechicleInterfaceType, TCHAR *DllLibraryPath, b
 {
     if (ecu_comm == nullptr  )
     {
-        if (VechicleInterfaceType == 13  )
+        if (VechicleInterfaceType == 13 )
             ecu_comm = new OP13(DllLibraryPath);
-        if (VechicleInterfaceType == 20  )
+        if (VechicleInterfaceType == 20 )
             ecu_comm = new OP20(DllLibraryPath);
 
         connect(this, SIGNAL(startLogger(quint32, quint16)), ecu_comm, SLOT(startLogger(quint32, quint16)));
         connect(this, &MainWindow::stopLogger, ecu_comm, &ECU_interface::stopLogger);
         connect(this, SIGNAL(setLoggingInterval(int)), ecu_comm, SLOT(setLoggingInterval(int)));
-connect(ecu_comm, &ECU_interface::interfaceReady, this, &MainWindow::interfaceUnlock);
+        connect(ecu_comm, &ECU_interface::interfaceReady, this, &MainWindow::interfaceUnlock);
         connect(ecu_comm, SIGNAL(readyRead(QByteArray)), this, SLOT(logger_and_tableWidget_trace(QByteArray)));
         connect(ecu_comm, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
         //=============================================================================
         connect(&interface_thread, &QThread::started, ecu_comm, &ECU_interface::init);
         ecu_comm->moveToThread(&interface_thread);
         interface_thread.start();
-        //=============================================================================//=============================================================================
+        //=============================================================================
+        //=============================================================================
         if ( isTactrix )
         {
             if( tactrix_afr_lcd == nullptr )

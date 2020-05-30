@@ -11,14 +11,16 @@
 #include <unistd.h>
 #endif
 
-ftdi::ftdi(void)
+ftdi::ftdi(TCHAR *_dllName)
 {
     hDLL = NULL;
     debugMode = false;
     isLibraryInitialized = false;
     // default to the Openport 1.3 ftdi DLL
 #if defined(_WIN32) || defined(WIN32) || defined (_WIN64) || defined (WIN64)
-    strcpy(dllName,"ftd2xx.dll");
+    memcpy(dllName, _dllName, 512);
+    memcpy(dllName, L"ftd2xx.dll", 512);
+//    strcpy(dllName,"ftd2xx.dll");
 #else
     strcpy(dllName,"ftd2xx.lib");
 #endif

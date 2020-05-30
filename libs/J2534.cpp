@@ -19,7 +19,6 @@ J2534::J2534(TCHAR *_dllName)
     // default to the Openport 2.0 J2534 DLL
 #if defined(_WIN32) || defined(WIN32) || defined (_WIN64) || defined (WIN64)
 memcpy(dllName, _dllName, 512);
-//    strcpy(dllName, _dllName);
 //    strcpy(dllName,"op20pt32.dll");
 #else
     strcpy(dllName,"op20pt32.dylib");
