@@ -27,6 +27,7 @@
             dbgprintptmsg args_in_parens; \
     }
 
+
 class ftdi
 {
 public:
@@ -43,6 +44,8 @@ public:
 
     FT_STATUS FT_Open (int iDevice, FT_HANDLE *ftHandle);
     FT_STATUS FT_OpenEx(PVOID pArg1,DWORD Flags,FT_HANDLE *pHandle);
+    FT_STATUS FT_CreateDeviceInfoList(LPDWORD numDevs);
+    FT_STATUS FT_GetDeviceInfoList(FT_DEVICE_LIST_INFO_NODE *pDest, LPDWORD lpdwNumDevs);
     FT_STATUS FT_ListDevices(PVOID pArg1,PVOID pArg2,DWORD Flags);
     FT_STATUS FT_Close(FT_HANDLE ftHandle);
     FT_STATUS FT_Read(FT_HANDLE ftHandle, LPVOID lpBuffer, DWORD dwBytesToRead, LPDWORD lpBytesReturned);
@@ -87,7 +90,7 @@ public:
 
 private:
     bool getPTfns();
-    long LoadftdiDLL(const char* szDLL);
+    long LoadftdiDLL(const TCHAR *szDLL);
     bool checkDLL();
 //    void dbgprint(const char* Format, ...);
 //    void dbgdump(const unsigned char *data,unsigned int datalen,int kind);
@@ -97,7 +100,7 @@ private:
 //    void dump_sconfig_param(SCONFIG s);
 
     char lastError[256];
-    char dllName[256];
+    TCHAR dllName[256];
     bool debugMode;
     bool isLibraryInitialized;
 
@@ -111,6 +114,8 @@ private:
     /* ftdi Interface API function pointers */
     PTfn(FT_Open);
     PTfn(FT_OpenEx);
+    PTfn(FT_CreateDeviceInfoList);
+    PTfn(FT_GetDeviceInfoList);
     PTfn(FT_ListDevices);
     PTfn(FT_Close);
     PTfn(FT_Read);
@@ -155,6 +160,8 @@ private:
     PT_API void OP20PT32_Stop();
     PText(FT_Open);
     PText(FT_OpenEx);
+    PText(FT_CreateDeviceInfoList);
+    PText(FT_GetDeviceInfoList);
     PText(FT_ListDevices);
     PText(FT_Close);
     PText(FT_Read);

@@ -4,6 +4,15 @@
 
 typedef PVOID	FT_HANDLE;
 typedef ULONG	FT_STATUS;
+typedef struct _ft_device_list_info_node {
+DWORD Flags;
+DWORD Type;
+DWORD ID;
+DWORD LocId;
+char SerialNumber[16];
+char Description[64];
+FT_HANDLE ftHandle;
+} FT_DEVICE_LIST_INFO_NODE;
 
 
 
@@ -26,6 +35,8 @@ typedef ULONG	FT_STATUS;
 
 typedef FT_STATUS (PT_CALL PF_FT_Open)(int, FT_HANDLE *);
 typedef FT_STATUS (PT_CALL PF_FT_OpenEx)(PVOID , DWORD , FT_HANDLE *);
+typedef FT_STATUS (PT_CALL PF_FT_CreateDeviceInfoList)(LPDWORD);
+typedef FT_STATUS (PT_CALL PF_FT_GetDeviceInfoList)(FT_DEVICE_LIST_INFO_NODE*,LPDWORD);
 typedef FT_STATUS (PT_CALL PF_FT_ListDevices)(PVOID,PVOID,DWORD);
 typedef FT_STATUS (PT_CALL PF_FT_Close)(FT_HANDLE);
 typedef FT_STATUS (PT_CALL PF_FT_Read)(FT_HANDLE, LPVOID, DWORD, LPDWORD);

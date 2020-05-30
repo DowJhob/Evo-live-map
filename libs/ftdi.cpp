@@ -19,7 +19,7 @@ ftdi::ftdi(TCHAR *_dllName)
     // default to the Openport 1.3 ftdi DLL
 #if defined(_WIN32) || defined(WIN32) || defined (_WIN64) || defined (WIN64)
     memcpy(dllName, _dllName, 512);
-    memcpy(dllName, L"ftd2xx.dll", 512);
+//    memcpy(dllName, L"ftd2xx.dll", 512);
 //    strcpy(dllName,"ftd2xx.dll");
 #else
     strcpy(dllName,"ftd2xx.lib");
@@ -28,7 +28,7 @@ ftdi::ftdi(TCHAR *_dllName)
 
 void ftdi::setDllName(const char* name)
 {
-    strcpy(dllName,name);
+    //strcpy(dllName,name);
 }
 
 char* ftdi::getLastError()
@@ -84,6 +84,8 @@ bool ftdi::getPTfns()     //тут получаем указатели на вс
  //       return false;
 
     getPTfn(FT_OpenEx);
+    getPTfn(FT_CreateDeviceInfoList);
+    getPTfn(FT_GetDeviceInfoList);
     getPTfn(FT_ListDevices);
     getPTfn(FT_Close);
     getPTfn(FT_Read);
@@ -192,7 +194,7 @@ bool ftdi::getPTfns()     //тут получаем указатели на вс
 //    dbgdump(pMsg->Data,pMsg->DataSize,kind);
 //}
 
-long ftdi::LoadftdiDLL(const char* szDLL)
+long ftdi::LoadftdiDLL(const TCHAR* szDLL)
 {
 #if defined(OP20PT32_USE_LIB)
     szDLL; // unused
@@ -213,7 +215,7 @@ long ftdi::LoadftdiDLL(const char* szDLL)
     }
 
 #if defined(_WIN32) || defined(WIN32) || defined (_WIN64) || defined (WIN64)
-    if (!(hDLL = LoadLibraryA(szDLL)))
+    if (!(hDLL = LoadLibrary(szDLL)))
     {
         strcpy(lastError,"error loading ftdi DLL");
         return false;
@@ -292,6 +294,22 @@ FT_STATUS ftdi::FT_OpenEx(PVOID pArg1,DWORD Flags,FT_HANDLE *pHandle)
     long result = (*pfFT_OpenEx)(pArg1, Flags, pHandle);
     return result;
 }
+
+ FT_STATUS ftdi:: FT_CreateDeviceInfoList(LPDWORD numDevs)
+ {
+     long result = FT_OK;
+     result = (*pfFT_CreateDeviceInfoList)( numDevs);
+     return result;
+ }
+
+FT_STATUS ftdi::FT_GetDeviceInfoList (FT_DEVICE_LIST_INFO_NODE *pDest, LPDWORD lpdwNumDevs)
+{
+    long result = FT_OK;
+    result = (*pfFT_GetDeviceInfoList)( pDest, lpdwNumDevs);
+    return result;
+}
+
+
 FT_STATUS ftdi::FT_ListDevices(PVOID pArg1,PVOID pArg2,DWORD Flags)
 {
     long result = FT_OK;
