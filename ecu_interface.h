@@ -35,17 +35,32 @@ public:
     virtual void write( uint count) = 0;
     TCHAR *dllName;
     virtual void close() = 0;
-    void sendDMAcomand(char command, unsigned long addr, unsigned long count, char* buf = nullptr)
+    void sendDMAcomand(char command, quint32 addr, quint16 count, char* buf = nullptr)
     {
         out_buff[0] = command;
         write( 1 );
         QThread::msleep(delay_after_command);
-        out_buff[0] = (addr & 0xFF000000) >> 24;
-        out_buff[1] = (addr & 0xFF0000) >> 16;
-        out_buff[2] = (addr & 0xFF00) >> 8;
-        out_buff[3] = (addr & 0xFF);
-        out_buff[4] = (count & 0xFF00) >> 8;
-        out_buff[5] = (count & 0xFF);
+        uchar * const p_addr = reinterpret_cast<uchar * const>(&addr);
+        uchar * const p_count = reinterpret_cast<uchar * const>(&count);
+//        qDebug() << p_addr[0] << p_addr[1] << p_addr[2] << p_addr[3];
+
+        out_buff[0] = p_addr[3];
+        out_buff[1] = p_addr[2];
+        out_buff[2] = p_addr[1];
+        out_buff[3] = p_addr[0];
+
+        out_buff[4] = p_count[1];
+        out_buff[5] = p_count[0];
+
+
+
+//        out_buff[0] = (addr & 0xFF000000) >> 24;
+//        out_buff[1] = (addr & 0xFF0000) >> 16;
+//        out_buff[2] = (addr & 0xFF00) >> 8;
+//        out_buff[3] = (addr & 0xFF);
+//        out_buff[4] = (count & 0xFF00) >> 8;
+//        out_buff[5] = (count & 0xFF);
+//        qDebug() << out_buff[0] << out_buff[1] << out_buff[2] << out_buff[3];
         write( 6 );
         if ( buf != nullptr)
         {

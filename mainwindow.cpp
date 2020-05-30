@@ -481,7 +481,7 @@ void MainWindow::Log(QString str)
 void MainWindow::on_start_addr_lineEdit_returnPressed()
 {
     int count = ui->count_lineEdit->text().toUInt(nullptr);
-    quint64 addr = ui->start_addr_lineEdit->text().toUInt(nullptr, 16);
+    quint32 addr = ui->start_addr_lineEdit->text().toUInt(nullptr, 16);
 
     ecu_comm->sendDMAcomand(0xE1, addr, count);
     ecu_comm->read();
@@ -493,7 +493,7 @@ void MainWindow::on_start_addr_lineEdit_returnPressed()
 void MainWindow::on_count_lineEdit_returnPressed()
 {
     int count = ui->count_lineEdit->text().toUInt(nullptr);
-    quint64 addr = ui->start_addr_lineEdit->text().toUInt(nullptr, 16);
+    quint32 addr = ui->start_addr_lineEdit->text().toUInt(nullptr, 16);
 
     ecu_comm->sendDMAcomand(0xE1, addr, count);
     ecu_comm->read();

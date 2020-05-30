@@ -65,8 +65,8 @@ LIBS += -luser32
 
 CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 
-QMAKE_LFLAGS_RELEASE += /LTCG
-QMAKE_CXXFLAGS  += /Ox
+#QMAKE_LFLAGS_RELEASE += /LTCG
+#QMAKE_CXXFLAGS  += /Ox
 
 QMAKE_CXXFLAGS  += -flto -funroll-loops
 QMAKE_CXXFLAGS  += -fforce-addr
