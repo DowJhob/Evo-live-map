@@ -62,22 +62,22 @@ public:
             else
                 qDebug() <<  " event registered!!";
         }
-        //        for (int i = 0; i < serial_interfaces.size(); i++)
-        //        {
-        //            NotificationFilter.dbcc_classguid = serial_interfaces[i]; // подпишемся на все наши интерфейсы
-        //            NotificationFilter.dbcc_name[0] = '\0';
-        //            NotificationHandle = RegisterDeviceNotification( hwnd,
-        //                                                             &NotificationFilter,
-        //                                                             //DEVICE_NOTIFY_ALL_INTERFACE_CLASSES
-        //                                                             DEVICE_NOTIFY_WINDOW_HANDLE
-        //                                                             );
-        //            if ( NotificationHandle == nullptr )
-        //            {
-        //                qDebug() << " event not register!!";
-        //            }
-        //            else
-        //                qDebug() << &serial_interfaces[i] << " event registered!!";
-        //        }
+                for (int i = 0; i < serial_interfaces.size(); i++)
+                {
+                    NotificationFilter.dbcc_classguid = serial_interfaces[i]; // подпишемся на все наши интерфейсы
+                    NotificationFilter.dbcc_name[0] = '\0';
+                    NotificationHandle = RegisterDeviceNotification( hwnd,
+                                                                     &NotificationFilter,
+                                                                     //DEVICE_NOTIFY_ALL_INTERFACE_CLASSES
+                                                                     DEVICE_NOTIFY_WINDOW_HANDLE
+                                                                     );
+                    if ( NotificationHandle == nullptr )
+                    {
+                        qDebug() << " event not register!!";
+                    }
+                    else
+                        qDebug() << &serial_interfaces[i] << " event registered!!";
+                }
     }
 
     //заглушка для прогона по всему вектору гуидов, нужна для запуска с подключенным устройством
@@ -157,14 +157,14 @@ private:
     QString tactrixOP20_DeviceInstanceId = "VID_0403&PID_CC4C";
     QString tactrixOP13_DeviceInstanceId = "VID_0403&PID_CC4A";
     QVector<GUID> J2543_interfaces = {
-        //       { 0xfb1cf0c4, 0xb412, 0x451f, {0x9f, 0x04, 0xdf, 0x75, 0x37, 0xa5, 0x00, 0x3c}},  // VehiclePassThru j2534 class adapter?
         { 0x6d1781b7, 0xc987, 0x4f6c, {0x8d, 0x4f, 0x1e, 0xfc, 0x09, 0x8b, 0xea, 0x67}}  // tactrix VehiclePassThru j2534 ???????
         //        { 0x5a929f4c, 0x6f07, 0x426d, {0xa9, 0x70, 0x90, 0x3d, 0x25, 0xd4, 0x45, 0xb3}},   //raw usb device for Scanmatic??
         ,{ 0xa5dcbf10, 0x6530, 0x11d2, {0x90, 0x1f, 0x00, 0xc0, 0x4f, 0xb9, 0x51, 0xed}}   //raw usb device for Scanmatic
     };
     QVector<GUID> serial_interfaces = {
-        { 0x4d36e978, 0xe325, 0x11ce, {0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18}}   //Serial and parralel ports change or add OP1.3
-        //        ,{0x219d0508, 0x57a8, 0x4ff5, {0x97, 0xa1, 0xbd, 0x86, 0x58, 0x7c, 0x6c, 0x7e}}        // FTDI_D2XX_Device Class GUID
+//        { 0x4d36e978, 0xe325, 0x11ce, {0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18}}   //Serial and parralel ports change or add OP1.3
+                //,
+        {0x219d0508, 0x57a8, 0x4ff5, {0x97, 0xa1, 0xbd, 0x86, 0x58, 0x7c, 0x6c, 0x7e}}        // FTDI_D2XX_Device Class GUID
         //        ,{0x86e0d1e0L, 0x8089, 0x11d0, {0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73}}           // FTDI_VCP_Device Class GUID
     };
     HDEVNOTIFY NotificationHandle;
@@ -209,7 +209,8 @@ private:
 
         //pDevInf->dbcc_classguid
 
-        if ( pDevInf->dbcc_classguid == J2543_interfaces.at(0) )
+        foreach( GUID g, J2543_interfaces)
+        if ( pDevInf->dbcc_classguid == g )
         {
             VechicleInterfaceType = 20;    //J2534_INTERFACE
             if ( get_dll_path_j2534( t ) )
@@ -218,7 +219,8 @@ private:
                 return true;
             }
         }
-        else
+        foreach( GUID g, serial_interfaces)
+        if ( pDevInf->dbcc_classguid == g )
         {
             VechicleInterfaceType = 13;   //SERIAL_INTERFACE
             if ( get_dll_path_ftdi( t ) )
