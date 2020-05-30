@@ -13,12 +13,10 @@ class ECU_interface:public QObject
 {
     Q_OBJECT
 public:
-    uchar* in_buff = rx_msg[0].Data;
-    uchar* out_buff = tx_msg.Data;
-    PASSTHRU_MSG  tx_msg = {};
-    PASSTHRU_MSG  rx_msg[2] = {};
-    PASSTHRU_MSG  inno_rx_msg = {};
-    char delay_after_command = 4;
+    uchar* in_buff;
+    uchar* out_buff;
+
+    char delay_after_command;
 
     explicit ECU_interface(TCHAR *dllName = nullptr)
     {

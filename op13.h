@@ -14,6 +14,9 @@ public:
     OP13(TCHAR *dllName = nullptr)
     {
         this->dllName = dllName;
+        in_buff = in_buf;
+        out_buff = out_buf;
+        delay_after_command = 0;
     }
     ~OP13()
     {
@@ -41,7 +44,7 @@ public:
         QThread::msleep(400);
         //Get bytes waiting to be read
         _ftdi->ftStatus = _ftdi->FT_GetQueueStatus(_ftdi->ftHandle, &FT_RxQ_Bytes);
-        _ftdi->ftStatus = _ftdi->FT_Read(_ftdi->ftHandle, in_buff, FT_RxQ_Bytes, &Reads);
+        _ftdi->ftStatus = _ftdi->FT_Read(_ftdi->ftHandle, in_buf, FT_RxQ_Bytes, &Reads);
         if ((_ftdi->ftStatus != FT_OK) || (FT_RxQ_Bytes < 1))
         {
             qDebug() << " FT_Read failed" << Reads << FT_RxQ_Bytes;
@@ -53,18 +56,22 @@ public:
     void read()
     {
         //Get bytes waiting to be read
+        int numAttemptcount = numAttempt;
         do
+        {
             _ftdi->FT_GetQueueStatus(_ftdi->ftHandle, &FT_RxQ_Bytes);
-        while(FT_RxQ_Bytes < 1);
-        _ftdi->FT_Read(_ftdi->ftHandle, in_buff, FT_RxQ_Bytes, &Reads);
+        numAttemptcount--;
+        }
+        while(FT_RxQ_Bytes < 1 && numAttemptcount > 0);
+        _ftdi->FT_Read(_ftdi->ftHandle, in_buf, FT_RxQ_Bytes, &Reads);
         //       emit readyRead(QByteArray::fromRawData( buf, Reads));
         //return QByteArray::fromRawData( buf, Reads);
     }
     void write( uint count )
     {
-        _ftdi->FT_Write(_ftdi->ftHandle, out_buff, count, &Reads );
+        _ftdi->FT_Write(_ftdi->ftHandle, out_buf, count, &Reads );
         qDebug() << "Writed bytes " << Reads;
-        _ftdi->FT_Read(_ftdi->ftHandle, in_buff, count, &Reads);    //читаем эхо
+        _ftdi->FT_Read(_ftdi->ftHandle, in_buf, count, &Reads);    //читаем эхо
     }
 
     void close()
@@ -105,7 +112,6 @@ private slots:
             if (_ftdi->ftStatus == FT_OK)
             {
                 for (int i = 0; i < numDevs; i++) {
-                    printf("Dev %d:\n",i);
                     QString info = "Dev: " + QString::number( i ) + "\n" +
                             "SerialNumber: " + QString::fromLatin1( devInfo[i].SerialNumber) + "\n" +
                             "Description: " + QString::fromLatin1(devInfo[i].Description) + "\n";
@@ -117,7 +123,7 @@ private slots:
 
             _ftdi->ftStatus = _ftdi->FT_ResetDevice(_ftdi->ftHandle);
             _ftdi->ftStatus = _ftdi->FT_Purge(_ftdi->ftHandle, FT_PURGE_RX | FT_PURGE_TX);
-            _ftdi->ftStatus = _ftdi->FT_SetTimeouts(_ftdi->ftHandle, 1000, 1000);
+            _ftdi->ftStatus = _ftdi->FT_SetTimeouts(_ftdi->ftHandle, 250, 2500);
             _ftdi->ftStatus = _ftdi->FT_SetLatencyTimer(_ftdi->ftHandle, 1);
             _ftdi->ftStatus = _ftdi->FT_SetBaudRate(_ftdi->ftHandle, baudRate);
             emit interfaceReady();
@@ -132,7 +138,9 @@ private slots:
 
 private:
     ftdi *_ftdi;
-
+    uchar in_buf[4096];
+    uchar out_buf[4096];
+int numAttempt = 2;      //количество попыток чтения
     DWORD FT_RxQ_Bytes;
     ulong Reads;
     unsigned int baudRate = 15625;

@@ -29,6 +29,9 @@ public:
     OP20(TCHAR *dllName = nullptr)
     {
         this->dllName = dllName;
+        in_buff = rx_msg[0].Data;
+        out_buff = tx_msg.Data;
+        delay_after_command = 4;
     }
     ~OP20()
     {
@@ -350,7 +353,9 @@ private:
 
     // J2534
     J2534 *j2534;
-
+    PASSTHRU_MSG  tx_msg = {};
+    PASSTHRU_MSG  rx_msg[2] = {};
+    PASSTHRU_MSG  inno_rx_msg = {};
     unsigned int baudRate = 15625;
     unsigned long _readTimeout = 225;
     unsigned long writeTimeout = 0;
