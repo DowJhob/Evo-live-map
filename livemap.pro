@@ -27,29 +27,34 @@ SOURCES += main.cpp\
     qhexedit/qhexedit.cpp \
     mainwindow.cpp \
     libs/J2534.cpp \
-    libs/ftdi.cpp
+    libs/ftdi.cpp \
+    wideband.cpp
 
 HEADERS  += mainwindow.h \
+    mathparser2.h \
+    enumdev.h \
+    wideband.h \
+    wideband/wideband_input_device.h \
+    xmlparser.h \
     custom_tablewidget.h \
+    libs/J2534.h \
+    libs/j2534_tactrix.h \
+    libs/ftdi.h \
+    libs/ftdi_types.h \
+    #libs/libusb/include/libusb.h \
+    op13.h \
+    op20.h \
     ecu.h \
     #ecu_x_comm.h \
     ecu_interface.h \
     gauge_widget.h \
-    inno_interface.h \
-    op13.h \
-    op20.h \
+    wideband/wideband_interface.h \
+    wideband/inno_interface.h \
+    wideband/plx_interface.h \
+    wideband/tactrix_wideband.h \
     qhexedit/chunks.h \
     qhexedit/commands.h \
-    qhexedit/qhexedit.h \
-    libs/J2534.h \
-    libs/j2534_tactrix.h \
-    #libs/libusb/include/libusb.h \
-    mathparser2.h \
-    libs/ftdi.h \
-    libs/ftdi_types.h \
-    enumdev.h \
-    tactrix_inno.h \
-    xmlparser.h
+    qhexedit/qhexedit.h
 
 FORMS    += mainwindow.ui
 

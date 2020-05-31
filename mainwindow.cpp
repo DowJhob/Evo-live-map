@@ -300,6 +300,7 @@ void MainWindow::dll_connect(int VechicleInterfaceType, TCHAR *DllLibraryPath, b
         ecu_comm->moveToThread(&interface_thread);
         interface_thread.start();
         //=============================================================================
+
         //=============================================================================
         if ( isTactrix )
         {

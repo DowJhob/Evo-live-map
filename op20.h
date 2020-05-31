@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QDebug>
 #include <QThread>
-#include "tactrix_inno.h"
+#include "wideband/tactrix_wideband.h"
 #include "libs/J2534.h"
 #include "ecu_interface.h"
 
@@ -36,7 +36,7 @@ public:
     ~OP20()
     {
         stop_tactrix_inno();
-        _inno_interface->deleteLater();
+        tactrix_wideband_interface->deleteLater();
         close();
         delete j2534;
     }
@@ -278,24 +278,28 @@ public slots:
 
     void start_tactrix_inno()
     {
+        qDebug() << "start_tactrix_inno: " ;
         if (inno_thread == nullptr)
             inno_thread = new QThread(this);
-        if (_inno_interface == nullptr)
+        if (tactrix_wideband_interface == nullptr)
         {
-            _inno_interface = new tactrix_inno(j2534, devID);
-            connect(_inno_interface, SIGNAL(AFR(QString)), SIGNAL(AFR(QString)));
-            connect(this, &OP20::stop_inno, _inno_interface, &inno_interface::stop);
-            connect(inno_thread, &QThread::started, _inno_interface, &inno_interface::start);
+            tactrix_wideband_interface = new tactrix_wideband(j2534, devID);
+            connect(tactrix_wideband_interface, SIGNAL(AFR(QString)), SIGNAL(AFR(QString)));
+            connect(this, &OP20::stop_inno, tactrix_wideband_interface, &wideband_interface::_stop);
+            connect(inno_thread, &QThread::started, tactrix_wideband_interface, &wideband_interface::_start);
 //          connect(inno_thread, &QThread::finished, [=](){inno_thread->deleteLater();});
-            _inno_interface->moveToThread(inno_thread);
+            tactrix_wideband_interface->moveToThread(inno_thread);
         }
         if (!inno_thread->isRunning())
+        {
             inno_thread->start();
+            qDebug() << "inno_thread isRunning: " << inno_thread->isRunning();
+        }
     }
 
     void stop_tactrix_inno()
     {
-        if (_inno_interface != nullptr )
+        if (tactrix_wideband_interface != nullptr )
         {
             emit stop_inno();
             inno_thread->quit();
@@ -367,7 +371,7 @@ private:
     unsigned long protocol_inno = ISO9141_INNO;
     unsigned long protocol = ISO9141_K;
     unsigned long ConnectFlag = ISO9141_NO_CHECKSUM;  //        || ISO9141_K_LINE_ONLY ;
-    inno_interface *_inno_interface = nullptr;
+    tactrix_wideband *tactrix_wideband_interface = nullptr;
     QThread *inno_thread = nullptr;
 
     QString reportJ2534Error()

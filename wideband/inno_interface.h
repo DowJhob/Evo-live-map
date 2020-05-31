@@ -1,14 +1,12 @@
 #ifndef INNO_INTERFACE_H
 #define INNO_INTERFACE_H
 
-#include <QCoreApplication>
 #include <QObject>
 #include <QDebug>
-#include <QThread>
-#include <QTimer>
-#include <QElapsedTimer>
 
-class inno_interface:public QObject
+#include <wideband/wideband_interface.h>
+
+class inno_interface:public wideband_interface
 {
     typedef struct
     {
@@ -96,10 +94,7 @@ public:
         emit AFR("----");
     }
 
-
-    virtual void _connect() = 0;
-
-    void dump_inno(uchar* data, uint DataSize)
+    void _dump(uchar* data, uint DataSize)
     {
 
         //qDebug() << "-- dump --";
@@ -190,38 +185,7 @@ public:
         }
     }
 
-public slots:
-    void start()
-    {
-        _connect();
-        _timer = new QTimer(this);
-        _timer->setInterval(200);
-        connect(_timer, &QTimer::timeout, this, [=](){emit AFR("----");});
-
-        while (true)
-        {
-            if (!flag)
-                return;
-            if ( inno_read() )
-                _timer->start();
-            QCoreApplication::processEvents() ;
-            QThread::msleep(10);
-        }
-        //emit AFR("----");
-    }
-
-    void stop()
-    {
-        flag = false;
-        _timer->deleteLater();
-    }
-private slots:
-
-    virtual bool inno_read() = 0;
-
 private:
-    QElapsedTimer t;
-    QTimer* _timer;
     QString result;
 
     void func_check(int func, uint _afr, uint _lambda)
@@ -255,8 +219,6 @@ private:
 
     }
 
-signals:
-    void AFR(QString);
 };
 
 #endif // INNO_INTERFACE_H

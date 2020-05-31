@@ -1,22 +1,22 @@
-#ifndef INNO_H
-#define INNO_H
+#ifndef TACTRIX_WIDEBAND_H
+#define TACTRIX_WIDEBAND_H
 
 #include <QObject>
 #include <QThread>
 
 #include "libs/J2534.h"
-#include "inno_interface.h"
+#include "wideband_input_device.h"
 
-class tactrix_inno: public inno_interface
+class tactrix_wideband: public wideband_input_device
 {
     Q_OBJECT
 public:
-    tactrix_inno(J2534 *j2534 = nullptr, unsigned long devID = 0)
+    tactrix_wideband(J2534 *j2534 = nullptr, unsigned long devID = 0)
     {
         this->j2534 = j2534;
         this->devID = devID;
     }
-    ~tactrix_inno()
+    ~tactrix_wideband()
     {
         if (j2534->PassThruDisconnect(chanID_INNO))
         {
@@ -64,14 +64,14 @@ public:
 
     }
 private slots:
-    bool inno_read()
+    bool _read()
     {
         //qDebug() << "hop: " ;
         numRxMsg = 1;
         j2534->PassThruReadMsgs(chanID_INNO,&rxmsg,&numRxMsg,40);
        // qDebug() << "hop22: " ;
         if (numRxMsg)
-            return dump_msg(&rxmsg);
+            return tactrix_wb_dump_msg(&rxmsg);
         return false;
     }
 private:
@@ -85,21 +85,18 @@ private:
     unsigned long numRxMsg;
     unsigned long protocol_inno = ISO9141_INNO;
 
-    bool dump_msg(PASSTHRU_MSG* msg)
+    bool tactrix_wb_dump_msg(PASSTHRU_MSG* msg)
     {
         if (msg->RxStatus & START_OF_MESSAGE)
             return false; // skip
 
         if (msg->DataSize < 2)
             return false;
-
-        dump_inno(msg->Data, msg->DataSize);
+        emit data(msg->Data, msg->DataSize);
         return true;
     }
-
-signals:
 
 };
 
 
-#endif // INNO_H
+#endif // TACTRIX_WIDEBAND_H
