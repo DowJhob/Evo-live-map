@@ -105,17 +105,21 @@ public:
     wb_iface_type _wb_iface_type;
     uchar* data;
     ulong *DataSize;
-    wideband_input_device(//wb_iface_type _wb_iface_type
-                          )
+
+    void (wideband_input_device::*dump)();
+
+
+    wideband_input_device()
     {
         //this->_wb_iface_type = _wb_iface_type;
     }
-    void _dump()
+    void set_type(wb_iface_type _wb_iface_type)
     {
+        this->_wb_iface_type = _wb_iface_type;
         switch (_wb_iface_type)
         {
-        case inno: _dump_inno(); break;
-        case plx: _dump_plx(); break;
+        case inno: dump = &wideband_input_device::_dump_inno; break;
+        case plx: dump = &wideband_input_device::_dump_plx; break;
         }
     }
 

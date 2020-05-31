@@ -101,7 +101,7 @@ private:
 
         if (msg->DataSize < 2)
             return false;
-        _dump();
+        (this->*dump)();
         return true;
     }
 

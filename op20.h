@@ -287,7 +287,7 @@ public slots:
         {
             qDebug() << "wb devID: " << devID;
             _wb_dev = new tactrix_wideband(j2534, devID);
-_wb_dev->_wb_iface_type = inno;
+_wb_dev->set_type(inno);
             connect(_wb_dev, SIGNAL(AFR(QString)), SIGNAL(AFR(QString)));
             connect(this, &OP20::stop_inno, _wb_dev, &wideband_input_device::_stop);
             connect(wb_thread, &QThread::started, _wb_dev, &wideband_input_device::_start);
