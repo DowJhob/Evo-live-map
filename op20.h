@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QDebug>
 #include <QThread>
-#include "wideband/tactrix_wideband.h"
+#include "wideband.h"
 #include "libs/J2534.h"
 #include "ecu_interface.h"
 
@@ -283,7 +283,7 @@ public slots:
             inno_thread = new QThread(this);
         if (tactrix_wideband_interface == nullptr)
         {
-            tactrix_wideband_interface = new tactrix_wideband(j2534, devID);
+            tactrix_wideband_interface = new wideband(j2534, devID);
             connect(tactrix_wideband_interface, SIGNAL(AFR(QString)), SIGNAL(AFR(QString)));
             connect(this, &OP20::stop_inno, tactrix_wideband_interface, &wideband_interface::_stop);
             connect(inno_thread, &QThread::started, tactrix_wideband_interface, &wideband_interface::_start);
@@ -371,7 +371,7 @@ private:
     unsigned long protocol_inno = ISO9141_INNO;
     unsigned long protocol = ISO9141_K;
     unsigned long ConnectFlag = ISO9141_NO_CHECKSUM;  //        || ISO9141_K_LINE_ONLY ;
-    tactrix_wideband *tactrix_wideband_interface = nullptr;
+    wideband *tactrix_wideband_interface = nullptr;
     QThread *inno_thread = nullptr;
 
     QString reportJ2534Error()

@@ -27,8 +27,7 @@ SOURCES += main.cpp\
     qhexedit/qhexedit.cpp \
     mainwindow.cpp \
     libs/J2534.cpp \
-    libs/ftdi.cpp \
-    wideband.cpp
+    libs/ftdi.cpp
 
 HEADERS  += mainwindow.h \
     mathparser2.h \

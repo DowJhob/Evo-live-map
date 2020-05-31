@@ -14,7 +14,7 @@ enum ParserState {
     EXPECTING_SECOND_HALF_OF_VALUE,
 };
 
-class plx_interface:public QObject
+class plx_interface:public wideband_interface
 {
     Q_OBJECT
 public:
@@ -71,16 +71,17 @@ public:
         case EXPECTING_SECOND_HALF_OF_VALUE:
             state = EXPECTING_FIRST_HALF_OF_SENSOR_TYPE;
             int rawValue = (partialValue << 6) | b;
-            emit Log( "PLX sensor: %s instance: %d, value: %d"
+            //emit Log( "PLX sensor: %s instance: %d, value: %d"
                       //,
                       //                   sensorType, instance, rawValue));
                       //         return new PlxResponse(sensorType, instance, rawValue
-                      );break;
+              //        );
+            break;
         }
         //        return null;
     }
 
-    void dump_plx(uchar* data, uint DataSize)
+    void _dump(uchar* data, uint DataSize)
     {
     }
 
@@ -96,9 +97,6 @@ private:
 
     QString result;
 
-signals:
-    void AFR(QString);
-    void Log(QString);
 };
 
 
