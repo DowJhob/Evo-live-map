@@ -32,7 +32,6 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     mathparser2.h \
     enumdev.h \
-    wideband.h \
     wideband/wideband_input_device.h \
     xmlparser.h \
     custom_tablewidget.h \

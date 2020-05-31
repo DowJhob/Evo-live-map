@@ -23,6 +23,14 @@ public:
             //   reportJ2534Error();
         }
     }
+private slots:
+    QString reportJ2534Error()
+    {
+        char err[512];
+        int result = j2534->PassThruGetLastError(err);
+        return QString::fromLocal8Bit(err) + "  PassThruGetLastError.return = " + QString::number(result) + "\r\n";
+    }
+
     void _connect()
     {
         //emit AFR("20.4");
@@ -35,10 +43,11 @@ public:
         //
         // note that the ISO9141_NO_CHECKSUM connection flag is used to avoid requiring the data
         // to have valid ISO9141 checksums (it doesn't)
-
+qDebug() << "wb devID: " << devID;
         if (j2534->PassThruConnect(devID,ISO9141_INNO,ISO9141_NO_CHECKSUM,19200,&chanID_INNO))
         {
-            //         reportJ2534Error();
+            //
+            qDebug() << "wb error PassThruConnect: " << reportJ2534Error();
             //         return 0;
         }
 
@@ -63,7 +72,6 @@ public:
         }
 
     }
-private slots:
     bool _read()
     {
         //qDebug() << "hop: " ;

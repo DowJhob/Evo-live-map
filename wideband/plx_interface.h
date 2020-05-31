@@ -80,12 +80,12 @@ public:
         }
         //        return null;
     }
-
-    void _dump(uchar* data, uint DataSize)
+public slots:
+    void _dump(uchar* data, ulong DataSize)
     {
     }
 
-public slots:
+private slots:
 
 private:
 

@@ -93,8 +93,8 @@ public:
     {
         emit AFR("----");
     }
-
-    void _dump(uchar* data, uint DataSize)
+public slots:
+    void _dump(uchar* data, ulong DataSize)
     {
 
         //qDebug() << "-- dump --";

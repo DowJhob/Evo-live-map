@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <QElapsedTimer>
 #include "libs/J2534.h"
+#include "wideband/wideband_input_device.h"
 
 class ECU_interface:public QObject
 {
@@ -108,8 +109,8 @@ public slots:
         emit readyRead(a.fromRawData((char*)in_buff, len));
     }
 
-    virtual void start_tactrix_inno() = 0;
-    virtual void stop_tactrix_inno() = 0;
+    virtual void start_tactrix_wb() = 0;
+    virtual void stop_tactrix_wb() = 0;
 
 private slots:
     virtual bool _init() = 0;

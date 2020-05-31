@@ -17,8 +17,8 @@ public:
     {
         emit AFR("----");
     }
-
-    virtual void _dump(uchar* data, uint DataSize) = 0;
+public slots:
+    virtual void _dump(uchar* data, ulong DataSize) = 0;
 signals:
     void AFR(QString);
 };

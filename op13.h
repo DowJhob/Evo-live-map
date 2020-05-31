@@ -81,9 +81,9 @@ public:
 
 public slots:
 
-    void start_tactrix_inno()
+    void start_tactrix_wb()
     {}
-    void stop_tactrix_inno()
+    void stop_tactrix_wb()
     {}
 private slots:
     bool _init()

@@ -7,7 +7,10 @@
 #include <QThread>
 #include <QTimer>
 #include <QElapsedTimer>
-
+enum wb_dev_type {
+    TACTRIX,
+    SERIAL_INTERFACE
+};
 class wideband_input_device: public QObject
 {
     Q_OBJECT
@@ -20,23 +23,27 @@ public:
 public slots:
     void _start()
     {
+
         _connect();
+ //       qDebug() << "wb _connect: " ;
 //        _timer = new QTimer(this);
 //        _timer->setInterval(200);
 //        connect(_timer, &QTimer::timeout, this, [=](){_read();});
 
         while (true)
         {
+            //qDebug() << "wb start: " ;
             if (!flag)
                 return;
             if ( _read() )
-                _timer->start();
+            {
+    //            _timer->start();
+            }
             QCoreApplication::processEvents() ;
             QThread::msleep(10);
         }
         //emit AFR("----");
     }
-
     void _stop()
     {
         flag = false;
@@ -51,7 +58,7 @@ private:
     QElapsedTimer t;
     QTimer* _timer;
     QString result;
-    bool flag = false;
+    bool flag = true;
 
 signals:
     void data(uchar*, ulong);

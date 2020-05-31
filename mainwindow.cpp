@@ -310,9 +310,9 @@ void MainWindow::dll_connect(int VechicleInterfaceType, TCHAR *DllLibraryPath, b
                 ui->toolBar->addWidget(tactrix_afr_lcd);
                 connect(ecu_comm, SIGNAL(AFR(QString)), tactrix_afr_lcd, SLOT(display(QString)));
             }
-            connect(this, &MainWindow::start_inno, ecu_comm, &ECU_interface::start_tactrix_inno);
-            emit start_inno();
-            //ecu_comm->start_tactrix_inno();
+            connect(this, &MainWindow::start_inno, ecu_comm, &ECU_interface::start_tactrix_wb);
+      //      emit start_inno();
+//            reinterpret_cast<OP20*>(ecu_comm)->start_tactrix_wb(TACTRIX);
         }
     }
 }
@@ -354,7 +354,7 @@ void MainWindow::StartButton_slot()
     {
         if (!ecu_comm->e7_connect())
             return ;
-        ;
+        emit start_inno();
         quint32 *calID = reinterpret_cast<quint32*>(ecu_comm->in_buff);
         *calID = 0;                                                     //занулим 4 ре байта
         ecu_comm->sendDMAcomand(0xE1, 0xF52, 4);                        //читаем номер калибровки
@@ -397,6 +397,7 @@ void MainWindow::debugButton_slot()
 
     //emit Enumerator. InterfaceActive(20);
     ecu_comm->e7_connect();
+    emit start_inno();
     //if (!ecu_comm->five_baud_init())
     ;//return ;
     ecu_comm->sendDMAcomand(0xE1, 0xF52, 4); //читаем номер калибровки
