@@ -15,6 +15,8 @@ public:
     {
         this->j2534 = j2534;
         this->devID = devID;
+        data = rxmsg.Data;
+        DataSize = &rxmsg.DataSize;
     }
     ~tactrix_wideband()
     {
@@ -43,7 +45,6 @@ private slots:
         //
         // note that the ISO9141_NO_CHECKSUM connection flag is used to avoid requiring the data
         // to have valid ISO9141 checksums (it doesn't)
-qDebug() << "wb devID: " << devID;
         if (j2534->PassThruConnect(devID,ISO9141_INNO,ISO9141_NO_CHECKSUM,19200,&chanID_INNO))
         {
             //
@@ -67,7 +68,7 @@ qDebug() << "wb devID: " << devID;
         msgPattern.Data[0] = 0; // match it with 0 (i.e. pass everything)
         if (j2534->PassThruStartMsgFilter(chanID_INNO, PASS_FILTER,&msgMask,&msgPattern,NULL,&msgId))
         {
-            //            reportJ2534Error();
+            qDebug() << "wb error PassThruStartMsgFilter: " << reportJ2534Error();
             //            return 0;
         }
 
@@ -100,7 +101,7 @@ private:
 
         if (msg->DataSize < 2)
             return false;
-        emit data(msg->Data, msg->DataSize);
+        _dump();
         return true;
     }
 

@@ -46,9 +46,6 @@ HEADERS  += mainwindow.h \
     #ecu_x_comm.h \
     ecu_interface.h \
     gauge_widget.h \
-    wideband/wideband_interface.h \
-    wideband/inno_interface.h \
-    wideband/plx_interface.h \
     wideband/tactrix_wideband.h \
     qhexedit/chunks.h \
     qhexedit/commands.h \
@@ -68,8 +65,8 @@ LIBS += -luser32
 
 CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 
-#QMAKE_LFLAGS_RELEASE += /LTCG
-#QMAKE_CXXFLAGS  += /Ox
+QMAKE_LFLAGS_RELEASE += /LTCG
+QMAKE_CXXFLAGS  += /Ox
 
 QMAKE_CXXFLAGS  += -flto -funroll-loops
 QMAKE_CXXFLAGS  += -fforce-addr

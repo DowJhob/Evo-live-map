@@ -8,8 +8,7 @@
 #include "libs/J2534.h"
 #include "ecu_interface.h"
 #include "wideband/wideband_input_device.h"
-#include "wideband/wideband_interface.h"
-#include "wideband/inno_interface.h"
+
 #include "wideband/tactrix_wideband.h"
 
 typedef struct
@@ -39,7 +38,7 @@ public:
     ~OP20()
     {
         stop_tactrix_wb();
-        wb_iface->deleteLater();
+        _wb_dev->deleteLater();
         close();
         delete j2534;
     }
@@ -283,17 +282,13 @@ public slots:
     {
         if (wb_thread == nullptr)
             wb_thread = new QThread();
-        if (wb_iface == nullptr)
-        {
-            wb_iface = new inno_interface;
-            connect(wb_iface, SIGNAL(AFR(QString)), SIGNAL(AFR(QString)));
-            wb_iface->moveToThread(wb_thread);
-        }
+
         if (_wb_dev == nullptr)
         {
             qDebug() << "wb devID: " << devID;
             _wb_dev = new tactrix_wideband(j2534, devID);
-            connect(_wb_dev, SIGNAL(data(uchar*, ulong)), wb_iface, SLOT(_dump(uchar*, ulong)));
+_wb_dev->_wb_iface_type = inno;
+            connect(_wb_dev, SIGNAL(AFR(QString)), SIGNAL(AFR(QString)));
             connect(this, &OP20::stop_inno, _wb_dev, &wideband_input_device::_stop);
             connect(wb_thread, &QThread::started, _wb_dev, &wideband_input_device::_start);
 //          connect(inno_thread, &QThread::finished, [=](){inno_thread->deleteLater();});
@@ -308,7 +303,7 @@ public slots:
 
     void stop_tactrix_wb()
     {
-        if (wb_iface != nullptr )
+        if (_wb_dev != nullptr )
         {
             emit stop_inno();
             wb_thread->quit();
@@ -380,7 +375,7 @@ private:
     unsigned long protocol_inno = ISO9141_INNO;
     unsigned long protocol = ISO9141_K;
     unsigned long ConnectFlag = ISO9141_NO_CHECKSUM;  //        || ISO9141_K_LINE_ONLY ;
-    wideband_interface *wb_iface = nullptr;
+
     wideband_input_device *_wb_dev = nullptr;
     QThread *wb_thread = nullptr;
 
