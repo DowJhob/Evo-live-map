@@ -285,11 +285,10 @@ public slots:
 
         if (_wb_dev == nullptr)
         {
-            qDebug() << "wb devID: " << devID;
             _wb_dev = new tactrix_wideband(j2534, devID);
 _wb_dev->set_type(inno);
             connect(_wb_dev, SIGNAL(AFR(QString)), SIGNAL(AFR(QString)));
-            connect(this, &OP20::stop_inno, _wb_dev, &wideband_input_device::_stop);
+            connect(this, &OP20::_stop_tactrix_wb_sig, _wb_dev, &wideband_input_device::_stop);
             connect(wb_thread, &QThread::started, _wb_dev, &wideband_input_device::_start);
 //          connect(inno_thread, &QThread::finished, [=](){inno_thread->deleteLater();});
             _wb_dev->moveToThread(wb_thread);
@@ -305,7 +304,7 @@ _wb_dev->set_type(inno);
     {
         if (_wb_dev != nullptr )
         {
-            emit stop_inno();
+            emit _stop_tactrix_wb_sig();
             wb_thread->quit();
             wb_thread->wait(1000);
         }
@@ -364,7 +363,7 @@ private:
     PASSTHRU_MSG  tx_msg = {};
     PASSTHRU_MSG  rx_msg[2] = {};
     PASSTHRU_MSG  inno_rx_msg = {};
-    unsigned int baudRate = 15625;
+    unsigned int  baudRate = 15625;
     unsigned long _readTimeout = 225;
     unsigned long writeTimeout = 0;
 
@@ -407,7 +406,7 @@ private:
     }
 
 signals:
-    void stop_inno();
+    void _stop_tactrix_wb_sig();
 };
 
 

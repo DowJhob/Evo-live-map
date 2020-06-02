@@ -22,7 +22,7 @@ public:
         QFont myFont1 = lcd.font();
         myFont1.setPixelSize (64);
         lcd.setFont(myFont1);
-        lcd.setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+        //lcd.setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
         QString s;
         s.fill ('-', DigitNum);
         lcd.display(s);

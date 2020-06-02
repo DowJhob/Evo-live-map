@@ -3,10 +3,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-//#include <dbt.h>
+
+#include <QScrollArea>
 #include <QtGlobal>
 #include <QMessageBox>
-
 
 //#include "common/ecutools.h"
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -14,19 +14,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
     CurrDir = QApplication::applicationDirPath();   //текущая директории
     //=============================================================================
-//    connect(&Enumerator, SIGNAL(InterfaceActive(int)), SLOT(dll_connect(int)));
-//    connect(&Enumerator, SIGNAL(disconnectInterface()), SLOT(dll_disconnect()));
-//    connect(&Enumerator, SIGNAL(Log(QString)), statusBar(), SLOT(showMessage(QString)));
-
     //=============================================================================
     hexEdit = new QHexEdit;
     hexEdit->setAddressWidth(8);
     hexEdit->setAddressOffset(ui->start_addr_lineEdit->text().toUInt(nullptr, 16));
     ui->RAMeditorLayout->addWidget(hexEdit, 3,0,1,2);
     //=============================================================================
-//    QHBoxLayout *layout = new QHBoxLayout(ui->toolBar);
-//    ui->toolBar->setLayout(layout);
-
     start_action = ui->toolBar->addAction( QIcon( ":ico/connect.png" ), "Start", this, SLOT(StartButton_slot()));
     ram_reset = ui->toolBar->addAction(QIcon( ":ico/Memory-Freer-icon.png" ), "RAM refresh", this, SLOT(RAM_reset_slot()));
 
@@ -35,11 +28,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     empty->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
     ui->toolBar->addWidget(empty);
     debug_action = ui->toolBar->addAction(QIcon( ":ico/screwdriver.png" ), "Debug", this, SLOT(debugButton_slot()));
-
-
-    //Подписываемся на события нет нужды в подписке WM_change broadcast!
-//    Enumerator.NotifyRegister((HWND)this->winId());
-//    Enumerator.enumerateUSB_Device_by_guid();
 
     interfaceLock();
 
@@ -79,9 +67,13 @@ void MainWindow::create_tree(tableDeclaration *tab)
 
 void MainWindow::create_gauge(QString name, mutParam *param)
 {
-    gauge_widget *gauge_lcd = new gauge_widget(name, 4, param->ram_mut_offset, &param->ram_mut_param_scaling, ui->toolBar);
-    ui->toolBar->addWidget(gauge_lcd);
-    gauge_set.insert(gauge_lcd);
+    graph_logger *_graph_log_widget = new graph_logger(name, 4, param->ram_mut_offset, &param->ram_mut_param_scaling, ui->tabWidget);
+
+//    ui->toolBar->addWidget(_graph_log_widget);
+
+
+ui->logger_verticalLayout->layout()->addWidget(_graph_log_widget);
+    graph_logger_set.insert(_graph_log_widget);
 }
 void MainWindow::create_table(tableDeclaration *tab)
 {
@@ -173,6 +165,13 @@ bool MainWindow::getECU(QString filename)
         create_table(&tab);
         create_tree(&tab);
     }
+
+//    QScrollArea *scrollarea = new QScrollArea(ui->tabWidget->widget(4));
+//    layout = QVBoxLayout(scrollarea)
+//    realmScroll.setWidget(layout.widget())
+
+//    layout.addWidget(QLabel("Test"))
+
     QHash<QString, mutParam>::iterator i;
     for (i = _ecu->RAM_MUT.begin(); i != _ecu->RAM_MUT.end(); ++i)
         create_gauge(i.key(), &i.value());
@@ -180,9 +179,9 @@ bool MainWindow::getECU(QString filename)
 }
 void MainWindow::TableDelete()
 {
-    foreach (gauge_widget *gauge, gauge_set)
+    foreach (graph_logger *gauge, graph_logger_set)
         gauge->deleteLater();
-    gauge_set.clear();
+    graph_logger_set.clear();
     foreach (QWidget *w, widget_set)
         w->deleteLater();
     widget_set.clear();
@@ -194,7 +193,7 @@ void MainWindow::logger_and_tableWidget_trace(QByteArray in)
     //    timer->stop();
     //    ecu_comm->sendDMAcomand(0xE0, _ecu->RAM_MUT_addr, 16);
     //    ecu_comm->read();
-    foreach (gauge_widget *gauge, gauge_set)
+    foreach (graph_logger *gauge, graph_logger_set)
     {
 
         gauge->display( QString::number(_ecu->mut_cast((uchar*)in.data(), gauge->scaling, gauge->offset)) );

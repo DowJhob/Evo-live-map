@@ -17,7 +17,7 @@
 #include "op13.h"
 #include "op20.h"
 #include "gauge_widget.h"
-
+#include "graph_logger.h"
 
 namespace Ui {
 class MainWindow;
@@ -175,7 +175,7 @@ private:
     QHexEdit *hexEdit;
     gauge_widget *tactrix_afr_lcd = nullptr;
     //======================== widget lists =================================
-    QSet<gauge_widget*> gauge_set;
+    QSet<graph_logger*> graph_logger_set;
     QSet<QWidget*> widget_set;
     QSet<CustomTableWidget*> table_set;
 
