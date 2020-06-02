@@ -281,7 +281,7 @@ public slots:
     void start_tactrix_wb()
     {
         if (wb_thread == nullptr)
-            wb_thread = new QThread();
+            wb_thread = new QThread(this);
 
         if (_wb_dev == nullptr)
         {
