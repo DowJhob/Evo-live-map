@@ -157,6 +157,99 @@ public:
         tracer_marker_pred.Xtrace = 1;
         tracer_marker_pred.Ytrace = 1;
     }
+    int  axis_lookup2(float in, int axis_lenght, QVector<float> axis)    //возвращает меньший индекс
+    {
+        if (axis_lenght <= 1 )
+            return 0;
+        if (in < axis[0])
+            return 0;
+        if (in > axis[axis_lenght - 1])
+            return axis_lenght - 1;
+        for (int i = 0; i < axis_lenght-1; i++)
+            if (  in >= axis[i] && in < axis[i+1])
+                return i;
+        return axis_lenght - 1;
+    }
+    int modul(int a, int b)
+    {
+        int mod = qRound(sqrt(pow(a, 2) + pow(b, 2)));
+        if (mod > 255)
+            mod = 255;
+
+        mod = (255 - mod);
+        if (mod < 30)
+            mod = 30;
+        return mod;
+    }
+    void tracer_calc(float x = 0, float y = 0)
+    {
+            if ( Table_Decl.X_axis.ram_mut_number >= 0 || Table_Decl.Y_axis.ram_mut_number >= 0 )
+            {
+                //----------------------- вычисляем координаты маркера------------------------------------------------
+                tracer_marker.Xtrace = axis_lookup2(x, Table_Decl.X_axis.elements, x_axis);
+                tracer_marker.Ytrace = axis_lookup2(y, Table_Decl.Y_axis.elements, y_axis);
+                //----------------------- вычисляем насыщенность ячеек маркера ---------------------------------------
+                tracer_marker.k = 0;
+                tracer_marker.j = 0;
+                if ( (Table_Decl.X_axis.elements > 1) && (tracer_marker.Xtrace < Table_Decl.X_axis.elements - 1) )
+                    tracer_marker.j = 1;
+                if ( (Table_Decl.Y_axis.elements > 1) && (tracer_marker.Ytrace < Table_Decl.Y_axis.elements - 1) )
+                    tracer_marker.k = 1;
+
+                float kX = (float)255/(x_axis[tracer_marker.Xtrace + tracer_marker.j] - x_axis[tracer_marker.Xtrace]);    //коэффициент нормирования
+                float kY = (float)255/(y_axis[tracer_marker.Ytrace + tracer_marker.k] - y_axis[tracer_marker.Ytrace]);    //коэффициент нормирования
+
+                int leftNormalX  = qRound((x_axis[tracer_marker.Xtrace]-x)*kX);                       //нормированные координаты
+                int rightNormalX = qRound((x_axis[tracer_marker.Xtrace + tracer_marker.j]-x)*kX);                       //нормированные координаты
+                int upNormalY    = qRound((y_axis[tracer_marker.Ytrace]-y)*kY);
+                int downNormalY  = qRound((y_axis[tracer_marker.Ytrace + tracer_marker.k]-y)*kY);
+
+                //модули векторов,
+                int leftUP    = modul(leftNormalX, upNormalY);
+                int rightUP   = modul(rightNormalX, upNormalY);
+                int leftDOWN  = modul(leftNormalX, downNormalY);
+                int rightDOWN = modul(rightNormalX, downNormalY);
+
+                QColor color_rightDOWN, color_leftDOWN, color_rightUP, color_leftUP;
+                color_rightDOWN.setHsv(240, rightDOWN, 255, 255);
+                color_leftDOWN.setHsv(240, leftDOWN, 255, 255);
+                color_rightUP.setHsv(240, rightUP, 255, 255);
+                color_leftUP.setHsv(240, leftUP, 255, 255);
+                //------------------------------------------------------------------------------------------------------------------
+                blockSignals( true );
+                if ((tracer_marker_pred.Xtrace != tracer_marker.Xtrace) ||(tracer_marker_pred.Ytrace != tracer_marker.Ytrace)) // тут гашение если изменился X или Y
+                {
+                    //гашение предыдущего маркера таблицы
+                    bool save_trace = false;
+                    if (!save_trace)
+                    {
+                        item(tracer_marker_pred.Ytrace,  tracer_marker_pred.Xtrace)->setBackground(tracer_marker_pred.predColorA);
+                        item(tracer_marker_pred.Ytrace,  tracer_marker_pred.Xtrace + tracer_marker_pred.j)->setBackground(tracer_marker_pred.predColorB);
+                        item(tracer_marker_pred.Ytrace + tracer_marker_pred.k, tracer_marker_pred.Xtrace)->setBackground(tracer_marker_pred.predColorC);
+                        item(tracer_marker_pred.Ytrace + tracer_marker_pred.k, tracer_marker_pred.Xtrace + tracer_marker_pred.j)->setBackground(tracer_marker_pred.predColorD);
+                    }
+
+
+                    //сохраняем  текущее положение для след расчета
+                    tracer_marker_pred = tracer_marker;
+                    tracer_marker_pred.predColorA = item(tracer_marker.Ytrace,                          tracer_marker.Xtrace                         )->background().color();
+                    tracer_marker_pred.predColorB = item(tracer_marker.Ytrace,                          tracer_marker.Xtrace + tracer_marker.j)->background().color();
+                    tracer_marker_pred.predColorC = item(tracer_marker.Ytrace + tracer_marker.k, tracer_marker.Xtrace                         )->background().color();
+                    tracer_marker_pred.predColorD = item(tracer_marker.Ytrace + tracer_marker.k, tracer_marker.Xtrace + tracer_marker.j)->background().color();
+                }
+                //         рисуем новое положение маркера
+                item(tracer_marker.Ytrace,  tracer_marker.Xtrace)->setBackground(color_leftUP);//левый верхний
+                item(tracer_marker.Ytrace,  tracer_marker.Xtrace + tracer_marker.j)->setBackground(color_rightUP);//правый верхний
+                item(tracer_marker.Ytrace + tracer_marker.k, tracer_marker.Xtrace)->setBackground(color_leftDOWN);//левый нижний
+                item(tracer_marker.Ytrace + tracer_marker.k, tracer_marker.Xtrace + tracer_marker.j)->setBackground(color_rightDOWN);//правый нижний
+
+
+                // разблокируем обновления редакции
+                blockSignals(false);//
+            }
+
+    }
+
 
 protected:
     void keyPressEvent(QKeyEvent *event)

@@ -11,6 +11,12 @@
 //#include "common/ecutools.h"
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+    //=============================================================================
+    //    connect(&logger_thread, &QThread::started, ecu_comm, &ECU_interface::init);
+    _logger.moveToThread(&logger_thread);
+    logger_thread.start();
+
+
     ui->setupUi(this);
     CurrDir = QApplication::applicationDirPath();   //текущая директории
     //=============================================================================
@@ -37,8 +43,9 @@ MainWindow::~MainWindow()
 {
     dll_disconnect();
     TableDelete();
+    logger_thread.quit();
+    logger_thread.wait(1000);
     delete ui;
-    //delete timer;
 }
 
 void MainWindow::create_tree(tableDeclaration *tab)
@@ -67,13 +74,29 @@ void MainWindow::create_tree(tableDeclaration *tab)
 
 void MainWindow::create_gauge(QString name, mutParam *param)
 {
-    graph_logger *_graph_log_widget = new graph_logger(name, 4, param->ram_mut_offset, &param->ram_mut_param_scaling, ui->tabWidget);
+    if ( loggerWidgetBar == nullptr)
+    {
+        loggerWidgetBar = new QToolBar(this);
 
-//    ui->toolBar->addWidget(_graph_log_widget);
+        loggerWidgetBar->setMovable(true);
+        loggerWidgetBar->setMinimumSize(300, 100);
+//        loggerWidgetBar->setAllowedAreas( Qt::BottomToolBarArea);
+
+        //insertToolBar(ui->toolBar, loggerWidgetBar);
+        addToolBar(Qt::BottomToolBarArea, loggerWidgetBar);
+
+    }
+
+    gauge_widget *_gauge_widget = new gauge_widget(name, 4, param->ram_mut_offset, &param->ram_mut_param_scaling, ui->tabWidget);
+
+    //    ui->toolBar->addWidget(_graph_log_widget);
 
 
-ui->logger_verticalLayout->layout()->addWidget(_graph_log_widget);
-    graph_logger_set.insert(_graph_log_widget);
+    //ui->logger_verticalLayout->layout()->addWidget(_gauge_widget);
+
+    loggerWidgetBar->addWidget(_gauge_widget);
+
+    gauge_widget_set.insert(_gauge_widget);
 }
 void MainWindow::create_table(tableDeclaration *tab)
 {
@@ -113,20 +136,7 @@ void MainWindow::create_table(tableDeclaration *tab)
         ptrRAMtables.insert(tab->Table.Name, table );
     }
 }
-bool MainWindow::ReadConfig(QString filename)
-{
-    // Открываем конфиг:
-    QFile* file = new QFile(filename);
-    if (!file->open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        QMessageBox::information(this, tr("Unable to open file"), file->errorString());
-        return false;
-    }
 
-    xmlParser._parser(file, _ecu, ui->treeWidget);        // парсим файл
-    delete file;
-    return true;
-}
 void MainWindow::axread(sub_tableDeclaration *sub_tab, QVector <float> *axis, bool rom)
 {
     float variable_value;
@@ -137,15 +147,8 @@ void MainWindow::axread(sub_tableDeclaration *sub_tab, QVector <float> *axis, bo
         addr = sub_tab->ram_addr;
     //читаем таблицу заголовка-оси в буфер
     // прочитаем нужное количество данных в соответствии с типом
-    switch (sub_tab->rom_scaling._storagetype) {                                //тип данных оси
-    case Storagetype::int8:
-    case Storagetype::uint8:  ecu_comm->sendDMAcomand(0xE1, addr, sub_tab->elements); break;
-    case Storagetype::int16:
-    case Storagetype::uint16: ecu_comm->sendDMAcomand(0xE1, addr, sub_tab->elements * 2); break;
-    case Storagetype::int32:
-    case Storagetype::uint32: ecu_comm->sendDMAcomand(0xE1, addr, sub_tab->elements * 4); break;
-    default: break;
-    }
+
+    ecu_comm->sendDMAcomand(0xE1, addr, sub_tab->elements * _ecu->get_sizeData( &sub_tab->rom_scaling ) );
     ecu_comm->read();
     //заполняем в соотвествии с формулой
     for (int i = 0; i < sub_tab->elements; i++)
@@ -157,20 +160,20 @@ void MainWindow::axread(sub_tableDeclaration *sub_tab, QVector <float> *axis, bo
 bool MainWindow::getECU(QString filename)
 {
     _ecu = new ecu;
-    if (!ReadConfig(filename))
+
+    if (!xmlParser.ReadECUdefinition(filename, _ecu))
         return false;
+
+    _logger.setECU(_ecu);
+    connect(&_logger, SIGNAL(log_data_ready()), this, SLOT(logger_and_tableWidget_trace2()));
+
+
     // переберем все описания таблиц
     foreach ( tableDeclaration tab, _ecu->RAMtables)
     {
         create_table(&tab);
         create_tree(&tab);
     }
-
-//    QScrollArea *scrollarea = new QScrollArea(ui->tabWidget->widget(4));
-//    layout = QVBoxLayout(scrollarea)
-//    realmScroll.setWidget(layout.widget())
-
-//    layout.addWidget(QLabel("Test"))
 
     QHash<QString, mutParam>::iterator i;
     for (i = _ecu->RAM_MUT.begin(); i != _ecu->RAM_MUT.end(); ++i)
@@ -179,9 +182,9 @@ bool MainWindow::getECU(QString filename)
 }
 void MainWindow::TableDelete()
 {
-    foreach (graph_logger *gauge, graph_logger_set)
+    foreach (gauge_widget *gauge, gauge_widget_set)
         gauge->deleteLater();
-    graph_logger_set.clear();
+    gauge_widget_set.clear();
     foreach (QWidget *w, widget_set)
         w->deleteLater();
     widget_set.clear();
@@ -193,10 +196,10 @@ void MainWindow::logger_and_tableWidget_trace(QByteArray in)
     //    timer->stop();
     //    ecu_comm->sendDMAcomand(0xE0, _ecu->RAM_MUT_addr, 16);
     //    ecu_comm->read();
-    foreach (graph_logger *gauge, graph_logger_set)
+    foreach (gauge_widget *gauge, gauge_widget_set)
     {
 
-        gauge->display( QString::number(_ecu->mut_cast((uchar*)in.data(), gauge->scaling, gauge->offset)) );
+        gauge->display( _ecu->mut_cast((uchar*)in.data(), gauge->scaling, gauge->offset) );
     }
 
     float x = 0;
@@ -213,8 +216,8 @@ void MainWindow::logger_and_tableWidget_trace(QByteArray in)
                 y = QCursor::pos().y()*10.1;
             }
             //----------------------- вычисляем координаты маркера------------------------------------------------
-            table->tracer_marker.Xtrace = axis_lookup2(x, table->Table_Decl.X_axis.elements, table->x_axis);
-            table->tracer_marker.Ytrace = axis_lookup2(y, table->Table_Decl.Y_axis.elements, table->y_axis);
+            table->tracer_marker.Xtrace = table->axis_lookup2(x, table->Table_Decl.X_axis.elements, table->x_axis);
+            table->tracer_marker.Ytrace = table->axis_lookup2(y, table->Table_Decl.Y_axis.elements, table->y_axis);
             //----------------------- вычисляем насыщенность ячеек маркера ---------------------------------------
             table->tracer_marker.k = 0;
             table->tracer_marker.j = 0;
@@ -232,10 +235,10 @@ void MainWindow::logger_and_tableWidget_trace(QByteArray in)
             int downNormalY  = qRound((table->y_axis[table->tracer_marker.Ytrace + table->tracer_marker.k]-y)*kY);
 
             //модули векторов,
-            int leftUP    = modul(leftNormalX, upNormalY);
-            int rightUP   = modul(rightNormalX, upNormalY);
-            int leftDOWN  = modul(leftNormalX, downNormalY);
-            int rightDOWN = modul(rightNormalX, downNormalY);
+            int leftUP    = table->modul(leftNormalX, upNormalY);
+            int rightUP   = table->modul(rightNormalX, upNormalY);
+            int leftDOWN  = table->modul(leftNormalX, downNormalY);
+            int rightDOWN = table->modul(rightNormalX, downNormalY);
 
             QColor color_rightDOWN, color_leftDOWN, color_rightUP, color_leftUP;
             color_rightDOWN.setHsv(240, rightDOWN, 255, 255);
@@ -278,6 +281,36 @@ void MainWindow::logger_and_tableWidget_trace(QByteArray in)
 
     //    timer->start();
 }
+void MainWindow::logger_and_tableWidget_trace2()
+{
+    QElapsedTimer t;
+    t.start();
+    //    timer->stop();
+    //    ecu_comm->sendDMAcomand(0xE0, _ecu->RAM_MUT_addr, 16);
+    //    ecu_comm->read();
+    foreach (gauge_widget *_gauge_widget, gauge_widget_set)
+    {
+        _gauge_widget->display( _logger.log_param.value(_gauge_widget->offset) );
+    }
+
+    float x = 0;
+    float y = 0;
+    foreach (CustomTableWidget *table, ptrRAMtables)
+    {
+        if ( table->Table_Decl.X_axis.ram_mut_number >= 0 || table->Table_Decl.Y_axis.ram_mut_number >= 0 )
+        {
+            x = _logger.log_param.value(table->Table_Decl.X_axis.ram_mut_number);
+            y = _logger.log_param.value(table->Table_Decl.Y_axis.ram_mut_number);
+            if (debug)
+            {
+                x = QCursor::pos().x()*2.3;
+                y = QCursor::pos().y()*10.1;
+            }
+            table->tracer_calc(x, y);
+        }
+    }
+    ui->trace_time_label->setText(QString::number(t.nsecsElapsed()/1000) + "us");
+}
 
 void MainWindow::dll_connect(int VechicleInterfaceType, TCHAR *DllLibraryPath, bool isTactrix)                //по сигналу перечислителя
 {
@@ -292,7 +325,10 @@ void MainWindow::dll_connect(int VechicleInterfaceType, TCHAR *DllLibraryPath, b
         connect(this, &MainWindow::stopLogger, ecu_comm, &ECU_interface::stopLogger);
         connect(this, SIGNAL(setLoggingInterval(int)), ecu_comm, SLOT(setLoggingInterval(int)));
         connect(ecu_comm, &ECU_interface::interfaceReady, this, &MainWindow::interfaceUnlock);
-        connect(ecu_comm, SIGNAL(readyRead(QByteArray)), this, SLOT(logger_and_tableWidget_trace(QByteArray)));
+
+        //
+        connect(ecu_comm, SIGNAL(log_polling_tick(QByteArray)), &_logger, SLOT(poll_data_calc(QByteArray)));
+
         connect(ecu_comm, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
         //=============================================================================
         connect(&interface_thread, &QThread::started, ecu_comm, &ECU_interface::init);
@@ -307,11 +343,9 @@ void MainWindow::dll_connect(int VechicleInterfaceType, TCHAR *DllLibraryPath, b
             {
                 tactrix_afr_lcd = new gauge_widget("tactrixAFR", 4, 0, nullptr, ui->toolBar);
                 ui->toolBar->addWidget(tactrix_afr_lcd);
-                connect(ecu_comm, SIGNAL(AFR(QString)), tactrix_afr_lcd, SLOT(display(QString)));
+                connect(ecu_comm, SIGNAL(AFR(float)), tactrix_afr_lcd, SLOT(display(float)));
             }
             connect(this, &MainWindow::start_inno, ecu_comm, &ECU_interface::start_tactrix_wb);
-      //      emit start_inno();
-//            reinterpret_cast<OP20*>(ecu_comm)->start_tactrix_wb(TACTRIX);
         }
     }
 }
@@ -481,7 +515,7 @@ void MainWindow::Log(QString str)
 }
 void MainWindow::on_start_addr_lineEdit_returnPressed()
 {
-    int count = ui->count_lineEdit->text().toUInt(nullptr);
+    quint16 count = ui->count_lineEdit->text().toUInt(nullptr);
     quint32 addr = ui->start_addr_lineEdit->text().toUInt(nullptr, 16);
 
     ecu_comm->sendDMAcomand(0xE1, addr, count);

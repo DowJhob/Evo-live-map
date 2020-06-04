@@ -19,6 +19,11 @@
 #include "gauge_widget.h"
 #include "graph_logger.h"
 
+
+#include "logger.h"
+
+
+
 namespace Ui {
 class MainWindow;
 }
@@ -38,6 +43,7 @@ public:
 
 public slots:
     void logger_and_tableWidget_trace(QByteArray in);
+    void logger_and_tableWidget_trace2();
     void updateRAM(int row, int column)
     {
         CustomTableWidget *table = qobject_cast<CustomTableWidget*>( sender() );
@@ -104,7 +110,6 @@ private slots:
     }
 
 private:
-    bool ReadConfig(QString filename);
     bool getECU(QString filename);
     void TableDelete();
     QString load_bin(QString bin_filename)
@@ -128,30 +133,6 @@ private:
         else
             return path + listFiles.at(0);
     }
-    int modul(int a, int b)
-    {
-        int mod = qRound(sqrt(pow(a, 2) + pow(b, 2)));
-        if (mod > 255)
-            mod = 255;
-
-        mod = (255 - mod);
-        if (mod < 30)
-            mod = 30;
-        return mod;
-    }
-    int  axis_lookup2(float in, int axis_lenght, QVector<float> axis)    //возвращает меньший индекс
-    {
-        if (axis_lenght <= 1 )
-            return 0;
-        if (in < axis[0])
-            return 0;
-        if (in > axis[axis_lenght - 1])
-            return axis_lenght - 1;
-        for (int i = 0; i < axis_lenght-1; i++)
-            if (  in >= axis[i] && in < axis[i+1])
-                return i;
-        return axis_lenght - 1;
-    }
     void create_table(tableDeclaration *tab);
     void create_tree(tableDeclaration *tab);
     void create_gauge(QString name, mutParam *param);
@@ -160,14 +141,19 @@ private:
     QAction *start_action;
     QAction *debug_action;
     QAction *ram_reset;
+
     QThread interface_thread;
+    QThread logger_thread;
+
     ecu *_ecu;
     ECU_interface *ecu_comm = nullptr;
     QString CurrDir;
     QString xml_filename;
     bool  debug = false;
     Ui::MainWindow *ui;
-//    QTimer* timer = new QTimer(this);
+
+    QToolBar *loggerWidgetBar = nullptr;
+
     bool save_trace = false;
     xmlParser xmlParser;
     QByteArray *binarray;                                  // массив с бинарником
@@ -175,10 +161,11 @@ private:
     QHexEdit *hexEdit;
     gauge_widget *tactrix_afr_lcd = nullptr;
     //======================== widget lists =================================
-    QSet<graph_logger*> graph_logger_set;
+    QSet<gauge_widget*> gauge_widget_set;
     QSet<QWidget*> widget_set;
     QSet<CustomTableWidget*> table_set;
 
+    Logger _logger;
 signals:
     void startLogger(quint32, quint16);
     void start_inno();

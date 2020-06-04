@@ -122,7 +122,7 @@ public:
         case plx: dump = &wideband_input_device::_dump_plx; break;
         }
     }
-
+//QTimer* _timer;
 public slots:
     void _start()
     {
@@ -150,7 +150,9 @@ public slots:
     void _stop()
     {
         flag = false;
-        _timer->deleteLater();
+        QThread::msleep(12);
+//        _timer->stop();
+//        _timer->deleteLater();
     }
 
 private slots:
@@ -271,7 +273,7 @@ private slots:
         case EXPECTING_SECOND_HALF_OF_SENSOR_TYPE:
             state = EXPECTING_INSTANCE;
 
-            emit AFR( QString::number((partialValue << 6) | b));
+            emit AFR( (partialValue << 6) | b);
             //              sensorType = valueOf(value);
             //               if (PlxSensorType.UNKNOWN == sensorType)
             //          {
@@ -304,29 +306,29 @@ private slots:
 
 private:
     QElapsedTimer t;
-    QTimer* _timer;
-    QString result;
+
+    float result;
     bool flag = true;
     void func_check(int func, uint _afr, uint _lambda)
     {
         double lambda,afr;
-        result.clear();
+        //result.clear();
         switch (func) {
         case 0b000: {
             lambda = 0.5 + 0.001 * _lambda;
             afr = lambda * 0.1 * _afr;
-            result = QString::number(afr, '.', 1);} break;
+            result = afr;} break;
         case 0b001: {
             double pct_o2;
             pct_o2 = 0.1 * _lambda;
-            result = QString::number(pct_o2);
+            result = pct_o2;
             //         qDebug() << "O2: " << pct_o2;
         } break;
-        case 0b010: result =" CAl"; break;
-        case 0b011: result = "SCAl"; break;
-        case 0b100: result = "H" + QString::number(_lambda/10); break;
-        case 0b101: result = "hCAl"; break;
-        case 0b110: result = "E" + QString::number(_lambda, 16); break;
+        case 0b010: result =func; break;
+        case 0b011: result = func; break;
+        case 0b100: result = ((_lambda/10) <<3) + func; break;
+        case 0b101: result = func; break;
+        case 0b110: result = (_lambda << 3) + func; break;
 
         }
         emit AFR(result);
@@ -343,7 +345,7 @@ private:
     uchar instance;
 
 signals:
-    void AFR(QString);
+    void AFR(float);
 };
 
 #endif // WIDEBAND_INPUT_DEVICE_H

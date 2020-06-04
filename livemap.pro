@@ -6,7 +6,7 @@
 
 CONFIG += c++11
 #CONFIG += qhexedit4
-CONFIG += qwt
+#CONFIG += qwt
 #CONFIG   += rtti
 QT       += core gui xml
 
@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     libs/ftdi.cpp
 
 HEADERS  += mainwindow.h \
-    graph_logger.h \
+#    graph_logger.h \
+    logger.h \
     mathparser2.h \
     enumdev.h \
     wideband/wideband_input_device.h \
@@ -64,19 +65,22 @@ CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
 LIBS += -lSetupapi
 LIBS += -ladvapi32
 LIBS += -luser32
-LIBS += -L$$PWD -lqwt
+win32-g++ {
+                QMAKE_CXXFLAGS  += -flto -funroll-loops
+                QMAKE_CXXFLAGS  += -fforce-addr
+                QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mtune=core2
+                #QMAKE_CXXFLAGS  += -mfpmath=sse
+                QMAKE_CXXFLAGS  += -msse4
+#                LIBS += -L$$PWD/mingw-dll -lqwt
+                CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
+            }
+win32-msvc {
+                QMAKE_LFLAGS_RELEASE += /LTCG
+                QMAKE_CXXFLAGS  += /Ox
 
+#                LIBS += -L$$PWD/msvc-dll -lqwt
+            }
 
-CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
-
-#QMAKE_LFLAGS_RELEASE += /LTCG
-#QMAKE_CXXFLAGS  += /Ox
-
-QMAKE_CXXFLAGS  += -flto -funroll-loops
-QMAKE_CXXFLAGS  += -fforce-addr
-QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mtune=core2
-#QMAKE_CXXFLAGS  += -mfpmath=sse
-QMAKE_CXXFLAGS  += -msse4
 
 DEFINES += QHEXEDIT_EXPORTS
 #DEFINES += QHEXEDIT_IMPORTS

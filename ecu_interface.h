@@ -74,15 +74,16 @@ public slots:
 
     bool init()
     {
-        timer = new QTimer(this);
-        connect(timer, &QTimer::timeout, this, &ECU_interface::timerTick);
-        timer->setInterval(50);
+        ecu_polling_timer = new QTimer(this);
+        connect(ecu_polling_timer, &QTimer::timeout, this, &ECU_interface::timerTick);
+        ecu_polling_timer->setInterval(50);
+        qDebug() << QString::fromWCharArray(dllName);
         return _init();
     }
 
     void setLoggingInterval(int im)
     {
-        timer->setInterval(im);
+        ecu_polling_timer->setInterval(im);
     }
 
     void startLogger(quint32 addr, quint16 len)
@@ -90,23 +91,23 @@ public slots:
         this->addr = addr;
         this->len = len;
 
-        timer->start();
+        ecu_polling_timer->start();
     }
 
     void stopLogger()
     {
-        timer->stop();
+        ecu_polling_timer->stop();
     }
 
     void timerTick()
     {
         QElapsedTimer t;
         t.start();
-        timer->stop();
+        ecu_polling_timer->stop();
         sendDMAcomand(0xE0, addr, len);
         read();
-        timer->start();
-        emit readyRead(a.fromRawData((char*)in_buff, len));
+        ecu_polling_timer->start();
+        emit log_polling_tick(a.fromRawData((char*)in_buff, len));
     }
 
     virtual void start_tactrix_wb() = 0;
@@ -116,16 +117,16 @@ private slots:
     virtual bool _init() = 0;
 
 private:
-    QTimer* timer;
+    QTimer* ecu_polling_timer;
     quint32 addr;
     quint16 len;
     QByteArray a;
 
 signals:
-    void readyRead(QByteArray);
+    void log_polling_tick(QByteArray);
     void interfaceReady();
     void DMA_Ready();
-    void AFR(QString);
+    void AFR(float);
     void Log(QString);
 };
 

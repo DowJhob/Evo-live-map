@@ -17,25 +17,30 @@ public:
     QLCDNumber lcd;
     gauge_widget(QString name, uint DigitNum = 4, uint offset = 0, Scaling *scaling = nullptr, QWidget* parent = nullptr):QWidget(parent), offset(offset), scaling(scaling)
     {
+ //       setMinimumSize(64, 64);
+//        setMaximumSize(100, 100);
         lcd.setDigitCount(DigitNum);
-        lcd.setMinimumWidth( this->width() + 1 );
+       // lcd.setMinimumWidth( this->width() + 1 );
         QFont myFont1 = lcd.font();
-        myFont1.setPixelSize (64);
+        myFont1.setPixelSize (120);
         lcd.setFont(myFont1);
-        lcd.setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
+        lcd.setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
         QString s;
         s.fill ('-', DigitNum);
         lcd.display(s);
         QVBoxLayout *lay = new QVBoxLayout(this);
-        lay->addWidget( new QLabel(name, this));
+        QLabel *lab = new QLabel(name, this);
+
+        setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
+        lay->addWidget(lab );
         lay->addWidget(&lcd);
         setLayout( lay );
     }
 
 public slots:
-    void display(QString s)
+    void display(float in)
     {
-        lcd.display(s);
+        lcd.display(QString::number(in));
     }
 };
 

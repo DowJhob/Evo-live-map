@@ -19,55 +19,78 @@
 #include <qwt/qwt_plot_picker.h>
 #include <qwt/qwt_picker_machine.h>
 
+#include <qwt/qwt_date.h>
+
+
 #include "gauge_widget.h"
 
-class graph_logger: public QWidget
+class graph_logger: public QWidget//, public IncrementalPlot
 {
     Q_OBJECT
 public:
+    QList<double> xData;
+    QList<double> yData;
+    QwtPlotCurve *curve;
+
+
     graph_logger(QString name, uint DigitNum = 4, uint offset = 0, Scaling *scaling = nullptr, QWidget* parent = nullptr):QWidget(parent), offset(offset), scaling(scaling)
     {
-        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        //resize(parent->size().width() - 15, 10);
         QHBoxLayout *lay = new QHBoxLayout(this);
-        setLayout(lay);
 
-
-        gauge_lcd = new gauge_widget(name, DigitNum, offset, scaling, this);
-        layout()->addWidget(gauge_lcd);
-
-
-
-        QWidget *qwtplotwidget = new QWidget(this);
-        qwtplotwidget->resize(800, 100);
-        qwtplotwidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-        qwtplotwidget->setStyleSheet("background-color:red;");
-        layout()->addWidget(qwtplotwidget);
-
-        d_plot = new QwtPlot( qwtplotwidget );
-
-        //d_plot->setMinimumSize(0, 50);
-        //d_plot->setMaximumSize(this->size().width() - 15, 50);
+        d_plot = new QwtPlot( this );
         d_plot->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+        d_plot->setAutoReplot(true);
 
-        d_plot->resize(800, 100);
-d_plot->setAutoReplot(true);
-//layout()->addWidget(d_plot);
-        //d_plot->resize(this->size().width() - 15, 10);
+//            d_plot->canvas()->setAttribute( Qt::WA_PaintOnScreen, true );
 
+        // Параметры осей координат
+        d_plot->setAxisTitle(QwtPlot::yLeft, name);
+        d_plot->setAxisTitle(QwtPlot::xBottom, "time, ms from start");
+        // Включить сетку
+        QwtPlotGrid *grid = new QwtPlotGrid(); //
+        grid->setMajorPen(QPen( Qt::gray, 2 )); // цвет линий и толщина
+        grid->attach( d_plot ); // добавить сетку к полю графика
+        // Кривая
+        curve = new QwtPlotCurve();
+        curve->setPen( Qt::black, 2 ); // цвет и толщина кривой
+        curve->setRenderHint ( QwtPlotItem::RenderAntialiased, true ); // сглаживание
+        curve->attach(d_plot);
+
+
+        curve->setSamples(xData.toVector(), yData.toVector());
+
+//QwtPlotCanvas *plotCanvas = qobject_cast<QwtPlotCanvas *>( d_plot->canvas() );
+//plotCanvas->setPaintAttribute( QwtPlotCanvas::BackingStore, false );
+
+d_plot->setAxisScale(QwtPlot::xBottom, 0, 1);
+
+        lay->addWidget(d_plot);
+        setLayout(lay);
     }
     gauge_widget *gauge_lcd;
     QwtPlot *d_plot;
-
+ulong start_time = QDateTime::currentMSecsSinceEpoch();
     uint offset;
     Scaling *scaling;
 
 public slots:
-    void display(QString s)
+    void display(float in)
     {
-        gauge_lcd->display(s);
+ulong t = QDateTime::currentMSecsSinceEpoch();
+
+        xData.append((double) ( t - start_time ));
+        yData.append( in );
+
+        if (xData.size() > 1000)
+        {
+            xData.removeFirst();
+            yData.removeFirst();
+        }
+        curve->setSamples(xData.toVector(), yData.toVector());
+d_plot->setAxisScale(QwtPlot::xBottom, t - start_time - 1000, t - start_time);
+
     }
+
 };
 
 #endif // GRAPH_LOGGER_H

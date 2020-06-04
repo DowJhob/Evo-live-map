@@ -14,9 +14,7 @@ public:
     OP13(TCHAR *dllName = nullptr)
     {
         this->dllName = dllName;
-        in_buff = in_buf;
-        out_buff = out_buf;
-        delay_after_command = 0;
+
     }
     ~OP13()
     {
@@ -88,6 +86,11 @@ public slots:
 private slots:
     bool _init()
     {
+        in_buff = in_buf;
+        out_buff = out_buf;
+        delay_after_command = 0;
+
+
         _ftdi = new ftdi(dllName);
 
         delay_after_command = 0;

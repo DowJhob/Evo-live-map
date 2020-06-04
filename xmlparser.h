@@ -1,5 +1,8 @@
 #ifndef XMLPARSER_H
 #define XMLPARSER_H
+
+#include <QFile>
+#include <QMessageBox>
 #include <QtXml/QDomDocument>
 #include <mathparser2.h>
 #include "ecu.h"
@@ -12,7 +15,7 @@ public:
 
     xmlParser()
     {}
-    void _parser(QIODevice *device, ecu *_ecu, QTreeWidget *tr)
+    void _parser(QIODevice *device, ecu *_ecu)
     {
         this->_ecu = _ecu;
         QString errorStr;
@@ -93,6 +96,20 @@ public:
             }
             node = node.nextSibling();
         }
+    }
+    bool ReadECUdefinition(QString filename, ecu *_ecu)
+    {
+        // Открываем конфиг:
+        QFile* file = new QFile(filename);
+        if (!file->open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+  //          QMessageBox::information(this, tr("Unable to open file"), file->errorString());
+            return false;
+        }
+
+        _parser(file, _ecu);        // парсим файл
+        delete file;
+        return true;
     }
 
 private:

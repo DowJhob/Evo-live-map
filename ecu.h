@@ -2,8 +2,8 @@
 #define ECU_H
 
 //#include <QObject>
-
 #include <mathparser2.h>
+
 
 enum Storagetype { int8, int16, int32, uint8, uint16, uint32 };
 
@@ -53,19 +53,24 @@ public:
 
     QHash<QString, mutParam> RAM_MUT;
     ecu(){}
-//public slots:
+    //public slots:
 
-    qint64 mem_cast(Scaling *scaling, uchar *in_buf, uint offset)   //кастуем данные к определенному типу
+    uchar get_sizeData( Scaling *scaling )
     {
         switch (scaling->_storagetype) {
         case Storagetype::int8:
-        case Storagetype::uint8:  return type_cast(scaling, in_buf + offset); break;
+        case Storagetype::uint8:  return 1; break;
         case Storagetype::int16:
-        case Storagetype::uint16: return type_cast(scaling, in_buf + 2*offset); break;
+        case Storagetype::uint16: return 2; break;
         case Storagetype::int32:
-        case Storagetype::uint32: return type_cast(scaling, in_buf + 4*offset); break;
-        default: break;
+        case Storagetype::uint32: return 4; break;
+        default: return 1; break;
         }
+    }
+
+    qint64 mem_cast(Scaling *scaling, uchar *in_buf, uint offset)   //кастуем данные к определенному типу
+    {
+        return type_cast(scaling, in_buf + get_sizeData( scaling )*offset);
     }
     qint64 type_cast(Scaling *scaling, uchar *in_buf)          //кастуем данные к определенному типу
     {

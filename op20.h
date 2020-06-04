@@ -31,12 +31,11 @@ public:
     OP20(TCHAR *dllName = nullptr)
     {
         this->dllName = dllName;
-        in_buff = rx_msg[0].Data;
-        out_buff = tx_msg.Data;
-        delay_after_command = 4;
+
     }
     ~OP20()
     {
+        stopLogger();
         stop_tactrix_wb();
         _wb_dev->deleteLater();
         close();
@@ -287,7 +286,7 @@ public slots:
         {
             _wb_dev = new tactrix_wideband(j2534, devID);
 _wb_dev->set_type(inno);
-            connect(_wb_dev, SIGNAL(AFR(QString)), SIGNAL(AFR(QString)));
+            connect(_wb_dev, SIGNAL(AFR(float)), SIGNAL(AFR(float)));
             connect(this, &OP20::_stop_tactrix_wb_sig, _wb_dev, &wideband_input_device::_stop);
             connect(wb_thread, &QThread::started, _wb_dev, &wideband_input_device::_start);
 //          connect(inno_thread, &QThread::finished, [=](){inno_thread->deleteLater();});
@@ -305,6 +304,7 @@ _wb_dev->set_type(inno);
         if (_wb_dev != nullptr )
         {
             emit _stop_tactrix_wb_sig();
+            _wb_dev->deleteLater();
             wb_thread->quit();
             wb_thread->wait(1000);
         }
@@ -312,6 +312,10 @@ _wb_dev->set_type(inno);
 private slots:
     bool _init()
     {
+        in_buff = rx_msg[0].Data;
+        out_buff = tx_msg.Data;
+        delay_after_command = 4;
+
         j2534 = new J2534(dllName) ;
         delay_after_command = 4;
         if (!j2534->init())
