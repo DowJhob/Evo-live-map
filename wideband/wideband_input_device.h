@@ -137,6 +137,7 @@ public slots:
     void _stop()
     {
         wb_polling_timer->stop();
+        deleteLater();
     }
 
 private slots:

@@ -35,7 +35,6 @@ public:
     }
     ~OP20()
     {
-        common_destructor();
         stop_tactrix_wb();
         close();
         delete j2534;
@@ -307,7 +306,7 @@ public slots:
         if (_wb_dev != nullptr )
         {
             emit _stop_tactrix_wb_sig();
-            _wb_dev->deleteLater();
+//            _wb_dev->deleteLater();
         }
     }
 private slots:

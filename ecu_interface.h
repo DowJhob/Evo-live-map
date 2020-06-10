@@ -27,11 +27,7 @@ public:
     {
 
     }
-void common_destructor()
-{
-    ecu_polling_timer->stop();
-    ecu_polling_timer->deleteLater();
-}
+
     virtual bool _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate) = 0;
     virtual bool disconnect() = 0;
     virtual bool e7_connect() = 0;
