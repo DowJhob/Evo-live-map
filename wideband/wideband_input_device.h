@@ -107,11 +107,12 @@ public:
     ulong *DataSize;
 
     void (wideband_input_device::*dump)();
+    wideband_input_device(){}
 
-
-    wideband_input_device()
+    void common_destructor()
     {
-        //this->_wb_iface_type = _wb_iface_type;
+        wb_polling_timer->stop();
+        wb_polling_timer->deleteLater();
     }
     void set_type(wb_iface_type _wb_iface_type)
     {
@@ -122,37 +123,20 @@ public:
         case plx: dump = &wideband_input_device::_dump_plx; break;
         }
     }
-//QTimer* _timer;
+
 public slots:
     void _start()
     {
-
         _connect();
-        //       qDebug() << "wb _connect: " ;
-        //        _timer = new QTimer(this);
-        //        _timer->setInterval(200);
-        //        connect(_timer, &QTimer::timeout, this, [=](){_read();});
+        wb_polling_timer = new QTimer(this);
+        wb_polling_timer->setInterval(20);
+        connect(wb_polling_timer, &QTimer::timeout, this, [=](){_read();});
+        wb_polling_timer->start();
 
-        while (true)
-        {
-            //qDebug() << "wb start: " ;
-            if (!flag)
-                return;
-            if ( _read() )
-            {
-                //            _timer->start();
-            }
-            QCoreApplication::processEvents() ;
-            QThread::msleep(10);
-        }
-        //emit AFR("----");
     }
     void _stop()
     {
-        flag = false;
-        QThread::msleep(12);
-//        _timer->stop();
-//        _timer->deleteLater();
+        wb_polling_timer->stop();
     }
 
 private slots:
@@ -305,10 +289,9 @@ private slots:
     }
 
 private:
-    QElapsedTimer t;
+    QTimer *wb_polling_timer;
 
     float result;
-    bool flag = true;
     void func_check(int func, uint _afr, uint _lambda)
     {
         double lambda,afr;

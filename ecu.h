@@ -9,6 +9,7 @@ enum Storagetype { int8, int16, int32, uint8, uint16, uint32 };
 
 typedef struct                          //структура скалингов для помещения в контейнер
 {
+    QString name;
     Storagetype _storagetype = Storagetype::int8;
     fast_calc_struct toexpr2;
     fast_calc_struct frexpr2;

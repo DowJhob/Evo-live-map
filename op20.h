@@ -35,9 +35,8 @@ public:
     }
     ~OP20()
     {
-        stopLogger();
+        common_destructor();
         stop_tactrix_wb();
-        _wb_dev->deleteLater();
         close();
         delete j2534;
     }
@@ -285,11 +284,15 @@ public slots:
         if (_wb_dev == nullptr)
         {
             _wb_dev = new tactrix_wideband(j2534, devID);
-_wb_dev->set_type(inno);
-            connect(_wb_dev, SIGNAL(AFR(float)), SIGNAL(AFR(float)));
+            _wb_dev->set_type(inno);
+
             connect(this, &OP20::_stop_tactrix_wb_sig, _wb_dev, &wideband_input_device::_stop);
+            connect(_wb_dev, SIGNAL(AFR(float)), SIGNAL(AFR(float)));
+
             connect(wb_thread, &QThread::started, _wb_dev, &wideband_input_device::_start);
-//          connect(inno_thread, &QThread::finished, [=](){inno_thread->deleteLater();});
+            connect(_wb_dev, &QObject::destroyed, wb_thread, &QThread::quit);
+            connect(wb_thread, &QThread::finished, [=](){wb_thread->deleteLater();});
+
             _wb_dev->moveToThread(wb_thread);
         }
         if (!wb_thread->isRunning())
@@ -305,8 +308,6 @@ _wb_dev->set_type(inno);
         {
             emit _stop_tactrix_wb_sig();
             _wb_dev->deleteLater();
-            wb_thread->quit();
-            wb_thread->wait(1000);
         }
     }
 private slots:

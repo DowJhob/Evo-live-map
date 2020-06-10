@@ -40,6 +40,7 @@ public:
             if (node.toElement().tagName() == "scaling")                                                 //сохраним все скалинги
             {
                 QString name = node.toElement().attribute("name");
+                sc.name = name;
                 QString storagetype = node.toElement().attribute("storagetype");
                 if (storagetype == "bloblist")
                 {

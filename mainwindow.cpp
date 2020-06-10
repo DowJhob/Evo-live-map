@@ -42,7 +42,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 MainWindow::~MainWindow()
 {
     dll_disconnect();
+
     TableDelete();
+    //_logger.deleteLater();
     logger_thread.quit();
     logger_thread.wait(1000);
     delete ui;
@@ -148,12 +150,12 @@ void MainWindow::axread(sub_tableDeclaration *sub_tab, QVector <float> *axis, bo
     //читаем таблицу заголовка-оси в буфер
     // прочитаем нужное количество данных в соответствии с типом
 
-    ecu_comm->sendDMAcomand(0xE1, addr, sub_tab->elements * _ecu->get_sizeData( &sub_tab->rom_scaling ) );
-    ecu_comm->read();
+    vehicle_ecu_comm->sendDMAcomand(0xE1, addr, sub_tab->elements * _ecu->get_sizeData( &sub_tab->rom_scaling ) );
+    vehicle_ecu_comm->read();
     //заполняем в соотвествии с формулой
     for (int i = 0; i < sub_tab->elements; i++)
     {
-        variable_value = _ecu->mem_cast(&sub_tab->rom_scaling, (uchar*)ecu_comm->in_buff, i); //кастуем данные к определенному типу
+        variable_value = _ecu->mem_cast(&sub_tab->rom_scaling, (uchar*)vehicle_ecu_comm->in_buff, i); //кастуем данные к определенному типу
         axis->append(fast_calc(sub_tab->rom_scaling.toexpr2, variable_value));
     }
 }
@@ -312,28 +314,32 @@ void MainWindow::logger_and_tableWidget_trace2()
     ui->trace_time_label->setText(QString::number(t.nsecsElapsed()/1000) + "us");
 }
 
-void MainWindow::dll_connect(int VechicleInterfaceType, TCHAR *DllLibraryPath, bool isTactrix)                //по сигналу перечислителя
+void MainWindow::dll_connect(int VechicleInterfaceType, TCHAR *DllLibraryPath, bool isTactrix)
+//по сигналу перечислителя
 {
-    if (ecu_comm == nullptr  )
+    if (vehicle_ecu_comm == nullptr  )
     {
         if (VechicleInterfaceType == 13 )
-            ecu_comm = new OP13(DllLibraryPath);
+            vehicle_ecu_comm = new OP13(DllLibraryPath);
         if (VechicleInterfaceType == 20 )
-            ecu_comm = new OP20(DllLibraryPath);
+            vehicle_ecu_comm = new OP20(DllLibraryPath);
 
-        connect(this, SIGNAL(startLogger(quint32, quint16)), ecu_comm, SLOT(startLogger(quint32, quint16)));
-        connect(this, &MainWindow::stopLogger, ecu_comm, &ECU_interface::stopLogger);
-        connect(this, SIGNAL(setLoggingInterval(int)), ecu_comm, SLOT(setLoggingInterval(int)));
-        connect(ecu_comm, &ECU_interface::interfaceReady, this, &MainWindow::interfaceUnlock);
+        connect(this, SIGNAL(startLogger(quint32, quint16)), vehicle_ecu_comm, SLOT(startLogger(quint32, quint16)));
+        connect(this, &MainWindow::stopLogger, vehicle_ecu_comm, &ECU_interface::stopLogger);
+        connect(this, &MainWindow::_delete, vehicle_ecu_comm, &ECU_interface::_delete);
+        connect(this, SIGNAL(setLoggingInterval(int)), vehicle_ecu_comm, SLOT(setLoggingInterval(int)));
+        connect(vehicle_ecu_comm, &ECU_interface::interfaceReady, this, &MainWindow::interfaceUnlock);
 
         //
-        connect(ecu_comm, SIGNAL(log_polling_tick(QByteArray)), &_logger, SLOT(poll_data_calc(QByteArray)));
+        connect(vehicle_ecu_comm, SIGNAL(log_polling_tick(QByteArray)), &_logger, SLOT(poll_data_calc(QByteArray)));
 
-        connect(ecu_comm, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
+        connect(vehicle_ecu_comm, SIGNAL(Log(QString)), this, SLOT(Log(QString)));
         //=============================================================================
-        connect(&interface_thread, &QThread::started, ecu_comm, &ECU_interface::init);
-        ecu_comm->moveToThread(&interface_thread);
-        interface_thread.start();
+        connect(&vehicle_ecu_interface_thread, &QThread::started, vehicle_ecu_comm, &ECU_interface::init);
+        //connect(vehicle_ecu_comm, &QObject::destroyed, &vehicle_ecu_interface_thread, &QThread::quit);
+
+        vehicle_ecu_comm->moveToThread(&vehicle_ecu_interface_thread);
+        vehicle_ecu_interface_thread.start();
         //=============================================================================
 
         //=============================================================================
@@ -343,22 +349,23 @@ void MainWindow::dll_connect(int VechicleInterfaceType, TCHAR *DllLibraryPath, b
             {
                 tactrix_afr_lcd = new gauge_widget("tactrixAFR", 4, 0, nullptr, ui->toolBar);
                 ui->toolBar->addWidget(tactrix_afr_lcd);
-                connect(ecu_comm, SIGNAL(AFR(float)), tactrix_afr_lcd, SLOT(display(float)));
+                connect(vehicle_ecu_comm, SIGNAL(AFR(float)), tactrix_afr_lcd, SLOT(display(float)));
             }
-            connect(this, &MainWindow::start_inno, ecu_comm, &ECU_interface::start_tactrix_wb);
+            connect(this, &MainWindow::start_WB, vehicle_ecu_comm, &ECU_interface::start_tactrix_wb);
         }
     }
 }
 
 void MainWindow::dll_disconnect()
 {
-    if (ecu_comm != nullptr)
+    interfaceLock();
+    if (vehicle_ecu_comm != nullptr)
     {
-        interfaceLock();
-        ecu_comm->deleteLater();
-        interface_thread.quit();
-        interface_thread.wait(1000);
-        ecu_comm = nullptr;
+        emit _delete();
+        //vehicle_ecu_comm->deleteLater();
+        vehicle_ecu_interface_thread.quit();
+        vehicle_ecu_interface_thread.wait(1000);
+        vehicle_ecu_comm = nullptr;
     }
     if( tactrix_afr_lcd != nullptr )
     {
@@ -385,19 +392,19 @@ void MainWindow::StartButton_slot()
 {
     if (start_action->text() == "Start")
     {
-        if (!ecu_comm->e7_connect())
+        if (!vehicle_ecu_comm->e7_connect())
             return ;
-        emit start_inno();
-        quint32 *calID = reinterpret_cast<quint32*>(ecu_comm->in_buff);
+        emit start_WB();
+        quint32 *calID = reinterpret_cast<quint32*>(vehicle_ecu_comm->in_buff);
         *calID = 0;                                                     //занулим 4 ре байта
-        ecu_comm->sendDMAcomand(0xE1, 0xF52, 4);                        //читаем номер калибровки
-        ecu_comm->read();
+        vehicle_ecu_comm->sendDMAcomand(0xE1, 0xF52, 4);                        //читаем номер калибровки
+        vehicle_ecu_comm->read();
         if ( *calID == 0 )
         {
             ui->listWidget->addItem("ECU connect failure");
             return;
         }
-        QString romID = QString::number( qFromBigEndian<quint32>(ecu_comm->in_buff), 16 );
+        QString romID = QString::number( qFromBigEndian<quint32>(vehicle_ecu_comm->in_buff), 16 );
         ui->listWidget->addItem("romID: " + romID);
         qDebug()<< "romID: " + romID;
 
@@ -417,7 +424,7 @@ void MainWindow::StartButton_slot()
     {
         //        timer->stop();
         emit stopLogger();
-        ecu_comm->disconnect();
+        vehicle_ecu_comm->disconnect();
         TableDelete();
         ui->treeWidget->clear();
         delete _ecu;
@@ -429,17 +436,17 @@ void MainWindow::debugButton_slot()
     debug = true;
 
     //emit Enumerator. InterfaceActive(20);
-    ecu_comm->e7_connect();
-    emit start_inno();
+    vehicle_ecu_comm->e7_connect();
+    emit start_WB();
     //if (!ecu_comm->five_baud_init())
     ;//return ;
-    ecu_comm->sendDMAcomand(0xE1, 0xF52, 4); //читаем номер калибровки
-    ecu_comm->read();
-    QString romID = QString::number( qFromBigEndian<quint32>(ecu_comm->in_buff), 16 );
+    vehicle_ecu_comm->sendDMAcomand(0xE1, 0xF52, 4); //читаем номер калибровки
+    vehicle_ecu_comm->read();
+    QString romID = QString::number( qFromBigEndian<quint32>(vehicle_ecu_comm->in_buff), 16 );
 
     for (int i =0; i < 4000; i++)
     {
-        ecu_comm->in_buff[i] = i;
+        vehicle_ecu_comm->in_buff[i] = i;
     }
     //SearchFiles(CurrDir + "/xml/", "80700010");   //найдем файл конфига
     getECU(SearchFiles(CurrDir + "/xml/", "90550001"));   	//найдем файл конфига							//парсим его
@@ -460,7 +467,7 @@ void MainWindow::RAM_reset_slot()
     char buf[2];
     buf[0] = 0x00;
     buf[1] = 0x00;
-    ecu_comm->sendDMAcomand(0xE2, _ecu->DEAD_var, 2, buf);
+    vehicle_ecu_comm->sendDMAcomand(0xE2, _ecu->DEAD_var, 2, buf);
     QVector <float> map;
 
     foreach (CustomTableWidget *t, table_set)
@@ -518,10 +525,10 @@ void MainWindow::on_start_addr_lineEdit_returnPressed()
     quint16 count = ui->count_lineEdit->text().toUInt(nullptr);
     quint32 addr = ui->start_addr_lineEdit->text().toUInt(nullptr, 16);
 
-    ecu_comm->sendDMAcomand(0xE1, addr, count);
-    ecu_comm->read();
+    vehicle_ecu_comm->sendDMAcomand(0xE1, addr, count);
+    vehicle_ecu_comm->read();
     //
-    hexEdit->setData(QByteArray::fromRawData( (char*)ecu_comm->in_buff, count));
+    hexEdit->setData(QByteArray::fromRawData( (char*)vehicle_ecu_comm->in_buff, count));
     hexEdit->setAddressOffset(addr);
 
 }
@@ -530,9 +537,9 @@ void MainWindow::on_count_lineEdit_returnPressed()
     int count = ui->count_lineEdit->text().toUInt(nullptr);
     quint32 addr = ui->start_addr_lineEdit->text().toUInt(nullptr, 16);
 
-    ecu_comm->sendDMAcomand(0xE1, addr, count);
-    ecu_comm->read();
+    vehicle_ecu_comm->sendDMAcomand(0xE1, addr, count);
+    vehicle_ecu_comm->read();
     //
-    hexEdit->setData(QByteArray::fromRawData( (char*)ecu_comm->in_buff, count));
+    hexEdit->setData(QByteArray::fromRawData( (char*)vehicle_ecu_comm->in_buff, count));
     hexEdit->setAddressOffset(addr);
 }

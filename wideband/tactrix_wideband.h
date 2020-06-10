@@ -20,6 +20,7 @@ public:
     }
     ~tactrix_wideband()
     {
+        common_destructor();
         if (j2534->PassThruDisconnect(chanID_INNO))
         {
             //   reportJ2534Error();

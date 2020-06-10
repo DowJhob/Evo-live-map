@@ -18,6 +18,7 @@ public:
     }
     ~OP13()
     {
+        common_destructor();
         close();
     }
 

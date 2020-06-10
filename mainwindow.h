@@ -68,7 +68,7 @@ public slots:
         case Storagetype::uint32: pos *= 4; memcpy(Out, (char*)&out, 4); break;
         default: break;
         }
-        ecu_comm->sendDMAcomand(0xE2, table->Table_Decl.Table.ram_addr + pos, 1, Out);
+        vehicle_ecu_comm->sendDMAcomand(0xE2, table->Table_Decl.Table.ram_addr + pos, 1, Out);
     }
     void dll_connect(int VechicleInterfaceType, TCHAR* DllLibraryPath, bool isTactrix);
     void dll_disconnect();
@@ -142,11 +142,11 @@ private:
     QAction *debug_action;
     QAction *ram_reset;
 
-    QThread interface_thread;
+    QThread vehicle_ecu_interface_thread;
     QThread logger_thread;
 
     ecu *_ecu;
-    ECU_interface *ecu_comm = nullptr;
+    ECU_interface *vehicle_ecu_comm = nullptr;
     QString CurrDir;
     QString xml_filename;
     bool  debug = false;
@@ -166,9 +166,11 @@ private:
     QSet<CustomTableWidget*> table_set;
 
     Logger _logger;
+
 signals:
     void startLogger(quint32, quint16);
-    void start_inno();
+    void _delete();
+    void start_WB();
     void stopLogger();
     void setLoggingInterval(int);
 };

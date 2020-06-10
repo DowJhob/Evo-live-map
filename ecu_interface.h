@@ -27,7 +27,11 @@ public:
     {
 
     }
-
+void common_destructor()
+{
+    ecu_polling_timer->stop();
+    ecu_polling_timer->deleteLater();
+}
     virtual bool _connect(unsigned long protocol, unsigned long ConnectFlag, unsigned int baudRate) = 0;
     virtual bool disconnect() = 0;
     virtual bool e7_connect() = 0;
@@ -72,7 +76,7 @@ public:
 
 public slots:
 
-    bool init()
+    bool init() 
     {
         ecu_polling_timer = new QTimer(this);
         connect(ecu_polling_timer, &QTimer::timeout, this, &ECU_interface::timerTick);
@@ -98,7 +102,11 @@ public slots:
     {
         ecu_polling_timer->stop();
     }
-
+void _delete()
+{
+    ecu_polling_timer->stop();
+    deleteLater();
+}
     void timerTick()
     {
         QElapsedTimer t;
