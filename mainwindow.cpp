@@ -171,7 +171,8 @@ bool MainWindow::getECU(QString filename)
 
 
     // переберем все описания таблиц
-    foreach ( tableDeclaration tab, _ecu->RAMtables)
+    //foreach ( tableDeclaration tab, _ecu->RAMtables)
+    for ( tableDeclaration tab : _ecu->RAMtables)
     {
         create_table(&tab);
         create_tree(&tab);
@@ -184,105 +185,16 @@ bool MainWindow::getECU(QString filename)
 }
 void MainWindow::TableDelete()
 {
-    foreach (gauge_widget *gauge, gauge_widget_set)
+    //foreach (gauge_widget *gauge, gauge_widget_set)
+    for (gauge_widget *gauge : gauge_widget_set)
         gauge->deleteLater();
     gauge_widget_set.clear();
-    foreach (QWidget *w, widget_set)
+    //foreach (QWidget *w, widget_set)
+    for (QWidget *w : widget_set)
         w->deleteLater();
     widget_set.clear();
 }
-void MainWindow::logger_and_tableWidget_trace(QByteArray in)
-{
-    QElapsedTimer t;
-    t.start();
-    //    timer->stop();
-    //    ecu_comm->sendDMAcomand(0xE0, _ecu->RAM_MUT_addr, 16);
-    //    ecu_comm->read();
-    foreach (gauge_widget *gauge, gauge_widget_set)
-    {
 
-        gauge->display( _ecu->mut_cast((uchar*)in.data(), gauge->scaling, gauge->offset) );
-    }
-
-    float x = 0;
-    float y = 0;
-    foreach (CustomTableWidget *table, ptrRAMtables)
-    {
-        if ( table->Table_Decl.X_axis.ram_mut_number >= 0 || table->Table_Decl.Y_axis.ram_mut_number >= 0 )
-        {
-            x = _ecu->mut_cast((uchar*)in.data(), &table->Table_Decl.X_axis.RAM_MUT_scaling, table->Table_Decl.X_axis.ram_mut_number);
-            y = _ecu->mut_cast((uchar*)in.data(), &table->Table_Decl.Y_axis.RAM_MUT_scaling, table->Table_Decl.Y_axis.ram_mut_number);
-            if (debug)
-            {
-                x = QCursor::pos().x()*2.3;
-                y = QCursor::pos().y()*10.1;
-            }
-            //----------------------- вычисляем координаты маркера------------------------------------------------
-            table->tracer_marker.Xtrace = table->axis_lookup2(x, table->Table_Decl.X_axis.elements, table->x_axis);
-            table->tracer_marker.Ytrace = table->axis_lookup2(y, table->Table_Decl.Y_axis.elements, table->y_axis);
-            //----------------------- вычисляем насыщенность ячеек маркера ---------------------------------------
-            table->tracer_marker.k = 0;
-            table->tracer_marker.j = 0;
-            if ( (table->Table_Decl.X_axis.elements > 1) && (table->tracer_marker.Xtrace < table->Table_Decl.X_axis.elements - 1) )
-                table->tracer_marker.j = 1;
-            if ( (table->Table_Decl.Y_axis.elements > 1) && (table->tracer_marker.Ytrace < table->Table_Decl.Y_axis.elements - 1) )
-                table->tracer_marker.k = 1;
-
-            float kX = (float)255/(table->x_axis[table->tracer_marker.Xtrace + table->tracer_marker.j] - table->x_axis[table->tracer_marker.Xtrace]);    //коэффициент нормирования
-            float kY = (float)255/(table->y_axis[table->tracer_marker.Ytrace + table->tracer_marker.k] - table->y_axis[table->tracer_marker.Ytrace]);    //коэффициент нормирования
-
-            int leftNormalX  = qRound((table->x_axis[table->tracer_marker.Xtrace]-x)*kX);                       //нормированные координаты
-            int rightNormalX = qRound((table->x_axis[table->tracer_marker.Xtrace + table->tracer_marker.j]-x)*kX);                       //нормированные координаты
-            int upNormalY    = qRound((table->y_axis[table->tracer_marker.Ytrace]-y)*kY);
-            int downNormalY  = qRound((table->y_axis[table->tracer_marker.Ytrace + table->tracer_marker.k]-y)*kY);
-
-            //модули векторов,
-            int leftUP    = table->modul(leftNormalX, upNormalY);
-            int rightUP   = table->modul(rightNormalX, upNormalY);
-            int leftDOWN  = table->modul(leftNormalX, downNormalY);
-            int rightDOWN = table->modul(rightNormalX, downNormalY);
-
-            QColor color_rightDOWN, color_leftDOWN, color_rightUP, color_leftUP;
-            color_rightDOWN.setHsv(240, rightDOWN, 255, 255);
-            color_leftDOWN.setHsv(240, leftDOWN, 255, 255);
-            color_rightUP.setHsv(240, rightUP, 255, 255);
-            color_leftUP.setHsv(240, leftUP, 255, 255);
-            //------------------------------------------------------------------------------------------------------------------
-            table->blockSignals( true );
-            if ((table->tracer_marker_pred.Xtrace != table->tracer_marker.Xtrace) ||(table->tracer_marker_pred.Ytrace != table->tracer_marker.Ytrace)) // тут гашение если изменился X или Y
-            {
-                //гашение предыдущего маркера таблицы
-                if (!save_trace)
-                {
-                    table->item(table->tracer_marker_pred.Ytrace,  table->tracer_marker_pred.Xtrace)->setBackground(table->tracer_marker_pred.predColorA);
-                    table->item(table->tracer_marker_pred.Ytrace,  table->tracer_marker_pred.Xtrace + table->tracer_marker_pred.j)->setBackground(table->tracer_marker_pred.predColorB);
-                    table->item(table->tracer_marker_pred.Ytrace + table->tracer_marker_pred.k, table->tracer_marker_pred.Xtrace)->setBackground(table->tracer_marker_pred.predColorC);
-                    table->item(table->tracer_marker_pred.Ytrace + table->tracer_marker_pred.k, table->tracer_marker_pred.Xtrace + table->tracer_marker_pred.j)->setBackground(table->tracer_marker_pred.predColorD);
-                }
-
-
-                //сохраняем  текущее положение для след расчета
-                table->tracer_marker_pred = table->tracer_marker;
-                table->tracer_marker_pred.predColorA = table->item(table->tracer_marker.Ytrace,                          table->tracer_marker.Xtrace                         )->background().color();
-                table->tracer_marker_pred.predColorB = table->item(table->tracer_marker.Ytrace,                          table->tracer_marker.Xtrace + table->tracer_marker.j)->background().color();
-                table->tracer_marker_pred.predColorC = table->item(table->tracer_marker.Ytrace + table->tracer_marker.k, table->tracer_marker.Xtrace                         )->background().color();
-                table->tracer_marker_pred.predColorD = table->item(table->tracer_marker.Ytrace + table->tracer_marker.k, table->tracer_marker.Xtrace + table->tracer_marker.j)->background().color();
-            }
-            //         рисуем новое положение маркера
-            table->item(table->tracer_marker.Ytrace,  table->tracer_marker.Xtrace)->setBackground(color_leftUP);//левый верхний
-            table->item(table->tracer_marker.Ytrace,  table->tracer_marker.Xtrace + table->tracer_marker.j)->setBackground(color_rightUP);//правый верхний
-            table->item(table->tracer_marker.Ytrace + table->tracer_marker.k, table->tracer_marker.Xtrace)->setBackground(color_leftDOWN);//левый нижний
-            table->item(table->tracer_marker.Ytrace + table->tracer_marker.k, table->tracer_marker.Xtrace + table->tracer_marker.j)->setBackground(color_rightDOWN);//правый нижний
-
-
-            // разблокируем обновления редакции
-            table->blockSignals(false);//
-        }
-    }
-    ui->trace_time_label->setText(QString::number(t.nsecsElapsed()/1000) + "us");
-
-    //    timer->start();
-}
 void MainWindow::logger_and_tableWidget_trace2()
 {
     QElapsedTimer t;
@@ -290,14 +202,16 @@ void MainWindow::logger_and_tableWidget_trace2()
     //    timer->stop();
     //    ecu_comm->sendDMAcomand(0xE0, _ecu->RAM_MUT_addr, 16);
     //    ecu_comm->read();
-    foreach (gauge_widget *_gauge_widget, gauge_widget_set)
+    //foreach (gauge_widget *_gauge_widget, gauge_widget_set)
+    for (gauge_widget *_gauge_widget : gauge_widget_set)
     {
         _gauge_widget->display( _logger.log_param.value(_gauge_widget->offset) );
     }
 
     float x = 0;
     float y = 0;
-    foreach (CustomTableWidget *table, ptrRAMtables)
+    //foreach (CustomTableWidget *table, ptrRAMtables)
+    for (CustomTableWidget *table : ptrRAMtables)
     {
         if ( table->Table_Decl.X_axis.ram_mut_number >= 0 || table->Table_Decl.Y_axis.ram_mut_number >= 0 )
         {
@@ -380,7 +294,8 @@ void MainWindow::interfaceThumbler(bool lockFlag)
     ram_reset->setDisabled(lockFlag);
     debug_action->setDisabled(lockFlag);
 
-    foreach( QObject *w, ui->toolBar->children())
+    //foreach( QObject *w, ui->toolBar->children())
+    for( QObject *w: ui->toolBar->children())
         if (w->isWidgetType())
             reinterpret_cast<QWidget*>(w)->setDisabled(lockFlag) ;
 }
@@ -470,14 +385,14 @@ void MainWindow::RAM_reset_slot()
     vehicle_ecu_comm->sendDMAcomand(0xE2, _ecu->DEAD_var, 2, buf);
     QVector <float> map;
 
-    foreach (CustomTableWidget *t, table_set)
+    //foreach (CustomTableWidget *t, table_set)
+    for (CustomTableWidget *t : table_set)
     {
         t->Table_Decl.Table.elements = t->Table_Decl.X_axis.elements * t->Table_Decl.Y_axis.elements;
 
         axread(&t->Table_Decl.Table, &map, false);
         t->table_set_update(&map, 200, 200);
         map.clear();
-
     }
     emit startLogger(_ecu->RAM_MUT_addr, 16);
 }

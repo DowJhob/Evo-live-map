@@ -207,9 +207,9 @@ private:
 
         WCHAR* t = getVendorDesc_frRegistry(pDevInf);
 
-        //pDevInf->dbcc_classguid
+        //foreach( GUID g, J2543_interfaces)
 
-        foreach( GUID g, J2543_interfaces)
+        for( GUID g : J2543_interfaces)
         if ( pDevInf->dbcc_classguid == g )
         {
             VechicleInterfaceType = 20;    //J2534_INTERFACE
@@ -219,7 +219,8 @@ private:
                 return true;
             }
         }
-        foreach( GUID g, serial_interfaces)
+        //foreach( GUID g, serial_interfaces)
+        for( GUID g : serial_interfaces)
         if ( pDevInf->dbcc_classguid == g )
         {
             VechicleInterfaceType = 13;   //SERIAL_INTERFACE

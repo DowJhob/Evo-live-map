@@ -42,7 +42,7 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
 
 public slots:
-    void logger_and_tableWidget_trace(QByteArray in);
+
     void logger_and_tableWidget_trace2();
     void updateRAM(int row, int column)
     {

@@ -47,7 +47,8 @@ private:
 
 
         QString log_str{};
-        foreach (mutParam param, _ecu->RAM_MUT)
+        //foreach (mutParam param, _ecu->RAM_MUT)
+        for (mutParam param : _ecu->RAM_MUT)
         {
 
             log_str.append(param.ram_mut_param_scaling.name + ";");
@@ -70,7 +71,8 @@ public slots:
     void poll_data_calc(QByteArray in)
     {
         QString log_str{};
-        foreach (mutParam param, _ecu->RAM_MUT)
+        //foreach (mutParam param, _ecu->RAM_MUT)
+        for (mutParam param : _ecu->RAM_MUT)
         {
             qint64 value = _ecu->mut_cast( (uchar*)in.data(), &param.ram_mut_param_scaling, param.ram_mut_offset);
             log_param.insert( param.ram_mut_offset, value );
