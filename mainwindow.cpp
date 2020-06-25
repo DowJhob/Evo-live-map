@@ -210,20 +210,20 @@ void MainWindow::logger_and_tableWidget_trace2()
 
     float x = 0;
     float y = 0;
+    if (debug)
+    {
+        x = QCursor::pos().x()*2.3;
+        y = QCursor::pos().y()*10.1;
+    }
     //foreach (CustomTableWidget *table, ptrRAMtables)
     for (CustomTableWidget *table : ptrRAMtables)
     {
-        if ( table->Table_Decl.X_axis.ram_mut_number >= 0 || table->Table_Decl.Y_axis.ram_mut_number >= 0 )
-        {
-            x = _logger.log_param.value(table->Table_Decl.X_axis.ram_mut_number);
+        if ( table->Table_Decl.X_axis.ram_mut_number >= 0  && !debug)
+                x = _logger.log_param.value(table->Table_Decl.X_axis.ram_mut_number);
+        if ( table->Table_Decl.Y_axis.ram_mut_number >= 0 && !debug)
             y = _logger.log_param.value(table->Table_Decl.Y_axis.ram_mut_number);
-            if (debug)
-            {
-                x = QCursor::pos().x()*2.3;
-                y = QCursor::pos().y()*10.1;
-            }
+        if ( table->Table_Decl.X_axis.ram_mut_number >= 0 || table->Table_Decl.Y_axis.ram_mut_number >= 0 )
             table->tracer_calc(x, y);
-        }
     }
     ui->trace_time_label->setText(QString::number(t.nsecsElapsed()/1000) + "us");
 }
