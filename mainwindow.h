@@ -17,7 +17,7 @@
 #include "op13.h"
 #include "op20.h"
 #include "gauge_widget.h"
-#include "graph_logger.h"
+//#include "graph_logger.h"
 
 
 #include "logger.h"
