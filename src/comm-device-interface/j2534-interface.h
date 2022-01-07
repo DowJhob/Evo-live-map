@@ -34,37 +34,27 @@ public:
     unsigned long devID;
     unsigned long chanID;
 
-    j2534_interface( QString dllName = nullptr);
+    j2534_interface( QString dllName = nullptr, QString DeviceUniqueID = "");
     virtual ~j2534_interface();
 
-    void init();
+    bool init();
     bool open();
     bool close();
-    bool closeChannel();
 
-    bool connect(Protocol protocol, ConnectFlag ConnectFlag);
+    bool connect(Protocol protocol, enum ConnectFlag ConnectFlag);
 
     void info();
 
     bool five_baud_init();
 
     QByteArray read();
-    //void write(char* buf, quint16 size  );
+
     void write(int lenght);
 
-
-    //PASSTHRU_MSG  tx_msg = {};
-    //PASSTHRU_MSG  rx_msg[2] = {};
-
     Message  tx_msg = {};
-    Message  rx_msg[2] = {};
-
-
+    Message  rx_msg = {};
 
     unsigned long NumMsgs;
-    Protocol protocol_inno = Protocol::ISO9141_INNO;
-    Protocol protocol = Protocol::ISO9141;
-    ConnectFlag ConnectFlag = ConnectFlag::ISO9141NoChecksum;  //        || ISO9141_K_LINE_ONLY ;
 
     QString reportJ2534Error();
 

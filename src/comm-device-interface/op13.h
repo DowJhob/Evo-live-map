@@ -20,7 +20,7 @@ public:
         close();
     }
 
-    void init()
+    bool init()
     {}
     bool open()
     {

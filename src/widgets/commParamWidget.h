@@ -35,6 +35,7 @@ QLineEdit *logRate;
 
 signals:
     void interfaceSelected(device);
+    //void interfaceRemoved(device);
     void protoSelected(int);
 
     void baudChanged(int);

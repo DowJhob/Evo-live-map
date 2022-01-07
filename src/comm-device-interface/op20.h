@@ -14,7 +14,7 @@ class OP20 : public j2534_interface
 public:
     //common_serial_interface *tactrix_serial = nullptr;
     tactrix_serial *_tactrix_serial = nullptr;
-    OP20(QString dllName = nullptr) : j2534_interface(dllName)
+    OP20(QString dllName = nullptr, QString DeviceUniqueID = "") : j2534_interface(dllName, DeviceUniqueID)
     {
         qDebug() << "OP20";
     }

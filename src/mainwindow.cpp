@@ -110,6 +110,9 @@ void MainWindow::deviceEvent(device dev)
         break;
     case dir::remove :
         cpW->removeDevice(dev);
+
+        emit interfaceRemoved(dev);
+
         break;
     }
 
@@ -145,7 +148,15 @@ void MainWindow::StartButton_slot()
         ram_reset->setDisabled(true);
 
         gaugeDelete();
+
         ui->treeWidget->clear();
+
+        for(mapWidget *c: qAsConst(ptrRAMtables))
+        {
+            c->hide();
+            c->deleteLater();
+        }
+        ptrRAMtables.clear();
     }
 }
 
@@ -175,6 +186,7 @@ void MainWindow::create_table(mapDefinition *dMap)
     //создаем таблицу с заданной размерностью
     //qDebug() << "====================== Create table : " << dMap->declMap->Name << " ================================";
     dMap->declMap->elements = dMap->declMap->X_axis.elements * dMap->declMap->Y_axis.elements;
+
     mapWidget *table = new mapWidget(nullptr, dMap, &colormap);
 
     connect(table->mapModel_, &mapModel::updateRAM, this, &MainWindow::updateRAM);
@@ -184,10 +196,11 @@ void MainWindow::create_table(mapDefinition *dMap)
     connect(this, &MainWindow::_exit, table, &QWidget::deleteLater);
 
     ptrRAMtables.insert(dMap->declMap->Name, table );
-    create_tree(dMap->declMap);
+
+    createMapTree(dMap->declMap);
 }
 
-void MainWindow::create_tree(Map *tab)
+void MainWindow::createMapTree(Map *tab)
 {
     if (tab->addr != 0)                                    // проверим что это таблица карт, а не таблица патчей
     {
@@ -228,6 +241,32 @@ void MainWindow::create_gauge(QString name, mutParam *param)
     //ui->logger_verticalLayout->layout()->addWidget(_gauge_widget);
     loggerWidgetBar->addWidget(_gauge_widget);
     gauge_widget_set.insert(_gauge_widget);
+}
+
+void MainWindow::colorFromFile(QString filename)
+{
+    // Открываем конфиг:
+    QFile* file = new QFile(filename);
+    if (!file->open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug() << "file fail";
+        //return nullptr;
+    }
+
+    QStringList sl;
+
+    //QVector<QColor> *colormap = new QVector<QColor>;
+
+    qDebug() << "file ";
+    while( !file->atEnd())
+    {
+        sl = QString(file->readLine()).simplified()
+                .split(' ');
+        if(sl.count() == 3)
+            colormap.append(QColor(sl[0].toInt(), sl[1].toInt(), sl[2].toInt()));
+        //qDebug() << "colormap" ;
+    }
+    delete file;
 }
 
 void MainWindow::test()
@@ -338,7 +377,7 @@ void MainWindow::itemChecks(QTreeWidgetItem *item, int column)
     if (table == nullptr)
         return;
     if ( item->checkState(column) )
-        table->parentWidget()->show();
+        table->show();
     else
-        table->parentWidget()->hide();
+        table->hide();
 }

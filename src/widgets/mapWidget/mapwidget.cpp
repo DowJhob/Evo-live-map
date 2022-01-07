@@ -23,7 +23,7 @@ mapWidget::mapWidget(QWidget *parent, mapDefinition *def, QVector<QColor> *color
 
     //connect(mapModel_, &mapModel::upd, mapTable, &mapView::reset);
 
-    show();
+    //show();
 }
 
 void mapWidget::setColorMap(QVector<QColor> *colormap)

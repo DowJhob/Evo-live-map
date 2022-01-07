@@ -30,6 +30,7 @@ public:
 
 public slots:
     void commDeviceSelected(device dev);
+    void commDeviceRemoved(device dev);
     void setProto(int proto);
 
     void getECUconnect();

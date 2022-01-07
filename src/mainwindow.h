@@ -91,7 +91,9 @@ private:
 
     void gaugeDelete();
 
-    void create_tree(Map *tab);
+    void createMapTree(Map *tab);
+    void freeMapTree();
+
     void create_gauge(QString name, mutParam *param);
 
     QAction *start_action;
@@ -117,35 +119,12 @@ private:
     QSet<gauge_widget*> gauge_widget_set;
 
     QVector<QColor> colormap;
-    void colorFromFile(QString filename)
-    {
-        // Открываем конфиг:
-        QFile* file = new QFile(filename);
-        if (!file->open(QIODevice::ReadOnly | QIODevice::Text))
-        {
-            qDebug() << "file fail";
-            //return nullptr;
-        }
-
-        QStringList sl;
-
-        //QVector<QColor> *colormap = new QVector<QColor>;
-
-        qDebug() << "file ";
-        while( !file->atEnd())
-        {
-            sl = QString(file->readLine()).simplified()
-                    .split(' ');
-            if(sl.count() == 3)
-                colormap.append(QColor(sl[0].toInt(), sl[1].toInt(), sl[2].toInt()));
-            //qDebug() << "colormap" ;
-        }
-        delete file;
-    }
+    void colorFromFile(QString filename);
     void test();
 
 signals:
     void devSelected(device);
+    void interfaceRemoved(device);
     void protoSelected(int proto);
     void baudChanged(int);
     void logChanged(int);

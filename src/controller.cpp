@@ -50,18 +50,18 @@ void controller::commDeviceSelected(device dev)
     }
     switch (dev.type) {
     //case dev_type::OP13  : devComm = new OP13(dev.FunctionLibrary); break;
-    case dev_type::OP20  : devComm = new OP20(dev.FunctionLibrary); break;
-    case dev_type::J2534 : devComm = new j2534_interface(dev.FunctionLibrary); break;
+    case dev_type::OP20  : devComm = new OP20(dev.FunctionLibrary, dev.DeviceUniqueID); break;
+    case dev_type::J2534 : devComm = new j2534_interface(dev.FunctionLibrary, dev.DeviceUniqueID); break;
     default              : return;
     }
     p_in_buff = devComm->p_in_buff;
-    //_dataLogger.p_in_buff = p_in_buff;
 
-    connect(devComm, &comm_device_interface::readyInterface, this, &controller::interfaceReady); // форвардим сигнал готовности ннаружу для разблокировки гуя
+    //connect(devComm, &comm_device_interface::readyInterface, this, &controller::interfaceReady); // форвардим сигнал готовности ннаружу для разблокировки гуя
     connect(devComm, &comm_device_interface::Log, this, &controller::Log, Qt::QueuedConnection);
     connect(this, &controller::baudChanged, devComm, &comm_device_interface::setBaudRate);
 
-    devComm->init();
+    if( devComm->init() )
+        emit interfaceReady(true);                  // Показываем кнопки старт и сброс памяти
 
     //if ( isTactrix )
     {
@@ -72,7 +72,16 @@ void controller::commDeviceSelected(device dev)
         //                connect(vehicle_ecu_comm, &comm_device_interface::AFR, tactrix_afr_lcd, &gauge_widget::display);
         //            }
     }
-    //emit readyInterface(true);                  // Показываем кнопки старт и сброс памяти
+}
+
+void controller::commDeviceRemoved(device dev)
+{
+    if (devComm != nullptr && devComm->DeviceUniqueID == dev.DeviceUniqueID )
+    {
+        //devComm->close();
+        devComm->deleteLater();
+        devComm = nullptr;
+    }
 }
 
 void controller::setProto(int proto)
@@ -105,7 +114,7 @@ void controller::getECUconnect()
     qDebug() << "=========== ECU connect ================";
     //if (!
     ECUproto->connect();//) //тут специфичные для конкретного варианта коннекты например jcsbanks будет 5бод инит
-     //   return ;
+    //   return ;
     //QMetaObject::invokeMethod(vehicle_ecu_comm, &comm_device_interface::stoplog0x81);
     //QMetaObject::invokeMethod(vehicle_ecu_comm, &comm_device_interface::log0x81);
 
@@ -119,7 +128,7 @@ void controller::getECUconnect()
     QString romID = QString::number( qFromBigEndian<quint32>(a.data()), 16 );
     emit Log("romID: " + romID);
 
-    //emit Log("CurrDir: " + QApplication::applicationDirPath());
+    emit Log("CurrDir: " + QApplication::applicationDirPath());
     getECUdefinition(SearchFiles(QApplication::applicationDirPath() + "/xml/", romID)); //найдем файл конфига и парсим его
 
     // переберем все описания таблиц

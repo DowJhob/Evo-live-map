@@ -17,20 +17,25 @@ class comm_device_interface : public QObject
     Q_OBJECT
 public:
     QString dllName;
+    QString DeviceUniqueID;
     char* p_in_buff;
     char* p_out_buff;
+
+    Protocol protocol_inno = Protocol::ISO9141_INNO;
+    Protocol protocol = Protocol::ISO9141;
+    ConnectFlag ConnectFlag = ConnectFlag::ISO9141NoChecksum;  //        || ISO9141_K_LINE_ONLY ;
 
     unsigned int  baudRate = 62500;
     unsigned long _readTimeout = 2000;
     unsigned long writeTimeout = 0;
 
-    explicit comm_device_interface(QString dllName = nullptr);
+    explicit comm_device_interface(QString dllName = nullptr, QString DeviceUniqueID = "");
     virtual ~comm_device_interface();
 
-    virtual void init() = 0;
+    virtual bool init() = 0;
     virtual bool open() = 0;
     virtual bool close() = 0;
-    virtual bool connect(Protocol protocol, ConnectFlag ConnectFlag) = 0;
+    virtual bool connect(Protocol protocol, enum ConnectFlag ConnectFlag) = 0;
     virtual bool five_baud_init() = 0;
 
 public slots:

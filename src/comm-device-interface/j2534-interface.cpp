@@ -1,10 +1,11 @@
 #include "j2534-interface.h"
 
-j2534_interface::j2534_interface(QString dllName) : comm_device_interface( dllName)
+j2534_interface::j2534_interface(QString dllName, QString DeviceUniqueID) : comm_device_interface( dllName, DeviceUniqueID)
 {
-    p_in_buff = rx_msg[0].m_data;
+    p_in_buff = rx_msg.m_data;
     p_out_buff = tx_msg.m_data;
 
+    j2534 = new PassThru(dllName);
     ////connect(this, &j2534_interface::_loop, this, &j2534_interface::loop, Qt::QueuedConnection);            //
     //init();
     qDebug() << "j2534_interface";
@@ -28,64 +29,38 @@ j2534_interface::~j2534_interface()
     qDebug() << "~j2534_interface";
 }
 
-void j2534_interface::init()
+bool j2534_interface::init()
 {
-    //j2534 = new J2534(dllName);
-    j2534 = new PassThru(dllName);
-    //if (j2534->init())
+    if ( !open() )
+        return false;
+
+    info();
+
+    if (j2534->PassThruClose(devID) != PassThru::Status::NoError)
     {
-        emit Log("init_j2534 OK");
-
-        if ( !open() )
-        {
-            qDebug()<<"open error: ";
-            return ;
-        }
-
-        //qDebug()<<"CLEAR_RX_BUFFER error ";
-        info();
-        close();
-        emit readyInterface(true);
+        qDebug()<<"PassThruClose error: ";
+        emit Log("PassThruClose error: " + reportJ2534Error() );
+        return false;
     }
-    //else
-    //       emit Log("can't connect to J2534 DLL.");
-
-    //qDebug()<<"return init ";
+    return true;
+    //emit readyInterface(true);
 }
 
 bool j2534_interface::open()
 {
-    //qDebug()<<"open ";
-    //получаем дескриптор
     if (j2534->PassThruOpen(nullptr, &devID))         // Get devID
     {
-        //qDebug()<<"PassThruOpen error: ";
-        emit Log("PassThruOpen error: " + reportJ2534Error()
-                 );
+        emit Log("PassThruOpen error: " + reportJ2534Error());
         return false;
     }
     emit Log("PassThruOpen deviceID: " + QString::number(devID) + " /opened");
     return true;
 }
 
-bool j2534_interface::closeChannel()
-{
-    if (long a = j2534->PassThruDisconnect(chanID) != PassThru::Status::NoError )
-    {
-        //qDebug()<<"PassThruDisconnect error: " << a;
-        emit Log("PassThruDisconnect error: " + reportJ2534Error() );
-        reportJ2534Error();
-        return false;
-    }
-    emit Log("PassThruDisconnect channel: " + QString::number(chanID) + " /closed" );
-    return true;
-}
-
 bool j2534_interface::connect(Protocol protocol, enum ConnectFlag ConnectFlag)
 {
     this->protocol = protocol;
-    for (uint i=0; i < 2; i++)
-        rx_msg[i].setProtocolId(protocol);
+    rx_msg.setProtocolId(protocol);
     tx_msg.setProtocolId(protocol);
 
     open();
@@ -94,16 +69,16 @@ bool j2534_interface::connect(Protocol protocol, enum ConnectFlag ConnectFlag)
         return false;
 
     Config scp[10] = { Config{Config::Parameter::DataRate, baudRate},
-                      Config{Config::Parameter::P1Min, 0},
-                      Config{Config::Parameter::P1Max, 1},           // сколько ждать на реальном чтении
-                      Config{Config::Parameter::P2Min, 0},
-                      Config{Config::Parameter::P2Max, 1},
-                      Config{Config::Parameter::P3Min, 0},           // уменьшает в 4 раза отклик контроллера!!!
-                      Config{Config::Parameter::P3Max, 2},
-                      Config{Config::Parameter::P4Min, 0},           // уменьшает в 30 раз отклик контроллера!!!
-                      Config{Config::Parameter::P4Max, 1},
-                      Config{Config::Parameter::Loopback, 0}
-                    };        // set timing
+                       Config{Config::Parameter::P1Min, 0},
+                       Config{Config::Parameter::P1Max, 1},           // сколько ждать на реальном чтении
+                       Config{Config::Parameter::P2Min, 0},
+                       Config{Config::Parameter::P2Max, 1},
+                       Config{Config::Parameter::P3Min, 0},           // уменьшает в 4 раза отклик контроллера!!!
+                       Config{Config::Parameter::P3Max, 2},
+                       Config{Config::Parameter::P4Min, 0},           // уменьшает в 30 раз отклик контроллера!!!
+                       Config{Config::Parameter::P4Max, 1},
+                       Config{Config::Parameter::Loopback, 0}
+                     };        // set timing
 
     const SArray<const Config> configList{10, scp};
 
@@ -121,7 +96,13 @@ bool j2534_interface::connect(Protocol protocol, enum ConnectFlag ConnectFlag)
 bool j2534_interface::close()
 {
     // shut down the channel
-    //closeChannel();
+    if (j2534->PassThruDisconnect(chanID) != PassThru::Status::NoError )
+    {
+        emit Log("PassThruDisconnect error: " + reportJ2534Error() );
+        reportJ2534Error();
+        return false;
+    }
+    emit Log("PassThruDisconnect channel: " + QString::number(chanID) + " /closed" );
 
     if (j2534->PassThruClose(devID) != PassThru::Status::NoError)
     {
@@ -137,28 +118,21 @@ QByteArray j2534_interface::read()
 {
     QByteArray a;
     QElapsedTimer tt;
-    int countSubMessage = 0;
     NumMsgs = 1;
-    rx_msg[0].m_rxStatus = 0;
+    rx_msg.m_rxStatus = 0;
     do
     {
         tt.start();
-        j2534->PassThruReadMsgs(chanID, rx_msg, &NumMsgs, _readTimeout);
-
-        if(NumMsgs > 0)
-    //    for( uint i = 0; i < NumMsgs; ++i)
-        {
-            if(rx_msg[0].m_dataSize > 0)
-            a.append(QByteArray((char*)rx_msg[0].m_data, rx_msg[0].m_dataSize));
-        }
-        qDebug()<< "j2534_interface::read " << "rx_msg[0].m_rxStatus" << rx_msg[0].m_rxStatus
-                << "rx_msg[0].m_dataSize" << rx_msg[0].m_dataSize
+        j2534->PassThruReadMsgs(chanID, &rx_msg, &NumMsgs, _readTimeout);
+        a.append(QByteArray((char*)rx_msg.m_data, rx_msg.m_dataSize));
+        qDebug()<< "j2534_interface::read " << "rx_msg.m_rxStatus" << rx_msg.m_rxStatus
+                << "rx_msg.m_dataSize" << rx_msg.m_dataSize
                 << "time" << QString::number( tt.nsecsElapsed()/1000000.0)
                 << "NumMsgs=" << NumMsgs
-                //<< "rx_msg[0].data" << QByteArray((char*)rx_msg[0].m_data, 4).toHex(':')
-                ;
+                   //<< "rx_msg[0].data" << QByteArray((char*)rx_msg[0].m_data, 4).toHex(':')
+                   ;
     }
-    while(rx_msg[0].m_rxStatus == Message::RxStatusBit::InStartOfMessage);
+    while(rx_msg.m_rxStatus == Message::RxStatusBit::InStartOfMessage);
 
     qDebug() << "j2534_interface::read: total" << QString::number( tt.nsecsElapsed()/1000000.0) << "\n\n";
 
@@ -167,11 +141,8 @@ QByteArray j2534_interface::read()
 
 void j2534_interface::write(int lenght)
 {
-    //qDebug() << "j2534_interface::write " << QByteArray((char*)tx_msg.Data, lenght).toHex(':');
     NumMsgs = 1;
-    //tx_msg.TxFlags = WAIT_P3_MIN_ONLY;
     tx_msg.m_dataSize = lenght;
-    //memcpy(tx_msg.Data, msg.data(), msg.size());
     j2534->PassThruWriteMsgs(chanID, &tx_msg, &NumMsgs, writeTimeout);
 }
 
@@ -254,11 +225,8 @@ bool j2534_interface::setFilter(Protocol protocol)
 
 bool j2534_interface::get_channel(Protocol protocol, enum ConnectFlag ConnectFlag, unsigned int baudRate)     //get  chanID
 {
-    //qDebug()<<"get_channel";
     tx_msg.setProtocolId(protocol);
-    //    tx_msg.TxFlags = ConnectFlag;
-    rx_msg[0].setProtocolId(protocol);
-    rx_msg[1].setProtocolId(protocol);
+    rx_msg.setProtocolId(protocol);
 
     if (j2534->PassThruConnect(devID, protocol, ConnectFlag, baudRate, &chanID))
     {
