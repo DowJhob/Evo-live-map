@@ -1,0 +1,13 @@
+[Dd]ebug/
+[Rr]elease/
+build/
+moc*
+*.o
+Makefile*
+.qmake*
+*.user
+*user*
+*.autosave
+*.TMP
+*.Debug
+*.Release

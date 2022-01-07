@@ -1,0 +1,52 @@
+TIMEOUT:
+sts.l pr,@-r15
+mov.l r0,@-r15
+mov.l r10,@-r15
+
+mov.l (int_disable),r10
+jsr @r10
+nop
+
+mov.l (bit7allowslogging),r10
+mov.w @r10,r0
+tst #0x80,r0
+bf exit
+nop
+
+mov #0xfffffffc,r0
+mov.l (CHCR3),r10
+mov.l @r10,r10
+and r10,r0
+mov.l (CHCR3),r10
+mov.l r0,@r10
+
+mov #0,r0
+mov.l (DMAOPFLAG),r10
+mov.l r0,@r10
+
+exit:
+mov.l (int_enable),r10
+jsr @r10
+nop
+mov.l @r15+,r10
+mov.l @r15+,r0
+lds.l @r15+,pr
+
+mov.l (tephra),r10
+jmp @r10
+nop
+
+.align 4
+CHCR3:
+.long 0xffffecfc
+DMAOPFLAG:
+.long 0xffff8480
+bit7allowslogging: /*CHANGE FOR EACH ROM*/
+.long 0xffff702a
+int_disable:
+.long 0x400
+int_enable:
+.long 0x41e
+tephra: /*CHANGE FOR 256K ECUS*/
+.long 0x48000
+

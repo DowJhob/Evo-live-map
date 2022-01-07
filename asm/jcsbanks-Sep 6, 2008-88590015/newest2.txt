@@ -1,0 +1,241 @@
+DMAEND:
+sts.l pr,@-r15
+mov.l r0,@-r15
+mov.l r10,@-r15
+mov.l (int_disable),r10
+jsr @r10
+nop
+
+mov #0xfffffffc,r0
+mov.l (CHCR3),r10
+mov.l @r10,r10
+and r10,r0
+mov.l (CHCR3),r10
+mov.l r0,@r10
+
+mov.l (DMAOPFLAG2),r0
+mov.l @r0,r0
+mov #1,r10
+cmp/eq r10,r0
+bt brwrite
+nop
+mov.w (E0),r10
+cmp/eq r10,r0
+bt brE0
+nop
+mov.w (E1),r10
+cmp/eq r10,r0
+bt brE1
+nop
+mov.w (E2),r10
+cmp/eq r10,r0
+bt brE2
+nop
+bra TEIEinvade
+nop
+
+brwrite:
+mov.l (SSR0),r10
+mov.b @r10,r0
+tst #4,r0
+bf TEIEinvade
+nop
+
+mov.w (SCR0_CLRTIE_SETTEIE),r0
+mov.l (SCR0),r10
+mov.b r0,@r10
+
+mov.l (int_enable),r10
+jsr @r10
+nop
+mov.l @r15+,r10
+mov.l @r15+,r0
+lds.l @r15+,pr
+rte
+nop
+
+brE0:
+mov #1,r0
+mov.l (DMAOPFLAG2),r10
+mov.l r0,@r10
+mov.l (DMAaddress),r0
+mov.l @r0,r0
+mov.l (SAR3),r10
+mov.l r0,@r10
+mov.l (TDR0),r0
+mov.l (DAR3),r10
+mov.l r0,@r10
+mov.l (DMAlength),r0
+mov.w @r0,r0
+mov.l (DMATCR3),r10
+mov.l r0,@r10
+mov #0x37,r0
+mov.l (DMAOPFLAG),r10
+mov.l r0,@r10
+mov.w (SCR0_CLRRE_SETTIE),r0
+mov.l (SCR0),r10
+mov.b r0,@r10
+mov.l (DMA3CONFIGwriteindirect),r0
+mov.l (CHCR3),r10
+mov.l r0,@r10
+mov.l (int_enable),r10
+jsr @r10
+nop
+mov.l @r15+,r10
+mov.l @r15+,r0
+lds.l @r15+,pr
+rte
+nop
+
+brE1:
+mov #1,r0
+mov.l (DMAOPFLAG2),r10
+mov.l r0,@r10
+mov.l (DMAaddress),r0
+mov.l @r0,r0
+mov.l (SAR3),r10
+mov.l r0,@r10
+mov.l (TDR0),r0
+mov.l (DAR3),r10
+mov.l r0,@r10
+mov.l (DMAlength),r0
+mov.w @r0,r0
+mov.l (DMATCR3),r10
+mov.l r0,@r10
+mov #0x37,r0
+mov.l (DMAOPFLAG),r10
+mov.l r0,@r10
+mov.w (SCR0_CLRRE_SETTIE),r0
+mov.l (SCR0),r10
+mov.b r0,@r10
+mov.l (DMA3CONFIGwritedirect),r0
+mov.l (CHCR3),r10
+mov.l r0,@r10
+mov.l (int_enable),r10
+jsr @r10
+nop
+mov.l @r15+,r10
+mov.l @r15+,r0
+lds.l @r15+,pr
+rte
+nop
+
+brE2:
+mov #2,r0
+mov.l (DMAOPFLAG2),r10
+mov.l r0,@r10
+mov.l (RDR0),r0
+mov.l (SAR3),r10
+mov.l r0,@r10
+mov.l (DMAaddress),r0
+mov.l @r0,r0
+mov.l (DAR3),r10
+mov.l r0,@r10
+mov.l (DMAlength),r0
+mov.w @r0,r0
+mov.l (DMATCR3),r10
+mov.l r0,@r10
+mov #0x37,r0
+mov.l (DMAOPFLAG),r10
+mov.l r0,@r10
+mov.l (SSR0),r10
+mov.b @r10,r0
+and #0x87,r0
+mov.b r0,@r10
+mov.l (DMA3CONFIGread),r0
+mov.l (CHCR3),r10
+mov.l r0,@r10
+mov.l r0,@r10
+mov.l (int_enable),r10
+jsr @r10
+nop
+mov.l @r15+,r10
+mov.l @r15+,r0
+lds.l @r15+,pr
+rte
+nop
+
+.align 4
+TEIE:
+sts.l pr,@-r15
+mov.l r0,@-r15
+mov.l r10,@-r15
+mov.l (int_disable),r10
+jsr @r10
+nop
+TEIEinvade:
+mov #0,r0
+mov.l (DMAOPFLAG),r10
+mov.l r0,@r10
+mov.w (SCR0_SETRE_CLRTEIE),r0
+mov.l (SCR0),r10
+mov.b r0,@r10
+
+mov.l (SSR0),r10
+mov.b @r10,r0
+and #0x87,r0
+mov.b r0,@r10
+
+mov.l (int_enable),r10
+jsr @r10
+nop
+mov.l @r15+,r10
+mov.l @r15+,r0
+lds.l @r15+,pr
+rte
+nop
+
+.align 2
+
+SAR3:
+.long 0xffffecf0
+DAR3:
+.long 0xffffecf4
+DMATCR3:
+.long 0xffffecf8
+CHCR3:
+.long 0xffffecfc
+
+SCR0:
+.long 0xfffff002
+TDR0:
+.long 0xfffff003
+SSR0:
+.long 0xfffff004
+RDR0:
+.long 0xfffff005
+
+DMA3CONFIGwriteindirect:
+.long 0x10011005
+DMA3CONFIGwritedirect:
+.long 0x11005
+DMA3CONFIGread:
+.long 0x20105
+
+DMAOPFLAG:
+.long 0xffff8480
+DMAOPFLAG2:
+.long 0xffff8484
+DMAaddress:
+.long 0xffff8488
+DMAlength:
+.long 0xffff848c
+
+int_disable:
+.long 0x400
+int_enable:
+.long 0x41e
+
+E0:
+.word 0xE0
+E1:
+.word 0xE1
+E2:
+.word 0xE2
+
+SCR0_CLRTIE_SETTEIE:
+.word 0x24
+SCR0_SETRE_CLRTEIE:
+.word 0x70
+SCR0_CLRRE_SETTIE:
+.word 0xa0

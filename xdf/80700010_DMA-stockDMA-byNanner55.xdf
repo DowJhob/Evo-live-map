@@ -1,0 +1,75 @@
+<!-- Written 19/03/2020 14:34:06 -->
+<XDFFORMAT version="1.50">
+	<XDFHEADER>
+		<flags>0x1</flags>
+		<deftitle>evo7 80700010 DMA by Nanner55</deftitle>
+		<description></description>
+		<baseoffset>0</baseoffset>
+		<DEFAULTS datasizeinbits="8" sigdigits="2" outputtype="1" signed="0" lsbfirst="0" float="0" />
+		<REGION type="0xFFFFFFFF" startaddress="0x0" size="0x40000" regionflags="0x0" name="Binary File" desc="This region describes the bin file edited by this XDF" />
+	</XDFHEADER>
+	<XDFPATCH uniqueid="0x00">
+		<title>DMA Livemap patch by Nanner55</title>
+		<description>modify read/write func</description>
+		<CATEGORYMEM index="0" category="1" />
+		<CATEGORYMEM index="1" category="4" />
+		<XDFPATCHENTRY name="33" address="0xF30" datasize="0x1" 
+			patchdata="03" />
+		<XDFPATCHENTRY name="handle mode 87" address="0x8152" datasize="0x3C" 
+			patchdata="690385E8C84089476093C8018944A0130009890FDAA184A388058B0B84A2401080A2890785E8EB084B1820BA81E850A1702C1A01A216000985826A0D"		
+			 basedata="600C6A0D60A381F88482690C4918699D85F86A0D29AB85E8C840893D699D609388018B398485600C6A0D60A381F88484600C40186A0385F86B0D2ABB"/>
+		<XDFPATCHENTRY name="Reads" address="0x8214" datasize="0x30" 
+			patchdata="DA8C85A18121608D80254019802485EA660D65237506D480348C84A3C804894885A3640D6449248B6449A042E62C0009"
+			 basedata="E92C85E64019C880892185EC680D688D6483E52CDA9D4A0B0009600DDAA16AA16AAD30A68B29D49E6441644D6583A020"/>
+		<XDFPATCHENTRY name="44 (need change addrr!)" address="0x91D2" datasize="0x0C"
+			patchdata="C8048B5B88028B2E81210009"/>
+		<XDFPATCHENTRY name="4" address="0x829A" datasize="0x4" 
+			patchdata="AF52C840" />
+		<XDFPATCHENTRY name="5" address="0x8465" datasize="0x03" 
+			patchdata="0CC803"/>
+		<XDFPATCHENTRY name="6" address="0x8486" datasize="0x01" 
+			patchdata="E6"/>	
+		<XDFPATCHENTRY name="Writes" address="0x849A" datasize="0x2E" 
+			patchdata="30A68B0464A3DA754A0B6583660D85EA690DD575359C64238521C8048904E5FF4528259B66034619DA6F4A0B7406"/>
+	</XDFPATCH>
+	<XDFPATCH uniqueid="0x3000">
+		<title>High Fuel/Ignition map selector</title>
+		<description>modify map bank to select tables in RAM</description>
+		<CATEGORYMEM index="0" category="1" />
+		<XDFPATCHENTRY name="Inject New FuelHighMap" address="0x58F4" datasize="0x20" patchdata="FFFF9C94FFFF9C94FFFF9C94FFFF9C94FFFF9C94FFFF9C94FFFF9C94FFFF9C94"/>
+		<XDFPATCHENTRY name="Inject New IgnitionHighMap" address="0x5A74" datasize="0x20" patchdata="FFFF9DB4FFFF9DB4FFFF9DB4FFFF9DB4FFFF9DB4FFFF9DB4FFFF9DB4FFFF9DB4"/>
+	</XDFPATCH>
+	<XDFPATCH uniqueid="0x880">
+		<title>map selector2</title>
+		<description></description>
+		<XDFPATCHENTRY name="MAF Scaling pointer" address="0x13444" datasize="0x4" patchdata="FFFF9F28" basedata="00003500" />
+		<XDFPATCHENTRY name="MAF Smoothing pointer" address="0x13454" datasize="0x4" patchdata="FFFF9F44" basedata="0000351C" />
+		<XDFPATCHENTRY name="Inject Turbo Boost Error Correction" address="0x1C690" datasize="0x4" patchdata="FFFF9F6E" basedata="000042E6" />
+		<XDFPATCHENTRY name="Inject Boost Desired Engine Load #1" address="0x1C6BC" datasize="0x4" patchdata="FFFF9F86" basedata="00004340" />
+		<XDFPATCHENTRY name="Inject Boost Desired Engine Load #2" address="0x1C6C0" datasize="0x4" patchdata="FFFF9F9C" basedata="00004356" />
+		<XDFPATCHENTRY name="Inject Boost Desired Engine Load #3" address="0x1C6D0" datasize="0x4" patchdata="FFFF9FB2" basedata="0000436C" />
+		<XDFPATCHENTRY name="Inject Max Wastegate Duty #1" address="0x1C3CC" datasize="0x4" patchdata="FFFF9FC8" basedata="000042FE" />
+		<XDFPATCHENTRY name="Inject Max Wastegate Duty #2" address="0x1C3D0" datasize="0x4" patchdata="FFFF9FDE" basedata="00004314" />
+		<XDFPATCHENTRY name="Inject Max Wastegate Duty #3" address="0x1C3EC" datasize="0x4" patchdata="FFFF9FF4" basedata="0000432A" />
+	</XDFPATCH>
+	<XDFPATCH uniqueid="0x8000">
+		<title>Injector Latency pointer</title>
+		<description></description>
+		<XDFPATCHENTRY name="Injector Latency pointer" address="0x12C8C" datasize="0x4" patchdata="FFFF9F60" basedata="00003970" />
+	</XDFPATCH>
+	<XDFPATCH uniqueid="0x200">
+		<title>fuel pump mod</title>
+		<XDFPATCHENTRY name="New fuel pump control" address="0x19b70" datasize="0x48" patchdata="D10D6011C8108909D10C6011C8028B05D10B6211910D622D32168904D1096011CB80000B2101D107920463112239000B212100C7FF7F0009FFFF88E4FFFF8C58FFFF852CFFFF87A2"/>
+	</XDFPATCH>
+	<XDFPATCH uniqueid="0x2B01">
+		<title>WGDC gear based with boost desire, from 80700010! need change!</title>
+		<description>add five WGDC table and five boost desire table</description>
+		<CATEGORYMEM index="0" category="1" />
+		<XDFPATCHENTRY name="WGDC lookup data" address="0x1D55C" datasize="0x1C" patchdata="00000CC600005DDE00004CD200004CE800004CFE00004D140001D4D8" basedata="FFFF68C000000CC600005DDE00004CD200000B16FFFF6A4C00004CFE" />
+		<XDFPATCHENTRY name="WGDC lookup" address="0x1D4A6" datasize="0x52" patchdata="D42EDA2C4A0B0009D0086001600D4008DA0704AEDA2F4A0B00096D0DD0896001C802896EA05700090009FFFF82F00001D5640200FFFF6888C8C8C8C8C8C8C8C4BAB8C6C8C8C8C8C8FFFFFFFFFFFFFFFFFFFF" basedata="D42FDA2D4A0B0009D02B6001C8208906D42CDA2F4A0B00096D0DA0140009D487DA2C4A0B00096103D429DA294A0B0009DA266AA16AAD611D640D651366A3DA214A0B00096D0DD07E6001C8028959A0420009" />
+		<XDFPATCHENTRY name="BoostDesireloockup" address="0x1D70C" datasize="0x46" patchdata="D451DA504A0B0009D0056001600D4008DA0404AEDA524A0B00096D0DA0130009FFFF82F00001D8580200FFFF6888FFFFFFFFFFFFFFFFFFF8F0F0F0E0D8C802FFFFFFFFFFFFFF" basedata="D452DA514A0B0009D04E6001C8208906D44FDA534A0B00096D0DA0140009D451DA4F4A0B00096103D44CDA4D4A0B0009DA496AA16AAD611D640D651366A3DA454A0B00096D0D" />
+		<XDFPATCHENTRY name="move pointer axisloockup#2" address="0x1D67C" datasize="0x2" patchdata="DA74" basedata="DA75" />
+		<XDFPATCHENTRY name="move pointer axisloockup#1" address="0x1D65A" datasize="0x2" patchdata="DA7D" basedata="DA7E" />
+		<XDFPATCHENTRY name="boost desire data " address="0x1D850" datasize="0x1C" patchdata="00000CC600005DDE00004D2A00004D4000004D5600004D6C0001D734" basedata="FFFF68C000000CC600005DDE00004D2A00000B16FFFF6A4C00004D56" />
+	</XDFPATCH>
+</XDFFORMAT>

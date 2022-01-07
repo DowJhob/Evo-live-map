@@ -1,0 +1,25 @@
+mov.l (ROM),r10
+mov.l (RAM),r11
+mov.l (LENGTH),r1
+mov #0,r0
+loop:
+mov.l @(r0,r10),r2
+mov.l r2,@(r0,r11)
+add #4,r0
+cmp/hs r1,r0
+bf loop
+nop
+mov.l (EXIT),r10
+jmp @r10
+nop
+
+.align 2
+ROM:
+.long 0x49b00
+RAM:
+.long 0xFFFF8500
+LENGTH:
+.long 0x800
+EXIT: /*CHANGE FOR EACH ROM*/
+.long 0x1762c
+

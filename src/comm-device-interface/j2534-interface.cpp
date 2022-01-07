@@ -1,0 +1,313 @@
+#include "j2534-interface.h"
+
+j2534_interface::j2534_interface(QString dllName) : comm_device_interface( dllName)
+{
+    p_in_buff = rx_msg[0].m_data;
+    p_out_buff = tx_msg.m_data;
+
+    ////connect(this, &j2534_interface::_loop, this, &j2534_interface::loop, Qt::QueuedConnection);            //
+    //init();
+    qDebug() << "j2534_interface";
+}
+
+j2534_interface::~j2534_interface()
+{
+    // shut down the channel
+    if (j2534->PassThruDisconnect(chanID))
+    {
+        reportJ2534Error();
+        //            return false;
+    }
+    // close the device
+    if (j2534->PassThruClose(devID))
+    {
+        reportJ2534Error();
+    }
+    delete j2534;
+
+    qDebug() << "~j2534_interface";
+}
+
+void j2534_interface::init()
+{
+    //j2534 = new J2534(dllName);
+    j2534 = new PassThru(dllName);
+    //if (j2534->init())
+    {
+        emit Log("init_j2534 OK");
+
+        if ( !open() )
+        {
+            qDebug()<<"open error: ";
+            return ;
+        }
+
+        //qDebug()<<"CLEAR_RX_BUFFER error ";
+        info();
+        close();
+        emit readyInterface(true);
+    }
+    //else
+    //       emit Log("can't connect to J2534 DLL.");
+
+    //qDebug()<<"return init ";
+}
+
+bool j2534_interface::open()
+{
+    //qDebug()<<"open ";
+    //получаем дескриптор
+    if (j2534->PassThruOpen(nullptr, &devID))         // Get devID
+    {
+        //qDebug()<<"PassThruOpen error: ";
+        emit Log("PassThruOpen error: " + reportJ2534Error()
+                 );
+        return false;
+    }
+    emit Log("PassThruOpen deviceID: " + QString::number(devID) + " /opened");
+    return true;
+}
+
+bool j2534_interface::closeChannel()
+{
+    if (long a = j2534->PassThruDisconnect(chanID) != PassThru::Status::NoError )
+    {
+        //qDebug()<<"PassThruDisconnect error: " << a;
+        emit Log("PassThruDisconnect error: " + reportJ2534Error() );
+        reportJ2534Error();
+        return false;
+    }
+    emit Log("PassThruDisconnect channel: " + QString::number(chanID) + " /closed" );
+    return true;
+}
+
+bool j2534_interface::connect(Protocol protocol, enum ConnectFlag ConnectFlag)
+{
+    this->protocol = protocol;
+    for (uint i=0; i < 2; i++)
+        rx_msg[i].setProtocolId(protocol);
+    tx_msg.setProtocolId(protocol);
+
+    open();
+
+    if ( !get_channel(protocol, ConnectFlag, baudRate) )
+        return false;
+
+    Config scp[10] = { Config{Config::Parameter::DataRate, baudRate},
+                      Config{Config::Parameter::P1Min, 0},
+                      Config{Config::Parameter::P1Max, 1},           // сколько ждать на реальном чтении
+                      Config{Config::Parameter::P2Min, 0},
+                      Config{Config::Parameter::P2Max, 1},
+                      Config{Config::Parameter::P3Min, 0},           // уменьшает в 4 раза отклик контроллера!!!
+                      Config{Config::Parameter::P3Max, 2},
+                      Config{Config::Parameter::P4Min, 0},           // уменьшает в 30 раз отклик контроллера!!!
+                      Config{Config::Parameter::P4Max, 1},
+                      Config{Config::Parameter::Loopback, 0}
+                    };        // set timing
+
+    const SArray<const Config> configList{10, scp};
+
+    if ( !set_config(&configList) )
+        return false;
+
+    if ( !setFilter(protocol)  )
+        return false;
+    j2534->PassThruIoctl(chanID, PassThru::IoctlID::CLEAR_RX_BUFFER, nullptr, nullptr);
+    j2534->PassThruIoctl(chanID, PassThru::IoctlID::CLEAR_TX_BUFFER, nullptr, nullptr);
+
+    return true;
+}
+
+bool j2534_interface::close()
+{
+    // shut down the channel
+    //closeChannel();
+
+    if (j2534->PassThruClose(devID) != PassThru::Status::NoError)
+    {
+        qDebug()<<"PassThruClose error: ";
+        emit Log("PassThruClose error: " + reportJ2534Error() );
+        return false;
+    }
+    emit Log("PassThruClose deviceID: " + QString::number(devID) + " /closed" );
+    return true;
+}
+
+QByteArray j2534_interface::read()
+{
+    QByteArray a;
+    QElapsedTimer tt;
+    int countSubMessage = 0;
+    NumMsgs = 1;
+    rx_msg[0].m_rxStatus = 0;
+    do
+    {
+        tt.start();
+        j2534->PassThruReadMsgs(chanID, rx_msg, &NumMsgs, _readTimeout);
+
+        if(NumMsgs > 0)
+    //    for( uint i = 0; i < NumMsgs; ++i)
+        {
+            if(rx_msg[0].m_dataSize > 0)
+            a.append(QByteArray((char*)rx_msg[0].m_data, rx_msg[0].m_dataSize));
+        }
+        qDebug()<< "j2534_interface::read " << "rx_msg[0].m_rxStatus" << rx_msg[0].m_rxStatus
+                << "rx_msg[0].m_dataSize" << rx_msg[0].m_dataSize
+                << "time" << QString::number( tt.nsecsElapsed()/1000000.0)
+                << "NumMsgs=" << NumMsgs
+                //<< "rx_msg[0].data" << QByteArray((char*)rx_msg[0].m_data, 4).toHex(':')
+                ;
+    }
+    while(rx_msg[0].m_rxStatus == Message::RxStatusBit::InStartOfMessage);
+
+    qDebug() << "j2534_interface::read: total" << QString::number( tt.nsecsElapsed()/1000000.0) << "\n\n";
+
+    return a;
+}
+
+void j2534_interface::write(int lenght)
+{
+    //qDebug() << "j2534_interface::write " << QByteArray((char*)tx_msg.Data, lenght).toHex(':');
+    NumMsgs = 1;
+    //tx_msg.TxFlags = WAIT_P3_MIN_ONLY;
+    tx_msg.m_dataSize = lenght;
+    //memcpy(tx_msg.Data, msg.data(), msg.size());
+    j2534->PassThruWriteMsgs(chanID, &tx_msg, &NumMsgs, writeTimeout);
+}
+
+void j2534_interface::info()
+{
+    //    //читаем версию и прочюю требуху
+    //    char strApiVersion[256];
+    //    char strDllVersion[256];
+    //    char strFirmwareVersion[256];
+    //    char strSerial[256];
+    //    if ( j2534->PassThruReadVersion(strApiVersion, strDllVersion, strFirmwareVersion, devID) )
+    //    {
+    //        emit Log("PassThruReadVersion: " + reportJ2534Error());
+    //    }
+    //    else
+    //    {
+    //        emit Log("J2534 API Version: " + QString(strApiVersion) + "\r\n"
+    //                 + "J2534 DLL Version: " +  QString(strDllVersion) + "\r\n"
+    //                 + "Device Firmware Version: " +  QString(strFirmwareVersion));
+    //    }
+    //    if (get_serial_num(devID, strSerial))
+    //        emit Log("Device Serial Number: " +  QString(strSerial));
+    //    else
+    //        emit Log("get_serial_num: " + reportJ2534Error());
+}
+
+bool j2534_interface::five_baud_init()
+{
+    //==========================================   5 baud init  ================================
+    uchar EcuAddr[1]; /* ECU target address array */
+    uchar KeyWord[3]; /* Keyword identifier array */
+
+    SArray<uchar> inputMsg(1, EcuAddr), outputMsg(0, KeyWord);
+
+    EcuAddr[0] = 0x00;
+    //EcuAddr[0] = 0x33; /* Initialization address used to activate all ECUs */
+    //inputMsg.NumOfBytes = 1; /* ECU target address array contains one address. */
+    //inputMsg.BytePtr = &EcuAddr[0]; /* Assign pointer to ECU target address array. */
+    //outputMsg.NumOfBytes = 0; /* KeyWord array is empty. */
+    //outputMsg.BytePtr = &KeyWord[0]; /* Assign pointer to KeyWord array. */
+
+    if (j2534->PassThruIoctl(chanID, PassThru::FIVE_BAUD_INIT, (void*)(&inputMsg), (void*)(&outputMsg)))
+    {
+        emit Log( "PassThruIoctl - FIVE_BAUD_INIT : not ok  | " + reportJ2534Error()  + QByteArray((char*)KeyWord, 3).toHex(':'));
+        return false;
+    }
+
+    emit Log( "PassThruIoctl - FIVE_BAUD_INIT : OK  |  " + QByteArray((char*)KeyWord, 3).toHex(':'));
+    return true;
+}
+
+QString j2534_interface::reportJ2534Error()
+{
+    char err[512] = "\0";
+    //    int result = j2534->PassThruGetLastError(err);
+    return QString::fromLocal8Bit(err) + "\r\n";
+}
+
+bool j2534_interface::setFilter(Protocol protocol)
+{
+    // ============================ setup filter(s) =========================
+    Message msgMask, msgPattern;
+    unsigned long msgId;
+    msgMask.m_protocolId = ulong(protocol);
+    msgMask.m_rxStatus = 0;
+    msgMask.m_txFlags = 0;
+    msgMask.m_timestamp = 0;
+    msgMask.m_dataSize = 1;
+    msgMask.m_extraDataIndex = 0;
+
+    msgPattern  = msgMask;
+    memset(msgMask.m_data,0,1); // mask the first 4 byte to 0
+    memset(msgPattern.m_data,0,1);// match it with 0 (i.e. pass everything)
+
+    msgId = set_filter(PassThru::PassFilter, &msgMask, &msgPattern, nullptr);
+    if ( msgId < 0 )
+        return false;
+    return true;
+}
+
+bool j2534_interface::get_channel(Protocol protocol, enum ConnectFlag ConnectFlag, unsigned int baudRate)     //get  chanID
+{
+    //qDebug()<<"get_channel";
+    tx_msg.setProtocolId(protocol);
+    //    tx_msg.TxFlags = ConnectFlag;
+    rx_msg[0].setProtocolId(protocol);
+    rx_msg[1].setProtocolId(protocol);
+
+    if (j2534->PassThruConnect(devID, protocol, ConnectFlag, baudRate, &chanID))
+    {
+        emit Log( "PassThruConnect: error" + reportJ2534Error() );
+        return false;
+    }
+    emit Log("PassThruOpen channel: " + QString::number(chanID) + " /opened");
+    return true;
+}
+
+bool j2534_interface::set_config(const SArray<const Config> *scl)
+{
+    if (j2534->PassThruIoctl(chanID, PassThru::SET_CONFIG, scl, nullptr))
+    {
+        emit Log( "PassThruIoctl - SET_CONFIG : not ok  " + reportJ2534Error() );
+        return false;
+    }
+    return true;
+}
+
+long j2534_interface::set_filter(PassThru::FilterType type, Message *msgMask, Message *msgPattern, Message *msgFlowcontrol)
+{
+    ulong msgId;
+    if (j2534->PassThruStartMsgFilter(chanID, type, msgMask, msgPattern, msgFlowcontrol, &msgId))
+    {
+        emit Log( "PassThruIoctl - PassThruStartMsgFilter : not ok  " + reportJ2534Error() );
+        return -1;
+    }
+    emit Log( "PassThruIoctl - PassThruStartMsgFilter : OK" );
+    return msgId;
+}
+
+bool j2534_interface::get_serial_num(unsigned long devID, char *serial)
+{
+    inbuf inbuf;
+    outbuf outbuf;
+    inbuf.length = 2;
+    inbuf.svcid = 5; // info
+    inbuf.infosvcid = 1; // serial
+
+    outbuf.length = sizeof( outbuf.data);
+
+    if (j2534->PassThruIoctl(devID, PassThru::TX_IOCTL_APP_SERVICE, &inbuf, &outbuf))
+    {
+        serial[0] = 0;
+        return false;
+    }
+
+    memcpy(serial,  outbuf.data,  outbuf.length);
+    serial[ outbuf.length] = 0;
+    return true;
+}

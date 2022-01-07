@@ -1,0 +1,87 @@
+mov.w (E2),r0
+cmp/hi r0,r1 /*only process if E0,E1,E2*/
+bf brE012
+nop
+mov.l (returnforMUT),r10
+jmp @r10
+nop
+
+brE012:
+mov #0,r0
+mov.l (RECEIVE_COUNTER),r10
+mov.w r0,@r10
+mov.l (DMAOPFLAG2),r10
+mov.l r1,@r10
+mov #0xfffffffc,r0
+mov.l (CHCR3),r10
+mov.l @r10,r10
+and r0,r10
+mov.l (CHCR3),r11
+mov.l r10,@r11
+mov.l (RDR0),r0
+mov.l (SAR3),r11
+mov.l r0,@r11
+mov.l (DMAread),r0
+mov.l (DAR3),r11
+mov.l r0,@r11
+mov #6,r0
+mov.l (DMATCR3),r11
+mov.l r0,@r11
+mov #0x37,r0
+mov.l (DMAOPFLAG),r10
+mov.l r0,@r10
+mov.l (SSR0),r10
+mov.b @r10,r0
+and #0x87,r0
+mov.b r0,@r10
+mov.l (DMA3CONFIGread),r0
+mov.l (CHCR3),r10
+mov.l r0,@r10
+mov.w (FFFF),r0
+mov.l @r15+,r9
+mov.l @r15+,r8
+mov.l @r15+,r2
+mov.l @r15+,r1
+mov.l @r15+,r14
+lds.l @r15+,pr
+rts
+nop
+
+.align 2
+returnforMUT:
+.long 0x25480 /*TO BE CHANGED FOR EACH ROM*/
+RECEIVE_COUNTER:
+.long 0xffff7088 /*TO BE CHANGED FOR EACH ROM*/
+SAR3:
+.long 0xffffecf0
+DAR3:
+.long 0xffffecf4
+DMATCR3:
+.long 0xffffecf8
+CHCR3:
+.long 0xffffecfc
+DMA3CONFIGread:
+.long 0x20105
+SSR0:
+.long 0xfffff004
+RDR0:
+.long 0xfffff005
+DMAOPFLAG:
+.long 0xffff8480
+DMAOPFLAG2:
+.long 0xffff8484
+DMAread:
+.long 0xffff8488
+FFFF:
+.word 0xffff
+E2:
+.word 0xE2
+
+/*FOLLOWING CODE goes into MUT routine to hook out to the code above*/
+.align 4
+nop /*253fc on 88590015 - TO BE CHANGED FOR EACH ROM */
+mov.l (jumpout),r10
+jmp @r10
+nop
+jumpout:
+.long 0x48800 /*address of the above routine that we jump out to*/

@@ -1,0 +1,21 @@
+138 - DMA end interrupt vector
+32c - transmit end interrupt vector
+f66E - change cmp and bra conditions
+f8dE - change from DMA to RAM 8480
+fe26 NOP
+10f9e - NOP
+116ec - jump out of main loop to 47f00 DMA timeout
+253fc - MUT E8 change to jumpout to 48800
+48800 - setup DMA (return address and receive counter)
+48900,48a20 - DMA end and transmit end interrupt handlers
+47f00 - DMA timeout routine (bit7allowslogging and return address)
+47f80 - cold reset routine - copy ROM to RAM, on exit jmp 1762c
+118cc - vector to above
+Tephra alt map pointers to RAM:
+48548 - 49b40 to ffff8540
+4854c - 49b42 to ffff8542
+48554 - 49c82 to FFFF8682
+4855c - 49dc2 to FFFF87c2
+48564 - 49f82 to FFFF8982
+4856c - 4a132 to ffff8b32
+48574 - 4a152 to ffff8b52
