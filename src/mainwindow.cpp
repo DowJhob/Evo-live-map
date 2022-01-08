@@ -85,7 +85,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    //emit _exit();
+    emit _exit();
 }
 
 void MainWindow::commDeviceSelected(device dev)
@@ -188,7 +188,7 @@ void MainWindow::logger_slot()
     }
 }
 
-void MainWindow::create_table(mapDefinition *dMap)
+void MainWindow::createMap(mapDefinition *dMap)
 {
     //создаем таблицу с заданной размерностью
     //qDebug() << "====================== Create table : " << dMap->declMap->Name << " ================================";
@@ -200,7 +200,7 @@ void MainWindow::create_table(mapDefinition *dMap)
 
     connect(this, &MainWindow::logReady, table->mapTable, &mapView::logReady);
 
-    //connect(this, &MainWindow::_exit, table, &QWidget::deleteLater);
+    connect(this, &MainWindow::_exit, table, &QWidget::deleteLater);
 
     ptrRAMtables.insert(dMap->declMap->Name, table );
 

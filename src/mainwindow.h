@@ -64,7 +64,7 @@ public slots:
     void ecu_connected(//QHash<QString, Map *> m
                        );
 
-    void create_table(mapDefinition *dMap);
+    void createMap(mapDefinition *dMap);
 
     void Log(QString str);
 

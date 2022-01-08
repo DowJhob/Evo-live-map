@@ -85,18 +85,13 @@ void dataLogger::logger(QString str)
     log_file.flush();
 }
 
-void dataLogger::scalingLogData(abstractMemoryScaled mem)
+void dataLogger::writeLogItem(QVector<float> scaledRAM_MUTvalue)
 {
     QString log_str{};
     for( int i = 0; i < (*_ecu_definition)->RAM_MUT.size() ; i++  )
     {
-        //qDebug() << "size: "<<_ecu_definition->RAM_MUT.size() << "  hop: "<< _ecu_definition->RAM_MUT.value(i).number;
-        mutParam param = (*_ecu_definition)->RAM_MUT.value(i);
-        qint64 value = mem.toFloat(&param.scaling, param.number );
-
-        scaledRAM_MUTvalue[i] = value;
         //log_param.insert( param.offset, value );
-        log_str.append(QString::number(value) + ";");
+        log_str.append(QString::number(scaledRAM_MUTvalue[i]) + ";");
     }
     log_str.append("\n");
     log_file.write(log_str.toUtf8());
@@ -110,28 +105,21 @@ void dataLogger::poll()
 {
     QElapsedTimer tt;
     tt.start();
-    unsigned long addr = (*_ecu_definition)->RAM_MUT_addr;
+    //unsigned long addr = (*_ecu_definition)->RAM_MUT_addr;
     //qDebug() << "dataLogger::poll poll: " ;
-abstractMemoryScaled a;
+    abstractMemoryScaled a;
     if(ECUproto != nullptr)
     {
         a = (*ECUproto)->indirectDMAread((*_ecu_definition)->RAM_MUT_addr, readSize);
-
         //qDebug() << "dataLogger::poll read: " << QString::number( tt.nsecsElapsed()/1000000.0);
-        //a[0] = 100;
-        //a[1] = 100;
-
-        //a[0] = abs(QCursor::pos().x())/10;
-        //a[1] = abs(QCursor::pos().y())/6;
+        a[0] = abs(QCursor::pos().x())/10;
+        a[1] = abs(QCursor::pos().y())/6;
 
         for( int i = 0; i < (*_ecu_definition)->RAM_MUT.size() ; i++  )
         {
             scaledRAM_MUTvalue[i] = a.toFloatOffset( &(*_ecu_definition)->RAM_MUT[i].scaling, (*_ecu_definition)->RAM_MUT[i].offset );
         }
 
-
-        //qDebug() << "dataLogger::poll + scalad: " << QString::number( tt.nsecsElapsed()/1000000.0);
-        //t.start();
         emit logReady(scaledRAM_MUTvalue);
     }
 }

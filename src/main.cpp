@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(&controller, &controller::ecu_connected, &mainWindow, &MainWindow::ecu_connected);
     //========================================================================================
-    QObject::connect(&controller, &controller::create_table, &mainWindow, &MainWindow::create_table//, Qt::QueuedConnection
+    QObject::connect(&controller, &controller::create_table, &mainWindow, &MainWindow::createMap//, Qt::QueuedConnection
                      );
     //========================================================================================
     QObject::connect(&mainWindow, &MainWindow::RAM_reset, &controller, &controller::RAMreset);

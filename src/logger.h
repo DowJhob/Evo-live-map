@@ -50,7 +50,7 @@ public slots:
     void setLogRate(int pollInt);
 
     void logger( QString str );
-    void scalingLogData(abstractMemoryScaled mem);
+    void writeLogItem(QVector<float> scaledRAM_MUTvalue);
 
 private slots:
     void poll();
