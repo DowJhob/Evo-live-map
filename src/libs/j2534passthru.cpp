@@ -164,13 +164,13 @@ PassThru::Status PassThru::PassThruIoctl(Handle channelId, IoctlID IoctlID, cons
     return handleResult(status);
 }
 
-PassThru::Status PassThru::clear(Handle channelId, ClearTarget target)
-{
-    Q_ASSERT(m_ptIoctl);
+//PassThru::Status PassThru::clear(Handle channelId, ClearTarget target)
+//{
+//    Q_ASSERT(m_ptIoctl);
 
-    const long status = (*m_ptIoctl)(channelId, target, nullptr, nullptr);
-    return handleResult(status);
-}
+//    const long status = (*m_ptIoctl)(channelId, target, nullptr, nullptr);
+//    return handleResult(status);
+//}
 
 QString PassThru::lastErrorString() const
 {

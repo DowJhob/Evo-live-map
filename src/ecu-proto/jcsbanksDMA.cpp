@@ -15,11 +15,13 @@ jcsbanksDMA::~jcsbanksDMA()
 bool jcsbanksDMA::connect()
 {
     qDebug() << "=========== ECU connect ================";
+
+    (*devComm)->open(Protocol::ISO9141, //ConnectFlag((uint)
+                     ConnectFlag::ISO9141NoChecksum //| (uint)ConnectFlag::ISO9141KLineOnly
+                    //     )
+                     );
      ///if (!devComm->connect( ISO9141_K, ISO9141_NO_CHECKSUM))
-     if (!(*devComm)->connect( Protocol::ISO9141, ConnectFlag(
-                                (uint)ConnectFlag::ISO9141NoChecksum //| (uint)ConnectFlag::ISO9141KLineOnly
-                                )
-                            ))
+     if (!(*devComm)->connect())
      {
          (*devComm)->close();
          return false;

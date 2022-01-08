@@ -54,6 +54,7 @@ commParamWidget::commParamWidget(QWidget *parent) : QWidget(parent)
 
     protoListBox->addItem("Stock DMA proto by nanner55");
     protoListBox->addItem("Custom DMA proto by jcsbanks");
+    protoListBox->addItem("evoX_DMA by tephra");
 
 
     connect(commListBox,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commParamWidget::deviceSelected);

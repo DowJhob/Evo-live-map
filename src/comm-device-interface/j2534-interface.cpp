@@ -31,8 +31,12 @@ j2534_interface::~j2534_interface()
 
 bool j2534_interface::info()
 {
-    if ( !open() )
+    if (j2534->PassThruOpen(nullptr, &devID))         // Get devID
+    {
+        emit Log("PassThruOpen error: " + reportJ2534Error());
         return false;
+    }
+    emit Log("PassThruOpen deviceID: " + QString::number(devID) + " /opened");
 
     //    //читаем версию и прочюю требуху
     //    char strApiVersion[256];
@@ -64,25 +68,12 @@ bool j2534_interface::info()
     //emit readyInterface(true);
 }
 
-bool j2534_interface::open()
+bool j2534_interface::open(Protocol protocol, enum ConnectFlag ConnectFlag)
 {
-    if (j2534->PassThruOpen(nullptr, &devID))         // Get devID
-    {
-        emit Log("PassThruOpen error: " + reportJ2534Error());
-        return false;
-    }
-    emit Log("PassThruOpen deviceID: " + QString::number(devID) + " /opened");
-    return true;
-}
-
-bool j2534_interface::connect(Protocol protocol, enum ConnectFlag ConnectFlag)
-{
-    qDebug() << "=========== Comm Device connect ================";
-
     this->protocol = protocol;
+
     rx_msg.setProtocolId(protocol);
     tx_msg.setProtocolId(protocol);
-
 
     if (j2534->PassThruOpen(nullptr, &devID))         // Get devID
     {
@@ -91,8 +82,6 @@ bool j2534_interface::connect(Protocol protocol, enum ConnectFlag ConnectFlag)
     }
     emit Log("PassThruOpen deviceID: " + QString::number(devID) + " /opened");
 
-    tx_msg.setProtocolId(protocol);
-    rx_msg.setProtocolId(protocol);
     if (j2534->PassThruConnect(devID, protocol, ConnectFlag, baudRate, &chanID))
     {
         emit Log( "PassThruConnect: error" + reportJ2534Error() );
@@ -100,14 +89,19 @@ bool j2534_interface::connect(Protocol protocol, enum ConnectFlag ConnectFlag)
     }
     emit Log("PassThruConnect channel: " + QString::number(chanID) + " /connected");
 
+    return true;
+}
+
+bool j2534_interface::connect()
+{
     Config scp[10] = { Config{Config::Parameter::DataRate, baudRate},
 
 
-                     //  Config{Config::Parameter::W0, 800},
-                    //   Config{Config::Parameter::W1, 300},
-                    //   Config{Config::Parameter::W2, 3000},
-                  //     Config{Config::Parameter::W3, 300},
-                   //    Config{Config::Parameter::W4, 1000},
+                       //  Config{Config::Parameter::W0, 800},
+                       //   Config{Config::Parameter::W1, 300},
+                       //   Config{Config::Parameter::W2, 3000},
+                       //     Config{Config::Parameter::W3, 300},
+                       //    Config{Config::Parameter::W4, 1000},
 
                        Config{Config::Parameter::P1Min, 0},
                        Config{Config::Parameter::P1Max, 1},           // сколько ждать на реальном чтении
@@ -126,9 +120,26 @@ bool j2534_interface::connect(Protocol protocol, enum ConnectFlag ConnectFlag)
         emit Log( "PassThruIoctl - SET_CONFIG : fail  " + reportJ2534Error() );
         return false;
     }
+    // ============================ setup filter(s) =========================
+    Message msgMask, msgPattern;
+    msgMask.m_protocolId = ulong(protocol);
+    msgMask.m_rxStatus = 0;
+    msgMask.m_txFlags = 0;
+    msgMask.m_timestamp = 0;
+    msgMask.m_dataSize = 1;
+    msgMask.m_extraDataIndex = 0;
 
-    if ( !setFilter(protocol)  )
-        return false;
+    msgPattern  = msgMask;
+    memset(msgMask.m_data,0,1); // mask the first 4 byte to 0
+    memset(msgPattern.m_data,0,1);// match it with 0 (i.e. pass everything)
+
+    if ((msgId = j2534->PassThruStartMsgFilter(chanID, PassThru::PassFilter, &msgMask, &msgPattern, nullptr, &msgId)))
+    {
+        emit Log( "PassThruIoctl - PassThruStartMsgFilter : not ok  " + reportJ2534Error() );
+        return -1;
+    }
+    emit Log( "PassThruIoctl - PassThruStartMsgFilter : OK" );
+
     j2534->PassThruIoctl(chanID, PassThru::IoctlID::CLEAR_RX_BUFFER, nullptr, nullptr);
     j2534->PassThruIoctl(chanID, PassThru::IoctlID::CLEAR_TX_BUFFER, nullptr, nullptr);
 
@@ -176,12 +187,12 @@ QByteArray j2534_interface::read()
     {
         j2534->PassThruReadMsgs(chanID, &rx_msg, &NumMsgs, _readTimeout);
         a.append(QByteArray((char*)rx_msg.m_data, rx_msg.m_dataSize));
-//        qDebug()<< "j2534_interface::read " << "rx_msg.m_rxStatus" << rx_msg.m_rxStatus
-//                << "rx_msg.m_dataSize" << rx_msg.m_dataSize
-//                << "time" << QString::number( tt.nsecsElapsed()/1000000.0)
-//                << "NumMsgs=" << NumMsgs
-//                   //<< "rx_msg[0].data" << QByteArray((char*)rx_msg[0].m_data, 4).toHex(':')
-//                   ;
+        //        qDebug()<< "j2534_interface::read " << "rx_msg.m_rxStatus" << rx_msg.m_rxStatus
+        //                << "rx_msg.m_dataSize" << rx_msg.m_dataSize
+        //                << "time" << QString::number( tt.nsecsElapsed()/1000000.0)
+        //                << "NumMsgs=" << NumMsgs
+        //                   //<< "rx_msg[0].data" << QByteArray((char*)rx_msg[0].m_data, 4).toHex(':')
+        //                   ;
     }
     while(rx_msg.m_rxStatus == Message::RxStatusBit::InStartOfMessage);
 
@@ -228,39 +239,6 @@ QString j2534_interface::reportJ2534Error()
     char err[512] = "\0";
     //    int result = j2534->PassThruGetLastError(err);
     return QString::fromLocal8Bit(err) + "\r\n";
-}
-
-bool j2534_interface::setFilter(Protocol protocol)
-{
-    // ============================ setup filter(s) =========================
-    Message msgMask, msgPattern;
-    msgMask.m_protocolId = ulong(protocol);
-    msgMask.m_rxStatus = 0;
-    msgMask.m_txFlags = 0;
-    msgMask.m_timestamp = 0;
-    msgMask.m_dataSize = 1;
-    msgMask.m_extraDataIndex = 0;
-
-    msgPattern  = msgMask;
-    memset(msgMask.m_data,0,1); // mask the first 4 byte to 0
-    memset(msgPattern.m_data,0,1);// match it with 0 (i.e. pass everything)
-
-    msgId = set_filter(PassThru::PassFilter, &msgMask, &msgPattern, nullptr);
-    if ( msgId < 0 )
-        return false;
-    return true;
-}
-
-long j2534_interface::set_filter(PassThru::FilterType type, Message *msgMask, Message *msgPattern, Message *msgFlowcontrol)
-{
-    ulong msgId;
-    if ((msgId = j2534->PassThruStartMsgFilter(chanID, type, msgMask, msgPattern, msgFlowcontrol, &msgId)))
-    {
-        emit Log( "PassThruIoctl - PassThruStartMsgFilter : not ok  " + reportJ2534Error() );
-        return -1;
-    }
-    emit Log( "PassThruIoctl - PassThruStartMsgFilter : OK" );
-    return msgId;
 }
 
 bool j2534_interface::get_serial_num(unsigned long devID, char *serial)

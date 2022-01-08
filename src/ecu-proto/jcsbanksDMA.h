@@ -6,8 +6,6 @@
 
 #include "ECU-interface.h"
 
-#define DS 0x33
-
 class jcsbanksDMA : public ECU_interface
 {
     Q_OBJECT
@@ -24,7 +22,7 @@ public slots:
 private slots:
 
 private:
-    int delay_after_command = 10;
+    int delay_after_command = 5;
 
 private:
     void sendDMAcomand(char command, unsigned long addr, unsigned long count, char* buf = nullptr);

@@ -18,6 +18,7 @@ class comm_device_interface : public QObject
 public:
     QString dllName;
     QString DeviceUniqueID;
+
     char* p_in_buff;
     char* p_out_buff;
 
@@ -33,18 +34,15 @@ public:
     virtual ~comm_device_interface();
 
     virtual bool info() = 0;
-    virtual bool open() = 0;
+    virtual bool open(Protocol protocol, enum ConnectFlag ConnectFlag) = 0;
     virtual bool close() = 0;
-    virtual bool connect(Protocol protocol, enum ConnectFlag ConnectFlag) = 0;
+    virtual bool connect() = 0;
     virtual bool five_baud_init() = 0;
 
 public slots:
     virtual QByteArray read() = 0;
     virtual void write(int lenght ) = 0;
-    void setBaudRate(int baudRate)
-    {
-        this->baudRate = baudRate;
-    }
+    void setBaudRate(int baudRate);
 
 private slots:
 

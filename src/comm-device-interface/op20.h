@@ -28,7 +28,7 @@ public:
 public slots:
     void _start()
     {
-        j2534_interface::open();
+   //     j2534_interface::open();
 
    //     if (j2534->valid())
         {

@@ -25,6 +25,9 @@ class ECU_interface : public QObject
 {
     Q_OBJECT
 public:
+    Protocol protocol;
+    ConnectFlag ConnectFlag;
+    uint baudRate;
     comm_device_interface **devComm = nullptr;
 
     explicit ECU_interface(comm_device_interface **devComm = nullptr);

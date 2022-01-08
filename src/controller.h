@@ -11,6 +11,7 @@
 
 #include "ecu-proto/jcsbanksDMA.h"
 #include "ecu-proto/stockDMA.h"
+#include "ecu-proto/evoX-DMA.h"
 
 #include "ecu/ecu-definition.h"
 #include "logger.h"
@@ -49,13 +50,11 @@ private:
     ECU_interface *ECUproto = nullptr;
 
     dataLogger *_dataLogger;
-    //QTimer *ecu_polling_timer = nullptr;
+
     char* p_in_buff;
     char* p_out_buff;
-    int polling_interval = 50;
 
     QString SearchFiles(QString path, QString CalID);
-    void getECUdefinition(QString xml_definition_filename);
 
 private slots:
     void init();
@@ -65,8 +64,7 @@ signals:
     void logChanged(int);
     void interfaceReady(bool);
 
-    void ecu_connected(//QHash<QString, Map*>
-                       );
+    void ecu_connected();
     void create_table(mapDefinition*);
     void _RAMreset(quint32);
 

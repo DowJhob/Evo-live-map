@@ -12,3 +12,8 @@ comm_device_interface::~comm_device_interface()
 {
     qDebug() << "~comm_device_interface";
 }
+
+void comm_device_interface::setBaudRate(int baudRate)
+{
+    this->baudRate = baudRate;
+}

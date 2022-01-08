@@ -27,6 +27,7 @@ SOURCES += src/main.cpp\
     src/ecu-proto/ECU-interface.cpp \
     src/comm-device-interface/comm-device-interface.cpp \
     src/comm-device-interface/j2534-interface.cpp \
+    src/ecu-proto/evoX-DMA.cpp \
     src/ecu-proto/jcsbanksDMA.cpp \
     src/ecu-proto/stockDMA.cpp \
     src/controller.cpp \
@@ -60,6 +61,7 @@ HEADERS  += src/mainwindow.h \
     src/abstract-memory.h \
     src/ecu-proto/ECU-interface.h \
     src/controller.h \
+    src/ecu-proto/evoX-DMA.h \
     src/ecu-proto/jcsbanksDMA.h \
     src/ecu-proto/stockDMA.h \
     src/ecu/ecu-definition.h \
@@ -120,11 +122,9 @@ win32-g++ {
                 #QMAKE_CXXFLAGS  += -mfpmath=sse
                 QMAKE_CXXFLAGS  += -msse4
 #                LIBS += -L$$PWD/mingw-dll -lqwt
-                CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
+#                CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
             }
 win32-msvc {
-
-CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static
                 QMAKE_LFLAGS_RELEASE += /LTCG
                 QMAKE_CXXFLAGS  += /O2
                 QMAKE_CXXFLAGS  += /arch:AVX

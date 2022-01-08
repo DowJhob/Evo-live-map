@@ -76,9 +76,9 @@ void controller::commDeviceSelected(device dev)
 
 void controller::commDeviceRemoved(device dev)
 {
-    _dataLogger->stop();
     if (devComm != nullptr && devComm->DeviceUniqueID == dev.DeviceUniqueID )
     {
+        _dataLogger->stop();
         //devComm->close();
         devComm->deleteLater();
         devComm = nullptr;
@@ -93,6 +93,7 @@ void controller::setProto(int proto)
     switch (proto) {
     case 0 : ECUproto = new stockDMA(&devComm);break;
     case 1 : ECUproto = new jcsbanksDMA(&devComm);break;
+    case 2 : ECUproto = new evoX_DMA(&devComm);break;
     }
     //qDebug()<<"=========== proto ================";
     //connect(this, &controller::getMap, ECUproto, &ECU_interface::getMap);
@@ -105,11 +106,8 @@ void controller::setProto(int proto)
 
 void controller::getECUconnect()
 {
-
-    if (!ECUproto->connect()) //тут специфичные для конкретного варианта коннекты например jcsbanks будет 5бод инит
+    if (!ECUproto->connect())
        return ;
-    //QMetaObject::invokeMethod(vehicle_ecu_comm, &comm_device_interface::stoplog0x81);
-    //QMetaObject::invokeMethod(vehicle_ecu_comm, &comm_device_interface::log0x81);
 
     QByteArray a = ECUproto->directDMAread( 0xF52, 4);                        //читаем номер калибровки
 
@@ -133,8 +131,6 @@ void controller::getECUconnect()
         return;
     }
 
-//    getECUdefinition(); //найдем файл конфига и парсим его
-
     emit ecu_connected();
     // переберем все описания таблиц
     for ( Map *tab : qAsConst(_ecu_definition->RAMtables) )
@@ -143,7 +139,6 @@ void controller::getECUconnect()
     }
 
     _dataLogger->start();
-    //     startLogger();
 }
 
 void controller::getECUdisconnect()
@@ -195,14 +190,6 @@ QString controller::SearchFiles(QString path, QString CalID)       // Для п�
     //return QFileDialog::getOpenFileName(nullptr,  tr("Open xml"), path, tr("xml files (*.xml)"));
     else
         return path + listFiles.at(0);
-}
-
-void controller::getECUdefinition(QString xml_definition_filename)
-{
-
-
-    //ECUproto->RAM_MUT_addr = _ecu_definition->RAM_MUT_addr;
-    //ECUproto->RAM_MUT_len = _ecu_definition->RAM_MUT_count;
 }
 
 void controller::init()

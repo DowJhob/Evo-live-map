@@ -308,13 +308,6 @@ public:
         FlowControlFilter
     };
 
-    enum ClearTarget {
-        TxBuffer = 7,
-        RxBuffer,
-        PeriodicMsgs,
-        MsgFilters
-    };
-
     explicit PassThru(const QString &libraryPath, QObject *parent = nullptr);
     virtual ~PassThru();
 
@@ -345,7 +338,7 @@ public:
 
 
     Status PassThruIoctl(Handle channelId, IoctlID IoctlID, const void *pInput, void *pOutput);
-    Status clear(Handle channelId, ClearTarget target);
+//    Status clear(Handle channelId, ClearTarget target);
 
     Status lastError() const { return m_lastError; }
     QString lastErrorString() const;
