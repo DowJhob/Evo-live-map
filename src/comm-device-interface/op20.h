@@ -16,6 +16,7 @@ public:
     tactrix_serial *_tactrix_serial = nullptr;
     OP20(QString dllName = nullptr, QString DeviceUniqueID = "") : j2534_interface(dllName, DeviceUniqueID)
     {
+        devType = deviceType::OP20;
         qDebug() << "OP20";
     }
     ~OP20()

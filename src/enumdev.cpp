@@ -108,7 +108,7 @@ void enumerator::getPresentCommDevices(GUID guid)
         if(!dev.FunctionLibrary.isEmpty())
         {
             //checkTactrix( QString::fromWCharArray( (wchar_t*)hwId.data() ).mid(4, 17));
-            dev.type = dev_type::J2534; //тут надо проверить вид пид на соответствие тактриксу, не забудь!!
+            dev.type = deviceType::J2534; //тут надо проверить вид пид на соответствие тактриксу, не забудь!!
             dev.direction = dir::arrive;
             emit commDeviceEvent(dev);
         }
@@ -152,7 +152,7 @@ void enumerator::handleEvent(long wParam, PDEV_BROADCAST_DEVICEINTERFACE pDevInf
         device dev = getJ2534DLLpath( getDevProp(pDevInf), reg64);
         if(!dev.FunctionLibrary.isEmpty())
         {
-            dev.type = dev_type::J2534; //тут надо проверить вид пид на соответствие тактриксу, не забудь!!
+            dev.type = deviceType::J2534; //тут надо проверить вид пид на соответствие тактриксу, не забудь!!
             dev.direction = dir::arrive;
             emit commDeviceEvent(dev);
         }

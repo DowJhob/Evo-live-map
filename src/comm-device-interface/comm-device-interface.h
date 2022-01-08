@@ -16,6 +16,7 @@ class comm_device_interface : public QObject
 {
     Q_OBJECT
 public:
+    deviceType devType = deviceType::undef;
     QString dllName;
     QString DeviceUniqueID;
 
@@ -23,8 +24,8 @@ public:
     char* p_out_buff;
 
     Protocol protocol_inno = Protocol::ISO9141_INNO;
-    Protocol protocol = Protocol::ISO9141;
-    ConnectFlag ConnectFlag = ConnectFlag::ISO9141NoChecksum;  //        || ISO9141_K_LINE_ONLY ;
+    Protocol protocol;
+    ConnectFlag ConnectFlag;
 
     unsigned int  baudRate = 62500;
     unsigned long _readTimeout = 2000;

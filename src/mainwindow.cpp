@@ -3,56 +3,34 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-
-#include <QScrollArea>
-#include <QtGlobal>
-
-
-
+//#include <QScrollArea>
+//#include <QtGlobal>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), //enumerator(),
     ui(new Ui::MainWindow)
 {
-    //=============================================================================
-    //    connect(&logger_thread, &QThread::started, ecu_comm, &ECU_interface::init);
-    //_logger.moveToThread(&logger_thread);
-    //logger_thread.start();
-
-
     ui->setupUi(this);
+    _mainToolBar = new mainToolBar(this);
+    addToolBar(Qt::TopToolBarArea, _mainToolBar);
+    connect(_mainToolBar, &mainToolBar::s_connect, this, &MainWindow::StartButton_slot);
+    connect(_mainToolBar, &mainToolBar::s_ramReset, this, &MainWindow::RAM_reset);
 
-    colorFromFile("C:\\Program Files (x86)\\OpenECU\\EcuFlash\\colormaps\\COLDFIRE.MAP") ;
     //=============================================================================
-    statusBar()->showMessage("No interface", 0);
     cpW = new commParamWidget(this);
     connect(cpW, &commParamWidget::interfaceSelected, this, &MainWindow::commDeviceSelected);
     connect(cpW, &commParamWidget::protoSelected, this, &MainWindow::_protoSelected);
     connect(cpW, &commParamWidget::baudChanged, this, &MainWindow::baudChanged);
     connect(cpW, &commParamWidget::logChanged, this, &MainWindow::logChanged);
-
-    //ui->connectionParam->setLayout(new QGridLayout(this));
     ui->connectionParam->layout()->addWidget(cpW);
     //=============================================================================
     hexEdit = new hexEditor(this);
     ui->directHex->layout()->addWidget(hexEdit);
     //=============================================================================
-    start_action = ui->toolBar->addAction( QIcon( ":ico/connect.png" ), "Start", this, &MainWindow::StartButton_slot);
-    //start_action->setDisabled(true);
-    ram_reset = ui->toolBar->addAction(QIcon( ":ico/Memory-Freer-icon.png" ), "RAM refresh", this, &MainWindow::RAM_reset);
-    ram_reset->setDisabled(true);
-    logger = ui->toolBar->addAction( "Start", this, &MainWindow::logger_slot);
-    logger->setDisabled(true);
-
-    ui->toolBar->addSeparator();
-    QWidget* empty = new QWidget(this);
-    empty->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
-    ui->toolBar->addWidget(empty);
-    //debug_action = ui->toolBar->addAction(QIcon( ":ico/screwdriver.png" ), "Debug", this, &MainWindow::debugButton_slot);
-
-    readyInterface(false);
 
     connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &MainWindow::itemChecks);
     //connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(itemChecks(QTreeWidgetItem*, int)));
+    statusBar()->showMessage("No interface", 0);
+    colorFromFile("C:\\Program Files (x86)\\OpenECU\\EcuFlash\\colormaps\\COLDFIRE.MAP") ;
 
 }
 
@@ -102,23 +80,14 @@ void MainWindow::deviceEvent(device dev)
 
 }
 
-void MainWindow::readyInterface(bool lockFlag)
+void MainWindow::lockInterface(bool lockFlag)
 {
-    start_action->setDisabled(!lockFlag);
-    if(!lockFlag)
-    {
-        ram_reset->setDisabled(true);
-        //logger->setDisabled(true);
-    }
-    //debug_action->setDisabled(!lockFlag);
-    //    for( QObject *w: ui->toolBar->children())
-    //        if (w->isWidgetType())
-    //            reinterpret_cast<QWidget*>(w)->setDisabled(!lockFlag) ;
+    _mainToolBar->lockConnect(!lockFlag);
 }
 
 void MainWindow::StartButton_slot()
 {
-    if (start_action->text() == "Start")
+    if (start_action == "Start")
     {
         qDebug() << "MainWindow::StartButton_slot Start";
         emit getECUconnectMainWindow();
@@ -127,9 +96,8 @@ void MainWindow::StartButton_slot()
     {
         emit getECUdisconnectMainWindow();
 
-        start_action->setText("Start");
-        start_action->setChecked(false);
-        ram_reset->setDisabled(true);
+        start_action = "Start";
+        _mainToolBar->lockReset( true);
 
         gaugeDelete();
 
@@ -144,32 +112,15 @@ void MainWindow::StartButton_slot()
     }
 }
 
-void MainWindow::ecu_connected(//QHash<QString, Map*> m
-                               )
+void MainWindow::ecu_connected()
 {
-    start_action->setChecked(true);
-    start_action->setText("Stop");
-    ram_reset->setDisabled(false);
-
-    // переберем все описания таблиц
-//    for ( Map *tab : qAsConst(m) )
-//    {
-//        emit create_table( ECUproto->getMap(tab) );
-//    }
+    start_action = "Stop";
+    _mainToolBar->lockReset( false);
 }
 
 void MainWindow::logger_slot()
 {
-    if (logger->text() == "Start")
-    {
-        logger->setText("Started");
-        emit startLogger();
-    }
-    else
-    {
-        logger->setText("Start");
-        emit stopLogger();
-    }
+
 }
 
 void MainWindow::createMap(mapDefinition *dMap)

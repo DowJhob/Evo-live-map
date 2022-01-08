@@ -24,6 +24,7 @@ TEMPLATE = app
 
 SOURCES += src/main.cpp\
     src/abstract-memory.cpp \
+    src/comm-device-interface/op13.cpp \
     src/ecu-proto/ECU-interface.cpp \
     src/comm-device-interface/comm-device-interface.cpp \
     src/comm-device-interface/j2534-interface.cpp \
@@ -52,6 +53,7 @@ SOURCES += src/main.cpp\
     src/widgets/commParamWidget.cpp \
     src/widgets/custom_tablewidget.cpp \
     src/widgets/gauge_widget.cpp \
+    src/widgets/maintoolbar.cpp \
     src/widgets/mapWidget/mapmodel.cpp \
     src/widgets/mapWidget/mapview.cpp \
     src/widgets/mapWidget/mapwidget.cpp
@@ -95,6 +97,7 @@ HEADERS  += src/mainwindow.h \
     src/widgets/hexEditor/qhexedit/commands.h \
     src/widgets/hexEditor/qhexedit/qhexedit.h \
     src/widgets/hexEditor/hexeditor.h \
+    src/widgets/maintoolbar.h \
     src/widgets/mapWidget/mapmodel.h \
     src/widgets/mapWidget/mapview.h \
     src/widgets/mapWidget/mapwidget.h

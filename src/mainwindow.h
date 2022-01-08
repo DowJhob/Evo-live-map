@@ -22,6 +22,7 @@
 
 #include "enumdev.h"
 
+#include "widgets/maintoolbar.h"
 #include "widgets/custom_tablewidget.h"
 #include "widgets/gauge_widget.h"
 #include "widgets/commParamWidget.h"
@@ -49,7 +50,7 @@ protected:
 public slots:
     void deviceEvent(device dev);
 
-    void readyInterface(bool lockFlag);
+    void lockInterface(bool lockFlag);
     void ecu_connected(//QHash<QString, Map *> m
                        );
 
@@ -69,7 +70,9 @@ private slots:
     void itemChecks(QTreeWidgetItem *item, int column);
 
 private:
+    QString start_action= "Start";
     Ui::MainWindow *ui;
+    mainToolBar *_mainToolBar;
     commParamWidget *cpW;
 
     void createMapTree(Map *tab);
@@ -78,16 +81,7 @@ private:
     void create_gauge(QString name, mutParam *param);
     void gaugeDelete();
 
-    QAction *start_action;
-    QAction *ram_reset;
 
-    QAction *logger;
-
-    QAction *debug_action;
-
-    QThread logger_thread;
-
-    bool  debug = false;
 
     QToolBar *loggerWidgetBar = nullptr;
 

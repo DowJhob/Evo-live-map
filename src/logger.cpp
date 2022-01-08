@@ -112,8 +112,8 @@ void dataLogger::poll()
     {
         a = (*ECUproto)->indirectDMAread((*_ecu_definition)->RAM_MUT_addr, readSize);
         //qDebug() << "dataLogger::poll read: " << QString::number( tt.nsecsElapsed()/1000000.0);
-        a[0] = abs(QCursor::pos().x())/10;
-        a[1] = abs(QCursor::pos().y())/6;
+        //a[0] = abs(QCursor::pos().x())/10;
+        //a[1] = abs(QCursor::pos().y())/6;
 
         for( int i = 0; i < (*_ecu_definition)->RAM_MUT.size() ; i++  )
         {

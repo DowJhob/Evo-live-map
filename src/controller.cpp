@@ -50,8 +50,8 @@ void controller::commDeviceSelected(device dev)
     }
     switch (dev.type) {
     //case dev_type::OP13  : devComm = new OP13(dev.FunctionLibrary); break;
-    case dev_type::OP20  : devComm = new OP20(dev.FunctionLibrary, dev.DeviceUniqueID); break;
-    case dev_type::J2534 : devComm = new j2534_interface(dev.FunctionLibrary, dev.DeviceUniqueID); break;
+    case deviceType::OP20  : devComm = new OP20(dev.FunctionLibrary, dev.DeviceUniqueID); break;
+    case deviceType::J2534 : devComm = new j2534_interface(dev.FunctionLibrary, dev.DeviceUniqueID); break;
     default              : return;
     }
     p_in_buff = devComm->p_in_buff;
