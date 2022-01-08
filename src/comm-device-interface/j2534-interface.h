@@ -37,13 +37,11 @@ public:
     j2534_interface( QString dllName = nullptr, QString DeviceUniqueID = "");
     virtual ~j2534_interface();
 
-    bool init();
+    bool info();
     bool open();
     bool close();
 
     bool connect(Protocol protocol, enum ConnectFlag ConnectFlag);
-
-    void info();
 
     bool five_baud_init();
 
@@ -65,8 +63,6 @@ private slots:
 private:
     unsigned long msgId = 0;
     bool setFilter(Protocol protocol);
-    bool get_channel(Protocol protocol, enum ConnectFlag ConnectFlag, unsigned int baudRate);
-    bool set_config(const SArray<const Config> *scl);
     long set_filter(PassThru::FilterType type, Message *msgMask, Message *msgPattern, Message *msgFlowcontrol);
     bool get_serial_num(unsigned long devID, char* serial);
 

@@ -60,7 +60,7 @@ void controller::commDeviceSelected(device dev)
     connect(devComm, &comm_device_interface::Log, this, &controller::Log, Qt::QueuedConnection);
     connect(this, &controller::baudChanged, devComm, &comm_device_interface::setBaudRate);
 
-    if( devComm->init() )
+    if( devComm->info() )
         emit interfaceReady(true);                  // Показываем кнопки старт и сброс памяти
 
     //if ( isTactrix )
@@ -105,18 +105,7 @@ void controller::setProto(int proto)
 
 void controller::getECUconnect()
 {
-    qDebug() << "=========== Comm Device connect ================";
 
-    ///if (!devComm->connect( ISO9141_K, ISO9141_NO_CHECKSUM))
-    if (!devComm->connect( Protocol::ISO9141, ConnectFlag(
-                               (uint)ConnectFlag::ISO9141NoChecksum //| (uint)ConnectFlag::ISO9141KLineOnly
-                               )
-                           ))
-    {
-        devComm->close();
-        return ;
-    }
-    qDebug() << "=========== ECU connect ================";
     if (!ECUproto->connect()) //тут специфичные для конкретного варианта коннекты например jcsbanks будет 5бод инит
        return ;
     //QMetaObject::invokeMethod(vehicle_ecu_comm, &comm_device_interface::stoplog0x81);
@@ -146,12 +135,12 @@ void controller::getECUconnect()
 
 //    getECUdefinition(); //найдем файл конфига и парсим его
 
+    emit ecu_connected();
     // переберем все описания таблиц
     for ( Map *tab : qAsConst(_ecu_definition->RAMtables) )
     {
         emit create_table( ECUproto->getMap(tab) );
     }
-    emit ecu_connected();
 
     _dataLogger->start();
     //     startLogger();

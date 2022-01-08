@@ -20,7 +20,7 @@ public:
         close();
     }
 
-    bool init()
+    bool info()
     {}
     bool open()
     {

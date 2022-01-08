@@ -32,7 +32,7 @@ public:
     explicit comm_device_interface(QString dllName = nullptr, QString DeviceUniqueID = "");
     virtual ~comm_device_interface();
 
-    virtual bool init() = 0;
+    virtual bool info() = 0;
     virtual bool open() = 0;
     virtual bool close() = 0;
     virtual bool connect(Protocol protocol, enum ConnectFlag ConnectFlag) = 0;

@@ -29,12 +29,30 @@ j2534_interface::~j2534_interface()
     qDebug() << "~j2534_interface";
 }
 
-bool j2534_interface::init()
+bool j2534_interface::info()
 {
     if ( !open() )
         return false;
 
-    info();
+    //    //читаем версию и прочюю требуху
+    //    char strApiVersion[256];
+    //    char strDllVersion[256];
+    //    char strFirmwareVersion[256];
+    //    char strSerial[256];
+    //    if ( j2534->PassThruReadVersion(strApiVersion, strDllVersion, strFirmwareVersion, devID) )
+    //    {
+    //        emit Log("PassThruReadVersion: " + reportJ2534Error());
+    //    }
+    //    else
+    //    {
+    //        emit Log("J2534 API Version: " + QString(strApiVersion) + "\r\n"
+    //                 + "J2534 DLL Version: " +  QString(strDllVersion) + "\r\n"
+    //                 + "Device Firmware Version: " +  QString(strFirmwareVersion));
+    //    }
+    //    if (get_serial_num(devID, strSerial))
+    //        emit Log("Device Serial Number: " +  QString(strSerial));
+    //    else
+    //        emit Log("get_serial_num: " + reportJ2534Error());
 
     if (j2534->PassThruClose(devID) != PassThru::Status::NoError)
     {
@@ -59,6 +77,8 @@ bool j2534_interface::open()
 
 bool j2534_interface::connect(Protocol protocol, enum ConnectFlag ConnectFlag)
 {
+    qDebug() << "=========== Comm Device connect ================";
+
     this->protocol = protocol;
     rx_msg.setProtocolId(protocol);
     tx_msg.setProtocolId(protocol);
@@ -71,25 +91,41 @@ bool j2534_interface::connect(Protocol protocol, enum ConnectFlag ConnectFlag)
     }
     emit Log("PassThruOpen deviceID: " + QString::number(devID) + " /opened");
 
-    if ( !get_channel(protocol, ConnectFlag, baudRate) )
+    tx_msg.setProtocolId(protocol);
+    rx_msg.setProtocolId(protocol);
+    if (j2534->PassThruConnect(devID, protocol, ConnectFlag, baudRate, &chanID))
+    {
+        emit Log( "PassThruConnect: error" + reportJ2534Error() );
         return false;
+    }
+    emit Log("PassThruConnect channel: " + QString::number(chanID) + " /connected");
 
     Config scp[10] = { Config{Config::Parameter::DataRate, baudRate},
+
+
+                     //  Config{Config::Parameter::W0, 800},
+                    //   Config{Config::Parameter::W1, 300},
+                    //   Config{Config::Parameter::W2, 3000},
+                  //     Config{Config::Parameter::W3, 300},
+                   //    Config{Config::Parameter::W4, 1000},
+
                        Config{Config::Parameter::P1Min, 0},
                        Config{Config::Parameter::P1Max, 1},           // сколько ждать на реальном чтении
-                       Config{Config::Parameter::P2Min, 0},
-                       Config{Config::Parameter::P2Max, 1},
+                       Config{Config::Parameter::P2Min, 25},
+                       Config{Config::Parameter::P2Max, 30},
                        Config{Config::Parameter::P3Min, 0},           // уменьшает в 4 раза отклик контроллера!!!
-                       Config{Config::Parameter::P3Max, 2},
+                       Config{Config::Parameter::P3Max, 1},
                        Config{Config::Parameter::P4Min, 0},           // уменьшает в 30 раз отклик контроллера!!!
                        Config{Config::Parameter::P4Max, 1},
                        Config{Config::Parameter::Loopback, 0}
                      };        // set timing
 
     const SArray<const Config> configList{10, scp};
-
-    if ( !set_config(&configList) )
+    if (j2534->PassThruIoctl(chanID, PassThru::SET_CONFIG, &configList, nullptr))
+    {
+        emit Log( "PassThruIoctl - SET_CONFIG : fail  " + reportJ2534Error() );
         return false;
+    }
 
     if ( !setFilter(protocol)  )
         return false;
@@ -135,9 +171,9 @@ QByteArray j2534_interface::read()
     QElapsedTimer tt;
     NumMsgs = 1;
     rx_msg.m_rxStatus = 0;
+    tt.start();
     do
     {
-        tt.start();
         j2534->PassThruReadMsgs(chanID, &rx_msg, &NumMsgs, _readTimeout);
         a.append(QByteArray((char*)rx_msg.m_data, rx_msg.m_dataSize));
 //        qDebug()<< "j2534_interface::read " << "rx_msg.m_rxStatus" << rx_msg.m_rxStatus
@@ -149,7 +185,7 @@ QByteArray j2534_interface::read()
     }
     while(rx_msg.m_rxStatus == Message::RxStatusBit::InStartOfMessage);
 
-    //qDebug() << "j2534_interface::read: total" << QString::number( tt.nsecsElapsed()/1000000.0) << "\n\n";
+    qDebug() << "j2534_interface::read: total" << QString::number( tt.nsecsElapsed()/1000000.0) << "\n\n";
 
     return a;
 }
@@ -159,29 +195,6 @@ void j2534_interface::write(int lenght)
     NumMsgs = 1;
     tx_msg.m_dataSize = lenght;
     j2534->PassThruWriteMsgs(chanID, &tx_msg, &NumMsgs, writeTimeout);
-}
-
-void j2534_interface::info()
-{
-    //    //читаем версию и прочюю требуху
-    //    char strApiVersion[256];
-    //    char strDllVersion[256];
-    //    char strFirmwareVersion[256];
-    //    char strSerial[256];
-    //    if ( j2534->PassThruReadVersion(strApiVersion, strDllVersion, strFirmwareVersion, devID) )
-    //    {
-    //        emit Log("PassThruReadVersion: " + reportJ2534Error());
-    //    }
-    //    else
-    //    {
-    //        emit Log("J2534 API Version: " + QString(strApiVersion) + "\r\n"
-    //                 + "J2534 DLL Version: " +  QString(strDllVersion) + "\r\n"
-    //                 + "Device Firmware Version: " +  QString(strFirmwareVersion));
-    //    }
-    //    if (get_serial_num(devID, strSerial))
-    //        emit Log("Device Serial Number: " +  QString(strSerial));
-    //    else
-    //        emit Log("get_serial_num: " + reportJ2534Error());
 }
 
 bool j2534_interface::five_baud_init()
@@ -235,30 +248,6 @@ bool j2534_interface::setFilter(Protocol protocol)
     msgId = set_filter(PassThru::PassFilter, &msgMask, &msgPattern, nullptr);
     if ( msgId < 0 )
         return false;
-    return true;
-}
-
-bool j2534_interface::get_channel(Protocol protocol, enum ConnectFlag ConnectFlag, unsigned int baudRate)     //get  chanID
-{
-    tx_msg.setProtocolId(protocol);
-    rx_msg.setProtocolId(protocol);
-
-    if (j2534->PassThruConnect(devID, protocol, ConnectFlag, baudRate, &chanID))
-    {
-        emit Log( "PassThruConnect: error" + reportJ2534Error() );
-        return false;
-    }
-    emit Log("PassThruOpen channel: " + QString::number(chanID) + " /opened");
-    return true;
-}
-
-bool j2534_interface::set_config(const SArray<const Config> *scl)
-{
-    if (j2534->PassThruIoctl(chanID, PassThru::SET_CONFIG, scl, nullptr))
-    {
-        emit Log( "PassThruIoctl - SET_CONFIG : not ok  " + reportJ2534Error() );
-        return false;
-    }
     return true;
 }
 

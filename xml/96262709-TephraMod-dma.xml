@@ -67,6 +67,9 @@
 		<ram_mut name="MAP_Bar"			scaling="MAP_BoostBar"		number="0x07"/>
 		<ram_mut name="TPS"				scaling="Percent255"		number="0x08"/>
 		<ram_mut name="Inj Pulse Width"	scaling="InjLatency"		number="0x09"/>
+		<ram_mut name="Gear"			scaling="uint8"				number="0x0A"/>
+		<ram_mut name="Gear"			scaling="uint8"				number="0x0B"/>
+		<ram_mut name="Gear"			scaling="uint8"				number="0x0C"/>
 		<ram_mut name="Gear"			scaling="uint8"				number="0x0D"/>
 	</table>
 	
