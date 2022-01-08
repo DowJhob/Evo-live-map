@@ -12,11 +12,9 @@
 //#include <QMessageBox>
 #include <QStatusBar>
 
+
+
 #include "types.h"
-
-#include "widgets/custom_tablewidget.h"
-
-#include "qhexedit/qhexedit.h"
 
 #include "comm-device-interface/comm-device-interface.h"
 #include "comm-device-interface/op13.h"
@@ -24,18 +22,12 @@
 
 #include "enumdev.h"
 
-
-
-
+#include "widgets/custom_tablewidget.h"
 #include "widgets/gauge_widget.h"
 #include "widgets/commParamWidget.h"
 #include "widgets/mapWidget/mapwidget.h"
-
-//#include "widgets/mapWidget/mapview.h"
-//#include "widgets/mapWidget/mapmodel.h"
-
-
-//#include "test-map.h"
+#include "widgets/hexEditor/qhexedit/qhexedit.h"
+#include "widgets/hexEditor/hexeditor.h"
 
 namespace Ui {
 class MainWindow;
@@ -74,8 +66,6 @@ private slots:
     void StartButton_slot();
     void logger_slot();
 
-    void on_start_addr_lineEdit_returnPressed();
-    void on_count_lineEdit_returnPressed();
     void itemChecks(QTreeWidgetItem *item, int column);
 
 private:
@@ -97,15 +87,12 @@ private:
 
     QThread logger_thread;
 
-    ecu_definition *_ecu;
-    comm_device_interface *vehicle_ecu_comm = nullptr;
-
     bool  debug = false;
 
     QToolBar *loggerWidgetBar = nullptr;
 
     //======================== widget's =================================
-    QHexEdit *hexEdit;
+    hexEditor *hexEdit;
     gauge_widget *tactrix_afr_lcd = nullptr;
     //======================== widget lists =================================
     QSet<gauge_widget*> gauge_widget_set;
@@ -128,7 +115,6 @@ signals:
     void startLogger();
     void stopLogger();
 
-    void _exit();
 
     void updateRAM(abstractMemoryScaled);
     void RAM_reset();
@@ -137,6 +123,8 @@ signals:
     void setLoggingInterval(int);
 
     void logReady(QVector<float>);
+
+    void _exit();
 
 };
 #endif // MAINWINDOW_H

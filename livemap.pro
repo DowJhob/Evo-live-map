@@ -39,15 +39,14 @@ SOURCES += src/main.cpp\
     src/log-reader.cpp \
     src/logger.cpp \
     src/map-decl/map.cpp \
-    src/map-request.cpp \
-    src/qhexedit/chunks.cpp \
-    src/qhexedit/commands.cpp \
-    src/qhexedit/qhexedit.cpp \
+    src/widgets/hexEditor/qhexedit/chunks.cpp \
+    src/widgets/hexEditor/qhexedit/commands.cpp \
+    src/widgets/hexEditor/qhexedit/qhexedit.cpp \
+    src/widgets/hexEditor/hexeditor.cpp \
     src/mainwindow.cpp \
 #    src/libs/J2534.cpp \
     src/libs/ftdi.cpp \
     src/map-decl/scaling.cpp \
-    src/read-request.cpp \
     src/serial/common-serial-interface.cpp \
     src/map-decl/submap.cpp \
     src/widgets/commParamWidget.cpp \
@@ -80,8 +79,6 @@ HEADERS  += src/mainwindow.h \
     src/log-reader.h \
     src/map-decl/map.h \
     src/map-decl/scaling.h \
-    src/map-request.h \
-    src/read-request.h \
     src/serial/common-serial-interface.h \
     src/serial/tactrix-serial.h \
     src/logger.h \
@@ -94,9 +91,10 @@ HEADERS  += src/mainwindow.h \
     src/widgets/commParamWidget.h \
     src/widgets/custom_tablewidget.h \
     src/widgets/gauge_widget.h \
-    src/qhexedit/chunks.h \
-    src/qhexedit/commands.h \
-    src/qhexedit/qhexedit.h \
+    src/widgets/hexEditor/qhexedit/chunks.h \
+    src/widgets/hexEditor/qhexedit/commands.h \
+    src/widgets/hexEditor/qhexedit/qhexedit.h \
+    src/widgets/hexEditor/hexeditor.h \
     src/widgets/mapWidget/mapmodel.h \
     src/widgets/mapWidget/mapview.h \
     src/widgets/mapWidget/mapwidget.h

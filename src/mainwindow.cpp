@@ -32,13 +32,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), //enumerator(),
 
     //ui->connectionParam->setLayout(new QGridLayout(this));
     ui->connectionParam->layout()->addWidget(cpW);
-
     //=============================================================================
-    hexEdit = new QHexEdit(this);
-    hexEdit->setAddressWidth(8);
-    hexEdit->setAddressOffset(ui->start_addr_lineEdit->text().toUInt(nullptr, 16));
-    //ui->RAMeditorLayout->addWidget(hexEdit, 3,0,1,2);
-    static_cast<QGridLayout*>(ui->directHex->layout())->addWidget(hexEdit, 3,0,1,2);
+    hexEdit = new hexEditor(this);
+    ui->directHex->layout()->addWidget(hexEdit);
     //=============================================================================
     start_action = ui->toolBar->addAction( QIcon( ":ico/connect.png" ), "Start", this, &MainWindow::StartButton_slot);
     //start_action->setDisabled(true);
@@ -55,7 +51,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), //enumerator(),
 
     readyInterface(false);
 
-    connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(itemChecks(QTreeWidgetItem*, int)));
+    connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &MainWindow::itemChecks);
+    //connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(itemChecks(QTreeWidgetItem*, int)));
 
 }
 
@@ -286,29 +283,4 @@ void MainWindow::colorFromFile(QString filename)
 void MainWindow::Log(QString str)
 {
     ui->systemLog->addItem(str);
-}
-
-void MainWindow::on_start_addr_lineEdit_returnPressed()
-{
-    quint16 count = ui->count_lineEdit->text().toUInt(nullptr);
-    quint32 addr = ui->start_addr_lineEdit->text().toUInt(nullptr, 16);
-
-    //vehicle_ecu_comm->sendDMAcomand(DMAcomand::directRead, addr, count);
-    //vehicle_ecu_comm->read();
-    //
-    hexEdit->setData(QByteArray::fromRawData( (char*)vehicle_ecu_comm->p_in_buff, count));
-    hexEdit->setAddressOffset(addr);
-
-}
-
-void MainWindow::on_count_lineEdit_returnPressed()
-{
-    int count = ui->count_lineEdit->text().toUInt(nullptr);
-    quint32 addr = ui->start_addr_lineEdit->text().toUInt(nullptr, 16);
-
-    //vehicle_ecu_comm->sendDMAcomand(DMAcomand::directRead, addr, count);
-    vehicle_ecu_comm->read();
-    //
-    hexEdit->setData(QByteArray::fromRawData( (char*)vehicle_ecu_comm->p_in_buff, count));
-    hexEdit->setAddressOffset(addr);
 }

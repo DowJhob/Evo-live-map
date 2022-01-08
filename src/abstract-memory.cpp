@@ -10,6 +10,13 @@ abstractMemoryScaled::abstractMemoryScaled(QByteArray a):abstractMemory(a)
 abstractMemoryScaled::abstractMemoryScaled(Scaling *scaling, float value2):abstractMemory(fromFloat(scaling, value2))
 {}
 
+abstractMemoryScaled &abstractMemoryScaled::operator =(const QByteArray &mem)
+{
+    resize(mem.size());
+    memcpy(data(), mem.data(), mem.size());
+    return *this;
+}
+
 QByteArray abstractMemoryScaled::fromFloat(Scaling *scaling, float value2)
 {
     quint64 value = qRound64(scaling->frexpr2.fast_calc(value2));
