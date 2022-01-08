@@ -65,17 +65,10 @@ signals:
     void logChanged(int);
     void interfaceReady(bool);
 
-    void ECUready();
-
-
-
-    void ecu_connected();
-
+    void ecu_connected(//QHash<QString, Map*>
+                       );
     void create_table(mapDefinition*);
-
     void _RAMreset(quint32);
-
-    //void getMap(Map*);
 
     void Log(QString);
     void _updateRAM(abstractMemoryScaled);

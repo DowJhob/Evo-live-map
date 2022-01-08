@@ -63,7 +63,13 @@ bool j2534_interface::connect(Protocol protocol, enum ConnectFlag ConnectFlag)
     rx_msg.setProtocolId(protocol);
     tx_msg.setProtocolId(protocol);
 
-    open();
+
+    if (j2534->PassThruOpen(nullptr, &devID))         // Get devID
+    {
+        emit Log("PassThruOpen error: " + reportJ2534Error());
+        return false;
+    }
+    emit Log("PassThruOpen deviceID: " + QString::number(devID) + " /opened");
 
     if ( !get_channel(protocol, ConnectFlag, baudRate) )
         return false;
@@ -95,6 +101,15 @@ bool j2534_interface::connect(Protocol protocol, enum ConnectFlag ConnectFlag)
 
 bool j2534_interface::close()
 {
+    ;
+    if (j2534->PassThruStopMsgFilter(chanID, msgId) != PassThru::Status::NoError )
+    {
+        emit Log("PassThruStopMsgFilter error: " + reportJ2534Error() );
+        reportJ2534Error();
+        return false;
+    }
+    emit Log("PassThruStopMsgFilter channel: " + QString::number(chanID) + " /stopped" );
+
     // shut down the channel
     if (j2534->PassThruDisconnect(chanID) != PassThru::Status::NoError )
     {
@@ -102,7 +117,7 @@ bool j2534_interface::close()
         reportJ2534Error();
         return false;
     }
-    emit Log("PassThruDisconnect channel: " + QString::number(chanID) + " /closed" );
+    emit Log("PassThruDisconnect channel: " + QString::number(chanID) + " /disconnected" );
 
     if (j2534->PassThruClose(devID) != PassThru::Status::NoError)
     {
@@ -125,16 +140,16 @@ QByteArray j2534_interface::read()
         tt.start();
         j2534->PassThruReadMsgs(chanID, &rx_msg, &NumMsgs, _readTimeout);
         a.append(QByteArray((char*)rx_msg.m_data, rx_msg.m_dataSize));
-        qDebug()<< "j2534_interface::read " << "rx_msg.m_rxStatus" << rx_msg.m_rxStatus
-                << "rx_msg.m_dataSize" << rx_msg.m_dataSize
-                << "time" << QString::number( tt.nsecsElapsed()/1000000.0)
-                << "NumMsgs=" << NumMsgs
-                   //<< "rx_msg[0].data" << QByteArray((char*)rx_msg[0].m_data, 4).toHex(':')
-                   ;
+//        qDebug()<< "j2534_interface::read " << "rx_msg.m_rxStatus" << rx_msg.m_rxStatus
+//                << "rx_msg.m_dataSize" << rx_msg.m_dataSize
+//                << "time" << QString::number( tt.nsecsElapsed()/1000000.0)
+//                << "NumMsgs=" << NumMsgs
+//                   //<< "rx_msg[0].data" << QByteArray((char*)rx_msg[0].m_data, 4).toHex(':')
+//                   ;
     }
     while(rx_msg.m_rxStatus == Message::RxStatusBit::InStartOfMessage);
 
-    qDebug() << "j2534_interface::read: total" << QString::number( tt.nsecsElapsed()/1000000.0) << "\n\n";
+    //qDebug() << "j2534_interface::read: total" << QString::number( tt.nsecsElapsed()/1000000.0) << "\n\n";
 
     return a;
 }
@@ -186,6 +201,7 @@ bool j2534_interface::five_baud_init()
 
     if (j2534->PassThruIoctl(chanID, PassThru::FIVE_BAUD_INIT, (void*)(&inputMsg), (void*)(&outputMsg)))
     {
+        qDebug() << "jPassThruIoctl - FIVE_BAUD_INIT FAIL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
         emit Log( "PassThruIoctl - FIVE_BAUD_INIT : not ok  | " + reportJ2534Error()  + QByteArray((char*)KeyWord, 3).toHex(':'));
         return false;
     }
@@ -205,7 +221,6 @@ bool j2534_interface::setFilter(Protocol protocol)
 {
     // ============================ setup filter(s) =========================
     Message msgMask, msgPattern;
-    unsigned long msgId;
     msgMask.m_protocolId = ulong(protocol);
     msgMask.m_rxStatus = 0;
     msgMask.m_txFlags = 0;
@@ -250,7 +265,7 @@ bool j2534_interface::set_config(const SArray<const Config> *scl)
 long j2534_interface::set_filter(PassThru::FilterType type, Message *msgMask, Message *msgPattern, Message *msgFlowcontrol)
 {
     ulong msgId;
-    if (j2534->PassThruStartMsgFilter(chanID, type, msgMask, msgPattern, msgFlowcontrol, &msgId))
+    if ((msgId = j2534->PassThruStartMsgFilter(chanID, type, msgMask, msgPattern, msgFlowcontrol, &msgId)))
     {
         emit Log( "PassThruIoctl - PassThruStartMsgFilter : not ok  " + reportJ2534Error() );
         return -1;

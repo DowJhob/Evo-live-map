@@ -31,7 +31,7 @@ public:
     virtual ~ECU_interface();
 
 public slots:
-    virtual void connect() = 0;
+    virtual bool connect() = 0;
 
     virtual QByteArray indirectDMAread(quint32 addr, int lenght) = 0;
     virtual QByteArray directDMAread(quint32 addr, int len) = 0;

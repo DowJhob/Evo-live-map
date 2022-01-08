@@ -61,7 +61,8 @@ public slots:
     void deviceEvent(device dev);
 
     void readyInterface(bool lockFlag);
-    void ecu_connected();
+    void ecu_connected(//QHash<QString, Map *> m
+                       );
 
     void create_table(mapDefinition *dMap);
 

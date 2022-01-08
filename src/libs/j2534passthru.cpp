@@ -75,6 +75,7 @@ PassThru::PassThru(const QString &libraryPath, QObject *parent) : QObject(parent
             || !resolveApiFunction(&m_ptReadMsgs, "PassThruReadMsgs")
             || !resolveApiFunction(&m_ptWriteMsgs, "PassThruWriteMsgs")
             || !resolveApiFunction(&m_ptStartMsgFilter, "PassThruStartMsgFilter")
+            || !resolveApiFunction(&m_ptStopMsgFilter, "PassThruStopMsgFilter")
             || !resolveApiFunction(&m_ptGetLastError, "PassThruGetLastError")
             || !resolveApiFunction(&m_ptIoctl, "PassThruIoctl")) {
 
@@ -144,6 +145,14 @@ PassThru::Status PassThru::PassThruStartMsgFilter(Handle channelId, FilterType f
     Q_ASSERT(m_ptStartMsgFilter);
 
     const long status = (*m_ptStartMsgFilter)(channelId, filterType, maskMsg, patternMsg, pFlowControlMsg, filterId);
+    return handleResult(status);
+}
+
+PassThru::Status PassThru::PassThruStopMsgFilter(Handle channelId, unsigned long MsgID)
+{
+    Q_ASSERT(m_ptStopMsgFilter);
+
+    const long status = (*m_ptStopMsgFilter)(channelId, MsgID);
     return handleResult(status);
 }
 

@@ -12,12 +12,12 @@ jcsbanksDMA::~jcsbanksDMA()
     qDebug() << "~jcsbanksDMA";
 }
 
-void jcsbanksDMA::connect()
+bool jcsbanksDMA::connect()
 {
     //==================================   5 baud init  ========================================
-    //if ( !
-    (*devComm)->five_baud_init();// )
-     //   return false;
+    if ( !(*devComm)->five_baud_init() )
+        return false;
+    return true;
 }
 
 QByteArray jcsbanksDMA::indirectDMAread(quint32 addr, int lenght)

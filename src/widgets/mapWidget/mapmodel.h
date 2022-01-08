@@ -29,6 +29,7 @@ public:
     Map *declaration;
     //explicit
     mapModel(QObject *parent = nullptr, Map *decl = nullptr, QVector<QColor> *colormap = nullptr);
+    ~mapModel();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const ;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;

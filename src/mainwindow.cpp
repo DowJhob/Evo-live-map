@@ -85,7 +85,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    emit _exit();
+    //emit _exit();
 }
 
 void MainWindow::commDeviceSelected(device dev)
@@ -136,15 +136,15 @@ void MainWindow::StartButton_slot()
 {
     if (start_action->text() == "Start")
     {
+        qDebug() << "MainWindow::StartButton_slot Start";
         emit getECUconnectMainWindow();
     }
     else
     {
-        start_action->setText("Start");
         emit getECUdisconnectMainWindow();
 
-        start_action->setChecked(false);
         start_action->setText("Start");
+        start_action->setChecked(false);
         ram_reset->setDisabled(true);
 
         gaugeDelete();
@@ -158,6 +158,20 @@ void MainWindow::StartButton_slot()
         }
         ptrRAMtables.clear();
     }
+}
+
+void MainWindow::ecu_connected(//QHash<QString, Map*> m
+                               )
+{
+    start_action->setChecked(true);
+    start_action->setText("Stop");
+    ram_reset->setDisabled(false);
+
+    // переберем все описания таблиц
+//    for ( Map *tab : qAsConst(m) )
+//    {
+//        emit create_table( ECUproto->getMap(tab) );
+//    }
 }
 
 void MainWindow::logger_slot()
@@ -174,13 +188,6 @@ void MainWindow::logger_slot()
     }
 }
 
-void MainWindow::ecu_connected()
-{
-    start_action->setChecked(true);
-    start_action->setText("Stop");
-    ram_reset->setDisabled(false);
-}
-
 void MainWindow::create_table(mapDefinition *dMap)
 {
     //создаем таблицу с заданной размерностью
@@ -193,7 +200,7 @@ void MainWindow::create_table(mapDefinition *dMap)
 
     connect(this, &MainWindow::logReady, table->mapTable, &mapView::logReady);
 
-    connect(this, &MainWindow::_exit, table, &QWidget::deleteLater);
+    //connect(this, &MainWindow::_exit, table, &QWidget::deleteLater);
 
     ptrRAMtables.insert(dMap->declMap->Name, table );
 
@@ -329,9 +336,9 @@ declMap->rom_scaling.setFastNotation();
 void MainWindow::gaugeDelete()
 {
     //foreach (gauge_widget *gauge, gauge_widget_set)
-    for (gauge_widget *gauge : qAsConst(gauge_widget_set))
-        gauge->deleteLater();
-    gauge_widget_set.clear();
+//    for (gauge_widget *gauge : qAsConst(gauge_widget_set))
+//        gauge->deleteLater();
+//    gauge_widget_set.clear();
 
 }
 

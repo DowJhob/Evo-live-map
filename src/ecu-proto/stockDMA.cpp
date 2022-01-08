@@ -12,7 +12,7 @@ stockDMA::~stockDMA()
     qDebug() << "~stockDMA";
 }
 
-void stockDMA::connect()
+bool stockDMA::connect()
 {
 
 }

@@ -76,6 +76,7 @@ void controller::commDeviceSelected(device dev)
 
 void controller::commDeviceRemoved(device dev)
 {
+    _dataLogger->stop();
     if (devComm != nullptr && devComm->DeviceUniqueID == dev.DeviceUniqueID )
     {
         //devComm->close();
@@ -108,13 +109,16 @@ void controller::getECUconnect()
 
     ///if (!devComm->connect( ISO9141_K, ISO9141_NO_CHECKSUM))
     if (!devComm->connect( Protocol::ISO9141, ConnectFlag(
-                               (uint)ConnectFlag::ISO9141NoChecksum | (uint)ConnectFlag::ISO9141KLineOnly)
+                               (uint)ConnectFlag::ISO9141NoChecksum //| (uint)ConnectFlag::ISO9141KLineOnly
+                               )
                            ))
+    {
+        devComm->close();
         return ;
+    }
     qDebug() << "=========== ECU connect ================";
-    //if (!
-    ECUproto->connect();//) //тут специфичные для конкретного варианта коннекты например jcsbanks будет 5бод инит
-    //   return ;
+    if (!ECUproto->connect()) //тут специфичные для конкретного варианта коннекты например jcsbanks будет 5бод инит
+       return ;
     //QMetaObject::invokeMethod(vehicle_ecu_comm, &comm_device_interface::stoplog0x81);
     //QMetaObject::invokeMethod(vehicle_ecu_comm, &comm_device_interface::log0x81);
 
@@ -128,8 +132,19 @@ void controller::getECUconnect()
     QString romID = QString::number( qFromBigEndian<quint32>(a.data()), 16 );
     emit Log("romID: " + romID);
 
-    emit Log("CurrDir: " + QApplication::applicationDirPath());
-    getECUdefinition(SearchFiles(QApplication::applicationDirPath() + "/xml/", romID)); //найдем файл конфига и парсим его
+    //emit Log("CurrDir: " + QApplication::applicationDirPath());
+
+    _ecu_definition = new ecu_definition;
+
+    if (!_ecu_definition->fromFile(SearchFiles(QApplication::applicationDirPath() + "/xml/", romID)))
+    {
+        delete _ecu_definition;
+        qDebug() << "XML NOT FOUND!!!!!!!!!!!!!!!!!!!!!!!!!";
+        emit Log("xml not found");
+        return;
+    }
+
+//    getECUdefinition(); //найдем файл конфига и парсим его
 
     // переберем все описания таблиц
     for ( Map *tab : qAsConst(_ecu_definition->RAMtables) )
@@ -146,9 +161,14 @@ void controller::getECUdisconnect()
 {
     _dataLogger->stop();
 
+    qDebug() << "controller::getECUdisconnect _dataLogger->stop";
     devComm->close();
+    qDebug() << "controller::getECUdisconnect devComm->close";
     if (_ecu_definition != nullptr)
+    {
         delete _ecu_definition;
+        _ecu_definition = nullptr;
+    }
 }
 
 void controller::startLogger()
@@ -190,10 +210,7 @@ QString controller::SearchFiles(QString path, QString CalID)       // Для п�
 
 void controller::getECUdefinition(QString xml_definition_filename)
 {
-    _ecu_definition = new ecu_definition;
 
-    if (!_ecu_definition->fromFile(xml_definition_filename))
-        return;
 
     //ECUproto->RAM_MUT_addr = _ecu_definition->RAM_MUT_addr;
     //ECUproto->RAM_MUT_len = _ecu_definition->RAM_MUT_count;

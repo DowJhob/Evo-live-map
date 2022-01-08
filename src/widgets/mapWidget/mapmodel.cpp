@@ -11,6 +11,14 @@ mapModel::mapModel(QObject *parent, Map *decl, QVector<QColor> *colormap) : QAbs
     //qDebug() << "count" << count;
 }
 
+mapModel::~mapModel()
+{
+    delete horizontalHeaderData;
+    delete verticalHeaderData;
+    delete mapData2;
+    delete backgroundColorMap;
+}
+
 int mapModel::rowCount(const QModelIndex &parent) const
 {
     //qDebug() << "rowCount" << parent.row();
@@ -200,7 +208,7 @@ void mapModel::c_updateRAM(float value, const QModelIndex &index)
 
 void mapModel::logReady(QVector<float> scaledValue)
 {
-    //qDebug() << "mapModel::logReady scaled" << scaledValue;
+    //qDebug() << "mapModel::logReady scaledValue" << scaledValue;
     //qDebug() << "mapModel::logReady scaled" << scaledValue.size() << declaration->X_axis.ram_mut_number << declaration->Y_axis.ram_mut_number;
 
     float x = scaledValue[declaration->X_axis.ram_mut_number];

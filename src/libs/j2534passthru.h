@@ -66,6 +66,9 @@ typedef long (J2534_API *PassThruDisconnectFunc)(ulong channelId);
 typedef long (J2534_API *PassThruReadMsgsFunc)(ulong channelId, Message *pMsg, ulong *pNumMsgs, ulong timeout);
 typedef long (J2534_API *PassThruWriteMsgsFunc)(ulong channelId, const Message *pMsg, ulong *pNumMsgs, ulong timeout);
 typedef long (J2534_API *PassThruStartMsgFilterFunc)(ulong channelID, ulong filterType, const Message *pMaskMsg, const Message *pPatternMsg, const Message *pFlowControlMsg, ulong *pFilterId);
+typedef long (J2534_API *PassThruStopMsgFilterFunc)(ulong channelID, ulong MsgID);
+
+
 typedef long (J2534_API *PassThruGetLastErrorFunc)(char *pErrorDescription);
 typedef long (J2534_API *PassThruIoctlFunc)(ulong channelId, ulong ioctlId, const void *pInput, void *pOutput);
 } // extern "C"
@@ -323,11 +326,11 @@ public:
     Status PassThruWriteMsgs(Handle channelId, const Message *msgs, ulong *numMsgs, uint timeout = 0);
 
     Status PassThruStartMsgFilter(Handle channelId, FilterType filterType, const Message *maskMsg, const Message *patternMsg, const Message *pFlowControlMsg, Handle *filterId);
-
+    Status PassThruStopMsgFilter(Handle channelId, unsigned long MsgID);
 
 
 // не забудь реализовать для полноты обертки
-//    long PassThruStopMsgFilter(unsigned long ChannelID, unsigned long MsgID);
+//
 //    long PassThruSetProgrammingVoltage(unsigned long DeviceID, unsigned long Pin, unsigned long Voltage);
 //    long PassThruReadVersion(char *pApiVersion,char *pDllVersion,char *pFirmwareVersion,unsigned long DeviceID);
 //    long PassThruGetLastError(char *pErrorDescription);
@@ -364,6 +367,7 @@ private:
     PassThruReadMsgsFunc        m_ptReadMsgs        = nullptr;
     PassThruWriteMsgsFunc       m_ptWriteMsgs       = nullptr;
     PassThruStartMsgFilterFunc  m_ptStartMsgFilter  = nullptr;
+    PassThruStopMsgFilterFunc   m_ptStopMsgFilter   = nullptr;
     PassThruGetLastErrorFunc    m_ptGetLastError    = nullptr;
     PassThruIoctlFunc           m_ptIoctl           = nullptr;
     QString                     m_lastErrorString;

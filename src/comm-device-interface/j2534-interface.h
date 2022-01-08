@@ -63,6 +63,7 @@ public slots:
 private slots:
 
 private:
+    unsigned long msgId = 0;
     bool setFilter(Protocol protocol);
     bool get_channel(Protocol protocol, enum ConnectFlag ConnectFlag, unsigned int baudRate);
     bool set_config(const SArray<const Config> *scl);

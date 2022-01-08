@@ -14,6 +14,7 @@ class mapWidget : public QWidget
     Q_OBJECT
 public:
     explicit mapWidget(QWidget *parent = nullptr, mapDefinition *def = nullptr, QVector<QColor> *colormap = nullptr);
+    ~mapWidget();
 
     mapView *mapTable;
     mapModel *mapModel_;
