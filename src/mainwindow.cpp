@@ -51,24 +51,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), //enumerator(),
     QWidget* empty = new QWidget(this);
     empty->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
     ui->toolBar->addWidget(empty);
-    debug_action = ui->toolBar->addAction(QIcon( ":ico/screwdriver.png" ), "Debug", this, &MainWindow::debugButton_slot);
+    //debug_action = ui->toolBar->addAction(QIcon( ":ico/screwdriver.png" ), "Debug", this, &MainWindow::debugButton_slot);
 
     readyInterface(false);
 
     connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(itemChecks(QTreeWidgetItem*, int)));
-
-
-
-
-
-    //mutParam m;
-    //create_gauge("AFR", &m);
-
-
-
-  //  test();
-
-
 
 }
 
@@ -231,6 +218,17 @@ void MainWindow::createMapTree(Map *tab)
     }
 }
 
+void MainWindow::itemChecks(QTreeWidgetItem *item, int column)
+{
+    mapWidget *map = ptrRAMtables.value( item->text(column).split(" RAM").at(0), nullptr );
+    if (map == nullptr)
+        return;
+    if ( item->checkState(column) )
+        map->show();
+    else
+        map->hide();
+}
+
 void MainWindow::create_gauge(QString name, mutParam *param)
 {
     if ( loggerWidgetBar == nullptr)
@@ -248,6 +246,15 @@ void MainWindow::create_gauge(QString name, mutParam *param)
     //ui->logger_verticalLayout->layout()->addWidget(_gauge_widget);
     loggerWidgetBar->addWidget(_gauge_widget);
     gauge_widget_set.insert(_gauge_widget);
+}
+
+void MainWindow::gaugeDelete()
+{
+    //foreach (gauge_widget *gauge, gauge_widget_set)
+//    for (gauge_widget *gauge : qAsConst(gauge_widget_set))
+//        gauge->deleteLater();
+//    gauge_widget_set.clear();
+
 }
 
 void MainWindow::colorFromFile(QString filename)
@@ -274,78 +281,6 @@ void MainWindow::colorFromFile(QString filename)
         //qDebug() << "colormap" ;
     }
     delete file;
-}
-
-void MainWindow::test()
-{
-    QByteArray HighOctaneFuelMapN12Gear{
-        "\x8d\x80\x80\x80\x80\x80\x80\x80\x80\x80\x80\x84\x88\x90\x90\x8d"
-        "\x80\x80\x80\x80\x80\x80\x80\x80\x80\x80\x84\x88\x90\x90\x8d\x80"
-        "\x80\x80\x80\x80\x80\x80\x80\x80\x80\x84\x88\x90\x90\x8d\x80\x80"
-        "\x80\x80\x80\x80\x80\x80\x80\x80\x84\x88\x90\x90\x8d\x80\x80\x80"
-        "\x80\x80\x80\x80\x80\x80\x80\x84\x8c\x96\x96\x8d\x80\x80\x80\x80"
-        "\x80\x80\x80\x80\x80\x84\x87\x92\xa3\xa3\x8d\x80\x80\x80\x80\x80"
-        "\x80\x80\x80\x84\x87\x8f\x9a\xa7\xa7\x8d\x80\x80\x80\x80\x80\x80"
-        "\x80\x83\x86\x8c\x98\xa1\xaa\xaa\x9d\x90\x88\x88\x84\x84\x84\x84"
-        "\x88\x8b\x98\x9b\xa4\xac\xac\x9d\x90\x92\x8c\x88\x86\x86\x8a\x8e"
-        "\x92\x99\x9d\xa7\xae\xae\xa1\x94\x94\x93\x8c\x88\x88\x93\x99\x99"
-        "\x9e\xa6\xab\xb5\xb5\xa5\x98\x96\x96\x90\x8e\x94\x9a\xa0\xa0\xa9"
-        "\xab\xb2\xb8\xb8\xa9\x9c\x98\x98\x92\x94\x9f\xa7\xaa\xaa\xb0\xb0"
-        "\xb7\xbc\xbc\xad\xa0\x9c\x9c\x96\xa2\xac\xb0\xb2\xb2\xb6\xb7\xbf"
-        "\xca\xca\xb1\xa4\xa0\xa0\x9a\xa5\xb4\xba\xba\xba\xbf\xc2\xc6\xca"
-        "\xca\xb5\xa8\xa4\xa4\x9e\xa9\xb8\xbe\xbe\xbe\xc3\xc6\xca\xca\xca"
-        "\xb9\xac\xa8\xa8\xa2\xad\xbc\xc2\xc2\xc2\xc7\xca\xca\xca\xca\xbd"
-        "\xb0\xac\xac\xa6\xb1\xc0\xc6\xc6\xc6\xca\xca\xca\xca\xca", 270};
-
-    abstractMemoryScaled a(HighOctaneFuelMapN12Gear);
-
-
-    Map *declMap = new Map ;
-
-    declMap->rom_scaling._storagetype = Storagetype::uint8;
-    declMap->rom_scaling.frexpr ="14.7*128/x";
-    declMap->rom_scaling.toexpr = "14.7*128/x";
-    declMap->rom_scaling.endian=true;
-    declMap->rom_scaling.format="%.1f";
-    declMap->rom_scaling.max = 20;
-    declMap->rom_scaling.min =7;
-declMap->rom_scaling.setFastNotation();
-
-
-//declMap->
-
-    declMap->X_axis.elements = 18;
-    declMap->Y_axis.elements = 15;
-
-    mapModel *mod = new mapModel(nullptr, declMap);
-
-    //mod->colorFromFile("C:\\Program Files (x86)\\OpenECU\\EcuFlash\\colormaps\\COLDFIRE.MAP") ;
-
-    auto d = a.fromMemoryA(&declMap->rom_scaling, 270);
-    mod->fillMap(&d);
-
-    mapView *vi = new mapView(declMap);
-
-    qDebug() << "set";
-    vi->setModel(mod);
-    qDebug() << "test" //<< index
-                ;
-    vi->show();
-}
-
-void MainWindow::gaugeDelete()
-{
-    //foreach (gauge_widget *gauge, gauge_widget_set)
-//    for (gauge_widget *gauge : qAsConst(gauge_widget_set))
-//        gauge->deleteLater();
-//    gauge_widget_set.clear();
-
-}
-
-void MainWindow::debugButton_slot()
-{
-    debug = true;
-    emit ecu_test_connect();
 }
 
 void MainWindow::Log(QString str)
@@ -376,15 +311,4 @@ void MainWindow::on_count_lineEdit_returnPressed()
     //
     hexEdit->setData(QByteArray::fromRawData( (char*)vehicle_ecu_comm->p_in_buff, count));
     hexEdit->setAddressOffset(addr);
-}
-
-void MainWindow::itemChecks(QTreeWidgetItem *item, int column)
-{
-    mapWidget *table = ptrRAMtables.value( item->text(column).split(" RAM").at(0), nullptr );
-    if (table == nullptr)
-        return;
-    if ( item->checkState(column) )
-        table->show();
-    else
-        table->hide();
 }

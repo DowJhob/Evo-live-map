@@ -46,11 +46,8 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-
     QHash<QString, mapWidget*> ptrRAMtables;
 
-    QStringList listFiles;
-    QString FirstFile_by_Name = {};
     ~MainWindow();
     explicit MainWindow(QWidget *parent = nullptr);
 
@@ -74,13 +71,8 @@ private slots:
     void commDeviceSelected(device dev);
     void _protoSelected(int proto);
 
-
     void StartButton_slot();
     void logger_slot();
-
-
-    void debugButton_slot();
-
 
     void on_start_addr_lineEdit_returnPressed();
     void on_count_lineEdit_returnPressed();
@@ -90,12 +82,11 @@ private:
     Ui::MainWindow *ui;
     commParamWidget *cpW;
 
-    void gaugeDelete();
-
     void createMapTree(Map *tab);
     void freeMapTree();
 
     void create_gauge(QString name, mutParam *param);
+    void gaugeDelete();
 
     QAction *start_action;
     QAction *ram_reset;
@@ -121,7 +112,6 @@ private:
 
     QVector<QColor> colormap;
     void colorFromFile(QString filename);
-    void test();
 
 signals:
     void devSelected(device);
