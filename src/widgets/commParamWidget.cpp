@@ -84,6 +84,8 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate) : QWidge
     protoWB->addItem("PLX");
     protoWB->addItem("AEM");
 
+    connect(availWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commParamWidget::WBSelected);
+    connect(protoWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commParamWidget::WBprotoSelected);
 
 
     QSpacerItem *si = new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding);
@@ -133,14 +135,24 @@ void commParamWidget::deviceSelected(int index)
     emit interfaceSelected(dev.value(DeviceUniqueID, device()));
 }
 
-void commParamWidget::lockInterface(bool lockFlag)
+void commParamWidget::addWB(device dev)
 {
-    commListBox->setDisabled(lockFlag);
-    protoListBox->setDisabled(lockFlag);
-    el_baudRate->setDisabled(lockFlag);
-    el_logRate->setDisabled(lockFlag);
-    //->setDisabled(lockFlag);
-    //->setDisabled(lockFlag);
+
+}
+
+void commParamWidget::removeWB(device dev)
+{
+
+}
+
+void commParamWidget::WBSelected(int index)
+{
+
+}
+
+void commParamWidget::WBprotoSelected(int index)
+{
+
 }
 
 void commParamWidget::baudChng()   // Обновляем скорость обмена

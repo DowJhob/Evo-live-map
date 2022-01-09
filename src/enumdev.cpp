@@ -34,7 +34,7 @@ void enumerator::NotifyRegister(HWND hwnd)
             qDebug() << QString::fromWCharArray( NotificationFilter.dbcc_name) << "event not register!!";
         }
         //else
-            //qDebug() << QString::fromWCharArray( NotificationFilter.dbcc_name) << "event registered!!";
+        //qDebug() << QString::fromWCharArray( NotificationFilter.dbcc_name) << "event registered!!";
     }
     for (int i = 0; i < Ssize; i++)
     {
@@ -50,7 +50,7 @@ void enumerator::NotifyRegister(HWND hwnd)
             qDebug() << QString::fromWCharArray( NotificationFilter.dbcc_name) << "event not register!!";
         }
         //else
-            //qDebug() << QString::fromWCharArray( NotificationFilter.dbcc_name) << "event registered!!";
+        //qDebug() << QString::fromWCharArray( NotificationFilter.dbcc_name) << "event registered!!";
     }
 }
 
@@ -108,7 +108,10 @@ void enumerator::getPresentCommDevices(GUID guid)
         if(!dev.FunctionLibrary.isEmpty())
         {
             //checkTactrix( QString::fromWCharArray( (wchar_t*)hwId.data() ).mid(4, 17));
-            dev.type = deviceType::J2534; //тут надо проверить вид пид на соответствие тактриксу, не забудь!!
+            if(checkTactrix(dev.DeviceInstanceId))
+                dev.type = deviceType::OP20;
+            else
+                dev.type = deviceType::J2534; //тут надо проверить вид пид на соответствие тактриксу, не забудь!!
             dev.direction = dir::arrive;
             emit commDeviceEvent(dev);
         }
@@ -152,7 +155,10 @@ void enumerator::handleEvent(long wParam, PDEV_BROADCAST_DEVICEINTERFACE pDevInf
         device dev = getJ2534DLLpath( getDevProp(pDevInf), reg64);
         if(!dev.FunctionLibrary.isEmpty())
         {
-            dev.type = deviceType::J2534; //тут надо проверить вид пид на соответствие тактриксу, не забудь!!
+            if(checkTactrix(dev.DeviceInstanceId))
+                dev.type = deviceType::OP20;
+            else
+                dev.type = deviceType::J2534; //тут надо проверить вид пид на соответствие тактриксу, не забудь!!
             dev.direction = dir::arrive;
             emit commDeviceEvent(dev);
         }
@@ -191,9 +197,6 @@ device enumerator::getDevProp(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceInfoData)
 
     //QByteArray DeviceUniqueID = getDeviceDesc(hDevInfo, DeviceInfoData, 26);
 
-
-
-
     PTSTR buf = NULL;
     DWORD bufSize = 0;
     DWORD reqSize = 0;
@@ -204,9 +207,8 @@ device enumerator::getDevProp(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceInfoData)
     SetupDiGetDeviceInstanceId(hDevInfo, &DeviceInfoData, buf, bufSize, &reqSize);
 
     dev.DeviceUniqueID = QString::fromWCharArray( (wchar_t*)buf ).split("\\").at(2);
-delete[] buf;
 
-
+    delete[] buf;
 
     dev.Mfg = QString::fromWCharArray( (wchar_t*)Mfg.data() );
     dev.DeviceDesc = QString::fromWCharArray( (wchar_t*)DeviceDesc.data() );
@@ -255,12 +257,8 @@ QByteArray enumerator::getDeviceDesc(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceIn
     //        qDebug() << "DeviceDesc: " << QString::fromWCharArray( propertyBuffer );
 }
 
-void enumerator::checkTactrix(QString DeviceInstanceId)
+bool enumerator::checkTactrix(QString DeviceInstanceId)
 {
-    isTactrix = false;
-    if ( DeviceInstanceId.mid(0, 17)  == tactrixOP20_DeviceInstanceId )
-        isTactrix = true;
-    else
-        isTactrix = false;
-    //qDebug() << "HardwareID: " << DeviceInstanceId << isTactrix;
+    //qDebug() << "HardwareID: " << DeviceInstanceId;
+    return DeviceInstanceId.contains(tactrixOP20_DeviceInstanceId2);
 }

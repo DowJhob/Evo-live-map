@@ -31,6 +31,7 @@ SOURCES += src/main.cpp\
     src/DMA-proto/evoX-DMA.cpp \
     src/DMA-proto/jcsbanksDMA.cpp \
     src/DMA-proto/stockDMA.cpp \
+    src/comm-device-interface/op20.cpp \
     src/controller.cpp \
     src/ecu/ecu-definition.cpp \
     src/ecu/rawstockmsg.cpp \

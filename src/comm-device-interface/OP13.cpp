@@ -6,6 +6,7 @@ OP13::OP13(QString dllName, QString DeviceUniqueID) :  comm_device_interface( dl
     _ftdi = new ftdi(dllName);
     p_in_buff = in_buf;
     p_out_buff = out_buf;
+    qDebug() << "OP13" << DeviceUniqueID;
 }
 
 OP13::~OP13()

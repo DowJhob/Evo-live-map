@@ -9,7 +9,7 @@ j2534_interface::j2534_interface(QString dllName, QString DeviceUniqueID) : comm
     j2534 = new PassThru(dllName);
     ////connect(this, &j2534_interface::_loop, this, &j2534_interface::loop, Qt::QueuedConnection);            //
     //init();
-    qDebug() << "j2534_interface";
+    qDebug() << "j2534_interface" << DeviceUniqueID;
 }
 
 j2534_interface::~j2534_interface()

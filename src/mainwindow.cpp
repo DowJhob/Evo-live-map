@@ -93,7 +93,7 @@ void MainWindow::StartButton_slot()
 
         start_action = "Start";
         _mainToolBar->lockReset( true);
-        cpW->lockInterface(false);
+        cpW->setDisabled(false);
 
         gaugeDelete();
 
@@ -110,7 +110,7 @@ void MainWindow::StartButton_slot()
 
 void MainWindow::ecu_connected()
 {
-    cpW->lockInterface(true);
+    cpW->setDisabled(true);
     start_action = "Stop";
     _mainToolBar->lockReset( false);
 }

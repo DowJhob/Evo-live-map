@@ -86,6 +86,7 @@ private:
     ///=========================================================
 
     QString tactrixOP20_DeviceInstanceId = "VID_0403&PID_CC4C";
+    QString tactrixOP20_DeviceInstanceId2 = "VID_0403&PID_CC4D";
     QString tactrixOP13_DeviceInstanceId = "VID_0403&PID_CC4A";
 #define Jsize 1
 #define Ssize 2
@@ -108,7 +109,7 @@ private:
 
     void getPresentCommDevices(GUID guid);
 
-    void checkTactrix(QString DeviceInstanceId);
+    bool checkTactrix(QString DeviceInstanceId);
 
     QByteArray getDeviceDesc(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceInfoData, uint SPDRP);
 

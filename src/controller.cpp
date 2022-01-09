@@ -47,7 +47,10 @@ void controller::commDeviceSelected(device dev)
     }
     switch (dev.type) {
     case deviceType::OP13  : devComm = new OP13(dev.FunctionLibrary, dev.DeviceUniqueID); break;
-    case deviceType::OP20  : devComm = new OP20(dev.FunctionLibrary, dev.DeviceUniqueID); break;
+    case deviceType::OP20  : devComm = new OP20(dev.FunctionLibrary, dev.DeviceUniqueID);
+        emit getWB(dev.DeviceDesc);
+        //qDebug()<< "controller::commDeviceSelected" << dev.DeviceDesc + " / WB serial interface";
+        break;
     case deviceType::J2534 : devComm = new j2534_interface(dev.FunctionLibrary, dev.DeviceUniqueID); break;
     default              : return;
     }
@@ -59,16 +62,6 @@ void controller::commDeviceSelected(device dev)
 
     if( devComm->info() )
         emit interfaceReady(true);                  // Показываем кнопки старт и сброс памяти
-
-    //if ( isTactrix )
-    {
-        //            if( tactrix_afr_lcd == nullptr )
-        //            {
-        //                tactrix_afr_lcd = new gauge_widget("tactrixAFR", 4, 0, nullptr, ui->toolBar);
-        //                ui->toolBar->addWidget(tactrix_afr_lcd);
-        //                connect(vehicle_ecu_comm, &comm_device_interface::AFR, tactrix_afr_lcd, &gauge_widget::display);
-        //            }
-    }
 }
 
 void controller::commDeviceRemoved(device dev)
