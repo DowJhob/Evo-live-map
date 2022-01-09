@@ -13,9 +13,8 @@ class commParamWidget : public QWidget
 {
     Q_OBJECT
 public:
-    //uint baudRate;
-    QLineEdit *el_baudRate;
-    explicit commParamWidget(QWidget *parent = nullptr);
+    uint baudRate;
+    explicit commParamWidget(QWidget *parent = nullptr, uint defaultBaudRate = 62500);
 
 public slots:
     void addDevice(device dev);
@@ -31,6 +30,7 @@ private:
     QComboBox *commListBox;
     QComboBox *protoListBox;
 
+    QLineEdit *el_baudRate;
     QLineEdit *el_logRate;
 
     void baudChng();

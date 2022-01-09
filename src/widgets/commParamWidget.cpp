@@ -5,7 +5,7 @@
 #include <QLineEdit>
 #include <QSpacerItem>
 
-commParamWidget::commParamWidget(QWidget *parent) : QWidget(parent)
+commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate) : QWidget(parent)
 {
     QLayout *l = new QGridLayout(this);
     setLayout(l);
@@ -28,7 +28,7 @@ commParamWidget::commParamWidget(QWidget *parent) : QWidget(parent)
     QLabel *lb = new QLabel("Baud rate, Baud:", this);
     lb->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     ll->addWidget(lb, 0, 1);
-    el_baudRate = new QLineEdit("62500", this);
+    el_baudRate = new QLineEdit(QString::number(defaultBaudRate), this);
     el_baudRate->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     ll->addWidget(el_baudRate, 0, 2);
 
@@ -64,6 +64,7 @@ commParamWidget::commParamWidget(QWidget *parent) : QWidget(parent)
     connect(el_baudRate,  &QLineEdit::editingFinished, this, &commParamWidget::baudChng);
     connect(el_logRate,  &QLineEdit::editingFinished, this, &commParamWidget::logchng);
 
+    baudRate = defaultBaudRate;
 }
 
 void commParamWidget::addDevice(device dev)
@@ -107,7 +108,7 @@ void commParamWidget::lockInterface(bool lockFlag)
 
 void commParamWidget::baudChng()   // Обновляем скорость обмена
 {
-    //baudRate = el_baudRate->text().toUInt();
+    baudRate = el_baudRate->text().toUInt();
     //emit baudChanged(el_baudRate->text().toUInt());
 }
 

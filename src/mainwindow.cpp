@@ -1,10 +1,5 @@
-﻿#include <QtCore>
-#include <QDebug>
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
-
-//#include <QScrollArea>
-//#include <QtGlobal>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), //enumerator(),
     ui(new Ui::MainWindow)
@@ -16,10 +11,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), //enumerator(),
     connect(_mainToolBar, &mainToolBar::s_ramReset, this, &MainWindow::resetRAM);
 
     //=============================================================================
-    cpW = new commParamWidget(this);
+    cpW = new commParamWidget(this, 62500);
     connect(cpW, &commParamWidget::interfaceSelected, this, &MainWindow::commDeviceSelected);
     connect(cpW, &commParamWidget::protoSelected, this, &MainWindow::_protoSelected);
-    //connect(cpW, &commParamWidget::baudChanged, this, &MainWindow::baudChanged);
     connect(cpW, &commParamWidget::logChanged, this, &MainWindow::logChanged);
     ui->connectionParam->layout()->addWidget(cpW);
     //=============================================================================
@@ -92,7 +86,7 @@ void MainWindow::StartButton_slot()
         qDebug() << "MainWindow::StartButton_slot Start";
 
         cpW->lockInterface(true);
-        emit getECUconnectMainWindow(cpW->el_baudRate->text().toUInt());
+        emit getECUconnectMainWindow(cpW->baudRate);
     }
     else
     {

@@ -56,8 +56,6 @@ public slots:
 
     void Log(QString str);
 
-protected :
-
 private slots:
     void commDeviceSelected(device dev);
     void _protoSelected(int proto);
