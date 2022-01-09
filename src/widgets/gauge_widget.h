@@ -3,10 +3,13 @@
 
 #include <QObject>
 #include <QWidget>
-#include <QLayout>
+#include <QGridLayout>
 #include <QLabel>
-#include <src/ecu/ecu-definition.h>
 #include <QLCDNumber>
+#include <QMenu>
+#include <QContextMenuEvent>
+
+#include <src/ecu/ecu-definition.h>
 
 class gauge_widget:public QWidget
 {
@@ -15,10 +18,20 @@ public:
     uint offset;
     Scaling *scaling;
     QLCDNumber lcd;
-    gauge_widget(QString name, uint DigitNum = 4, uint offset = 0, Scaling *scaling = nullptr, QWidget* parent = nullptr);
+    gauge_widget(QString name, uint DigitNum = 4, QWidget* parent = nullptr);
+
+protected:
+    virtual void contextMenuEvent(QContextMenuEvent* pe);
 
 public slots:
     void display(float in);
+
+private:
+    QMenu* m_pmnu;
+
+private slots:
+    void setProto(QAction* pAction);
+
 };
 
 #endif // GAUGE_WIDGET_H

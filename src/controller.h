@@ -69,7 +69,7 @@ signals:
 
     void ecu_connected();
     void create_table(mapDefinition*);
-    void getWB(QString);
+    void getWB(commDeviceWB*);
 
     void Log(QString);
     void logReady(QVector<float>);

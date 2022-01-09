@@ -109,7 +109,7 @@ private:
 
     void getPresentCommDevices(GUID guid);
 
-    bool checkTactrix(QString DeviceInstanceId);
+    deviceType checkTactrix(QString DeviceInstanceId);
 
     QByteArray getDeviceDesc(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceInfoData, uint SPDRP);
 
@@ -119,7 +119,7 @@ signals:
 
 //    void InterfaceActive( dev_type, TCHAR*, bool isTactrix );
 //    void disconnectInterface();
-//    void Log(QString, int);
+    void Log(QString);
 
 //    void _serial_arrived();
 //    void _serial_removed();

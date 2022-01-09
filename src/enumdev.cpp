@@ -108,10 +108,8 @@ void enumerator::getPresentCommDevices(GUID guid)
         if(!dev.FunctionLibrary.isEmpty())
         {
             //checkTactrix( QString::fromWCharArray( (wchar_t*)hwId.data() ).mid(4, 17));
-            if(checkTactrix(dev.DeviceInstanceId))
-                dev.type = deviceType::OP20;
-            else
-                dev.type = deviceType::J2534; //тут надо проверить вид пид на соответствие тактриксу, не забудь!!
+            emit Log(dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg);
+            dev.type = checkTactrix(dev.DeviceInstanceId);
             dev.direction = dir::arrive;
             emit commDeviceEvent(dev);
         }
@@ -155,10 +153,9 @@ void enumerator::handleEvent(long wParam, PDEV_BROADCAST_DEVICEINTERFACE pDevInf
         device dev = getJ2534DLLpath( getDevProp(pDevInf), reg64);
         if(!dev.FunctionLibrary.isEmpty())
         {
-            if(checkTactrix(dev.DeviceInstanceId))
-                dev.type = deviceType::OP20;
-            else
-                dev.type = deviceType::J2534; //тут надо проверить вид пид на соответствие тактриксу, не забудь!!
+            emit Log(dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg);
+            dev.type = checkTactrix(dev.DeviceInstanceId);
+
             dev.direction = dir::arrive;
             emit commDeviceEvent(dev);
         }
@@ -176,11 +173,12 @@ device enumerator::getDevProp(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
         QString DeviceInstanceId = qDevInf[1];
         QString DeviceUniqueID = qDevInf[2];
         QString reg = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Enum\\" + DevType + "\\" + DeviceInstanceId + "\\" + DeviceUniqueID;
-        QSettings m(reg, QSettings::NativeFormat);
+        QSettings regKey(reg, QSettings::NativeFormat);
+        //qDebug()<< "DeviceInstanceId" << DeviceInstanceId;
         return device
         {
-            m.value("Mfg", "").toString().split(';').at(1),
-                    m.value("DeviceDesc", "").toString().split(';').at(1),
+            regKey.value("Mfg", "").toString().split(';').at(1),
+                    regKey.value("DeviceDesc", "").toString().split(';').at(1),
                     "",
                     DeviceUniqueID
         };
@@ -257,8 +255,13 @@ QByteArray enumerator::getDeviceDesc(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceIn
     //        qDebug() << "DeviceDesc: " << QString::fromWCharArray( propertyBuffer );
 }
 
-bool enumerator::checkTactrix(QString DeviceInstanceId)
+deviceType enumerator::checkTactrix(QString DeviceInstanceId)
 {
     //qDebug() << "HardwareID: " << DeviceInstanceId;
-    return DeviceInstanceId.contains(tactrixOP20_DeviceInstanceId2);
+    if(DeviceInstanceId.contains(tactrixOP20_DeviceInstanceId2))
+        return deviceType::OP20;
+    else if(DeviceInstanceId.contains(tactrixOP13_DeviceInstanceId))
+        return deviceType::OP13;
+    else
+        return deviceType::J2534;
 }

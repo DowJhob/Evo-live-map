@@ -10,15 +10,14 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate) : QWidge
     QLayout *l = new QGridLayout(this);
     setLayout(l);
     //общая панель
-    QGroupBox *grBx = new QGroupBox(this);
-    grBx->setTitle("Communication parameters");
+    QGroupBox *grBx = new QGroupBox("Communication parameters", this);
+    grBx->setFlat(false);
     l->addWidget(grBx);
     l = new QGridLayout(this);
     grBx->setLayout(l);
 
     //панель для интерфейса
-    grBx = new QGroupBox(this);
-    grBx->setTitle("Communication devices");
+    grBx = new QGroupBox("Communication devices", this);
     l->addWidget(grBx);
     QGridLayout *ll = new QGridLayout(this);
     grBx->setLayout(ll);
@@ -33,8 +32,7 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate) : QWidge
     ll->addWidget(el_baudRate, 0, 2);
 
     //панель для протокола
-    grBx = new QGroupBox(this);
-    grBx->setTitle("ECU proto");
+    grBx = new QGroupBox("ECU proto", this);
     ll = new QGridLayout(this);
     grBx->setLayout(ll);
     l->addWidget(grBx);
@@ -51,17 +49,14 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate) : QWidge
 
     //панель лямбды
 
-    grBx = new QGroupBox(this);
-    grBx->setTitle("Select wideband");
+    grBx = new QGroupBox("Select wideband", this);
     ll = new QGridLayout(this);
     grBx->setLayout(ll);
     l->addWidget(grBx);
 
-    QGroupBox *grBxAv = new QGroupBox(this);
-    grBxAv->setTitle("Available wideband");
+    QGroupBox *grBxAv = new QGroupBox("Available wideband", this);
     ll->addWidget(grBxAv, 0, 0);
-    QGroupBox *grBxWBprt = new QGroupBox(this);
-    grBxWBprt->setTitle("Wideband proto");
+    QGroupBox *grBxWBprt = new QGroupBox("Wideband proto", this);
     ll->addWidget(grBxWBprt, 0, 1);
 
     ll = new QGridLayout(this);
@@ -104,6 +99,7 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate) : QWidge
     connect(el_logRate,  &QLineEdit::editingFinished, this, &commParamWidget::logchng);
 
     baudRate = defaultBaudRate;
+    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 }
 
 void commParamWidget::addDevice(device dev)

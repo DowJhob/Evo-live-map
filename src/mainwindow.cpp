@@ -1,8 +1,7 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), //enumerator(),
-    ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     _mainToolBar = new mainToolBar(this);
@@ -181,7 +180,7 @@ void MainWindow::create_gauge(QString name, mutParam *param)
         //insertToolBar(ui->toolBar, loggerWidgetBar);
         addToolBar(Qt::BottomToolBarArea, loggerWidgetBar);
     }
-    gauge_widget *_gauge_widget = new gauge_widget(name, 4, param->offset, &param->scaling, ui->tabWidget);
+    gauge_widget *_gauge_widget = new gauge_widget(name, 4, ui->tabWidget);
     //    ui->toolBar->addWidget(_graph_log_widget);
     //ui->logger_verticalLayout->layout()->addWidget(_gauge_widget);
     loggerWidgetBar->addWidget(_gauge_widget);
@@ -226,4 +225,11 @@ void MainWindow::colorFromFile(QString filename)
 void MainWindow::Log(QString str)
 {
     ui->systemLog->addItem(str);
+}
+
+void MainWindow::createWB(commDeviceWB *wb)
+{
+    gauge_widget *_gauge_widget = new gauge_widget("AFR", 4, ui->tabWidget);
+    _mainToolBar->addWidget(_gauge_widget);
+    _mainToolBar->addSeparator();
 }

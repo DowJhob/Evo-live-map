@@ -48,7 +48,7 @@ void controller::commDeviceSelected(device dev)
     switch (dev.type) {
     case deviceType::OP13  : devComm = new OP13(dev.FunctionLibrary, dev.DeviceUniqueID); break;
     case deviceType::OP20  : devComm = new OP20(dev.FunctionLibrary, dev.DeviceUniqueID);
-        emit getWB(dev.DeviceDesc);
+        emit getWB(reinterpret_cast<commDeviceWB*>(devComm));
         //qDebug()<< "controller::commDeviceSelected" << dev.DeviceDesc + " / WB serial interface";
         break;
     case deviceType::J2534 : devComm = new j2534_interface(dev.FunctionLibrary, dev.DeviceUniqueID); break;

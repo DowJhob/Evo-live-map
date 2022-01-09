@@ -20,6 +20,7 @@ hexEditor::hexEditor(QWidget *parent):QWidget (parent)
 
     he->setAddressWidth(8);
     he->setAddressOffset(0);
+    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 }
 
 void hexEditor::setData(QByteArray data)

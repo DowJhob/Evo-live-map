@@ -56,6 +56,8 @@ public slots:
 
     void Log(QString str);
 
+    void createWB(commDeviceWB *wb);
+
 private slots:
     void commDeviceSelected(device dev);
     void DMAprotoSelected(int proto);
