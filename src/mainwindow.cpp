@@ -121,11 +121,6 @@ void MainWindow::ecu_connected()
     _mainToolBar->lockReset( false);
 }
 
-void MainWindow::logger_slot()
-{
-
-}
-
 void MainWindow::createMap(mapDefinition *dMap)
 {
     //создаем таблицу с заданной размерностью

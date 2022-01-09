@@ -63,7 +63,6 @@ private slots:
     void _protoSelected(int proto);
 
     void StartButton_slot();
-    void logger_slot();
 
     void itemChecks(QTreeWidgetItem *item, int column);
 
