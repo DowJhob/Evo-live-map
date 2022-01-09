@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), //enumerator(),
     _mainToolBar = new mainToolBar(this);
     addToolBar(Qt::TopToolBarArea, _mainToolBar);
     connect(_mainToolBar, &mainToolBar::s_connect, this, &MainWindow::StartButton_slot);
-    connect(_mainToolBar, &mainToolBar::s_ramReset, this, &MainWindow::RAM_reset);
+    connect(_mainToolBar, &mainToolBar::s_ramReset, this, &MainWindow::resetRAM);
 
     //=============================================================================
     cpW = new commParamWidget(this);
@@ -90,7 +90,8 @@ void MainWindow::StartButton_slot()
     if (start_action == "Start")
     {
         qDebug() << "MainWindow::StartButton_slot Start";
-        emit getECUconnectMainWindow();
+
+        emit getECUconnectMainWindow(cpW->el_baudRate->text().toUInt());
     }
     else
     {

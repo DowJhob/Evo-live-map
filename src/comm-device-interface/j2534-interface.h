@@ -27,29 +27,23 @@ class j2534_interface : public comm_device_interface
     Q_OBJECT
 public:
     // J2534
-    //J2534 *j2534;
     PassThru *j2534;
     unsigned long devID;
     unsigned long chanID;
     unsigned long NumMsgs;
 
+    unsigned long msgId = 0;
 
     j2534_interface( QString dllName = nullptr, QString DeviceUniqueID = "");
     virtual ~j2534_interface();
 
     bool info();
-    bool open(Protocol protocol, enum ConnectFlag ConnectFlag);
+    bool open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate);
     bool close();
 
-    bool connect();
-
     bool five_baud_init();
-
     QByteArray read();
-
     void write(int lenght);
-
-
 
     QString reportJ2534Error();
 
@@ -58,12 +52,12 @@ public slots:
 private slots:
 
 private:
-
-    unsigned long msgId = 0;
     Message  tx_msg = {};
     Message  rx_msg = {};
-    bool setFilter(Protocol protocol);
-    long set_filter(PassThru::FilterType type, Message *msgMask, Message *msgPattern, Message *msgFlowcontrol);
+    bool ISO9141();
+    bool ISO15765();
+    bool ISO14230();
+
     bool get_serial_num(unsigned long devID, char* serial);
 
 signals:

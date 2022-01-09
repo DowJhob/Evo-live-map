@@ -4,11 +4,11 @@
 #include <QObject>
 #include <QDebug>
 
-#include "ECU-interface.h"
+#include "DMA-proto.h"
 
 #define DS 0x33
 
-class stockDMA : public ECU_interface
+class stockDMA : public DMA_proto
 {
     Q_OBJECT
 public:
@@ -16,7 +16,7 @@ public:
     ~stockDMA();
 
 public slots:
-    bool connect();
+    bool connect(uint baudRate);
     QByteArray indirectDMAread(quint32 addr, int lenght);
     QByteArray directDMAread(quint32 addr, int lenght);
     void directDMAwrite(quint32 addr, char *buf, int lenght);

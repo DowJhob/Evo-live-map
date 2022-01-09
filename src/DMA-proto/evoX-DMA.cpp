@@ -1,28 +1,46 @@
-#include "stockDMA.h"
+#include "evoX-DMA.h"
 
-stockDMA::stockDMA(comm_device_interface **devComm)
+evoX_DMA::evoX_DMA(comm_device_interface **devComm)
 {
-    this->devComm = devComm;
+    this->devComm = reinterpret_cast<j2534_interface**>(devComm);
 
     qDebug() << "stockDMA";
 }
 
-stockDMA::~stockDMA()
+evoX_DMA::~evoX_DMA()
 {
     qDebug() << "~stockDMA";
 }
 
-bool stockDMA::connect()
+bool evoX_DMA::connect(uint baudRate = 500000)
 {
-return true;
+    qDebug() << "=========== evoX_DMA::connect ================ baudRate" << baudRate;
+    (*devComm)->open(Protocol::ISO15765, //ConnectFlag((uint)
+                     ConnectFlag::ISO9141NoChecksum //| (uint)ConnectFlag::ISO9141KLineOnly
+                     //     )
+                     , baudRate);
+
+    if (!(*devComm)->connect())
+    {
+        (*devComm)->close();
+        return false;
+    }
+
+    //==================================   5 baud init  ========================================
+    if ( !(*devComm)->five_baud_init() )
+    {
+        (*devComm)->close();
+        return false;
+    }
+    return true;
 }
 
-QByteArray stockDMA::indirectDMAread(quint32 addr, int lenght)
+QByteArray evoX_DMA::indirectDMAread(quint32 addr, int lenght)
 {
 return QByteArray();
 }
 
-QByteArray stockDMA::directDMAread(quint32 addr, int lenght)
+QByteArray evoX_DMA::directDMAread(quint32 addr, int lenght)
 {
     //qDebug()<<"=========== directDMAread ================";
     QByteArray a;
@@ -47,7 +65,7 @@ QByteArray stockDMA::directDMAread(quint32 addr, int lenght)
     return a;
 }
 
-void stockDMA::directDMAwrite(quint32 addr, char *buf, int lenght)
+void evoX_DMA::directDMAwrite(quint32 addr, char *buf, int lenght)
 {
     uchar packetSize = 0x33;
     uchar packetBodySize = 0x2C;
@@ -75,7 +93,7 @@ void stockDMA::directDMAwrite(quint32 addr, char *buf, int lenght)
     }
 }
 
-void stockDMA::setHeader(DMAcomand command, uchar count, quint32 addr)
+void evoX_DMA::setHeader(DMAcomand command, uchar count, quint32 addr)
 {
     //uchar packetBodySize = 0x2C;
     //clear body
@@ -95,7 +113,7 @@ void stockDMA::setHeader(DMAcomand command, uchar count, quint32 addr)
     }
 }
 
-void stockDMA::getChckSmm()
+void evoX_DMA::getChckSmm()
 {
     // checksum
     uchar chckSum = 0;

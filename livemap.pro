@@ -23,14 +23,14 @@ TEMPLATE = app
 
 
 SOURCES += src/main.cpp\
+    src/DMA-proto/DMA-proto.cpp \
     src/abstract-memory.cpp \
     src/comm-device-interface/op13.cpp \
-    src/ecu-proto/ECU-interface.cpp \
     src/comm-device-interface/comm-device-interface.cpp \
     src/comm-device-interface/j2534-interface.cpp \
-    src/ecu-proto/evoX-DMA.cpp \
-    src/ecu-proto/jcsbanksDMA.cpp \
-    src/ecu-proto/stockDMA.cpp \
+    src/DMA-proto/evoX-DMA.cpp \
+    src/DMA-proto/jcsbanksDMA.cpp \
+    src/DMA-proto/stockDMA.cpp \
     src/controller.cpp \
     src/ecu/ecu-definition.cpp \
     src/ecu/rawstockmsg.cpp \
@@ -51,7 +51,6 @@ SOURCES += src/main.cpp\
     src/serial/common-serial-interface.cpp \
     src/map-decl/submap.cpp \
     src/widgets/commParamWidget.cpp \
-    src/widgets/custom_tablewidget.cpp \
     src/widgets/gauge_widget.cpp \
     src/widgets/maintoolbar.cpp \
     src/widgets/mapWidget/mapmodel.cpp \
@@ -59,12 +58,12 @@ SOURCES += src/main.cpp\
     src/widgets/mapWidget/mapwidget.cpp
 
 HEADERS  += src/mainwindow.h \
+    src/DMA-proto/DMA-proto.h \
     src/abstract-memory.h \
-    src/ecu-proto/ECU-interface.h \
     src/controller.h \
-    src/ecu-proto/evoX-DMA.h \
-    src/ecu-proto/jcsbanksDMA.h \
-    src/ecu-proto/stockDMA.h \
+    src/DMA-proto/evoX-DMA.h \
+    src/DMA-proto/jcsbanksDMA.h \
+    src/DMA-proto/stockDMA.h \
     src/ecu/ecu-definition.h \
     src/ecu/evo7.h \
     src/ecu/rawstockmsg.h \
@@ -91,7 +90,6 @@ HEADERS  += src/mainwindow.h \
     src/wideband/_wideband_input_device.h \
     src/wideband/tactrix_wb_input.h \
     src/widgets/commParamWidget.h \
-    src/widgets/custom_tablewidget.h \
     src/widgets/gauge_widget.h \
     src/widgets/hexEditor/qhexedit/chunks.h \
     src/widgets/hexEditor/qhexedit/commands.h \

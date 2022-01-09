@@ -23,31 +23,34 @@ public:
     char* p_in_buff;
     char* p_out_buff;
 
-    Protocol protocol_inno = Protocol::ISO9141_INNO;
     Protocol protocol;
     ConnectFlag ConnectFlag;
+    unsigned int  baudRate = 0;
 
-    unsigned int  baudRate = 62500;
     unsigned long _readTimeout = 2000;
     unsigned long writeTimeout = 0;
 
     explicit comm_device_interface(QString dllName = nullptr, QString DeviceUniqueID = "");
     virtual ~comm_device_interface();
 
-    virtual bool info() = 0;
-    virtual bool open(Protocol protocol, enum ConnectFlag ConnectFlag) = 0;
+    virtual bool open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate) = 0;
     virtual bool close() = 0;
-    virtual bool connect() = 0;
+    virtual bool info() = 0;
+
     virtual bool five_baud_init() = 0;
+
+    bool connect();
 
 public slots:
     virtual QByteArray read() = 0;
     virtual void write(int lenght ) = 0;
-    void setBaudRate(int baudRate);
 
 private slots:
 
 private:
+    virtual bool ISO9141() = 0;
+    virtual bool ISO15765() = 0;
+    virtual bool ISO14230() = 0;
 
 signals:
     void readyInterface(bool);

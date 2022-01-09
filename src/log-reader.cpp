@@ -1,6 +1,6 @@
 #include "log-reader.h"
 
-j2534listener::j2534listener(QObject *parent, comm_device_interface **devComm, ECU_interface **ECUproto) : QThread{parent}, devComm(devComm), ECUproto(ECUproto)
+j2534listener::j2534listener(QObject *parent, comm_device_interface **devComm, DMA_proto **ECUproto) : QThread{parent}, devComm(devComm), ECUproto(ECUproto)
 {
 
     //qDebug() << "j2534listener::j2534listener thread: " << thread();

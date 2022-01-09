@@ -4,12 +4,12 @@
 #include <QObject>
 #include <QDebug>
 
-#include "ECU-interface.h"
+#include "DMA-proto.h"
 #include "../comm-device-interface/j2534-interface.h"
 
 #define DS 0x33
 
-class evoX_DMA : public ECU_interface
+class evoX_DMA : public DMA_proto
 {
     Q_OBJECT
 public:
@@ -18,7 +18,7 @@ public:
     ~evoX_DMA();
 
 public slots:
-    bool connect();
+    bool connect(uint baudRate);
     QByteArray indirectDMAread(quint32 addr, int lenght);
     QByteArray directDMAread(quint32 addr, int lenght);
     void directDMAwrite(quint32 addr, char *buf, int lenght);
@@ -26,7 +26,6 @@ public slots:
 private slots:
 
 private:
-
     void setHeader(DMAcomand command, uchar count, quint32 addr);
 
     void getChckSmm();

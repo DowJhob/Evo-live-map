@@ -51,6 +51,7 @@ enum class eLogMsgType : quint8
     LOG_INV,
     LOG_LT
 };
+
 enum class deviceType{
     undef = 0,
     OP13 = 13,

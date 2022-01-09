@@ -30,32 +30,24 @@ int main(int argc, char *argv[])
     //========================================================================================
     QObject::connect(&controller, &controller::interfaceReady, &mainWindow, &MainWindow::lockInterface);
     //========================================================================================
+    //========================================================================================
     QObject::connect(&mainWindow, &MainWindow::getECUconnectMainWindow, &controller, &controller::getECUconnect);
     QObject::connect(&mainWindow, &MainWindow::getECUdisconnectMainWindow, &controller, &controller::getECUdisconnect);
-    //========================================================================================
-
-     QObject::connect(&mainWindow,  &MainWindow::baudChanged, &controller, &controller::baudChanged);
-     QObject::connect(&mainWindow,  &MainWindow::logChanged, &controller, &controller::logChanged);
-
-
     QObject::connect(&controller, &controller::ecu_connected, &mainWindow, &MainWindow::ecu_connected);
     //========================================================================================
-    QObject::connect(&controller, &controller::create_table, &mainWindow, &MainWindow::createMap//, Qt::QueuedConnection
-                     );
+    QObject::connect(&controller, &controller::create_table, &mainWindow, &MainWindow::createMap);
     //========================================================================================
-    QObject::connect(&mainWindow, &MainWindow::RAM_reset, &controller, &controller::RAMreset);
-    QObject::connect(&mainWindow, &MainWindow::updateRAM, &controller, &controller::_updateRAM//, Qt::QueuedConnection
-                     );
-    //========================================================================================
-    QObject::connect(&mainWindow, &MainWindow::startLogger, &controller, &controller::startLogger);
-    QObject::connect(&mainWindow, &MainWindow::stopLogger, &controller, &controller::stopLogger);
-    QObject::connect(&mainWindow, &MainWindow::setLoggingInterval, &controller, &controller::setLoggingInterval);
+    QObject::connect(&mainWindow, &MainWindow::resetRAM, &controller, &controller::RAMreset);
+    QObject::connect(&mainWindow, &MainWindow::updateRAM, &controller, &controller::updateRAM);
+    //========================= logger ===============================================================
+    QObject::connect(&mainWindow, &MainWindow::baudChanged, &controller, &controller::setBaudRate);
+    QObject::connect(&mainWindow, &MainWindow::logChanged,  &controller, &controller::logChanged);
+    QObject::connect(&controller, &controller::logReady,    &mainWindow, &MainWindow::logReady);
     //========================================================================================
     QObject::connect(&controller, &controller::Log, &mainWindow, &MainWindow::Log);
 
 
 
-    QObject::connect(&controller, &controller::logReady, &mainWindow, &MainWindow::logReady);
 
     //Подписываемся на события
     Enumerator.NotifyRegister((HWND)mainWindow.winId());

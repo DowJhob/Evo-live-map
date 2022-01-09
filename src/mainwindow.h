@@ -23,7 +23,6 @@
 #include "enumdev.h"
 
 #include "widgets/maintoolbar.h"
-#include "widgets/custom_tablewidget.h"
 #include "widgets/gauge_widget.h"
 #include "widgets/commParamWidget.h"
 #include "widgets/mapWidget/mapwidget.h"
@@ -51,8 +50,7 @@ public slots:
     void deviceEvent(device dev);
 
     void lockInterface(bool lockFlag);
-    void ecu_connected(//QHash<QString, Map *> m
-                       );
+    void ecu_connected();
 
     void createMap(mapDefinition *dMap);
 
@@ -81,8 +79,6 @@ private:
     void create_gauge(QString name, mutParam *param);
     void gaugeDelete();
 
-
-
     QToolBar *loggerWidgetBar = nullptr;
 
     //======================== widget's =================================
@@ -101,20 +97,11 @@ signals:
     void baudChanged(int);
     void logChanged(int);
 
-
-    void getECUconnectMainWindow();
-    void ecu_test_connect();
+    void getECUconnectMainWindow(int);
     void getECUdisconnectMainWindow();
 
-    void startLogger();
-    void stopLogger();
-
-
     void updateRAM(abstractMemoryScaled);
-    void RAM_reset();
-
-    void start_WB();
-    void setLoggingInterval(int);
+    void resetRAM();
 
     void logReady(QVector<float>);
 

@@ -21,43 +21,33 @@ enum class DMAcomand
     directRead,
 };
 
-class ECU_interface : public QObject
+class DMA_proto : public QObject
 {
     Q_OBJECT
 public:
-    Protocol protocol;
-    ConnectFlag ConnectFlag;
-    uint baudRate;
     comm_device_interface **devComm = nullptr;
-
-    explicit ECU_interface(comm_device_interface **devComm = nullptr);
-    virtual ~ECU_interface();
+    explicit DMA_proto(comm_device_interface **devComm = nullptr);
+    virtual ~DMA_proto();
 
 public slots:
-    virtual bool connect() = 0;
+    virtual bool connect(uint baudRate = 0) = 0;
 
     virtual QByteArray indirectDMAread(quint32 addr, int lenght) = 0;
     virtual QByteArray directDMAread(quint32 addr, int len) = 0;
     virtual void directDMAwrite(quint32 addr, char *buf, int lenght) = 0;
 
-    void DMApoll();
-    void updateRAM(abstractMemoryScaled memory);
-    mapDefinition *getMap(Map *declMap);
-    void RAMreset(quint32 addr);
+    void setBaudRate(uint baudRate);
 
 private slots:
 
 private:
+    //Protocol protocol;
+    //ConnectFlag ConnectFlag;
+    //uint baudRate;
 
 signals:
-    void readyInterface(bool);
-    void readyRead(QByteArray);
-
-    //void gettedMap(mapDefinition);
-
-    void ECUready();
-    void AFR(float);
     void Log(QString);
+
 };
 
 #endif // ECU_INTERFACE_H

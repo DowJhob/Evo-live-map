@@ -12,6 +12,7 @@ class OP20 : public j2534_interface
 {
     Q_OBJECT
 public:
+    Protocol protocol_inno = Protocol::ISO9141_INNO;
     //common_serial_interface *tactrix_serial = nullptr;
     tactrix_serial *_tactrix_serial = nullptr;
     OP20(QString dllName = nullptr, QString DeviceUniqueID = "") : j2534_interface(dllName, DeviceUniqueID)

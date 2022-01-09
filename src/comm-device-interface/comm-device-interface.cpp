@@ -13,7 +13,20 @@ comm_device_interface::~comm_device_interface()
     qDebug() << "~comm_device_interface";
 }
 
-void comm_device_interface::setBaudRate(int baudRate)
+bool comm_device_interface::connect()
 {
-    this->baudRate = baudRate;
+    qDebug() << "=========== comm_device_interface::connect ================";
+    bool status = false;
+
+    switch (protocol) {
+    case Protocol::ISO9141 :
+    case Protocol::ISO9141_CH1 :
+    case Protocol::ISO9141_CH2 :
+    case Protocol::ISO9141_CH3 :  status = ISO9141(); break;
+    case Protocol::ISO15765 :  status = ISO15765(); break;
+    case Protocol::ISO14230 :
+    default : qDebug() << "not realize"; break;
+    }
+
+    return status;
 }

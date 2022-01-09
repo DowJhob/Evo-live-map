@@ -1,6 +1,6 @@
 #include "op13.h"
 
-OP13::OP13(QString dllName) : comm_device_interface( dllName)
+OP13::OP13(QString dllName, QString DeviceUniqueID) :  comm_device_interface( dllName, DeviceUniqueID)
 {
     devType = deviceType::OP13;
     _ftdi = new ftdi(dllName);
@@ -50,7 +50,7 @@ bool OP13::info()
     return true;
 }
 
-bool OP13::open(Protocol protocol, enum ConnectFlag ConnectFlag)
+bool OP13::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
 {
     p_in_buff = in_buf;
     p_out_buff = out_buf;
@@ -156,4 +156,19 @@ void OP13::ftdi_low_baud_sender(uint baudRate, byte value)
         value = value >> 1;
     }
     _ftdi->ftStatus = _ftdi->FT_SetBreakOff(_ftdi->ftHandle);
+}
+
+bool OP13::ISO9141()
+{
+
+}
+
+bool OP13::ISO15765()
+{
+
+}
+
+bool OP13::ISO14230()
+{
+
 }

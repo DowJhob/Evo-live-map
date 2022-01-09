@@ -49,7 +49,7 @@ void controller::commDeviceSelected(device dev)
         devComm->deleteLater();
     }
     switch (dev.type) {
-    //case dev_type::OP13  : devComm = new OP13(dev.FunctionLibrary); break;
+    case deviceType::OP13  : devComm = new OP13(dev.FunctionLibrary, dev.DeviceUniqueID); break;
     case deviceType::OP20  : devComm = new OP20(dev.FunctionLibrary, dev.DeviceUniqueID); break;
     case deviceType::J2534 : devComm = new j2534_interface(dev.FunctionLibrary, dev.DeviceUniqueID); break;
     default              : return;
@@ -58,7 +58,7 @@ void controller::commDeviceSelected(device dev)
 
     //connect(devComm, &comm_device_interface::readyInterface, this, &controller::interfaceReady); // форвардим сигнал готовности ннаружу для разблокировки гуя
     connect(devComm, &comm_device_interface::Log, this, &controller::Log, Qt::QueuedConnection);
-    connect(this, &controller::baudChanged, devComm, &comm_device_interface::setBaudRate);
+    //connect(this, &controller::baudChanged, devComm, &comm_device_interface::setBaudRate);
 
     if( devComm->info() )
         emit interfaceReady(true);                  // Показываем кнопки старт и сброс памяти
@@ -98,15 +98,14 @@ void controller::setProto(int proto)
     //qDebug()<<"=========== proto ================";
     //connect(this, &controller::getMap, ECUproto, &ECU_interface::getMap);
     //connect(ECUproto, &ECU_interface::gettedMap, this, &controller::create_table);
-    connect(this, &controller::_updateRAM, ECUproto, &ECU_interface::updateRAM);
-    connect(this, &controller::_RAMreset, ECUproto, &ECU_interface::RAMreset);
 
     //connect(ecu_polling_timer, &QTimer::timeout, ECUproto, &ECU_interface::DMApoll);
 }
 
-void controller::getECUconnect()
+void controller::getECUconnect(uint baudRate)
 {
-    if (!ECUproto->connect())
+    qDebug() << "=========== controller::getECUconnect ================";
+    if (!ECUproto->connect(baudRate))
        return ;
 
     QByteArray a = ECUproto->directDMAread( 0xF52, 4);                        //читаем номер калибровки
@@ -135,7 +134,7 @@ void controller::getECUconnect()
     // переберем все описания таблиц
     for ( Map *tab : qAsConst(_ecu_definition->RAMtables) )
     {
-        emit create_table( ECUproto->getMap(tab) );
+        emit create_table( getMap(tab) );
     }
 
     _dataLogger->start();
@@ -169,16 +168,33 @@ void controller::stopLogger()
     //QMetaObject::invokeMethod(vehicle_ecu_comm, &comm_device_interface::log0x81);
 }
 
-void controller::setLoggingInterval(int im)
-{
-    //ecu_polling_timer->setInterval(im);
-    //ecu_polling_timer->start(im);
-}
-
 void controller::RAMreset()
 {
-    qDebug() << "controller::RAMreset(addr:" << _ecu_definition->DEAD_var << "):";
-    emit _RAMreset(_ecu_definition->DEAD_var);
+    qDebug() << "controller::RAMreset(addr::" << _ecu_definition->DEAD_var << ");";
+    quint16 r = 0x0000;
+    ECUproto->directDMAwrite(_ecu_definition->DEAD_var, (char*)&r, 2);
+}
+
+mapDefinition *controller::getMap(Map *declMap)
+{
+    //qDebug()<<"ECU_interface::getMap"<<declMap->Name;
+    //if(declMap->rom_scaling._storagetype == Storagetype::undef || declMap->rom_scaling._storagetype == Storagetype::bloblist)
+    //    return &mapDefinition();
+    mapDefinition *defMap = new mapDefinition;
+    defMap->declMap = declMap;
+    if(declMap->X_axis.addr != 0)
+        defMap->X_axis = ECUproto->directDMAread(declMap->X_axis.addr, declMap->X_axis.byteSize());   // читаем оси
+    if(declMap->Y_axis.addr != 0)
+        defMap->Y_axis = ECUproto->directDMAread(declMap->Y_axis.addr, declMap->Y_axis.byteSize());
+    defMap->Map = ECUproto->directDMAread(declMap->addr, declMap->byteSize());
+    //emit gettedMap(defMap);
+    return defMap;
+}
+
+void controller::updateRAM(abstractMemoryScaled memory)
+{
+    ECUproto->directDMAwrite(memory.addr, memory.data(), memory.size());
+    QThread::msleep(50);
 }
 
 QString controller::SearchFiles(QString path, QString CalID)       // Для поиска файлов в каталоге
@@ -199,3 +215,8 @@ void controller::init()
     connect(this, &controller::logChanged, _dataLogger, &dataLogger::setLogRate);
 }
 
+void controller::setBaudRate(int baudRate)
+{
+    qDebug() << "baud rate changed" << baudRate;
+    //this->baudRate = baudRate;
+}

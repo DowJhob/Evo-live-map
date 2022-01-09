@@ -28,9 +28,9 @@ commParamWidget::commParamWidget(QWidget *parent) : QWidget(parent)
     QLabel *lb = new QLabel("Baud rate, Baud:", this);
     lb->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     ll->addWidget(lb, 0, 1);
-    baudRate = new QLineEdit("62500", this);
-    baudRate->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    ll->addWidget(baudRate, 0, 2);
+    el_baudRate = new QLineEdit("62500", this);
+    el_baudRate->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    ll->addWidget(el_baudRate, 0, 2);
 
     //панель для протокола
     grBx = new QGroupBox(this);
@@ -44,9 +44,9 @@ commParamWidget::commParamWidget(QWidget *parent) : QWidget(parent)
     lb = new QLabel("Logging rate, Hz:", this);
     lb->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     ll->addWidget(lb, 0, 1);
-    logRate = new QLineEdit("50", this);
-    logRate->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    ll->addWidget(logRate, 0, 2);
+    el_logRate = new QLineEdit("50", this);
+    el_logRate->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    ll->addWidget(el_logRate, 0, 2);
 
 
     QSpacerItem *si = new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding);
@@ -61,8 +61,8 @@ commParamWidget::commParamWidget(QWidget *parent) : QWidget(parent)
     connect(protoListBox,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commParamWidget::protoSelected);
 
 
-    connect(baudRate,  &QLineEdit::editingFinished, this, &commParamWidget::baudChng);
-    connect(logRate,  &QLineEdit::editingFinished, this, &commParamWidget::logchng);
+    connect(el_baudRate,  &QLineEdit::editingFinished, this, &commParamWidget::baudChng);
+    connect(el_logRate,  &QLineEdit::editingFinished, this, &commParamWidget::logchng);
 
 }
 
@@ -97,10 +97,11 @@ void commParamWidget::deviceSelected(int index)
 
 void commParamWidget::baudChng()   // Обновляем скорость обмена
 {
-    emit baudChanged(baudRate->text().toUInt());
+    //baudRate = el_baudRate->text().toUInt();
+    //emit baudChanged(el_baudRate->text().toUInt());
 }
 
 void commParamWidget::logchng()
 {
-    emit logChanged(1000/logRate->text().toUInt());
+    emit logChanged(1000/el_logRate->text().toUInt());
 }

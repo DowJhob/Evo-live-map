@@ -69,9 +69,10 @@ bool j2534_interface::info()
     //emit readyInterface(true);
 }
 
-bool j2534_interface::open(Protocol protocol, enum ConnectFlag ConnectFlag)
+bool j2534_interface::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
 {
     this->protocol = protocol;
+    this->baudRate = baudRate;
 
     rx_msg.setProtocolId(protocol);
     tx_msg.setProtocolId(protocol);
@@ -89,60 +90,6 @@ bool j2534_interface::open(Protocol protocol, enum ConnectFlag ConnectFlag)
         return false;
     }
     emit Log("PassThruConnect channel: " + QString::number(chanID) + " /connected");
-
-    return true;
-}
-
-bool j2534_interface::connect()
-{
-    Config scp[10] = { Config{Config::Parameter::DataRate, baudRate},
-
-
-                       //  Config{Config::Parameter::W0, 800},
-                       //   Config{Config::Parameter::W1, 300},
-                       //   Config{Config::Parameter::W2, 3000},
-                       //     Config{Config::Parameter::W3, 300},
-                       //    Config{Config::Parameter::W4, 1000},
-
-                       Config{Config::Parameter::P1Min, 0},
-                       Config{Config::Parameter::P1Max, 1},           // сколько ждать на реальном чтении
-                       Config{Config::Parameter::P2Min, 25},
-                       Config{Config::Parameter::P2Max, 30},
-                       Config{Config::Parameter::P3Min, 0},           // уменьшает в 4 раза отклик контроллера!!!
-                       Config{Config::Parameter::P3Max, 1},
-                       Config{Config::Parameter::P4Min, 0},           // уменьшает в 30 раз отклик контроллера!!!
-                       Config{Config::Parameter::P4Max, 1},
-                       Config{Config::Parameter::Loopback, 0}
-                     };        // set timing
-
-    const SArray<const Config> configList{10, scp};
-    if (j2534->PassThruIoctl(chanID, PassThru::SET_CONFIG, &configList, nullptr))
-    {
-        emit Log( "PassThruIoctl - SET_CONFIG : fail  " + reportJ2534Error() );
-        return false;
-    }
-    // ============================ setup filter(s) =========================
-    Message msgMask, msgPattern;
-    msgMask.m_protocolId = ulong(protocol);
-    msgMask.m_rxStatus = 0;
-    msgMask.m_txFlags = 0;
-    msgMask.m_timestamp = 0;
-    msgMask.m_dataSize = 1;
-    msgMask.m_extraDataIndex = 0;
-
-    msgPattern  = msgMask;
-    memset(msgMask.m_data,0,1); // mask the first 4 byte to 0
-    memset(msgPattern.m_data,0,1);// match it with 0 (i.e. pass everything)
-
-    if ((msgId = j2534->PassThruStartMsgFilter(chanID, PassThru::PassFilter, &msgMask, &msgPattern, nullptr, &msgId)))
-    {
-        emit Log( "PassThruIoctl - PassThruStartMsgFilter : not ok  " + reportJ2534Error() );
-        return -1;
-    }
-    emit Log( "PassThruIoctl - PassThruStartMsgFilter : OK" );
-
-    j2534->PassThruIoctl(chanID, PassThru::IoctlID::CLEAR_RX_BUFFER, nullptr, nullptr);
-    j2534->PassThruIoctl(chanID, PassThru::IoctlID::CLEAR_TX_BUFFER, nullptr, nullptr);
 
     return true;
 }
@@ -240,6 +187,131 @@ QString j2534_interface::reportJ2534Error()
     char err[512] = "\0";
     //    int result = j2534->PassThruGetLastError(err);
     return QString::fromLocal8Bit(err) + "\r\n";
+}
+
+bool j2534_interface::ISO9141()
+{
+    Config scp[10] = { Config{Config::Parameter::DataRate, baudRate},
+                       //  Config{Config::Parameter::W0, 800},
+                       //   Config{Config::Parameter::W1, 300},
+                       //   Config{Config::Parameter::W2, 3000},
+                       //     Config{Config::Parameter::W3, 300},
+                       //    Config{Config::Parameter::W4, 1000},
+                       Config{Config::Parameter::P1Min, 0},
+                       Config{Config::Parameter::P1Max, 1},           // сколько ждать на реальном чтении
+                       Config{Config::Parameter::P2Min, 25},
+                       Config{Config::Parameter::P2Max, 30},
+                       Config{Config::Parameter::P3Min, 0},           // уменьшает в 4 раза отклик контроллера!!!
+                       Config{Config::Parameter::P3Max, 1},
+                       Config{Config::Parameter::P4Min, 0},           // уменьшает в 30 раз отклик контроллера!!!
+                       Config{Config::Parameter::P4Max, 1},
+                       Config{Config::Parameter::Loopback, 0}
+                     };        // set timing
+
+    const SArray<const Config> configList{10, scp};
+    if (j2534->PassThruIoctl(chanID, PassThru::SET_CONFIG, &configList, nullptr))
+    {
+        emit Log( "PassThruIoctl - SET_CONFIG : fail  " + reportJ2534Error() );
+        return false;
+    }
+    // ============================ setup filter(s) =========================
+    Message msgMask, msgPattern;
+    msgMask.m_protocolId = ulong(protocol);
+    msgMask.m_rxStatus = 0;
+    msgMask.m_txFlags = 0;
+    msgMask.m_timestamp = 0;
+    msgMask.m_dataSize = 1;
+    msgMask.m_extraDataIndex = 0;
+
+    msgPattern  = msgMask;
+    memset(msgMask.m_data,0,1); // mask the first 4 byte to 0
+    memset(msgPattern.m_data,0,1);// match it with 0 (i.e. pass everything)
+
+    if ((msgId = j2534->PassThruStartMsgFilter(chanID, PassThru::PassFilter, &msgMask, &msgPattern, nullptr, &msgId)))
+    {
+        emit Log( "PassThruIoctl - PassThruStartMsgFilter : not ok  " + reportJ2534Error() );
+        return -1;
+    }
+
+    emit Log( "PassThruIoctl - PassThruStartMsgFilter : OK" );
+
+    j2534->PassThruIoctl(chanID, PassThru::IoctlID::CLEAR_RX_BUFFER, nullptr, nullptr);
+    j2534->PassThruIoctl(chanID, PassThru::IoctlID::CLEAR_TX_BUFFER, nullptr, nullptr);
+
+    return true;
+}
+
+bool j2534_interface::ISO15765()
+{
+    j2534->PassThruIoctl(chanID, PassThru::IoctlID::CLEAR_RX_BUFFER, nullptr, nullptr);
+    j2534->PassThruIoctl(chanID, PassThru::IoctlID::CLEAR_TX_BUFFER, nullptr, nullptr);
+    j2534->PassThruIoctl(chanID, PassThru::IoctlID::CLEAR_MSG_FILTERS, nullptr, nullptr);
+
+    //-======================================== SET CONFIG ===========================================
+    Config scp[4] = { Config{Config::Parameter::DataRate, baudRate},
+                      Config{Config::Parameter::ISO15765BS, 0x20},
+                      Config{Config::Parameter::ISO15765STmin, 0},
+                      Config{Config::Parameter::Loopback, 0}
+                    };        // set timing
+
+    const SArray<const Config> configList{4, scp};
+    if (j2534->PassThruIoctl(chanID, PassThru::SET_CONFIG, &configList, nullptr))
+    {
+        emit Log( "PassThruIoctl - SET_CONFIG : fail  " + reportJ2534Error() );
+        return false;
+    }
+    // ============================ setup the filter(s) =========================
+    unsigned long msgId;
+
+    Message msgMask, msgPattern, msgFlowControl;
+
+    msgMask.m_protocolId = ulong(protocol);
+    msgMask.m_rxStatus   = 0;
+    msgMask.m_txFlags    = Message::TxFlag::OutISO15765FramePad;
+    msgMask.m_timestamp  = 0;
+    msgMask.m_dataSize   = 4;
+    msgMask.m_extraDataIndex = 0;
+    msgMask.m_data[0] = 0xFF;
+    msgMask.m_data[1] = 0xFF;
+    msgMask.m_data[2] = 0xFF;
+    msgMask.m_data[3] = 0xFF;
+
+    msgPattern.m_protocolId = ulong(protocol);
+    msgPattern.m_rxStatus = 0;
+    msgPattern.m_txFlags = Message::TxFlag::OutISO15765FramePad;
+    msgPattern.m_timestamp = 0;
+    msgPattern.m_dataSize = 4;
+    msgPattern.m_extraDataIndex = 0;
+    msgPattern.m_data[0] = 0;
+    msgPattern.m_data[1] = 0;
+    msgPattern.m_data[2] = 7;
+    msgPattern.m_data[3] = 0xE8;
+
+    msgFlowControl.m_protocolId = ulong(protocol);
+    msgFlowControl.m_rxStatus = 0;
+    msgFlowControl.m_txFlags = Message::TxFlag::OutISO15765FramePad;
+    msgFlowControl.m_timestamp = 0;
+    msgFlowControl.m_dataSize = 4;
+    msgFlowControl.m_extraDataIndex = 0;
+    msgFlowControl.m_data[0] = 0;
+    msgFlowControl.m_data[1] = 0;
+    msgFlowControl.m_data[2] = 7;
+    msgFlowControl.m_data[3] = 0xE0;
+
+    if ((msgId = j2534->PassThruStartMsgFilter(chanID, PassThru::FlowControlFilter, &msgMask, &msgPattern, &msgFlowControl, &msgId)))
+    {
+        emit Log( "PassThruIoctl - PassThruStartMsgFilter : not ok  " + reportJ2534Error() );
+        return -1;
+    }
+    emit Log( "PassThruIoctl - PassThruStartMsgFilter : OK" );
+    return msgId;
+
+    QThread::msleep(100);
+}
+
+bool j2534_interface::ISO14230()
+{
+
 }
 
 bool j2534_interface::get_serial_num(unsigned long devID, char *serial)
