@@ -37,9 +37,10 @@ SOURCES += src/main.cpp\
     src/fast-notation.cpp \
     src/enumdev.cpp \
     src/libs/j2534passthru.cpp \
-    src/log-reader.cpp \
     src/logger.cpp \
     src/map-decl/map.cpp \
+    src/wideband/commdevicewb-interface.cpp \
+    src/wideband/wb-interface.cpp \
     src/widgets/hexEditor/qhexedit/chunks.cpp \
     src/widgets/hexEditor/qhexedit/commands.cpp \
     src/widgets/hexEditor/qhexedit/qhexedit.cpp \
@@ -48,7 +49,6 @@ SOURCES += src/main.cpp\
 #    src/libs/J2534.cpp \
     src/libs/ftdi.cpp \
     src/map-decl/scaling.cpp \
-    src/serial/common-serial-interface.cpp \
     src/map-decl/submap.cpp \
     src/widgets/commParamWidget.cpp \
     src/widgets/gauge_widget.cpp \
@@ -77,18 +77,17 @@ HEADERS  += src/mainwindow.h \
     src/comm-device-interface/op13.h \
     src/comm-device-interface/op20.h \
     src/libs/j2534passthru.h \
-    src/log-reader.h \
     src/map-decl/map.h \
     src/map-decl/scaling.h \
-    src/serial/common-serial-interface.h \
-    src/serial/tactrix-serial.h \
     src/logger.h \
     src/enumdev.h \
     src/map-decl/submap.h \
     src/test-map.h \
     src/types.h \
-    src/wideband/_wideband_input_device.h \
-    src/wideband/tactrix_wb_input.h \
+    src/wideband/commdevicewb-interface.h \
+    src/wideband/innoWB.h \
+    src/wideband/plxWB.h \
+    src/wideband/wb-interface.h \
     src/widgets/commParamWidget.h \
     src/widgets/gauge_widget.h \
     src/widgets/hexEditor/qhexedit/chunks.h \

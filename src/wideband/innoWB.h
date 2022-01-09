@@ -1,21 +1,13 @@
-#ifndef _WIDEBAND_INPUT_DEVICE_H
-#define _WIDEBAND_INPUT_DEVICE_H
+#ifndef INNOWB_H
+#define INNOWB_H
 
-#include <QCoreApplication>
 #include <QObject>
 #include <QDebug>
-#include <QThread>
-#include <QTimer>
+
 #include <QElapsedTimer>
-enum wb_dev_type {
-    undef,
-    TACTRIX,
-    SERIAL_INTERFACE
-};
-enum wb_iface_type {
-    inno,
-    plx
-};
+
+#include "wb-interface.h"
+
 typedef struct
 {
     unsigned length		: 7;
@@ -89,64 +81,19 @@ typedef struct
     unsigned aux_msbs	: 3;
     unsigned mark1		: 5;
 } inno_v1_aux_pkt;
-enum ParserState {
-    EXPECTING_START,
-    EXPECTING_FIRST_HALF_OF_SENSOR_TYPE,
-    EXPECTING_SECOND_HALF_OF_SENSOR_TYPE,
-    EXPECTING_INSTANCE,
-    EXPECTING_FIRST_HALF_OF_VALUE,
-    EXPECTING_SECOND_HALF_OF_VALUE,
-};
 
-class wideband_input_device: public QObject
+class innoWB: public wbInterface
 {
-    Q_OBJECT
 public:
-    wb_iface_type _wb_iface_type;
     uchar* data;
     ulong *DataSize;
 
-    void (wideband_input_device::*dump)();
-    wideband_input_device(){}
-
-    void common_destructor()
+    innoWB(commDeviceWB **cdWB):wbInterface(cdWB)
     {
-        wb_polling_timer->stop();
-        wb_polling_timer->deleteLater();
-    }
-    void set_type(wb_iface_type _wb_iface_type)
-    {
-        this->_wb_iface_type = _wb_iface_type;
-        switch (_wb_iface_type)
-        {
-        case inno: dump = &wideband_input_device::_dump_inno; break;
-        case plx: dump = &wideband_input_device::_dump_plx; break;
-        }
-    }
-
-public slots:
-    void _start()
-    {
-        _connect();
-        wb_polling_timer = new QTimer(this);
-        wb_polling_timer->setInterval(20);
-        connect(wb_polling_timer, &QTimer::timeout, this, [=](){_read();});
-        wb_polling_timer->start();
 
     }
-    void _stop()
+    void handleWB()
     {
-        wb_polling_timer->stop();
-        deleteLater();
-    }
-
-private slots:
-    virtual void _connect() = 0;
-    virtual bool _read() = 0;
-
-    void _dump_inno()
-    {
-
         //qDebug() << "-- dump --";
         inno_v1_mts_hdr hdrv1;
         inno_v2_mts_hdr hdrv2;
@@ -234,64 +181,8 @@ private slots:
             }
         }
     }
-    void _dump_plx()
-    {
-        uchar b;
-        if (b == (uchar) 0x80) {
-            state = EXPECTING_FIRST_HALF_OF_SENSOR_TYPE;
-            //          return null;
-        }
-
-        if (b == 0x40) {
-            state = EXPECTING_START;
-            //            return null;
-        }
-
-        switch (state) {
-        case EXPECTING_START:
-            break;
-        case EXPECTING_FIRST_HALF_OF_SENSOR_TYPE:
-            state = EXPECTING_SECOND_HALF_OF_SENSOR_TYPE;
-            partialValue = b;
-            break;
-
-        case EXPECTING_SECOND_HALF_OF_SENSOR_TYPE:
-            state = EXPECTING_INSTANCE;
-
-            emit AFR( (partialValue << 6) | b);
-            //              sensorType = valueOf(value);
-            //               if (PlxSensorType.UNKNOWN == sensorType)
-            //          {
-            //   emit Log( "PLX sensor address: %d, unknown sensor type");
-            //               }
-            break;
-
-        case EXPECTING_INSTANCE:
-            state = EXPECTING_FIRST_HALF_OF_VALUE;
-            instance = b;
-            break;
-
-        case EXPECTING_FIRST_HALF_OF_VALUE:
-            state = EXPECTING_SECOND_HALF_OF_VALUE;
-            partialValue = b;
-            break;
-
-        case EXPECTING_SECOND_HALF_OF_VALUE:
-            state = EXPECTING_FIRST_HALF_OF_SENSOR_TYPE;
-            int rawValue = (partialValue << 6) | b;
-            //emit Log( "PLX sensor: %s instance: %d, value: %d"
-            //,
-            //                   sensorType, instance, rawValue));
-            //         return new PlxResponse(sensorType, instance, rawValue
-            //        );
-            break;
-        }
-        //        return null;
-    }
 
 private:
-    QTimer *wb_polling_timer;
-
     float result;
     void func_check(int func, uint _afr, uint _lambda)
     {
@@ -315,7 +206,7 @@ private:
         case 0b110: result = (_lambda << 3) + func; break;
 
         }
-        emit AFR(result);
+  //      emit AFR(result);
         //        010 Free air calibration in progress, Lambda data not valid
         //        011 Need Free air Calibration Request, Lambda data not valid
         //        100 Warming up, Lambda value is temp in 1/10% of operating temp.
@@ -324,12 +215,9 @@ private:
 
     }
 
-    ParserState state = EXPECTING_START;
     int partialValue;
     uchar instance;
 
-signals:
-    void AFR(float);
 };
 
-#endif // _WIDEBAND_INPUT_DEVICE_H
+#endif // INNOWB_H

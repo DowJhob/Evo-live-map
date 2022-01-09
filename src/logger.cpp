@@ -73,6 +73,7 @@ void dataLogger::stop()
 void dataLogger::setLogRate(int pollInt)
 {
     this->pollInt = pollInt;
+    pollTimer.setInterval(pollInt);
 }
 
 void dataLogger::logger(QString str)

@@ -13,8 +13,6 @@
 #include "abstract-memory.h"
 
 #include "DMA-proto/DMA-proto.h"
-#include "abstract-memory.h"
-#include "log-reader.h"
 
 class dataLogger:public QObject
 {
@@ -32,7 +30,6 @@ public:
 
 private:
     comm_device_interface **devComm = nullptr;
-    j2534listener *listener;
 
     QTimer pollTimer;
     int pollInt = 20;

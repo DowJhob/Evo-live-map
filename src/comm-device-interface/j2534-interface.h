@@ -24,6 +24,7 @@ typedef struct
 using namespace J2534;
 class j2534_interface : public comm_device_interface
 {
+    friend class OP20;
     Q_OBJECT
 public:
     // J2534
