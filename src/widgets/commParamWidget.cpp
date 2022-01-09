@@ -49,6 +49,43 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate) : QWidge
     ll->addWidget(el_logRate, 0, 2);
 
 
+    //панель лямбды
+
+    grBx = new QGroupBox(this);
+    grBx->setTitle("Select wideband");
+    ll = new QGridLayout(this);
+    grBx->setLayout(ll);
+    l->addWidget(grBx);
+
+    QGroupBox *grBxAv = new QGroupBox(this);
+    grBxAv->setTitle("Available wideband");
+    ll->addWidget(grBxAv, 0, 0);
+    QGroupBox *grBxWBprt = new QGroupBox(this);
+    grBxWBprt->setTitle("Wideband proto");
+    ll->addWidget(grBxWBprt, 0, 1);
+
+    ll = new QGridLayout(this);
+    grBxAv->setLayout(ll);
+
+    availWB = new QComboBox(this);
+    availWB->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    ll->addWidget(availWB);
+
+
+
+    ll = new QGridLayout(this);
+    grBxWBprt->setLayout(ll);
+
+    protoWB = new QComboBox(this);
+    protoWB->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    ll->addWidget(protoWB);
+
+    protoWB->addItem("Innovate");
+    protoWB->addItem("PLX");
+    protoWB->addItem("AEM");
+
+
+
     QSpacerItem *si = new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding);
     l->addItem(si);
 

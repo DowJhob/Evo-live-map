@@ -40,6 +40,8 @@ SOURCES += src/main.cpp\
     src/logger.cpp \
     src/map-decl/map.cpp \
     src/wideband/commdevicewb-interface.cpp \
+    src/wideband/innoWB.cpp \
+    src/wideband/plxWB.cpp \
     src/wideband/wb-interface.cpp \
     src/widgets/hexEditor/qhexedit/chunks.cpp \
     src/widgets/hexEditor/qhexedit/commands.cpp \

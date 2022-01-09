@@ -18,14 +18,11 @@ controller::controller(QObject *parent) : QObject(parent)
     //ecu_polling_timer = new QTimer();
 
     setProto(0);
-
 }
 
 controller::~controller()
 {
     getECUdisconnect();
-
-
 
     if (ECUproto != nullptr)
         ECUproto->deleteLater();

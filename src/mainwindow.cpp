@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), //enumerator(),
     //=============================================================================
     cpW = new commParamWidget(this, 62500);
     connect(cpW, &commParamWidget::interfaceSelected, this, &MainWindow::commDeviceSelected);
-    connect(cpW, &commParamWidget::protoSelected, this, &MainWindow::_protoSelected);
+    connect(cpW, &commParamWidget::protoSelected, this, &MainWindow::DMAprotoSelected);
     connect(cpW, &commParamWidget::logChanged, this, &MainWindow::logChanged);
     ui->connectionParam->layout()->addWidget(cpW);
     //=============================================================================
@@ -51,7 +51,7 @@ void MainWindow::commDeviceSelected(device dev)
     emit devSelected(dev);
 }
 
-void MainWindow::_protoSelected(int proto)
+void MainWindow::DMAprotoSelected(int proto)
 {    
     qDebug()<< "MainWindow::_protoSelected" << proto;
     emit protoSelected(proto);
@@ -85,7 +85,6 @@ void MainWindow::StartButton_slot()
     {
         qDebug() << "MainWindow::StartButton_slot Start";
 
-        cpW->lockInterface(true);
         emit getECUconnectMainWindow(cpW->baudRate);
     }
     else
@@ -111,6 +110,7 @@ void MainWindow::StartButton_slot()
 
 void MainWindow::ecu_connected()
 {
+    cpW->lockInterface(true);
     start_action = "Stop";
     _mainToolBar->lockReset( false);
 }

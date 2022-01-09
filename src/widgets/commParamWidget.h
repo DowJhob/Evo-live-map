@@ -29,6 +29,8 @@ private:
     QHash<QString, device> dev;
     QComboBox *commListBox;
     QComboBox *protoListBox;
+    QComboBox *availWB;
+    QComboBox *protoWB;
 
     QLineEdit *el_baudRate;
     QLineEdit *el_logRate;

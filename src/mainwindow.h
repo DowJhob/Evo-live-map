@@ -58,7 +58,7 @@ public slots:
 
 private slots:
     void commDeviceSelected(device dev);
-    void _protoSelected(int proto);
+    void DMAprotoSelected(int proto);
 
     void StartButton_slot();
 
