@@ -94,7 +94,7 @@ signals:
     void devSelected(device);
     void interfaceRemoved(device);
     void protoSelected(int proto);
-    void baudChanged(int);
+    //void baudChanged(int);
     void logChanged(int);
 
     void getECUconnectMainWindow(int);

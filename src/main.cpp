@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     QObject::connect(&mainWindow, &MainWindow::resetRAM, &controller, &controller::RAMreset);
     QObject::connect(&mainWindow, &MainWindow::updateRAM, &controller, &controller::updateRAM);
     //========================= logger ===============================================================
-    QObject::connect(&mainWindow, &MainWindow::baudChanged, &controller, &controller::setBaudRate);
+    //QObject::connect(&mainWindow, &MainWindow::baudChanged, &controller, &controller::setBaudRate);
     QObject::connect(&mainWindow, &MainWindow::logChanged,  &controller, &controller::logChanged);
     QObject::connect(&controller, &controller::logReady,    &mainWindow, &MainWindow::logReady);
     //========================================================================================

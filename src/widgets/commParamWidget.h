@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <QComboBox>
 #include <QLayout>
+#include <QLineEdit>
 
 #include "../enumdev.h"
 
@@ -22,6 +23,8 @@ public slots:
 
     void deviceSelected(int index);
     //void protoSelected(int index);
+
+    void lockInterface(bool lockFlag);
 
 private:
     QHash<QString, device> dev;

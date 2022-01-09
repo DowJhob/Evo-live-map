@@ -95,6 +95,16 @@ void commParamWidget::deviceSelected(int index)
     emit interfaceSelected(dev.value(DeviceUniqueID, device()));
 }
 
+void commParamWidget::lockInterface(bool lockFlag)
+{
+    commListBox->setDisabled(lockFlag);
+    protoListBox->setDisabled(lockFlag);
+    el_baudRate->setDisabled(lockFlag);
+    el_logRate->setDisabled(lockFlag);
+    //->setDisabled(lockFlag);
+    //->setDisabled(lockFlag);
+}
+
 void commParamWidget::baudChng()   // Обновляем скорость обмена
 {
     //baudRate = el_baudRate->text().toUInt();
