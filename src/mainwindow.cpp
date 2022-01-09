@@ -58,6 +58,7 @@ void MainWindow::DMAprotoSelected(int proto)
 
 void MainWindow::deviceEvent(device dev)
 {
+    qDebug() << "MainWindow::deviceEvent" << dev.DeviceUniqueID << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
     switch(dev.direction)
     {
     case dir::arrive :

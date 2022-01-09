@@ -12,6 +12,27 @@ enumerator::~enumerator()
         UnregisterDeviceNotification(NotificationHandle);
 }
 
+bool enumerator::nativeEventFilter(const QByteArray &eventType, void *message, long *result)
+{
+    Q_UNUSED( result )
+    Q_UNUSED( eventType )
+    auto pWindowsMessage = static_cast<MSG*>(message);
+    if(pWindowsMessage->message == WM_DEVICECHANGE)
+    {
+        auto wParam = pWindowsMessage->wParam;
+        auto lParam = pWindowsMessage->lParam;
+        if (lParam == 0 )
+            return false;
+        PDEV_BROADCAST_DEVICEINTERFACE pDevInf = reinterpret_cast<PDEV_BROADCAST_DEVICEINTERFACE>(lParam);
+        if ( pDevInf->dbcc_devicetype == DBT_DEVTYP_DEVICEINTERFACE )
+        {
+            handleEvent(wParam, pDevInf);
+            return true;
+        }
+    }
+    return false;
+}
+
 void enumerator::NotifyRegister(HWND hwnd)
 {
     //Подписываемся на события
@@ -104,38 +125,12 @@ void enumerator::getPresentCommDevices(GUID guid)
         // SPDRP_CLASS
         // SPDRP_MFG   //vendor
 
-        device dev = getJ2534DLLpath( getDevProp(hDevInfo, DeviceInfoData), reg64);
-        if(!dev.FunctionLibrary.isEmpty())
-        {
-            //checkTactrix( QString::fromWCharArray( (wchar_t*)hwId.data() ).mid(4, 17));
-            emit Log(dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg);
-            dev.type = checkTactrix(dev.DeviceInstanceId);
-            dev.direction = dir::arrive;
-            emit commDeviceEvent(dev);
-        }
+        device dev = getDevProp(hDevInfo, DeviceInfoData);
+        //qDebug() << "enumerator::getPresentCommDevices" << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
+        dev.direction = dir::arrive;
+        checkType(dev);
     }
     SetupDiDestroyDeviceInfoList(hDevInfo);
-}
-
-bool enumerator::nativeEventFilter(const QByteArray &eventType, void *message, long *result)
-{
-    Q_UNUSED( result )
-    Q_UNUSED( eventType )
-    auto pWindowsMessage = static_cast<MSG*>(message);
-    if(pWindowsMessage->message == WM_DEVICECHANGE)
-    {
-        auto wParam = pWindowsMessage->wParam;
-        auto lParam = pWindowsMessage->lParam;
-        if (lParam == 0 )
-            return false;
-        PDEV_BROADCAST_DEVICEINTERFACE pDevInf = reinterpret_cast<PDEV_BROADCAST_DEVICEINTERFACE>(lParam);
-        if ( pDevInf->dbcc_devicetype == DBT_DEVTYP_DEVICEINTERFACE )
-        {
-            handleEvent(wParam, pDevInf);
-            return true;
-        }
-    }
-    return false;
 }
 
 void enumerator::handleEvent(long wParam, PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
@@ -143,22 +138,14 @@ void enumerator::handleEvent(long wParam, PDEV_BROADCAST_DEVICEINTERFACE pDevInf
     switch(wParam)
     {
     case DBT_DEVICEREMOVECOMPLETE:{
-        {
             device dev = getDevProp(pDevInf);
             dev.direction = dir::remove;
             emit commDeviceEvent(dev);
-        }
     }break;
     case DBT_DEVICEARRIVAL:{
-        device dev = getJ2534DLLpath( getDevProp(pDevInf), reg64);
-        if(!dev.FunctionLibrary.isEmpty())
-        {
-            emit Log(dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg);
-            dev.type = checkTactrix(dev.DeviceInstanceId);
-
-            dev.direction = dir::arrive;
-            emit commDeviceEvent(dev);
-        }
+        device dev = getDevProp(pDevInf);
+        dev.direction = dir::arrive;
+        checkType(dev);
     }break;
     }
 }
@@ -166,7 +153,7 @@ void enumerator::handleEvent(long wParam, PDEV_BROADCAST_DEVICEINTERFACE pDevInf
 device enumerator::getDevProp(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
 {
     QStringList qDevInf = QString::fromWCharArray((wchar_t*)pDevInf->dbcc_name).split('#');
-    //qDebug()<< "qDevInf" <<qDevInf;
+    qDebug()<< "qDevInf" <<qDevInf;
     if (qDevInf.length() >= 3)
     {
         QString DevType = qDevInf[0].mid(qDevInf[0].indexOf("?\\") + 2 );
@@ -180,6 +167,7 @@ device enumerator::getDevProp(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
             regKey.value("Mfg", "").toString().split(';').at(1),
                     regKey.value("DeviceDesc", "").toString().split(';').at(1),
                     "",
+                    DeviceInstanceId,
                     DeviceUniqueID
         };
     }
@@ -211,37 +199,29 @@ device enumerator::getDevProp(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceInfoData)
     dev.Mfg = QString::fromWCharArray( (wchar_t*)Mfg.data() );
     dev.DeviceDesc = QString::fromWCharArray( (wchar_t*)DeviceDesc.data() );
     dev.DeviceInstanceId = QString::fromWCharArray( (wchar_t*)DeviceInstanceId.data() );
-    //QString::fromWCharArray( (wchar_t*)DeviceUniqueID.data() );
-    dev.direction = dir::arrive;
-    //qDebug()<< dev.DeviceInstanceId;
 
-    //qDebug()<< "Mfg"<<  dev.Mfg;
-    //qDebug()<< "DeviceDesc"<<   dev.DeviceDesc;
-    //qDebug()<< "DeviceUniqueID"<<   dev.DeviceUniqueID;
-    //qDebug()<< "DeviceInstanceId"<<  dev.DeviceInstanceId;
-    //qDebug()<< "FunctionLibrary"<<   dev.FunctionLibrary << endl;
-    return dev;
+    //qDebug()<< "Mfg"<<  dev.Mfg < "DeviceDesc"<<   dev.DeviceDesc
+    //<< "DeviceUniqueID"<<   dev.DeviceUniqueID
+    //<< "DeviceInstanceId"<<  dev.DeviceInstanceId << "FunctionLibrary"<<   dev.FunctionLibrary << endl;
     return dev;
 }
 
-device enumerator::getJ2534DLLpath(device dev, QString reg)
+QString enumerator::getDLLpath(QString Mfg, QString reg)
 {
-    device _dev = dev;
-    //qDebug() <<  "Mfg" << dev.Mfg;
-    //qDebug() <<  "DeviceDesc" << dev.DeviceDesc;
+    QString FunctionLibrary;
     QSettings m(QString(reg), QSettings::NativeFormat);
     const QStringList ak = m.childGroups();
     for(const QString &group: ak)
     {
         m.beginGroup(group);
         QString vendor = m.value("Vendor", "").toString();
-        if( vendor == dev.Mfg )
+        if( vendor == Mfg )
         {
-            dev.FunctionLibrary = m.value("FunctionLibrary", "").toString();
+            FunctionLibrary = m.value("FunctionLibrary", "").toString();
         }
         m.endGroup();
     }
-    return dev;
+    return FunctionLibrary;
 }
 
 QByteArray enumerator::getDeviceDesc(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceInfoData, uint SPDRP)
@@ -255,13 +235,32 @@ QByteArray enumerator::getDeviceDesc(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceIn
     //        qDebug() << "DeviceDesc: " << QString::fromWCharArray( propertyBuffer );
 }
 
-deviceType enumerator::checkTactrix(QString DeviceInstanceId)
+void enumerator::checkType(device dev)
 {
-    //qDebug() << "HardwareID: " << DeviceInstanceId;
-    if(DeviceInstanceId.contains(tactrixOP20_DeviceInstanceId2))
-        return deviceType::OP20;
-    else if(DeviceInstanceId.contains(tactrixOP13_DeviceInstanceId))
-        return deviceType::OP13;
-    else
-        return deviceType::J2534;
+    qDebug() << "enumerator::checkType" << dev.DeviceUniqueID << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
+
+    //emit Log(dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg);
+
+    dev.FunctionLibrary = getDLLpath( dev.Mfg, reg64);
+    if(!dev.FunctionLibrary.isEmpty() && dev.DeviceInstanceId.contains(tactrixOP20_DeviceInstanceId2))
+    {
+        qDebug() << "enumerator::checkType2 OP20" << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
+        dev.type =  deviceType::OP20;
+        emit commDeviceEvent(dev);
+        return;
+    }
+    if(!dev.FunctionLibrary.isEmpty())
+    {
+        qDebug() << "enumerator::checkType2 J2534" << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
+        dev.type =  deviceType::J2534;
+        emit commDeviceEvent(dev);
+        return;
+    }
+    if(dev.DeviceInstanceId.contains(tactrixOP13_DeviceInstanceId))
+    {
+        qDebug() << "enumerator::checkType2 OP13" << dev.DeviceUniqueID << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
+        dev.type =  deviceType::OP13;
+        emit commDeviceEvent(dev);
+    }
+
 }

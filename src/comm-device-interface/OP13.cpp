@@ -1,12 +1,14 @@
 #include "op13.h"
+#include <QCoreApplication>
 
 OP13::OP13(QString dllName, QString DeviceUniqueID) :  comm_device_interface( dllName, DeviceUniqueID)
 {
     devType = deviceType::OP13;
-    _ftdi = new ftdi(dllName);
+    _ftdi = new ftdi(QCoreApplication::applicationDirPath() + "\\ftd2xx.dll");
     p_in_buff = in_buf;
     p_out_buff = out_buf;
     qDebug() << "OP13" << DeviceUniqueID;
+    info();
 }
 
 OP13::~OP13()
@@ -17,37 +19,40 @@ OP13::~OP13()
 
 bool OP13::info()
 {
-
+    DWORD numDevs =  1;
+    FT_DEVICE_LIST_INFO_NODE *devInfo;
     if (_ftdi->FT_Open(0, &_ftdi->ftHandle) == FT_OK)
     {
         //   error_out = "FT_Open OK";
         // FT_Open OK, use ftHandle to access device
 
-        FT_DEVICE_LIST_INFO_NODE *devInfo;
-        DWORD numDevs =  1;
         // create the device information list
         _ftdi->ftStatus = _ftdi->FT_CreateDeviceInfoList(&numDevs);
-        //if (_ftdi->ftStatus == FT_OK) {
-        //printf("Number of devices is %d\n",numDevs);
-        //}
+        if (_ftdi->ftStatus == FT_OK) {
+            qDebug() << "Number of devices is" << numDevs;
+        }
 
         // allocate storage for list based on numDevs
         devInfo = (FT_DEVICE_LIST_INFO_NODE*)malloc(sizeof(FT_DEVICE_LIST_INFO_NODE)*numDevs);
         // get the device information list
         _ftdi->ftStatus = _ftdi->FT_GetDeviceInfoList(devInfo,&numDevs);
         qDebug() << "ftStatus: " << _ftdi->ftStatus;
-    }
 
-    DWORD numDevs =  1;
+
     if (_ftdi->ftStatus == FT_OK)
     {
         for (uint i = 0; i < numDevs; i++) {
-            //                QString info = "Dev: " + QString::number( i ) + "\n" +
-            //                        "SerialNumber: " + QString::fromLatin1( devInfo[i].SerialNumber) + "\n" +
-            //                        "Description: " + QString::fromLatin1(devInfo[i].Description) + "\n";
-            //             emit Log(info);
+            QString info = "Dev: " + QString::number( i ) +
+                    "  SerialNumber: " + QString::fromLatin1( devInfo[i].SerialNumber) +
+                    "  Description: " + QString::fromLatin1(devInfo[i].Description);
+
+            //qDebug() << "info: " << info;
+            emit Log(info);
         }
     }
+    }
+    close();
+    emit readyInterface(true);
     return true;
 }
 
@@ -58,27 +63,30 @@ bool OP13::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
     p_in_buff = in_buf;
     p_out_buff = out_buf;
 
-    if (_ftdi->FT_Open(0, &_ftdi->ftHandle) == FT_OK)
+    ulong s;_ftdi->ftHandle=0;
+    if ( (s = _ftdi->FT_Open(0, &_ftdi->ftHandle) == FT_OK))
     {
         //   error_out = "FT_Open OK";
         // FT_Open OK, use ftHandle to access device
-
-        _ftdi->ftStatus = _ftdi->FT_ResetDevice(_ftdi->ftHandle);
-        _ftdi->ftStatus = _ftdi->FT_Purge(_ftdi->ftHandle, FT_PURGE_RX | FT_PURGE_TX);
-        _ftdi->ftStatus = _ftdi->FT_SetTimeouts(_ftdi->ftHandle, 250, 2500);
-        _ftdi->ftStatus = _ftdi->FT_SetLatencyTimer(_ftdi->ftHandle, 1);
-        _ftdi->ftStatus = _ftdi->FT_SetBaudRate(_ftdi->ftHandle, baudRate);
+        s = _ftdi->ftStatus = _ftdi->FT_ResetDevice(_ftdi->ftHandle);
+        s = _ftdi->ftStatus = _ftdi->FT_Purge(_ftdi->ftHandle, FT_PURGE_RX | FT_PURGE_TX);
+        s = _ftdi->ftStatus = _ftdi->FT_SetTimeouts(_ftdi->ftHandle, 250, 2500);
+        s = _ftdi->ftStatus = _ftdi->FT_SetLatencyTimer(_ftdi->ftHandle, 1);
+        s = _ftdi->ftStatus = _ftdi->FT_SetBaudRate(_ftdi->ftHandle, baudRate);
+        qDebug() << " FT_Open 5" <<  s;
         //     emit readyInterface(true);
 
         return true;
     }
-    qDebug() << " FT_Open failed";
+    qDebug() << " FT_Open failed" << s << QString::fromLatin1( _ftdi->getLastError());
 
     return false;
 }
 
 bool OP13::close()
 {
+    ulong s = _ftdi->FT_Close( _ftdi->ftHandle);
+    qDebug() << " close" << s;
     return true;
 }
 

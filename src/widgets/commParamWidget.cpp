@@ -106,7 +106,7 @@ void commParamWidget::addDevice(device dev)
 {
     //if(commListBox->currentIndex() < 0)
 
-    //qDebug()<< "commListBox->currentIndex()"<< commListBox->currentIndex();
+    //qDebug()<< "commParamWidget::addDevice"<< dev.DeviceUniqueID << dev.DeviceInstanceId;
     this->dev.insert(dev.DeviceUniqueID, dev);
     commListBox->addItem(dev.DeviceDesc, dev.DeviceUniqueID);
     //qDebug()<< "commListBox->currentIndex()"<< commListBox->currentIndex();
@@ -115,7 +115,7 @@ void commParamWidget::addDevice(device dev)
 void commParamWidget::removeDevice(device dev)
 {
     int index = commListBox->findData(dev.DeviceUniqueID);
-    qDebug()<< " dev.DeviceUniqueID"<< dev.DeviceUniqueID<< "index"<<index<<" count"<<commListBox->count()<<commListBox->currentIndex();
+    //qDebug()<< " dev.DeviceUniqueID"<< dev.DeviceUniqueID<< "index"<<index<<" count"<<commListBox->count()<<commListBox->currentIndex();
 
     if( index < commListBox->count())
         commListBox->removeItem(index);
