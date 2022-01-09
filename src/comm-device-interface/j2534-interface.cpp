@@ -311,7 +311,7 @@ bool j2534_interface::ISO15765()
 
 bool j2534_interface::ISO14230()
 {
-
+    return true;
 }
 
 bool j2534_interface::get_serial_num(unsigned long devID, char *serial)

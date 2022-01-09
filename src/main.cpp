@@ -23,13 +23,10 @@ int main(int argc, char *argv[])
     QObject::connect(&Enumerator, &enumerator::commDeviceEvent, &mainWindow, &MainWindow::deviceEvent);
     //========================================================================================
     QObject::connect(&mainWindow, &MainWindow::devSelected, &controller, &controller::commDeviceSelected);
-
     QObject::connect(&mainWindow, &MainWindow::interfaceRemoved, &controller, &controller::commDeviceRemoved);
-
     QObject::connect(&mainWindow, &MainWindow::protoSelected, &controller, &controller::setProto);
     //========================================================================================
     QObject::connect(&controller, &controller::interfaceReady, &mainWindow, &MainWindow::lockInterface);
-    //========================================================================================
     //========================================================================================
     QObject::connect(&mainWindow, &MainWindow::getECUconnectMainWindow, &controller, &controller::getECUconnect);
     QObject::connect(&mainWindow, &MainWindow::getECUdisconnectMainWindow, &controller, &controller::getECUdisconnect);
@@ -40,7 +37,6 @@ int main(int argc, char *argv[])
     QObject::connect(&mainWindow, &MainWindow::resetRAM, &controller, &controller::RAMreset);
     QObject::connect(&mainWindow, &MainWindow::updateRAM, &controller, &controller::updateRAM);
     //========================= logger ===============================================================
-    //QObject::connect(&mainWindow, &MainWindow::baudChanged, &controller, &controller::setBaudRate);
     QObject::connect(&mainWindow, &MainWindow::logChanged,  &controller, &controller::logChanged);
     QObject::connect(&controller, &controller::logReady,    &mainWindow, &MainWindow::logReady);
     //========================================================================================

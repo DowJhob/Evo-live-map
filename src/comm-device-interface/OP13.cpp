@@ -52,6 +52,8 @@ bool OP13::info()
 
 bool OP13::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
 {
+    this->baudRate = baudRate;
+
     p_in_buff = in_buf;
     p_out_buff = out_buf;
 
@@ -59,22 +61,6 @@ bool OP13::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
     {
         //   error_out = "FT_Open OK";
         // FT_Open OK, use ftHandle to access device
-
-        FT_DEVICE_LIST_INFO_NODE *devInfo;
-        DWORD numDevs =  1;
-        // create the device information list
-        _ftdi->ftStatus = _ftdi->FT_CreateDeviceInfoList(&numDevs);
-        //if (_ftdi->ftStatus == FT_OK) {
-        //printf("Number of devices is %d\n",numDevs);
-        //}
-
-        // allocate storage for list based on numDevs
-        devInfo = (FT_DEVICE_LIST_INFO_NODE*)malloc(sizeof(FT_DEVICE_LIST_INFO_NODE)*numDevs);
-        // get the device information list
-        _ftdi->ftStatus = _ftdi->FT_GetDeviceInfoList(devInfo,&numDevs);
-        qDebug() << "ftStatus: " << _ftdi->ftStatus;
-
-
 
         _ftdi->ftStatus = _ftdi->FT_ResetDevice(_ftdi->ftHandle);
         _ftdi->ftStatus = _ftdi->FT_Purge(_ftdi->ftHandle, FT_PURGE_RX | FT_PURGE_TX);
@@ -87,7 +73,7 @@ bool OP13::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
     }
     qDebug() << " FT_Open failed";
 
-    //return false;
+    return false;
 }
 
 bool OP13::close()
@@ -160,15 +146,15 @@ void OP13::ftdi_low_baud_sender(uint baudRate, byte value)
 
 bool OP13::ISO9141()
 {
-
+    return true;
 }
 
 bool OP13::ISO15765()
 {
-
+    return true;
 }
 
 bool OP13::ISO14230()
 {
-
+    return true;
 }

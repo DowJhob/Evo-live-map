@@ -34,6 +34,26 @@ private:
     bool ISO15765();
     bool ISO14230();
 
+    void getDevList()
+    {
+
+        FT_DEVICE_LIST_INFO_NODE *devInfo;
+        DWORD numDevs =  1;
+        // create the device information list
+        _ftdi->ftStatus = _ftdi->FT_CreateDeviceInfoList(&numDevs);
+        //if (_ftdi->ftStatus == FT_OK) {
+        //printf("Number of devices is %d\n",numDevs);
+        //}
+
+        // allocate storage for list based on numDevs
+        devInfo = (FT_DEVICE_LIST_INFO_NODE*)malloc(sizeof(FT_DEVICE_LIST_INFO_NODE)*numDevs);
+        // get the device information list
+        _ftdi->ftStatus = _ftdi->FT_GetDeviceInfoList(devInfo,&numDevs);
+        qDebug() << "ftStatus: " << _ftdi->ftStatus;
+
+
+
+    }
 private slots:
 
 signals:
