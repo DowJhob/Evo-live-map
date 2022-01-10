@@ -96,7 +96,10 @@ void controller::getECUconnect(uint baudRate)
 {
     qDebug() << "=========== controller::getECUconnect ================";
     if (!ECUproto->connect(baudRate))
+    {
+        emit Log("failure get ECU connect " + QString::number( baudRate));
        return ;
+    }
 
     QByteArray a = ECUproto->directDMAread( 0xF52, 4);                        //читаем номер калибровки
 

@@ -256,7 +256,7 @@ void enumerator::checkType(device dev)
         emit commDeviceEvent(dev);
         return;
     }
-    if(dev.DeviceInstanceId.contains(tactrixOP13_DeviceInstanceId))
+    if(dev.DeviceInstanceId.contains(tactrixOP13_DeviceInstanceId2))
     {
         qDebug() << "enumerator::checkType2 OP13" << dev.DeviceUniqueID << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
         dev.type =  deviceType::OP13;

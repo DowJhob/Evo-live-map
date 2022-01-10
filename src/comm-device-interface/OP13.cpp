@@ -52,18 +52,19 @@ bool OP13::info()
     }
     }
     close();
-    emit readyInterface(true);
     return true;
 }
 
 bool OP13::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
 {
+    this->protocol = protocol;
     this->baudRate = baudRate;
 
     p_in_buff = in_buf;
     p_out_buff = out_buf;
 
-    ulong s;_ftdi->ftHandle=0;
+    ulong s;
+    _ftdi->ftHandle=0;
     if ( (s = _ftdi->FT_Open(0, &_ftdi->ftHandle) == FT_OK))
     {
         //   error_out = "FT_Open OK";

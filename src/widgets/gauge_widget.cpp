@@ -29,13 +29,25 @@ gauge_widget::gauge_widget(QString name, uint DigitNum, QWidget *parent):QWidget
     resize(200, 200);
 
     m_pmnu = new QMenu(this);
+    QActionGroup *group = new QActionGroup(m_pmnu);
+    group->setExclusive(true);
+
     QAction* pAction = m_pmnu->addAction("Innovate");
+
+    //m_pmnu->setDefaultAction(pAction);
+
+    group->addAction(pAction);
     pAction->setCheckable(true);
+    pAction->setChecked(true);
     pAction = m_pmnu->addAction("PLX");
+    group->addAction(pAction);
     pAction->setCheckable(true);
     pAction = m_pmnu->addAction("AEM");
+    group->addAction(pAction);
     pAction->setCheckable(true);
-    connect(m_pmnu, &QMenu::triggered, this, &gauge_widget::setProto);
+
+
+    connect(group, &QActionGroup::triggered, this, &gauge_widget::setProto);
     setToolTip("Press right mouse button for set wideband proto");
 }
 
@@ -51,5 +63,6 @@ void gauge_widget::display(float in)
 
 void gauge_widget::setProto(QAction* pAction)
 {
-QString strColor = pAction->text();
+    QString wbProto = pAction->text();
+    qDebug() << "wbProto" << wbProto;
 }

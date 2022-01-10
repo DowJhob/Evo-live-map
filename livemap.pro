@@ -41,9 +41,10 @@ SOURCES += src/main.cpp\
     src/logger.cpp \
     src/map-decl/map.cpp \
     src/wideband/commdevicewb-interface.cpp \
-    src/wideband/innoWB.cpp \
-    src/wideband/plxWB.cpp \
-    src/wideband/wb-interface.cpp \
+    src/wideband/innoProto.cpp \
+    src/wideband/plxProto.cpp \
+    src/wideband/wb-proto.cpp \
+    src/wideband/wblogger.cpp \
     src/widgets/hexEditor/qhexedit/chunks.cpp \
     src/widgets/hexEditor/qhexedit/commands.cpp \
     src/widgets/hexEditor/qhexedit/qhexedit.cpp \
@@ -88,9 +89,10 @@ HEADERS  += src/mainwindow.h \
     src/test-map.h \
     src/types.h \
     src/wideband/commdevicewb-interface.h \
-    src/wideband/innoWB.h \
-    src/wideband/plxWB.h \
-    src/wideband/wb-interface.h \
+    src/wideband/innoProto.h \
+    src/wideband/plxProto.h \
+    src/wideband/wb-proto.h \
+    src/wideband/wblogger.h \
     src/widgets/commParamWidget.h \
     src/widgets/gauge_widget.h \
     src/widgets/hexEditor/qhexedit/chunks.h \

@@ -1,12 +1,8 @@
-#ifndef INNOWB_H
-#define INNOWB_H
+#ifndef INNOPROTO_H
+#define INNOPROTO_H
 
-#include <QObject>
+
 #include <QDebug>
-
-#include <QElapsedTimer>
-
-#include "wb-interface.h"
 
 typedef struct
 {
@@ -82,22 +78,17 @@ typedef struct
     unsigned mark1		: 5;
 } inno_v1_aux_pkt;
 
-class innoWB: public wbInterface
+class innoProto
 {
 public:
-    uchar* data;
-    ulong *DataSize;
-
-    innoWB(commDeviceWB **cdWB);
     void handleWB();
 
 private:
+    uchar* data;
+    ulong *DataSize;
     float result;
-    void func_check(int func, uint _afr, uint _lambda);
-
-    int partialValue;
-    uchar instance;
+    float func_check(int func, uint _afr, uint _lambda);
 
 };
 
-#endif // INNOWB_H
+#endif // INNOPROTO_H

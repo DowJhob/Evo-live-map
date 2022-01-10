@@ -1,11 +1,6 @@
-#include "plxWB.h"
+#include "plxProto.h"
 
-plxWB::plxWB(commDeviceWB **cdWB):wbInterface(cdWB)
-{
-
-}
-
-void plxWB::handleWB()
+void plxProto::handleWB()
 {
     uchar b;
     if (b == (uchar) 0x80) {

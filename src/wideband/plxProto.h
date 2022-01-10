@@ -1,12 +1,7 @@
-#ifndef PLXWB_H
-#define PLXWB_H
+#ifndef PLXPROTO_H
+#define PLXPROTO_H
 
-#include <QObject>
 #include <QDebug>
-
-#include <QElapsedTimer>
-
-#include "wb-interface.h"
 
 enum ParserState {
     EXPECTING_START,
@@ -17,13 +12,12 @@ enum ParserState {
     EXPECTING_SECOND_HALF_OF_VALUE,
 };
 
-class plxWB: public wbInterface
+class plxProto
 {
 public:
     uchar* data;
     ulong *DataSize;
 
-    plxWB(commDeviceWB **cdWB);
     void handleWB();
 
 private:
@@ -35,4 +29,4 @@ private:
 
 };
 
-#endif // PLXWB_H
+#endif // PLXPROTO_H

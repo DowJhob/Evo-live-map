@@ -1,12 +1,18 @@
-#include "innoWB.h"
-innoWB::innoWB(commDeviceWB **cdWB):wbInterface(cdWB)
-{
+#include "innoProto.h"
 
-}
-
-void innoWB::handleWB()
+void innoProto::handleWB()
 {
-    //qDebug() << "-- dump --";
+//    if (msg->RxStatus & START_OF_MESSAGE)
+//        return; // skip
+
+//    printf("[%u] ",msg->Timestamp);
+//    for (unsigned int i = 0; i < msg->DataSize; i++)
+//        printf("%02X ",msg->Data[i]);
+//    printf("\n");
+
+//    if (msg->DataSize < 2)
+//        return;
+
     inno_v1_mts_hdr hdrv1;
     inno_v2_mts_hdr hdrv2;
 
@@ -94,7 +100,7 @@ void innoWB::handleWB()
     }
 }
 
-void innoWB::func_check(int func, uint _afr, uint _lambda)
+float innoProto::func_check(int func, uint _afr, uint _lambda)
 {
     double lambda,afr;
     //result.clear();
@@ -109,13 +115,14 @@ void innoWB::func_check(int func, uint _afr, uint _lambda)
         result = pct_o2;
         //         qDebug() << "O2: " << pct_o2;
     } break;
-    case 0b010: result =func; break;
+    case 0b010: result = func; break;
     case 0b011: result = func; break;
     case 0b100: result = ((_lambda/10) <<3) + func; break;
     case 0b101: result = func; break;
     case 0b110: result = (_lambda << 3) + func; break;
 
     }
+    return result;
     //      emit AFR(result);
     //        010 Free air calibration in progress, Lambda data not valid
     //        011 Need Free air Calibration Request, Lambda data not valid
