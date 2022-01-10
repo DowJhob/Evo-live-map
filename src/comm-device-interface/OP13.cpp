@@ -71,7 +71,7 @@ bool OP13::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
         // FT_Open OK, use ftHandle to access device
         s = _ftdi->ftStatus = _ftdi->FT_ResetDevice(_ftdi->ftHandle);
         s = _ftdi->ftStatus = _ftdi->FT_Purge(_ftdi->ftHandle, FT_PURGE_RX | FT_PURGE_TX);
-        s = _ftdi->ftStatus = _ftdi->FT_SetTimeouts(_ftdi->ftHandle, 250, 2500);
+        s = _ftdi->ftStatus = _ftdi->FT_SetTimeouts(_ftdi->ftHandle, 2000, 2500);
         s = _ftdi->ftStatus = _ftdi->FT_SetLatencyTimer(_ftdi->ftHandle, 1);
         s = _ftdi->ftStatus = _ftdi->FT_SetBaudRate(_ftdi->ftHandle, baudRate);
         qDebug() << " FT_Open 5" <<  s;
@@ -94,16 +94,30 @@ bool OP13::close()
 bool OP13::five_baud_init()
 {
     ftdi_low_baud_sender(5, 0x00);                                 //5 baud, 0x00 ecu addr, 0x05 TCU?
-    QThread::msleep(400);
+    QThread::msleep(300);                             // W1 60 - 300ms
     //Get bytes waiting to be read
-    _ftdi->ftStatus = _ftdi->FT_GetQueueStatus(_ftdi->ftHandle, &FT_RxQ_Bytes);
-    _ftdi->ftStatus = _ftdi->FT_Read(_ftdi->ftHandle, in_buf, FT_RxQ_Bytes, &Reads);
-    if ((_ftdi->ftStatus != FT_OK) || (FT_RxQ_Bytes < 1))
+    QByteArray a = read();
+    QString aa = a.toHex(':');
+    qDebug() << "FT_five_baud_ response" << aa;
+    emit Log("FT_five_baud_ response: " + aa);
+
+    if (a.size() != 3)
     {
-        qDebug() << " FT_Read failed" << Reads << FT_RxQ_Bytes;
+        qDebug() << "FT five_baud failed";
+        emit Log("FT_ five_baud failed: ");
         return false;
     }
-    qDebug() << " FT_five_baud_OK";
+
+    QThread::msleep(30);                             // W4 time 25-50ms
+
+    in_buf[0] = ~a.at(2);
+    write(1);                                        // write invert keyword
+    QThread::msleep(30);                             // W4 time 25-50ms
+
+    a = read();                   // read address
+aa = a.toHex(':');
+    qDebug() << "FT_five_baud_OK" << aa;
+    emit Log("FT_five_baud_OK: " + aa);
     return true;
 }
 
@@ -117,6 +131,7 @@ QByteArray OP13::read()
         numAttemptcount--;
     }
     while(FT_RxQ_Bytes < 1 && numAttemptcount > 0);
+
     _ftdi->FT_Read(_ftdi->ftHandle, in_buf, FT_RxQ_Bytes, &Reads);
     //       emit readyRead(QByteArray::fromRawData( buf, Reads));
     return QByteArray( (char*)in_buf, Reads);
