@@ -129,7 +129,9 @@ void controller::getECUconnect(uint baudRate)
     {
         emit create_table( getMap(tab) );
     }
-
+    //char f = 0x1f;
+//    devComm->p_out_buff[0] = 0x1e;
+//ECUproto->directDMAwrite(0xfffff000, devComm->p_out_buff, 1);
     _dataLogger->start();
 }
 

@@ -101,8 +101,8 @@ bool OP13::five_baud_init()
 
     QString aa = a.toHex(':');
 
-    qDebug() << "FT_five_baud_ response" << aa;
-    emit Log("FT_five_baud_ response: " + aa);
+    qDebug() << "FT_five_baud_ response size" << a.size() << "response" << aa;
+    emit Log("FT_five_baud_ response size " + QString::number(a.size())  + " / response " + aa);
 
     if (a.size() < 4)
     {
@@ -111,13 +111,7 @@ bool OP13::five_baud_init()
         return false;
     }
 
-    QThread::msleep(30);                             // W4 time 25-50ms
 
-    in_buf[0] = ~a.at(2);
-        write(1);                                        // write invert keyword
-    QThread::msleep(30);                             // W4 time 25-50ms
-    a = read(1);                   // read address
-    aa = a.toHex(':');
 
     qDebug() << "FT_five_baud_OK" << aa;
     emit Log("FT_five_baud_OK: " + aa);
