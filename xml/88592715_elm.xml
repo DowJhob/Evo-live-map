@@ -45,7 +45,7 @@
 	<scaling name="WGDuty" units="%" toexpr="x/2" frexpr="x*2" format="%.1f" min="0" max="100" inc="0.5" storagetype="uint8" endian="big"/>
 	<scaling name="RamAdress" units="hex" toexpr="x-4294901760" frexpr="x+4294901760" format="%04X" min="0" max="65535" inc="1" storagetype="uint32" endian="big"/>
 
-	<table name="RAM_MUT" category="EvoLiveMap" type="RAM MUT scaling" address="FFFFA000" DEAD_var="FFFFA800">
+	<table name="RAM_MUT" category="EvoLiveMap" type="RAM MUT scaling" address="FFFFA230" DEAD_var="FFFFAA30">
 		<ram_mut name="Load"			scaling="Tephra1byteLoad"	number="0x00"/>
 		<ram_mut name="RPM"				scaling="RPMStatLimit8"		number="0x01"/>
 		<ram_mut name="Knock"			scaling="uint8"				number="0x02"/>
