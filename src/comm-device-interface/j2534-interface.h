@@ -1,12 +1,9 @@
 #ifndef J2534_INTERFACE_H
 #define J2534_INTERFACE_H
 
-//#include <QObject>
 #include <QDebug>
 
-//#include "src/libs/J2534.h"
 #include "src/libs/j2534passthru.h"
-
 #include "comm-device-interface.h"
 
 typedef struct
@@ -25,7 +22,6 @@ using namespace J2534;
 class j2534_interface : public comm_device_interface
 {
     friend class OP20;
-    Q_OBJECT
 public:
     // J2534
 
@@ -41,10 +37,6 @@ public:
 
     QString reportJ2534Error();
 
-public slots:
-
-private slots:
-
 private:
     PassThru *j2534;
     unsigned long devID;
@@ -59,8 +51,6 @@ private:
     bool ISO14230();
 
     bool get_serial_num(unsigned long devID, char* serial);
-
-signals:
 
 };
 

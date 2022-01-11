@@ -9,11 +9,6 @@ OP13::OP13(QString dllName, QString DeviceUniqueID) :  comm_device_interface( dl
     p_out_buff = out_buf;
     //qDebug() << "OP13" << DeviceUniqueID;
     info();
-
-
-    hEvent = CreateEventA(NULL, false, false, "MyEvent");
-
-
 }
 
 OP13::~OP13()
@@ -78,14 +73,6 @@ bool OP13::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
         s = _ftdi->ftStatus = _ftdi->FT_SetBaudRate(_ftdi->ftHandle, baudRate);
         // qDebug() << " FT_Open" <<  s;
         emit Log(" FT_Open status " + QString::number(s));
-
-        s = _ftdi->FT_SetEventNotification(_ftdi->ftHandle,  FT_EVENT_RXCHAR //| FT_EVENT_MODEM_STATUS
-                                           |FT_EVENT_LINE_STATUS
-                                           , hEvent);
-        emit Log(" FT_SetEventNotification status " + QString::number(s));
-        qDebug() << "FT_SetEventNotification status" << s << QString::fromLatin1( _ftdi->getLastError());
-
-
         return true;
     }
     emit Log(" FT_Open failed status " + QString::number(s));
@@ -140,6 +127,7 @@ bool OP13::five_baud_init()
 QByteArray OP13::read(uint lenght)
 {
     //Get bytes waiting to be read
+    DWORD FT_RxQ_Bytes;
     do
     {
         _ftdi->FT_GetQueueStatus(_ftdi->ftHandle, &FT_RxQ_Bytes);
@@ -147,6 +135,7 @@ QByteArray OP13::read(uint lenght)
     }
     while (FT_RxQ_Bytes < lenght);
 
+    ulong Reads;
     _ftdi->FT_Read(_ftdi->ftHandle, in_buf, FT_RxQ_Bytes, &Reads);
     QByteArray a = QByteArray( (char*)in_buf, Reads);
 //    qDebug() << "Readed bytes " << a.toHex(':') << Reads << endl;
@@ -155,6 +144,7 @@ QByteArray OP13::read(uint lenght)
 
 void OP13::write(int lenght)
 {
+    ulong Reads;
     _ftdi->FT_Write(_ftdi->ftHandle, p_out_buff, lenght, &Reads );
     //qDebug() << "Writed bytes " << QByteArray(p_out_buff, lenght).toHex(':') << Reads;
     _ftdi->FT_Read(_ftdi->ftHandle, p_in_buff, lenght, &Reads);    //читаем эхо
