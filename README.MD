@@ -28,18 +28,7 @@
 (я его еще не до конца реализовал).
 По умолчанию выбран jcsbanks протокол, все ДМА тефра в7
 используют его.
-Для работы приложения нужен xml файл с описанием
-таблиц вида 
-    <table name="High Octane Fuel Map" category="Fuel" address="37b4d" type="3D" level="4" swapxy="true" scaling="AFR" RAM_addr="FFFFA04D"> 
-        <table name="Load" address="4fdc" type="X Axis" elements="18" scaling="Load" RAM_mut_number="0x00"/>
-        <table name="RPM" address="4fb4" type="Y Axis" elements="15" scaling="RPM" RAM_mut_number="0x02"/>
-    </table>
-	
-	 RAM_addr адрес таблы в ОЗУ,
-	 RAM_mut_number номер в таблице MUT в ОЗУ
-	 
-	 в РАМ для распространенных тефра ром они уже есть,
-на данный момент на jcsbanks проверены 90550001, 80770001,
+На данный момент на jcsbanks проверены 90550001, 80770001,
 96262709, и 96532706, 88592715 поправлю когда будут тестеры,
 на nanner55 проверены 90550001 и 88590015.
 
