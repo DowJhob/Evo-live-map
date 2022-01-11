@@ -1,5 +1,7 @@
 # EVO livemap
 
+[ru README](README.MD)
+
 Application for editing mitsubishi controller tables on the 
 fly in RAM. Works with OpenPort1.3 and OpenPort2.0. 
 All descriptions of RAM tables are stored in xml files 
