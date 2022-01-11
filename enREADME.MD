@@ -1,11 +1,12 @@
 # EVO livemap
 
-Application for editing mitsubishi controller tables 
-on the fly in RAM. Works with OpenPort1.3 and OpenPort2.0.
- All descriptions of the RAM of the tables are stored in
- the ecuflash files, new attributes have been added to
- the descriptions of the tables, indicating the location
- of the tables in the controller's RAM.
+Application for editing mitsubishi controller tables on the 
+fly in RAM. Works with OpenPort1.3 and OpenPort2.0. 
+All descriptions of RAM tables are stored in xml files 
+as in ecuflash, new attributes have been added to table 
+descriptions indicating the location of tables in the 
+controller's RAM.
+
 
 Sample:
 
@@ -42,3 +43,6 @@ implementation was recently written by Orion4096 aka Nanner55
  have been tested on nanner55.
 
 To get started, you need to specify the connection speed and click connect.
+
+there is a bug and if the connection speed or log has changed, you need to poke
+m into another input window for the changes to be applied
