@@ -42,7 +42,7 @@ public:
     bool connect();
 
 public slots:
-    virtual QByteArray read() = 0;
+    virtual QByteArray read(uint lenght = 0) = 0;
     virtual void write(int lenght ) = 0;
 
 private slots:

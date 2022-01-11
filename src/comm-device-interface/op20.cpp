@@ -3,14 +3,14 @@
 OP20::OP20(QString dllName, QString DeviceUniqueID) : j2534_interface(dllName, DeviceUniqueID)
 {
     devType = deviceType::OP20;
-    qDebug() << "OP20" << DeviceUniqueID;
+    //qDebug() << "OP20" << DeviceUniqueID;
 }
 
 OP20::~OP20()
 {
     //       if(_tactrix_serial != nullptr)
     //       _tactrix_serial->deleteLater();
-    qDebug() << "~OP20";
+    //qDebug() << "~OP20";
 }
 
 bool OP20::openWB()

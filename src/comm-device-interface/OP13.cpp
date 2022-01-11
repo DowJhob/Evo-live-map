@@ -7,8 +7,13 @@ OP13::OP13(QString dllName, QString DeviceUniqueID) :  comm_device_interface( dl
     _ftdi = new ftdi(QCoreApplication::applicationDirPath() + "\\ftd2xx.dll");
     p_in_buff = in_buf;
     p_out_buff = out_buf;
-    qDebug() << "OP13" << DeviceUniqueID;
+    //qDebug() << "OP13" << DeviceUniqueID;
     info();
+
+
+    hEvent = CreateEventA(NULL, false, false, "MyEvent");
+
+
 }
 
 OP13::~OP13()
@@ -29,27 +34,24 @@ bool OP13::info()
         // create the device information list
         _ftdi->ftStatus = _ftdi->FT_CreateDeviceInfoList(&numDevs);
         if (_ftdi->ftStatus == FT_OK) {
-            qDebug() << "Number of devices is" << numDevs;
+            //         qDebug() << "Number of devices is" << numDevs;
         }
 
         // allocate storage for list based on numDevs
         devInfo = (FT_DEVICE_LIST_INFO_NODE*)malloc(sizeof(FT_DEVICE_LIST_INFO_NODE)*numDevs);
         // get the device information list
         _ftdi->ftStatus = _ftdi->FT_GetDeviceInfoList(devInfo,&numDevs);
-        qDebug() << "ftStatus: " << _ftdi->ftStatus;
-
-
-    if (_ftdi->ftStatus == FT_OK)
-    {
-        for (uint i = 0; i < numDevs; i++) {
-            QString info = "Dev: " + QString::number( i ) +
-                    "  SerialNumber: " + QString::fromLatin1( devInfo[i].SerialNumber) +
-                    "  Description: " + QString::fromLatin1(devInfo[i].Description);
-
-            //qDebug() << "info: " << info;
-            emit Log(info);
+        // qDebug() << "ftStatus: " << _ftdi->ftStatus;
+        if (_ftdi->ftStatus == FT_OK)
+        {
+            for (uint i = 0; i < numDevs; i++) {
+                QString info = //"Dev: " + QString::number( i ) +
+                        "  SerialNumber: " + QString::fromLatin1( devInfo[i].SerialNumber) +
+                        "  Description: " + QString::fromLatin1(devInfo[i].Description);
+                // qDebug() << "info: " << info;
+                emit Log(info);
+            }
         }
-    }
     }
     close();
     return true;
@@ -71,15 +73,25 @@ bool OP13::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
         // FT_Open OK, use ftHandle to access device
         s = _ftdi->ftStatus = _ftdi->FT_ResetDevice(_ftdi->ftHandle);
         s = _ftdi->ftStatus = _ftdi->FT_Purge(_ftdi->ftHandle, FT_PURGE_RX | FT_PURGE_TX);
-        s = _ftdi->ftStatus = _ftdi->FT_SetTimeouts(_ftdi->ftHandle, 2000, 2500);
+        s = _ftdi->ftStatus = _ftdi->FT_SetTimeouts(_ftdi->ftHandle, 20000, 2500);
         s = _ftdi->ftStatus = _ftdi->FT_SetLatencyTimer(_ftdi->ftHandle, 1);
         s = _ftdi->ftStatus = _ftdi->FT_SetBaudRate(_ftdi->ftHandle, baudRate);
-        qDebug() << " FT_Open 5" <<  s;
-        //     emit readyInterface(true);
+        // qDebug() << " FT_Open" <<  s;
+        emit Log(" FT_Open status " + QString::number(s));
+
+        s = _ftdi->FT_SetEventNotification(_ftdi->ftHandle,  FT_EVENT_RXCHAR //| FT_EVENT_MODEM_STATUS
+                                           |FT_EVENT_LINE_STATUS
+                                           , hEvent);
+        emit Log(" FT_SetEventNotification status " + QString::number(s));
+        qDebug() << "FT_SetEventNotification status" << s << QString::fromLatin1( _ftdi->getLastError());
+
 
         return true;
     }
-    qDebug() << " FT_Open failed" << s << QString::fromLatin1( _ftdi->getLastError());
+    emit Log(" FT_Open failed status " + QString::number(s));
+    // qDebug() << " FT_Open failed" << s << QString::fromLatin1( _ftdi->getLastError());
+
+
 
     return false;
 }
@@ -87,21 +99,25 @@ bool OP13::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
 bool OP13::close()
 {
     ulong s = _ftdi->FT_Close( _ftdi->ftHandle);
-    qDebug() << " close" << s;
+    //   qDebug() << " close" << s;
+    emit Log(" FT_Close status " + QString::number(s));
     return true;
 }
 
 bool OP13::five_baud_init()
 {
+    qDebug() << "Five baud init";
     ftdi_low_baud_sender(5, 0x00);                                 //5 baud, 0x00 ecu addr, 0x05 TCU?
-    QThread::msleep(300);                             // W1 60 - 300ms
+    //QThread::msleep(300);                             // W1 60 - 300ms
     //Get bytes waiting to be read
-    QByteArray a = read();
+    QByteArray a = read(4);
+
     QString aa = a.toHex(':');
+
     qDebug() << "FT_five_baud_ response" << aa;
     emit Log("FT_five_baud_ response: " + aa);
 
-    if (a.size() != 3)
+    if (a.size() < 4)
     {
         qDebug() << "FT five_baud failed";
         emit Log("FT_ five_baud failed: ");
@@ -111,37 +127,38 @@ bool OP13::five_baud_init()
     QThread::msleep(30);                             // W4 time 25-50ms
 
     in_buf[0] = ~a.at(2);
-    write(1);                                        // write invert keyword
+        write(1);                                        // write invert keyword
     QThread::msleep(30);                             // W4 time 25-50ms
+    a = read(1);                   // read address
+    aa = a.toHex(':');
 
-    a = read();                   // read address
-aa = a.toHex(':');
     qDebug() << "FT_five_baud_OK" << aa;
     emit Log("FT_five_baud_OK: " + aa);
     return true;
 }
 
-QByteArray OP13::read()
+QByteArray OP13::read(uint lenght)
 {
     //Get bytes waiting to be read
-    int numAttemptcount = numAttempt;
     do
     {
         _ftdi->FT_GetQueueStatus(_ftdi->ftHandle, &FT_RxQ_Bytes);
-        numAttemptcount--;
+        //qDebug() << "OP13::read2" << FT_RxQ_Bytes;
     }
-    while(FT_RxQ_Bytes < 1 && numAttemptcount > 0);
+    while (FT_RxQ_Bytes < lenght);
 
     _ftdi->FT_Read(_ftdi->ftHandle, in_buf, FT_RxQ_Bytes, &Reads);
-    //       emit readyRead(QByteArray::fromRawData( buf, Reads));
-    return QByteArray( (char*)in_buf, Reads);
+    QByteArray a = QByteArray( (char*)in_buf, Reads);
+//    qDebug() << "Readed bytes " << a.toHex(':') << Reads << endl;
+    return a;
 }
 
 void OP13::write(int lenght)
 {
     _ftdi->FT_Write(_ftdi->ftHandle, p_out_buff, lenght, &Reads );
-    //        qDebug() << "Writed bytes " << Reads;
+    qDebug() << "Writed bytes " << QByteArray(p_out_buff, lenght).toHex(':') << Reads;
     _ftdi->FT_Read(_ftdi->ftHandle, p_in_buff, lenght, &Reads);    //читаем эхо
+    qDebug() << "Echo readed bytes " << QByteArray(p_in_buff, lenght).toHex(':') << Reads << endl;
 }
 
 void OP13::ftdi_low_baud_sender(uint baudRate, byte value)
@@ -182,4 +199,25 @@ bool OP13::ISO15765()
 bool OP13::ISO14230()
 {
     return true;
+}
+
+void OP13::getDevList()
+{
+
+    FT_DEVICE_LIST_INFO_NODE *devInfo;
+    DWORD numDevs =  1;
+    // create the device information list
+    _ftdi->ftStatus = _ftdi->FT_CreateDeviceInfoList(&numDevs);
+    //if (_ftdi->ftStatus == FT_OK) {
+    //printf("Number of devices is %d\n",numDevs);
+    //}
+
+    // allocate storage for list based on numDevs
+    devInfo = (FT_DEVICE_LIST_INFO_NODE*)malloc(sizeof(FT_DEVICE_LIST_INFO_NODE)*numDevs);
+    // get the device information list
+    _ftdi->ftStatus = _ftdi->FT_GetDeviceInfoList(devInfo,&numDevs);
+    qDebug() << "ftStatus: " << _ftdi->ftStatus;
+
+
+
 }

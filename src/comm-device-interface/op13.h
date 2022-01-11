@@ -16,16 +16,19 @@ public:
     bool close();
     bool info();
     bool five_baud_init();
-    QByteArray read();
+    QByteArray read(uint lenght);
     void write( int lenght );
 
 public slots:
 
 private:
     ftdi *_ftdi;
+
+    HANDLE hEvent;
+
     char in_buf[4096];
     char out_buf[4096];
-    int numAttempt = 2;      //количество попыток чтения
+    int numAttempt = 10;      //количество попыток чтения
     DWORD FT_RxQ_Bytes;
     ulong Reads;
     void ftdi_low_baud_sender(uint baudRate, byte value);
@@ -34,26 +37,7 @@ private:
     bool ISO15765();
     bool ISO14230();
 
-    void getDevList()
-    {
-
-        FT_DEVICE_LIST_INFO_NODE *devInfo;
-        DWORD numDevs =  1;
-        // create the device information list
-        _ftdi->ftStatus = _ftdi->FT_CreateDeviceInfoList(&numDevs);
-        //if (_ftdi->ftStatus == FT_OK) {
-        //printf("Number of devices is %d\n",numDevs);
-        //}
-
-        // allocate storage for list based on numDevs
-        devInfo = (FT_DEVICE_LIST_INFO_NODE*)malloc(sizeof(FT_DEVICE_LIST_INFO_NODE)*numDevs);
-        // get the device information list
-        _ftdi->ftStatus = _ftdi->FT_GetDeviceInfoList(devInfo,&numDevs);
-        qDebug() << "ftStatus: " << _ftdi->ftStatus;
-
-
-
-    }
+    void getDevList();
 private slots:
 
 signals:

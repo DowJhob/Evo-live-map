@@ -9,7 +9,7 @@ j2534_interface::j2534_interface(QString dllName, QString DeviceUniqueID) : comm
     j2534 = new PassThru(dllName);
     ////connect(this, &j2534_interface::_loop, this, &j2534_interface::loop, Qt::QueuedConnection);            //
     //init();
-    qDebug() << "j2534_interface" << DeviceUniqueID;
+    //qDebug() << "j2534_interface" << DeviceUniqueID;
 }
 
 j2534_interface::~j2534_interface()
@@ -27,7 +27,7 @@ j2534_interface::~j2534_interface()
     }
     delete j2534;
 
-    qDebug() << "~j2534_interface";
+    //qDebug() << "~j2534_interface";
 }
 
 bool j2534_interface::info()
@@ -124,7 +124,7 @@ bool j2534_interface::close()
     return true;
 }
 
-QByteArray j2534_interface::read()
+QByteArray j2534_interface::read(uint lenght)
 {
     QByteArray a;
     QElapsedTimer tt;

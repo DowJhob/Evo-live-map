@@ -285,7 +285,8 @@ FT_STATUS ftdi::FT_Open (int iDevice, FT_HANDLE *ftHandle)
     long result = FT_OK;
     if (!checkDLL()){
         return FT_DEVICE_NOT_FOUND;
-    qDebug() << "FT_Open error";}
+    qDebug() << "FT_Open error";
+    }
     result = (*pfFT_Open)(iDevice, ftHandle);
 
 //qDebug() << "FT_Open returned result iDevice and ftHandle, result" << iDevice << ftHandle << result;
@@ -311,15 +312,15 @@ FT_STATUS ftdi::FT_GetDeviceInfoList (FT_DEVICE_LIST_INFO_NODE *pDest, LPDWORD l
     return result;
 }
 
-
 FT_STATUS ftdi::FT_ListDevices(PVOID pArg1,PVOID pArg2,DWORD Flags)
 {
     long result = FT_OK;
     if (!checkDLL()){
         return FT_DEVICE_NOT_FOUND;
-    qDebug() << "FT_ListDevices error";}
+    //qDebug() << "FT_ListDevices error";
+    }
     result = (*pfFT_ListDevices)( pArg1, pArg2, Flags);
-    qDebug() << "FT_ListDevices returned result " << result;
+    //qDebug() << "FT_ListDevices returned result " << result;
     return result;
 }
 FT_STATUS ftdi::FT_Close(FT_HANDLE ftHandle)
@@ -327,25 +328,28 @@ FT_STATUS ftdi::FT_Close(FT_HANDLE ftHandle)
     long result = FT_OK;
     if (!checkDLL()){
         return FT_DEVICE_NOT_FOUND;
-    qDebug() << "FT_Close error";}
+    //qDebug() << "FT_Close error";
+    }
     result = (*pfFT_Close)( ftHandle);
-    qDebug() << "FT_Close returned result " << result;
+    //qDebug() << "FT_Close returned result " << result;
     return result;
 }
 FT_STATUS ftdi::FT_Read(FT_HANDLE ftHandle,LPVOID lpBuffer,DWORD dwBytesToRead,LPDWORD lpBytesReturned){
     long result = FT_OK;
     if (!checkDLL()){
         return FT_DEVICE_NOT_FOUND;
-    qDebug() << "FT_Read error";}
+    //qDebug() << "FT_Read error";
+    }
     result = (*pfFT_Read)( ftHandle, lpBuffer, dwBytesToRead, lpBytesReturned);
-    qDebug() << "FT_Read returned result " << result;
+    //qDebug() << "FT_Read returned result " << result;
     return result;
 }
 FT_STATUS ftdi::FT_Write(FT_HANDLE ftHandle,LPVOID lpBuffer,DWORD dwBytesToWrite,LPDWORD lpBytesWritten){
     long result = FT_OK;
     if (!checkDLL()){
         return FT_DEVICE_NOT_FOUND;
-    qDebug() << "FT_Read error";}
+    //qDebug() << "FT_Write error";
+    }
     result = (*pfFT_Write)( ftHandle, lpBuffer, dwBytesToWrite, lpBytesWritten);
  //   qDebug() << "FT_Write returned result " << result;
     return result;
@@ -355,7 +359,8 @@ FT_STATUS ftdi::FT_IoCtl(FT_HANDLE ftHandle,DWORD dwIoControlCode,LPVOID lpInBuf
     long result = FT_OK;
     if (!checkDLL()){
         return FT_DEVICE_NOT_FOUND;
-    qDebug() << "FT_IoCtl error";}
+    //qDebug() << "FT_IoCtl error";
+    }
     result = (*pfFT_IoCtl)(ftHandle, dwIoControlCode, lpInBuf, nInBufSize, lpOutBuf, nOutBufSize, lpBytesReturned, lpOverlapped);
  //   qDebug() << "FT_IoCtl returned result" << result;
     return result;
@@ -365,7 +370,8 @@ FT_STATUS ftdi::FT_SetBaudRate(FT_HANDLE ftHandle,ULONG BaudRate)
     long result = FT_OK;
     if (!checkDLL()){
         return FT_DEVICE_NOT_FOUND;
-    qDebug() << "FT_SetBaudRate error";}
+    //qDebug() << "FT_SetBaudRate error";
+    }
     result = (*pfFT_SetBaudRate)( ftHandle, BaudRate);
  //   qDebug() << "FT_SetBaudRate returned result" << result;
     return result;
@@ -376,7 +382,8 @@ FT_STATUS ftdi::FT_SetDivisor(FT_HANDLE ftHandle,USHORT Divisor)
     long result = FT_OK;
     if (!checkDLL()){
         return FT_DEVICE_NOT_FOUND;
-    qDebug() << "FT_SetDivisor error";}
+    //qDebug() << "FT_SetDivisor error";
+    }
     result = (*pfFT_SetDivisor)( ftHandle, Divisor);
 //    qDebug() << "FT_SetDivisor returned result" << result;
     return result;
@@ -386,7 +393,8 @@ FT_STATUS ftdi::FT_SetDataCharacteristics(FT_HANDLE ftHandle,UCHAR WordLength,UC
     long result = FT_OK;
     if (!checkDLL()){
         return FT_DEVICE_NOT_FOUND;
-    qDebug() << "FT_SetDataCharacteristics error";}
+    //qDebug() << "FT_SetDataCharacteristics error";
+    }
     result = (*pfFT_SetDataCharacteristics)( ftHandle, WordLength, StopBits, Parity);
 //    qDebug() << "FT_SetDataCharacteristics returned result" << result;
     return result;
@@ -396,7 +404,8 @@ FT_STATUS ftdi::FT_SetFlowControl(FT_HANDLE ftHandle,USHORT FlowControl,UCHAR Xo
     long result = FT_OK;
     if (!checkDLL()){
         return FT_DEVICE_NOT_FOUND;
-    qDebug() << "FT_SetFlowControl error";}
+    //qDebug() << "FT_SetFlowControl error";
+    }
     result = (*pfFT_SetFlowControl)( ftHandle, FlowControl, XonChar, XoffChar);
 //    qDebug() << "FT_SetFlowControl returned result" << result;
     return result;
@@ -406,7 +415,8 @@ FT_STATUS ftdi::FT_ResetDevice(FT_HANDLE ftHandle)
     long result = FT_OK;
     if (!checkDLL()){
         return FT_DEVICE_NOT_FOUND;
-    qDebug() << "FT_ResetDevice error";}
+    //qDebug() << "FT_ResetDevice error";
+    }
     result = (*pfFT_ResetDevice)( ftHandle);
 //    qDebug() << "FT_ResetDevice returned result" << result;
     return result;
@@ -505,7 +515,7 @@ FT_STATUS ftdi::FT_SetEventNotification(FT_HANDLE ftHandle,DWORD Mask,PVOID Para
         return FT_DEVICE_NOT_FOUND;
     qDebug() << "FT_SetEventNotification error";}
     result = (*pfFT_SetEventNotification)( ftHandle, Mask, Param);
- //   qDebug() << "FT_SetEventNotification returned result" << result;
+    qDebug() << "FT_SetEventNotification returned result" << result;
     return result;
 }
 FT_STATUS ftdi::FT_GetStatus(FT_HANDLE ftHandle,DWORD *dwRxBytes,DWORD *dwTxBytes,DWORD *dwEventDWord)

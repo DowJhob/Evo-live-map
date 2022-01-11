@@ -130,7 +130,7 @@ void controller::getECUconnect(uint baudRate)
         emit create_table( getMap(tab) );
     }
 
-    _dataLogger->start();
+  //  _dataLogger->start();
 }
 
 void controller::getECUdisconnect()

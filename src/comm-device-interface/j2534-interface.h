@@ -36,7 +36,7 @@ public:
     bool open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate);
     bool close();
     bool five_baud_init();
-    QByteArray read();
+    QByteArray read(uint lenght = 0);
     void write(int lenght);
 
     QString reportJ2534Error();

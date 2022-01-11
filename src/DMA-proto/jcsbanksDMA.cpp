@@ -40,7 +40,7 @@ QByteArray jcsbanksDMA::indirectDMAread(quint32 addr, int lenght)
     //qDebug() << "jcsbanksDMA::directDMAread";
     sendDMAcomand(0xE0, addr, lenght, nullptr);
     //qDebug() << "jcsbanksDMA::directDMAread2";
-    return (*devComm)->read();
+    return (*devComm)->read(lenght);
 }
 
 QByteArray jcsbanksDMA::directDMAread(quint32 addr, int lenght)
@@ -48,7 +48,7 @@ QByteArray jcsbanksDMA::directDMAread(quint32 addr, int lenght)
     //qDebug() << "jcsbanksDMA::directDMAread";
     sendDMAcomand(0xE1, addr, lenght, nullptr);
     //qDebug() << "jcsbanksDMA::directDMAread2";
-    return (*devComm)->read();
+    return (*devComm)->read(lenght);
 }
 
 void jcsbanksDMA::directDMAwrite(quint32 addr, char *buf, int lenght)
@@ -69,11 +69,11 @@ void jcsbanksDMA::sendDMAcomand(char command, unsigned long addr, unsigned long 
     (*devComm)->p_out_buff[4] = (count & 0xFF00) >> 8;
     (*devComm)->p_out_buff[5] = (count & 0xFF);
     (*devComm)->write( 6 );
-    //QThread::msleep(15);
+    QThread::msleep(15);
     if ( buf != nullptr)
     {
         memcpy((*devComm)->p_out_buff, buf, count);
-        //subcount = count;
+        qDebug() << "jcsbanksDMA::sendDMAcomand daTA WRITE" << count;
         (*devComm)->write( count);
     }
 

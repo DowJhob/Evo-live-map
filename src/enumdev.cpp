@@ -12,6 +12,33 @@ enumerator::~enumerator()
         UnregisterDeviceNotification(NotificationHandle);
 }
 
+//Подписываемся на события
+void enumerator::notifyRegister(HWND hwnd)
+{
+    DEV_BROADCAST_DEVICEINTERFACE NotificationFilter;
+    ZeroMemory( &NotificationFilter, sizeof(NotificationFilter) );   //???
+    NotificationFilter.dbcc_size = sizeof(NotificationFilter);
+    NotificationFilter.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
+
+    for (auto classGUID: interfaces)
+    {
+        NotificationFilter.dbcc_classguid = classGUID;
+        NotificationFilter.dbcc_name[0] = '\0';
+        NotificationHandle = RegisterDeviceNotification( hwnd,
+                                                         &NotificationFilter,
+                                                         DEVICE_NOTIFY_ALL_INTERFACE_CLASSES
+                                                         //DEVICE_NOTIFY_WINDOW_HANDLE
+                                                         );
+        if ( NotificationHandle == nullptr )
+        {
+            qDebug() << QString::fromWCharArray( NotificationFilter.dbcc_name) << "event not register!!";
+        }
+        //else
+        //qDebug() << QString::fromWCharArray( NotificationFilter.dbcc_name) << "event registered!!";
+    }
+
+}
+
 bool enumerator::nativeEventFilter(const QByteArray &eventType, void *message, long *result)
 {
     Q_UNUSED( result )
@@ -33,114 +60,14 @@ bool enumerator::nativeEventFilter(const QByteArray &eventType, void *message, l
     return false;
 }
 
-void enumerator::NotifyRegister(HWND hwnd)
-{
-    //Подписываемся на события
-    DEV_BROADCAST_DEVICEINTERFACE NotificationFilter;
-    ZeroMemory( &NotificationFilter, sizeof(NotificationFilter) );   //???
-    NotificationFilter.dbcc_size = sizeof(NotificationFilter);
-    NotificationFilter.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
-    for (uint i = 0; i < Jsize; i++)
-    {
-        //         NotificationFilter.dbcc_classguid = {0xa5dcbf10, 0x6530, 0x11d2, {0x90, 0x1f, 0x0, 0xc0, 0x4f, 0xb9, 0x51, 0xed}} ; // подпишемся на все наши интерфейсы
-        NotificationFilter.dbcc_classguid = J2543_interfaces[i];
-        NotificationFilter.dbcc_name[0] = '\0';
-        NotificationHandle = RegisterDeviceNotification( hwnd,
-                                                         &NotificationFilter,
-                                                         //DEVICE_NOTIFY_ALL_INTERFACE_CLASSES
-                                                         DEVICE_NOTIFY_WINDOW_HANDLE
-                                                         );
-        if ( NotificationHandle == nullptr )
-        {
-            qDebug() << QString::fromWCharArray( NotificationFilter.dbcc_name) << "event not register!!";
-        }
-        //else
-        //qDebug() << QString::fromWCharArray( NotificationFilter.dbcc_name) << "event registered!!";
-    }
-    for (int i = 0; i < Ssize; i++)
-    {
-        NotificationFilter.dbcc_classguid = serial_interfaces[i]; // подпишемся на все наши интерфейсы
-        NotificationFilter.dbcc_name[0] = '\0';
-        NotificationHandle = RegisterDeviceNotification( hwnd,
-                                                         &NotificationFilter,
-                                                         //DEVICE_NOTIFY_ALL_INTERFACE_CLASSES
-                                                         DEVICE_NOTIFY_WINDOW_HANDLE
-                                                         );
-        if ( NotificationHandle == nullptr )
-        {
-            qDebug() << QString::fromWCharArray( NotificationFilter.dbcc_name) << "event not register!!";
-        }
-        //else
-        //qDebug() << QString::fromWCharArray( NotificationFilter.dbcc_name) << "event registered!!";
-    }
-}
-
-void enumerator::getPresentCommDevices()
-{
-    for (uint i = 0; i < Jsize; i++)
-        //  if (
-        getPresentCommDevices(J2543_interfaces[i]);
-    //         )
-    //        {
-    //            VechicleInterfaceType = dev_type::J2534;
-    //            emit InterfaceActive(VechicleInterfaceType, DllLibraryPath, isTactrix);
-    //            emit Log(interfaceName, 0);
-    //            return true;
-    //        }
-    for (int i = 0; i < Ssize; i++)
-        // if (
-        getPresentCommDevices(serial_interfaces[i]);
-    //                )
-    //        {
-    //            VechicleInterfaceType = dev_type::OP13;
-    //            emit InterfaceActive(VechicleInterfaceType, DllLibraryPath, isTactrix);
-    //            emit Log(interfaceName, 0);
-    //            return true;
-    //        }
-
-    // emit Log("No vechicle interface", 0);
-
-    //emit disconnectInterface();
-    //  return false;
-}
-
-void enumerator::getPresentCommDevices(GUID guid)
-{
-    HDEVINFO hDevInfo;
-    SP_DEVINFO_DATA DeviceInfoData;
-    // Получаем указатель на множество устройств, присутствующих в системе
-    hDevInfo = SetupDiGetClassDevs(&guid, nullptr, nullptr,  DIGCF_PRESENT|DIGCF_DEVICEINTERFACE );
-
-    if ( hDevInfo == INVALID_HANDLE_VALUE )
-    {
-        qDebug() << "err create list dev";
-        //     return false;
-    }
-    ZeroMemory(&DeviceInfoData, sizeof(SP_DEVINFO_DATA));
-    DeviceInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
-    // Перебор всех устройств из набора
-    for (uint i = 0; SetupDiEnumDeviceInfo(hDevInfo, i, &DeviceInfoData); i++)
-    {
-        // SPDRP_HARDWAREID
-        // SPDRP_CLASS
-        // SPDRP_MFG   //vendor
-
-        device dev = getDevProp(hDevInfo, DeviceInfoData);
-        //qDebug() << "enumerator::getPresentCommDevices" << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
-        dev.direction = dir::arrive;
-        checkType(dev);
-    }
-    SetupDiDestroyDeviceInfoList(hDevInfo);
-}
-
 void enumerator::handleEvent(long wParam, PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
 {
     switch(wParam)
     {
     case DBT_DEVICEREMOVECOMPLETE:{
-            device dev = getDevProp(pDevInf);
-            dev.direction = dir::remove;
-            emit commDeviceEvent(dev);
+        device dev = getDevProp(pDevInf);
+        dev.direction = dir::remove;
+        emit commDeviceEvent(dev);
     }break;
     case DBT_DEVICEARRIVAL:{
         device dev = getDevProp(pDevInf);
@@ -150,37 +77,52 @@ void enumerator::handleEvent(long wParam, PDEV_BROADCAST_DEVICEINTERFACE pDevInf
     }
 }
 
-device enumerator::getDevProp(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
+void enumerator::getPresentCommDevices()
 {
-    QStringList qDevInf = QString::fromWCharArray((wchar_t*)pDevInf->dbcc_name).split('#');
-    qDebug()<< "qDevInf" <<qDevInf;
-    if (qDevInf.length() >= 3)
+    for (auto classGUID: interfaces)
     {
-        QString DevType = qDevInf[0].mid(qDevInf[0].indexOf("?\\") + 2 );
-        QString DeviceInstanceId = qDevInf[1];
-        QString DeviceUniqueID = qDevInf[2];
-        QString reg = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Enum\\" + DevType + "\\" + DeviceInstanceId + "\\" + DeviceUniqueID;
-        QSettings regKey(reg, QSettings::NativeFormat);
-        //qDebug()<< "DeviceInstanceId" << DeviceInstanceId;
-        return device
+        //qDebug()<< "enumerator::getPresentCommDevices";
+        HDEVINFO hDevInfo;
+        SP_DEVINFO_DATA DeviceInfoData;
+        // Получаем указатель на множество устройств, присутствующих в системе
+        hDevInfo = SetupDiGetClassDevs(&classGUID, nullptr, nullptr,
+                                       DIGCF_PRESENT
+                                       //|DIGCF_DEVICEINTERFACE
+                                       |DIGCF_ALLCLASSES
+                                       //|DIGCF_PROFILE
+                                       );
+
+        if ( hDevInfo == INVALID_HANDLE_VALUE )
         {
-            regKey.value("Mfg", "").toString().split(';').at(1),
-                    regKey.value("DeviceDesc", "").toString().split(';').at(1),
-                    "",
-                    DeviceInstanceId,
-                    DeviceUniqueID
-        };
+            qDebug() << "err create list dev";
+            //     return false;
+        }
+        ZeroMemory(&DeviceInfoData, sizeof(SP_DEVINFO_DATA));
+        DeviceInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
+        // Перебор всех устройств из набора
+        for (uint i = 0; SetupDiEnumDeviceInfo(hDevInfo, i, &DeviceInfoData); i++)
+        {
+            device dev = getDevProp(hDevInfo, DeviceInfoData);
+            //qDebug() << "enumerator::getPresentCommDevices" << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
+            dev.direction = dir::arrive;
+            checkType(dev);
+        }
+        SetupDiDestroyDeviceInfoList(hDevInfo);
     }
-    return device{};
 }
 
 device enumerator::getDevProp(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceInfoData)
 {
+    // SPDRP_HARDWAREID
+    // SPDRP_CLASS
+    // SPDRP_MFG   //vendor
+
     device dev;
     QByteArray Mfg = getDeviceDesc(hDevInfo, DeviceInfoData, SPDRP_MFG);
     QByteArray DeviceInstanceId = getDeviceDesc(hDevInfo, DeviceInfoData, SPDRP_HARDWAREID);
     QByteArray DeviceDesc = getDeviceDesc(hDevInfo, DeviceInfoData, SPDRP_DEVICEDESC);
-
+    QByteArray classDev2 = getDeviceDesc(hDevInfo, DeviceInfoData, SPDRP_CLASSGUID);
+    QString classDev = QString::fromWCharArray( (wchar_t*)classDev2.data() );
     //QByteArray DeviceUniqueID = getDeviceDesc(hDevInfo, DeviceInfoData, 26);
 
     PTSTR buf = NULL;
@@ -199,11 +141,38 @@ device enumerator::getDevProp(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceInfoData)
     dev.Mfg = QString::fromWCharArray( (wchar_t*)Mfg.data() );
     dev.DeviceDesc = QString::fromWCharArray( (wchar_t*)DeviceDesc.data() );
     dev.DeviceInstanceId = QString::fromWCharArray( (wchar_t*)DeviceInstanceId.data() );
+    dev.classDev = QUuid(classDev);
 
-    //qDebug()<< "Mfg"<<  dev.Mfg < "DeviceDesc"<<   dev.DeviceDesc
+    // qDebug()<< "classDev"<<  classDev//.toHex(':')
+    //        << "dev.classDev"<< dev.classDev;
     //<< "DeviceUniqueID"<<   dev.DeviceUniqueID
     //<< "DeviceInstanceId"<<  dev.DeviceInstanceId << "FunctionLibrary"<<   dev.FunctionLibrary << endl;
     return dev;
+}
+
+device enumerator::getDevProp(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
+{
+    QStringList qDevInf = QString::fromWCharArray((wchar_t*)pDevInf->dbcc_name).split('#');
+    qDebug() << "enumerator::getDevProp pDevInf->dbcc_name" << qDevInf << "pDevInf->dbcc_classguid" << pDevInf->dbcc_classguid << endl;
+    if (qDevInf.length() >= 3)
+    {
+        QString DevType = qDevInf[0].mid(qDevInf[0].indexOf("?\\") + 2 );
+        QString DeviceInstanceId = qDevInf[1];
+        QString DeviceUniqueID = qDevInf[2];
+        QString reg = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Enum\\" + DevType + "\\" + DeviceInstanceId + "\\" + DeviceUniqueID;
+        QSettings regKey(reg, QSettings::NativeFormat);
+        //qDebug()<< "DeviceInstanceId" << DeviceInstanceId;
+        return device
+        {
+            regKey.value("Mfg", "").toString().split(';').at(1),
+                    regKey.value("DeviceDesc", "").toString().split(';').at(1),
+                    "",
+                    DeviceInstanceId,
+                    DeviceUniqueID,
+                    pDevInf->dbcc_classguid
+        };
+    }
+    return device{};
 }
 
 QString enumerator::getDLLpath(QString Mfg, QString reg)
@@ -237,30 +206,29 @@ QByteArray enumerator::getDeviceDesc(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceIn
 
 void enumerator::checkType(device dev)
 {
-    qDebug() << "enumerator::checkType" << dev.DeviceUniqueID << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
-
-    //emit Log(dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg);
-
+    dev.FunctionLibrary.clear();
     dev.FunctionLibrary = getDLLpath( dev.Mfg, reg64);
-    if(!dev.FunctionLibrary.isEmpty() && dev.DeviceInstanceId.contains(tactrixOP20_DeviceInstanceId2))
+    if(!dev.FunctionLibrary.isEmpty()&&
+            dev.classDev != QUuid( { 0x6d1781b7, 0xc987, 0x4f6c, {0x8d, 0x4f, 0x1e, 0xfc, 0x09, 0x8b, 0xea, 0x67}} ))  // exlude tactrix strange interface https://www.evoxforums.com/threads/bricked-my-ecu.236402/
     {
-        qDebug() << "enumerator::checkType2 OP20" << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
-        dev.type =  deviceType::OP20;
-        emit commDeviceEvent(dev);
-        return;
+        if(dev.DeviceInstanceId.contains(tactrixOP20_DeviceInstanceId2) )
+        { //
+            dev.type =  deviceType::OP20;
+        }
+        else
+        {
+            dev.type =  deviceType::J2534;
+        }
     }
-    if(!dev.FunctionLibrary.isEmpty())
-    {
-        qDebug() << "enumerator::checkType2 J2534" << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
-        dev.type =  deviceType::J2534;
-        emit commDeviceEvent(dev);
-        return;
-    }
-    if(dev.DeviceInstanceId.contains(tactrixOP13_DeviceInstanceId) || dev.DeviceInstanceId.contains(tactrixOP13_DeviceInstanceId2))
-    {
-        qDebug() << "enumerator::checkType2 OP13" << dev.DeviceUniqueID << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
-        dev.type =  deviceType::OP13;
-        emit commDeviceEvent(dev);
-    }
+    else if ((dev.classDev == QUuid( {0x219d0508, 0x57a8, 0x4ff5, {0x97, 0xa1, 0xbd, 0x86, 0x58, 0x7c, 0x6c, 0x7e}})) ||      // FTDI_D2XX_Device Class GUID
+                //(dev.classDev == QUuid({ 0x86e0d1e0, 0x8089, 0x11d0, {0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73}})) ||            // FTDI_VCP_Device Class GUID
+                (dev.classDev == QUuid({ 0x4d36e978, 0xe325, 0x11ce, {0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18}}))       // Serial and parralel ports standart Windows class (seeng Openport1.3 (as serial port))
+                )
+        {
+            dev.type =  deviceType::OP13;
+        }
+        else return;
+    qDebug() << "enumerator::checkType dev.type" << (int)dev.type << dev.DeviceUniqueID << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
+    emit commDeviceEvent(dev);
 
 }

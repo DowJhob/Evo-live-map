@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 
 
     //Подписываемся на события
-    Enumerator.NotifyRegister((HWND)mainWindow.winId());
+    Enumerator.notifyRegister((HWND)mainWindow.winId());
     Enumerator.getPresentCommDevices();
     //=============================================================================
 

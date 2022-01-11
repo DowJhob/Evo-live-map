@@ -52,13 +52,13 @@ void MainWindow::commDeviceSelected(device dev)
 
 void MainWindow::DMAprotoSelected(int proto)
 {    
-    qDebug()<< "MainWindow::_protoSelected" << proto;
+    //qDebug()<< "MainWindow::_protoSelected" << proto;
     emit protoSelected(proto);
 }
 
 void MainWindow::deviceEvent(device dev)
 {
-    qDebug() << "MainWindow::deviceEvent" << dev.DeviceUniqueID << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
+    //qDebug() << "MainWindow::deviceEvent" << dev.DeviceUniqueID << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
     switch(dev.direction)
     {
     case dir::arrive :

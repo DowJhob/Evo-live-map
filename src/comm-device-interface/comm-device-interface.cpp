@@ -5,12 +5,12 @@
 
 comm_device_interface::comm_device_interface(QString dllName, QString DeviceUniqueID) : QObject(), dllName(dllName), DeviceUniqueID(DeviceUniqueID)
 {
-    qDebug() << "comm_device_interface";
+    //qDebug() << "comm_device_interface";
 }
 
 comm_device_interface::~comm_device_interface()
 {
-    qDebug() << "~comm_device_interface";
+    //qDebug() << "~comm_device_interface";
 }
 
 bool comm_device_interface::connect()
