@@ -69,12 +69,12 @@ void jcsbanksDMA::sendDMAcomand(char command, unsigned long addr, unsigned long 
     (*devComm)->p_out_buff[4] = (count & 0xFF00) >> 8;
     (*devComm)->p_out_buff[5] = (count & 0xFF);
     (*devComm)->write( 6 );
-    QThread::msleep(15);
+    //QThread::msleep(1);
     if ( buf != nullptr)
     {
-        memcpy((*devComm)->p_out_buff, buf, count);
-        qDebug() << "jcsbanksDMA::sendDMAcomand daTA WRITE" << count;
-        (*devComm)->write( count);
+        memcpy((*devComm)->p_out_buff+6, buf, count);
+        //qDebug() << "jcsbanksDMA::sendDMAcomand payload data" << count;
+        (*devComm)->write( count+6);
     }
 
     //(*devComm)->write( 6+subcount);

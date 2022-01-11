@@ -156,9 +156,9 @@ QByteArray OP13::read(uint lenght)
 void OP13::write(int lenght)
 {
     _ftdi->FT_Write(_ftdi->ftHandle, p_out_buff, lenght, &Reads );
-    qDebug() << "Writed bytes " << QByteArray(p_out_buff, lenght).toHex(':') << Reads;
+    //qDebug() << "Writed bytes " << QByteArray(p_out_buff, lenght).toHex(':') << Reads;
     _ftdi->FT_Read(_ftdi->ftHandle, p_in_buff, lenght, &Reads);    //читаем эхо
-    qDebug() << "Echo readed bytes " << QByteArray(p_in_buff, lenght).toHex(':') << Reads << endl;
+    //qDebug() << "Echo readed bytes " << QByteArray(p_in_buff, lenght).toHex(':') << Reads << endl;
 }
 
 void OP13::ftdi_low_baud_sender(uint baudRate, byte value)

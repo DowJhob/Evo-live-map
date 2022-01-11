@@ -81,8 +81,8 @@ void controller::setProto(int proto)
         ECUproto->deleteLater();
     //qDebug()<< "setProto" << proto;
     switch (proto) {
-    case 0 : ECUproto = new stockDMA(&devComm);break;
-    case 1 : ECUproto = new jcsbanksDMA(&devComm);break;
+    case 0 : ECUproto = new jcsbanksDMA(&devComm);break;
+    case 1 : ECUproto = new stockDMA(&devComm);break;
     case 2 : ECUproto = new evoX_DMA(&devComm);break;
     }
     //qDebug()<<"=========== proto ================";
@@ -130,7 +130,7 @@ void controller::getECUconnect(uint baudRate)
         emit create_table( getMap(tab) );
     }
 
-  //  _dataLogger->start();
+    _dataLogger->start();
 }
 
 void controller::getECUdisconnect()

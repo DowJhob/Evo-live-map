@@ -5,7 +5,7 @@
 #include <QLineEdit>
 #include <QSpacerItem>
 
-commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate) : QWidget(parent)
+commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint defaultLogRate) : QWidget(parent)
 {
     QLayout *l = new QGridLayout(this);
     setLayout(l);
@@ -42,7 +42,7 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate) : QWidge
     lb = new QLabel("Logging rate, Hz:", this);
     lb->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     ll->addWidget(lb, 0, 1);
-    el_logRate = new QLineEdit("50", this);
+    el_logRate = new QLineEdit(QString::number(defaultLogRate), this);
     el_logRate->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     ll->addWidget(el_logRate, 0, 2);
 
@@ -86,8 +86,8 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate) : QWidge
     QSpacerItem *si = new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding);
     l->addItem(si);
 
-    protoListBox->addItem("Stock DMA proto by nanner55");
     protoListBox->addItem("Custom DMA proto by jcsbanks");
+    protoListBox->addItem("Stock DMA proto by nanner55");
     protoListBox->addItem("evoX_DMA by tephra");
 
 

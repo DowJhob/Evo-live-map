@@ -10,11 +10,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(_mainToolBar, &mainToolBar::s_ramReset, this, &MainWindow::resetRAM);
 
     //=============================================================================
-    cpW = new commParamWidget(this, 62500);
+    cpW = new commParamWidget(this, 62500, 10);
     connect(cpW, &commParamWidget::interfaceSelected, this, &MainWindow::commDeviceSelected);
     connect(cpW, &commParamWidget::protoSelected, this, &MainWindow::DMAprotoSelected);
     connect(cpW, &commParamWidget::logChanged, this, &MainWindow::logChanged);
-    ui->connectionParam->layout()->addWidget(cpW);
+    ui->Settings->layout()->addWidget(cpW);
     //=============================================================================
     hexEdit = new hexEditor(this);
     ui->directHex->layout()->addWidget(hexEdit);

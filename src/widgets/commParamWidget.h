@@ -14,7 +14,7 @@ class commParamWidget : public QWidget
     Q_OBJECT
 public:
     uint baudRate;
-    explicit commParamWidget(QWidget *parent = nullptr, uint defaultBaudRate = 62500);
+    explicit commParamWidget(QWidget *parent = nullptr, uint defaultBaudRate = 62500, uint defaultLogRate = 10);
 
 public slots:
     void addDevice(device dev);
