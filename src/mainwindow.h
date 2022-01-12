@@ -16,7 +16,7 @@
 
 #include "types.h"
 
-#include "comm-device-interface/comm-device-interface.h"
+//#include "comm-device-interface/comm-device-interface.h"
 #include "comm-device-interface/op13.h"
 #include "comm-device-interface/op20.h"
 
@@ -25,6 +25,10 @@
 #include "widgets/maintoolbar.h"
 #include "widgets/gauge_widget.h"
 #include "widgets/commParamWidget.h"
+
+
+#include "comm-device-interface/devicemanager.h"
+
 #include "widgets/mapWidget/mapwidget.h"
 #include "widgets/hexEditor/qhexedit/qhexedit.h"
 #include "widgets/hexEditor/hexeditor.h"
@@ -47,23 +51,38 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 public slots:
-    void deviceEvent(device dev);
+    void setDeviceManager(deviceManager *devManager)
+    {
+        settings->layout()->addWidget(devManager);
+        connect(devManager, &deviceManager::deviceSelected, this, &MainWindow::deviceEvent);
+    }
+    void deviceEvent(comm_device_interface *devComm)
+    {
+        emit deviceSelected(devComm);
+        if(devComm == nullptr)
+        {
+            lockInterface(true);
+            statusBar()->showMessage("No interface", 0);
+            return;
+        }
+        statusBar()->showMessage(devComm->DeviceUniqueID, 0);
+
+        if( devComm->info() )
+            lockInterface(false);                  // Показываем кнопки старт и сброс памяти
+    }
+
+    //void deviceEvent(device dev);
 
     void lockInterface(bool lockFlag);
     void ecu_connected();
-
     void createMap(mapDefinition *dMap);
-
     void Log(QString str);
-
     void createWB(commDeviceWB *wb);
 
 private slots:
-    void commDeviceSelected(device dev);
+    //void commDeviceSelected(device dev);
     void DMAprotoSelected(int proto);
-
     void StartButton_slot();
-
     void itemChecks(QTreeWidgetItem *item, int column);
 
 private:
@@ -71,6 +90,8 @@ private:
     Ui::MainWindow *ui;
     mainToolBar *_mainToolBar;
     commParamWidget *cpW;
+
+    QWidget *settings = nullptr;  // костыль для получения кутаба (устанавливается в конструкторе) потом надо переместить кутаб из уи сюда
 
     void createMapTree(Map *tab);
     void freeMapTree();
@@ -90,8 +111,9 @@ private:
     void colorFromFile(QString filename);
 
 signals:
-    void devSelected(device);
-    void interfaceRemoved(device);
+    void deviceSelected(comm_device_interface*);
+    //void deviceSelected(device);
+    //void interfaceRemoved(device);
     void protoSelected(int proto);
     //void baudChanged(int);
     void logChanged(int);

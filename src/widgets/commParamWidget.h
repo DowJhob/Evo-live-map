@@ -9,6 +9,7 @@
 
 #include "../enumdev.h"
 
+
 class commParamWidget : public QWidget
 {
     Q_OBJECT

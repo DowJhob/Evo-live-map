@@ -87,8 +87,8 @@ private:
     QString tactrixOP13_DeviceInstanceId = "VID_0403&PID_CC4A";
     QString tactrixOP13_DeviceInstanceId2 = "VID_0403&PID_6001";
 
-    const QVector<GUID> interfaces{
-        { 0xa5dcbf10, 0x6530, 0x11d2, {0x90, 0x1f, 0x00, 0xc0, 0x4f, 0xb9, 0x51, 0xed}}        // raw usb device work for all
+    const QVector<GUID> subscribeInterfaces{
+        { 0xa5dcbf10, 0x6530, 0x11d2, {0x90, 0x1f, 0x00, 0xc0, 0x4f, 0xb9, 0x51, 0xed}},        // raw usb device work for all
         //{ 0x219d0508, 0x57a8, 0x4ff5, {0x97, 0xa1, 0xbd, 0x86, 0x58, 0x7c, 0x6c, 0x7e}},        // FTDI_D2XX_Device Class GUID
         //{ 0x86e0d1e0, 0x8089, 0x11d0, {0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73}},        // FTDI_VCP_Device Class GUID
         //{ 0x4d36e978, 0xe325, 0x11ce, {0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18}},       // Serial and parralel ports standart Windows class (seeng Openport1.3 (as serial port))
@@ -99,6 +99,10 @@ private:
                                                                                                 // seeng both openport 13 and 20 but op13 seeng twice
         //{ 0x6d1781b7, 0xc987, 0x4f6c, {0x8d, 0x4f, 0x1e, 0xfc, 0x09, 0x8b, 0xea, 0x67}},       // кажется это загрузчик тактрикса для смены ПО tactrix VehiclePassThru j2534 ??????? https://www.evoxforums.com/threads/bricked-my-ecu.236402/
     };
+    const QVector<GUID> presentInterfaces{
+        { 0xa5dcbf10, 0x6530, 0x11d2, {0x90, 0x1f, 0x00, 0xc0, 0x4f, 0xb9, 0x51, 0xed}},
+        { 0x4d36e978, 0xe325, 0x11ce, {0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18}}
+    };
 
     HDEVNOTIFY NotificationHandle = nullptr;
 
@@ -107,7 +111,7 @@ private:
     QByteArray getDeviceDesc(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceInfoData, uint SPDRP);
 
 signals:
-    void commDeviceEvent(device);
+    void deviceEvent(device);
     void Log(QString);
 };
 

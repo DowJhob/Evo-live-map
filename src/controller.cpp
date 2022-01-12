@@ -38,30 +38,23 @@ void controller::start()
     this_thread->start();  // запустим поток,
 }
 
-void controller::commDeviceSelected(device dev)
+//void controller::commDeviceSelected(device dev)
+void controller::commDeviceSelected(comm_device_interface *dev)
 {
+    devComm = dev;
     if (devComm != nullptr  )
     {
-        devComm->close();
-        devComm->deleteLater();
+        //devComm->close();
+        //devComm->deleteLater();
     }
-    switch (dev.type) {
-    case deviceType::OP13  : devComm = new OP13(dev.FunctionLibrary, dev.DeviceUniqueID); break;
-    case deviceType::OP20  : devComm = new OP20(dev.FunctionLibrary, dev.DeviceUniqueID);
-        emit getWB(reinterpret_cast<commDeviceWB*>(devComm));
-        //qDebug()<< "controller::commDeviceSelected" << dev.DeviceDesc + " / WB serial interface";
-        break;
-    case deviceType::J2534 : devComm = new j2534_interface(dev.FunctionLibrary, dev.DeviceUniqueID); break;
-    default              : return;
-    }
+    //
     p_in_buff = devComm->p_in_buff;
 
     //connect(devComm, &comm_device_interface::readyInterface, this, &controller::interfaceReady); // форвардим сигнал готовности ннаружу для разблокировки гуя
-    connect(devComm, &comm_device_interface::Log, this, &controller::Log, Qt::QueuedConnection);
+    //connect(devComm, &comm_device_interface::Log, this, &controller::Log, Qt::QueuedConnection);
     //connect(this, &controller::baudChanged, devComm, &comm_device_interface::setBaudRate);
 
-    if( devComm->info() )
-        emit interfaceReady(true);                  // Показываем кнопки старт и сброс памяти
+
 }
 
 void controller::commDeviceRemoved(device dev)

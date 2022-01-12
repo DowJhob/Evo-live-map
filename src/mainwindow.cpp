@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     //=============================================================================
     cpW = new commParamWidget(this, 62500, 10);
-    connect(cpW, &commParamWidget::interfaceSelected, this, &MainWindow::commDeviceSelected);
+    //connect(cpW, &commParamWidget::interfaceSelected, this, &MainWindow::commDeviceSelected);
     connect(cpW, &commParamWidget::protoSelected, this, &MainWindow::DMAprotoSelected);
     connect(cpW, &commParamWidget::logChanged, this, &MainWindow::logChanged);
     ui->Settings->layout()->addWidget(cpW);
@@ -24,6 +24,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     //connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(itemChecks(QTreeWidgetItem*, int)));
     statusBar()->showMessage("No interface", 0);
     colorFromFile("C:\\Program Files (x86)\\OpenECU\\EcuFlash\\colormaps\\COLDFIRE.MAP") ;
+
+
+
+    settings = ui->Settings;
+
 
 }
 
@@ -43,12 +48,16 @@ void MainWindow::closeEvent(QCloseEvent *event)
     emit _exit();
 }
 
-void MainWindow::commDeviceSelected(device dev)
-{
-    //qDebug()<< "MainWindow::commDeviceSelected" << dev.DeviceDesc;
-    statusBar()->showMessage(dev.DeviceDesc, 0);
-    emit devSelected(dev);
-}
+
+
+
+
+//void MainWindow::commDeviceSelected(device dev)
+//{
+//    //qDebug()<< "MainWindow::commDeviceSelected" << dev.DeviceDesc;
+//    statusBar()->showMessage(dev.DeviceDesc, 0);
+//    emit deviceSelected(dev);
+//}
 
 void MainWindow::DMAprotoSelected(int proto)
 {    
@@ -56,27 +65,27 @@ void MainWindow::DMAprotoSelected(int proto)
     emit protoSelected(proto);
 }
 
-void MainWindow::deviceEvent(device dev)
-{
-    //qDebug() << "MainWindow::deviceEvent" << dev.DeviceUniqueID << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
-    switch(dev.direction)
-    {
-    case dir::arrive :
-        cpW->addDevice(dev);
-        break;
-    case dir::remove :
-        cpW->removeDevice(dev);
+//void MainWindow::deviceEvent(device dev)
+//{
+//    //qDebug() << "MainWindow::deviceEvent" << dev.DeviceUniqueID << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
+//    switch(dev.direction)
+//    {
+//    case dir::arrive :
+//        cpW->addDevice(dev);
+//        break;
+//    case dir::remove :
+//        cpW->removeDevice(dev);
 
-        emit interfaceRemoved(dev);
+//        emit interfaceRemoved(dev);
 
-        break;
-    }
+//        break;
+//    }
 
-}
+//}
 
 void MainWindow::lockInterface(bool lockFlag)
 {
-    _mainToolBar->lockConnect(!lockFlag);
+    _mainToolBar->lockConnect(lockFlag);
 }
 
 void MainWindow::StartButton_slot()
@@ -191,9 +200,9 @@ void MainWindow::create_gauge(QString name, mutParam *param)
 void MainWindow::gaugeDelete()
 {
     //foreach (gauge_widget *gauge, gauge_widget_set)
-//    for (gauge_widget *gauge : qAsConst(gauge_widget_set))
-//        gauge->deleteLater();
-//    gauge_widget_set.clear();
+    //    for (gauge_widget *gauge : qAsConst(gauge_widget_set))
+    //        gauge->deleteLater();
+    //    gauge_widget_set.clear();
 
 }
 

@@ -25,6 +25,7 @@ TEMPLATE = app
 SOURCES += src/main.cpp\
     src/DMA-proto/DMA-proto.cpp \
     src/abstract-memory.cpp \
+    src/comm-device-interface/devicemanager.cpp \
     src/comm-device-interface/op13.cpp \
     src/comm-device-interface/comm-device-interface.cpp \
     src/comm-device-interface/j2534-interface.cpp \
@@ -64,6 +65,7 @@ SOURCES += src/main.cpp\
 HEADERS  += src/mainwindow.h \
     src/DMA-proto/DMA-proto.h \
     src/abstract-memory.h \
+    src/comm-device-interface/devicemanager.h \
     src/controller.h \
     src/DMA-proto/evoX-DMA.h \
     src/DMA-proto/jcsbanksDMA.h \

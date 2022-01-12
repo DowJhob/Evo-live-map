@@ -29,7 +29,8 @@ public:
     void start();
 
 public slots:
-    void commDeviceSelected(device dev);
+    //void commDeviceSelected(device dev);
+    void commDeviceSelected(comm_device_interface *dev);
     void commDeviceRemoved(device dev);
     void setProto(int proto);
 
@@ -65,7 +66,7 @@ private slots:
 signals:
     void baudChanged(int);
     void logChanged(int);
-    void interfaceReady(bool);
+    //void interfaceReady(bool);
 
     void ecu_connected();
     void create_table(mapDefinition*);

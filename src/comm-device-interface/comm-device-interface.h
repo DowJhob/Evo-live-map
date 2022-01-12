@@ -11,7 +11,6 @@
 
 #include "src/types.h"
 
-
 class comm_device_interface : public QObject
 {
     Q_OBJECT

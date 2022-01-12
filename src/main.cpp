@@ -2,8 +2,9 @@
 #include <QObject>
 #include <QStatusBar>
 
-#include "mainwindow.h"
 #include "enumdev.h"
+#include "comm-device-interface/devicemanager.h"
+#include "mainwindow.h"
 #include "controller.h"
 
 #include <QElapsedTimer>
@@ -15,20 +16,20 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
-    controller controller;
     enumerator Enumerator;
+    deviceManager devManager;
     MainWindow mainWindow;
+    controller controller;
+    mainWindow.setDeviceManager(&devManager);
 
     //========================================================================================
-    QObject::connect(&Enumerator, &enumerator::commDeviceEvent, &mainWindow, &MainWindow::deviceEvent);
+    QObject::connect(&Enumerator, &enumerator::deviceEvent, &devManager, &deviceManager::deviceEvent);
     QObject::connect(&Enumerator, &enumerator::Log, &mainWindow, &MainWindow::Log);
     //========================================================================================
-    QObject::connect(&mainWindow, &MainWindow::devSelected, &controller, &controller::commDeviceSelected);
-    QObject::connect(&mainWindow, &MainWindow::interfaceRemoved, &controller, &controller::commDeviceRemoved);
+    QObject::connect(&mainWindow, &MainWindow::deviceSelected, &controller, &controller::commDeviceSelected);
     QObject::connect(&mainWindow, &MainWindow::protoSelected, &controller, &controller::setProto);
     QObject::connect(&controller, &controller::getWB, &mainWindow, &MainWindow::createWB);
     //========================================================================================
-    QObject::connect(&controller, &controller::interfaceReady, &mainWindow, &MainWindow::lockInterface);
     //========================================================================================
     QObject::connect(&mainWindow, &MainWindow::getECUconnectMainWindow, &controller, &controller::getECUconnect);
     QObject::connect(&mainWindow, &MainWindow::getECUdisconnectMainWindow, &controller, &controller::getECUdisconnect);
