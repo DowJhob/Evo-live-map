@@ -1,19 +1,19 @@
-#include "enumdev.h"
+#include "deviceNativeFilter.h"
 #include <QSettings>
 
-enumerator::enumerator()
+deviceNativeFilter::deviceNativeFilter()
 {
     qRegisterMetaType<device>("device");
 }
 
-enumerator::~enumerator()
+deviceNativeFilter::~deviceNativeFilter()
 {
     if (NotificationHandle != nullptr)
         UnregisterDeviceNotification(NotificationHandle);
 }
 
 //Подписываемся на события
-void enumerator::notifyRegister(HWND hwnd)
+void deviceNativeFilter::notifyRegister(HWND hwnd)
 {
     DEV_BROADCAST_DEVICEINTERFACE NotificationFilter;
     ZeroMemory( &NotificationFilter, sizeof(NotificationFilter) );   //???
@@ -39,7 +39,7 @@ void enumerator::notifyRegister(HWND hwnd)
 
 }
 
-bool enumerator::nativeEventFilter(const QByteArray &eventType, void *message, long *result)
+bool deviceNativeFilter::nativeEventFilter(const QByteArray &eventType, void *message, long *result)
 {
     Q_UNUSED( result )
     Q_UNUSED( eventType )
@@ -60,7 +60,7 @@ bool enumerator::nativeEventFilter(const QByteArray &eventType, void *message, l
     return false;
 }
 
-void enumerator::handleEvent(long wParam, PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
+void deviceNativeFilter::handleEvent(long wParam, PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
 {
     switch(wParam)
     {
@@ -77,7 +77,7 @@ void enumerator::handleEvent(long wParam, PDEV_BROADCAST_DEVICEINTERFACE pDevInf
     }
 }
 
-void enumerator::getPresentCommDevices()
+void deviceNativeFilter::getPresentCommDevices()
 {
     for (auto classGUID: presentInterfaces)
     {
@@ -111,7 +111,7 @@ void enumerator::getPresentCommDevices()
     }
 }
 
-device enumerator::getDevProp(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceInfoData)
+device deviceNativeFilter::getDevProp(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceInfoData)
 {
     // SPDRP_HARDWAREID
     // SPDRP_CLASS
@@ -150,7 +150,7 @@ device enumerator::getDevProp(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceInfoData)
     return dev;
 }
 
-device enumerator::getDevProp(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
+device deviceNativeFilter::getDevProp(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
 {
     QStringList qDevInf = QString::fromWCharArray((wchar_t*)pDevInf->dbcc_name).split('#');
     //qDebug() << "enumerator::getDevProp pDevInf->dbcc_name" << qDevInf << "pDevInf->dbcc_classguid" << pDevInf->dbcc_classguid << endl;
@@ -177,7 +177,7 @@ device enumerator::getDevProp(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
     return device{};
 }
 
-QString enumerator::getDLLpath(QString Mfg, QString reg)
+QString deviceNativeFilter::getDLLpath(QString Mfg, QString reg)
 {
     QString FunctionLibrary;
     QSettings m(QString(reg), QSettings::NativeFormat);
@@ -195,7 +195,7 @@ QString enumerator::getDLLpath(QString Mfg, QString reg)
     return FunctionLibrary;
 }
 
-QByteArray enumerator::getDeviceDesc(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceInfoData, uint SPDRP)
+QByteArray deviceNativeFilter::getDeviceDesc(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceInfoData, uint SPDRP)
 {
     DWORD requiredPropertySize = 0; // необходимый размер массива для свойства (указывается функцией)
     //  memset(propertyBuffer, 0, 256);
@@ -206,7 +206,7 @@ QByteArray enumerator::getDeviceDesc(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceIn
     //        qDebug() << "DeviceDesc: " << QString::fromWCharArray( propertyBuffer );
 }
 
-void enumerator::checkType(device dev)
+void deviceNativeFilter::checkType(device dev)
 {
    //qDebug() << "enumerator::checkType start dev.classDev" << dev.classDev;
     //    if (pDevInf->dbcc_classguid == GUID({ 0x219d0508, 0x57a8, 0x4ff5, {0x97, 0xa1, 0xbd, 0x86, 0x58, 0x7c, 0x6c, 0x7e}})               // FTDI_D2XX_Device Class GUID

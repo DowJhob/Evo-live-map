@@ -20,16 +20,13 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
     grBx = new QGroupBox("Communication devices", this);
     l->addWidget(grBx);
     QGridLayout *ll = new QGridLayout(this);
-    grBx->setLayout(ll);
-    commListBox = new QComboBox(this);
-    commListBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    ll->addWidget(commListBox, 0, 0);
+    grBx->setLayout(&communicationLayout);
     QLabel *lb = new QLabel("Baud rate, Baud:", this);
     lb->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    ll->addWidget(lb, 0, 1);
+    communicationLayout.addWidget(lb, 0, 1);
     el_baudRate = new QLineEdit(QString::number(defaultBaudRate), this);
     el_baudRate->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    ll->addWidget(el_baudRate, 0, 2);
+    communicationLayout.addWidget(el_baudRate, 0, 2);
 
     //панель для протокола
     grBx = new QGroupBox("ECU proto", this);
@@ -48,16 +45,15 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
 
 
     //панель лямбды
-
     grBx = new QGroupBox("Select wideband", this);
-    ll = new QGridLayout(this);
-    grBx->setLayout(ll);
+
+    grBx->setLayout(&widebandLayout);
     l->addWidget(grBx);
 
     QGroupBox *grBxAv = new QGroupBox("Available wideband", this);
-    ll->addWidget(grBxAv, 0, 0);
+    widebandLayout.addWidget(grBxAv, 0, 0);
     QGroupBox *grBxWBprt = new QGroupBox("Wideband proto", this);
-    ll->addWidget(grBxWBprt, 0, 1);
+    widebandLayout.addWidget(grBxWBprt, 0, 1);
 
     ll = new QGridLayout(this);
     grBxAv->setLayout(ll);
@@ -90,8 +86,6 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
     protoListBox->addItem("Stock DMA proto by nanner55");
     protoListBox->addItem("evoX_DMA by tephra");
 
-
-    connect(commListBox,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commParamWidget::deviceSelected);
     connect(protoListBox,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commParamWidget::protoSelected);
 
 
@@ -100,35 +94,6 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
 
     baudRate = defaultBaudRate;
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-}
-
-void commParamWidget::addDevice(device dev)
-{
-    //if(commListBox->currentIndex() < 0)
-
-    //qDebug()<< "commParamWidget::addDevice"<< dev.DeviceUniqueID << dev.DeviceInstanceId;
-    this->dev.insert(dev.DeviceUniqueID, dev);
-    commListBox->addItem(dev.DeviceDesc, dev.DeviceUniqueID);
-    //qDebug()<< "commListBox->currentIndex()"<< commListBox->currentIndex();
-}
-
-void commParamWidget::removeDevice(device dev)
-{
-    int index = commListBox->findData(dev.DeviceUniqueID);
-    //qDebug()<< " dev.DeviceUniqueID"<< dev.DeviceUniqueID<< "index"<<index<<" count"<<commListBox->count()<<commListBox->currentIndex();
-
-    if( index < commListBox->count())
-        commListBox->removeItem(index);
-    else
-        qDebug() << "Error deleting item";
-    this->dev.remove(dev.DeviceUniqueID);
-}
-
-void commParamWidget::deviceSelected(int index)
-{
-    qDebug()<< "deviceSelected"<< commListBox->currentIndex();
-    QString DeviceUniqueID = commListBox->itemData(index).toString();
-    emit interfaceSelected(dev.value(DeviceUniqueID, device()));
 }
 
 void commParamWidget::addWB(device dev)

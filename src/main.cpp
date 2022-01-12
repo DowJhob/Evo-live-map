@@ -2,7 +2,7 @@
 #include <QObject>
 #include <QStatusBar>
 
-#include "enumdev.h"
+#include "deviceNativeFilter.h"
 #include "comm-device-interface/devicemanager.h"
 #include "mainwindow.h"
 #include "controller.h"
@@ -16,14 +16,14 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
-    enumerator Enumerator;
+    deviceNativeFilter Enumerator;
     deviceManager devManager;
     MainWindow mainWindow;
     controller controller;
     mainWindow.setDeviceManager(&devManager);
 
     //========================================================================================
-    QObject::connect(&Enumerator, &enumerator::deviceEvent, &devManager, &deviceManager::deviceEvent);
+    QObject::connect(&Enumerator, &deviceNativeFilter::deviceEvent, &devManager, &deviceManager::deviceEvent);
     //QObject::connect(&Enumerator, &enumerator::Log, &mainWindow, &MainWindow::Log);
     //========================================================================================
     QObject::connect(&mainWindow, &MainWindow::deviceSelected, &controller, &controller::commDeviceSelected);

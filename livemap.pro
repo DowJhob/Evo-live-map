@@ -34,16 +34,17 @@ SOURCES += src/main.cpp\
     src/DMA-proto/stockDMA.cpp \
     src/comm-device-interface/op20.cpp \
     src/controller.cpp \
+    src/deviceNativeFilter.cpp \
     src/ecu/ecu-definition.cpp \
     src/ecu/rawstockmsg.cpp \
     src/fast-notation.cpp \
-    src/enumdev.cpp \
     src/libs/j2534passthru.cpp \
     src/logger.cpp \
     src/map-decl/map.cpp \
     src/wideband/commdevicewb-interface.cpp \
     src/wideband/innoProto.cpp \
     src/wideband/plxProto.cpp \
+    src/wideband/wb-manager.cpp \
     src/wideband/wb-proto.cpp \
     src/wideband/wblogger.cpp \
     src/widgets/hexEditor/qhexedit/chunks.cpp \
@@ -70,6 +71,7 @@ HEADERS  += src/mainwindow.h \
     src/DMA-proto/evoX-DMA.h \
     src/DMA-proto/jcsbanksDMA.h \
     src/DMA-proto/stockDMA.h \
+    src/deviceNativeFilter.h \
     src/ecu/ecu-definition.h \
     src/ecu/evo7.h \
     src/ecu/rawstockmsg.h \
@@ -86,13 +88,13 @@ HEADERS  += src/mainwindow.h \
     src/map-decl/map.h \
     src/map-decl/scaling.h \
     src/logger.h \
-    src/enumdev.h \
     src/map-decl/submap.h \
     src/test-map.h \
     src/types.h \
     src/wideband/commdevicewb-interface.h \
     src/wideband/innoProto.h \
     src/wideband/plxProto.h \
+    src/wideband/wb-manager.h \
     src/wideband/wb-proto.h \
     src/wideband/wblogger.h \
     src/widgets/commParamWidget.h \

@@ -3,6 +3,12 @@
 
 #include "map-decl/scaling.h"
 
+enum class dir
+{
+    arrive,
+    remove
+};
+
 enum class Protocol : uint {
     //// J2534-1
     J1850VPW        = 1,

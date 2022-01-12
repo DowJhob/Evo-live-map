@@ -24,12 +24,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     //connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(itemChecks(QTreeWidgetItem*, int)));
     statusBar()->showMessage("No interface", 0);
     colorFromFile("C:\\Program Files (x86)\\OpenECU\\EcuFlash\\colormaps\\COLDFIRE.MAP") ;
-
-
-
-    settings = ui->Settings;
-
-
 }
 
 MainWindow::~MainWindow()
@@ -50,7 +44,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::setDeviceManager(deviceManager *devManager)
 {
-    settings->layout()->addWidget(devManager);
+    cpW->setDeviceManager(devManager);
+    //settings->layout()->addWidget(devManager);
     connect(devManager, &deviceManager::deviceSelected, this, &MainWindow::deviceEvent);
 }
 

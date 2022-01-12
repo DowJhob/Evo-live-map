@@ -17,7 +17,7 @@
 #include "logger.h"
 #include <src/abstract-memory.h>
 //#include "read-request.h"
-#include "enumdev.h"
+#include "deviceNativeFilter.h"
 
 class controller : public QObject
 {

@@ -7,8 +7,8 @@
 #include <QLayout>
 #include <QLineEdit>
 
-#include "../enumdev.h"
-
+#include "../comm-device-interface/devicemanager.h"
+#include "../wideband/wb-manager.h"
 
 class commParamWidget : public QWidget
 {
@@ -18,9 +18,14 @@ public:
     explicit commParamWidget(QWidget *parent = nullptr, uint defaultBaudRate = 62500, uint defaultLogRate = 10);
 
 public slots:
-    void addDevice(device dev);
-    void removeDevice(device dev);
-    void deviceSelected(int index);
+    void setDeviceManager(deviceManager *devManager)
+    {
+        communicationLayout.addWidget(devManager, 0, 0);
+    }
+    void setWBManager(wbManager *wbManager)
+    {
+        widebandLayout.addWidget(wbManager, 0, 0);
+    }
 
     void addWB(device dev);
     void removeWB(device dev);
@@ -29,8 +34,10 @@ public slots:
     //void protoSelected(int index);
 
 private:
+    QGridLayout communicationLayout;
+    QGridLayout widebandLayout;
+
     QHash<QString, device> dev;
-    QComboBox *commListBox;
     QComboBox *protoListBox;
     QComboBox *availWB;
     QComboBox *protoWB;
@@ -43,8 +50,6 @@ private:
     void logchng();
 
 signals:
-    void interfaceSelected(device);
-    //void interfaceRemoved(device);
     void protoSelected(int);
     void wbSelected(int);
     void wbProtoSelected(int);

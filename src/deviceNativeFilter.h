@@ -1,5 +1,5 @@
-#ifndef ENUMDEV_H
-#define ENUMDEV_H
+#ifndef DEVICENATIVEFILTER_H
+#define DEVICENATIVEFILTER_H
 #include <windows.h>
 #include <wchar.h>
 
@@ -14,12 +14,6 @@
 
 #include "types.h"
 #include <QSettings>
-
-enum class dir
-{
-    arrive,
-    remove
-};
 
 typedef struct device
 {
@@ -49,13 +43,13 @@ typedef struct device
     GUID classDev;
 }device;
 
-class enumerator: public QObject, public QAbstractNativeEventFilter
+class deviceNativeFilter: public QObject, public QAbstractNativeEventFilter
 {
     Q_OBJECT
 
 public:
-    enumerator();
-    ~enumerator();
+    deviceNativeFilter();
+    ~deviceNativeFilter();
     void notifyRegister(HWND hwnd);
     //заглушка для прогона по всему вектору гуидов, нужна для запуска с подключенным устройством
     void getPresentCommDevices();
@@ -116,4 +110,4 @@ signals:
 };
 
 
-#endif // ENUMDEV_H
+#endif // DEVICENATIVEFILTER_H

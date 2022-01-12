@@ -20,7 +20,7 @@
 #include "comm-device-interface/op13.h"
 #include "comm-device-interface/op20.h"
 
-#include "enumdev.h"
+#include "deviceNativeFilter.h"
 
 #include "widgets/maintoolbar.h"
 #include "widgets/gauge_widget.h"
@@ -28,6 +28,7 @@
 
 
 #include "comm-device-interface/devicemanager.h"
+#include "/wideband/wb-manager.h"
 
 #include "widgets/mapWidget/mapwidget.h"
 #include "widgets/hexEditor/qhexedit/qhexedit.h"
@@ -52,6 +53,14 @@ protected:
 
 public slots:
     void setDeviceManager(deviceManager *devManager);
+    void setWBManager(wbManager *wbManager)
+    {
+        cpW->setWBManager(wbManager);
+        //settings->layout()->addWidget(devManager);
+        connect(wbManager, &wbManager::deviceSelected, this, &MainWindow::deviceEvent);
+    }
+
+
     void deviceEvent(comm_device_interface *devComm);
 
     void ecu_connected();
@@ -70,8 +79,6 @@ private:
     Ui::MainWindow *ui;
     mainToolBar *_mainToolBar;
     commParamWidget *cpW;
-
-    QWidget *settings = nullptr;  // костыль для получения кутаба (устанавливается в конструкторе) потом надо переместить кутаб из уи сюда
 
     void createMapTree(Map *tab);
     void freeMapTree();
