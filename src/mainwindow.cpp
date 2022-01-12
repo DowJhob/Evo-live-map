@@ -48,44 +48,30 @@ void MainWindow::closeEvent(QCloseEvent *event)
     emit _exit();
 }
 
+void MainWindow::setDeviceManager(deviceManager *devManager)
+{
+    settings->layout()->addWidget(devManager);
+    connect(devManager, &deviceManager::deviceSelected, this, &MainWindow::deviceEvent);
+}
 
-
-
-
-//void MainWindow::commDeviceSelected(device dev)
-//{
-//    //qDebug()<< "MainWindow::commDeviceSelected" << dev.DeviceDesc;
-//    statusBar()->showMessage(dev.DeviceDesc, 0);
-//    emit deviceSelected(dev);
-//}
+void MainWindow::deviceEvent(comm_device_interface *devComm)
+{
+    emit deviceSelected(devComm);
+    if(devComm == nullptr)
+    {
+        _mainToolBar->lockConnect(true);
+        statusBar()->showMessage("No interface", 0);
+        return;
+    }
+    statusBar()->showMessage(devComm->DeviceUniqueID, 0);
+    if( devComm->info() )
+        _mainToolBar->lockConnect(false);         // Показываем кнопки старт и сброс памяти
+}
 
 void MainWindow::DMAprotoSelected(int proto)
 {    
     //qDebug()<< "MainWindow::_protoSelected" << proto;
     emit protoSelected(proto);
-}
-
-//void MainWindow::deviceEvent(device dev)
-//{
-//    //qDebug() << "MainWindow::deviceEvent" << dev.DeviceUniqueID << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
-//    switch(dev.direction)
-//    {
-//    case dir::arrive :
-//        cpW->addDevice(dev);
-//        break;
-//    case dir::remove :
-//        cpW->removeDevice(dev);
-
-//        emit interfaceRemoved(dev);
-
-//        break;
-//    }
-
-//}
-
-void MainWindow::lockInterface(bool lockFlag)
-{
-    _mainToolBar->lockConnect(lockFlag);
 }
 
 void MainWindow::StartButton_slot()

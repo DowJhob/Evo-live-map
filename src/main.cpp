@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 
     //========================================================================================
     QObject::connect(&Enumerator, &enumerator::deviceEvent, &devManager, &deviceManager::deviceEvent);
-    QObject::connect(&Enumerator, &enumerator::Log, &mainWindow, &MainWindow::Log);
+    //QObject::connect(&Enumerator, &enumerator::Log, &mainWindow, &MainWindow::Log);
     //========================================================================================
     QObject::connect(&mainWindow, &MainWindow::deviceSelected, &controller, &controller::commDeviceSelected);
     QObject::connect(&mainWindow, &MainWindow::protoSelected, &controller, &controller::setProto);

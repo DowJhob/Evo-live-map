@@ -13,8 +13,7 @@ OP13::OP13(QString dllName, QString DeviceUniqueID) :  comm_device_interface( dl
 
 OP13::~OP13()
 {
-    //common_destructor();
-    //close();
+    delete _ftdi;
 }
 
 bool OP13::info()

@@ -44,17 +44,8 @@ void controller::commDeviceSelected(comm_device_interface *dev)
     devComm = dev;
     if (devComm != nullptr  )
     {
-        //devComm->close();
-        //devComm->deleteLater();
+        p_in_buff = devComm->p_in_buff;
     }
-    //
-    p_in_buff = devComm->p_in_buff;
-
-    //connect(devComm, &comm_device_interface::readyInterface, this, &controller::interfaceReady); // форвардим сигнал готовности ннаружу для разблокировки гуя
-    //connect(devComm, &comm_device_interface::Log, this, &controller::Log, Qt::QueuedConnection);
-    //connect(this, &controller::baudChanged, devComm, &comm_device_interface::setBaudRate);
-
-
 }
 
 void controller::commDeviceRemoved(device dev)

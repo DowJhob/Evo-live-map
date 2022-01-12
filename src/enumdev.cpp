@@ -153,7 +153,7 @@ device enumerator::getDevProp(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceInfoData)
 device enumerator::getDevProp(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
 {
     QStringList qDevInf = QString::fromWCharArray((wchar_t*)pDevInf->dbcc_name).split('#');
-    qDebug() << "enumerator::getDevProp pDevInf->dbcc_name" << qDevInf << "pDevInf->dbcc_classguid" << pDevInf->dbcc_classguid << endl;
+    //qDebug() << "enumerator::getDevProp pDevInf->dbcc_name" << qDevInf << "pDevInf->dbcc_classguid" << pDevInf->dbcc_classguid << endl;
         if (qDevInf.length() >= 3)
         {
             QString DevType = qDevInf[0].mid(qDevInf[0].indexOf("?\\") + 2 );

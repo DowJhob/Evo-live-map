@@ -14,19 +14,7 @@ j2534_interface::j2534_interface(QString dllName, QString DeviceUniqueID) : comm
 
 j2534_interface::~j2534_interface()
 {
-    // shut down the channel
-    if (j2534->PassThruDisconnect(chanID))
-    {
-        reportJ2534Error();
-        //            return false;
-    }
-    // close the device
-    if (j2534->PassThruClose(devID))
-    {
-        reportJ2534Error();
-    }
-    delete j2534;
-
+    j2534->deleteLater();
     //qDebug() << "~j2534_interface";
 }
 

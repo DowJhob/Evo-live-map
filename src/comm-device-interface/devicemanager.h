@@ -74,12 +74,12 @@ private:
 private slots:
     void _deviceSelected(int index)
     {
-        //qDebug()<< "deviceManager::_deviceSelected start";
-        qDebug()<< "deviceManager::_deviceSelected start" << itemData(index);
+        qDebug()<< "deviceManager::_deviceSelected start";
+        //qDebug()<< "deviceManager::_deviceSelected start" << itemData(index);
         comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(itemData(index));
-        //qDebug()<< "deviceManager::_deviceSelected finish" << devComm;
+        qDebug()<< "deviceManager::_deviceSelected finish" << devComm;
         //qDebug()<< "deviceManager::_deviceSelected finish" << devComm->DeviceUniqueID; // Не делай так!!! devComm может быть нулл!!!
-        if( devComm != nullptr)
+        //if( devComm != nullptr)
             emit deviceSelected(devComm);
     }
 

@@ -51,29 +51,9 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 public slots:
-    void setDeviceManager(deviceManager *devManager)
-    {
-        settings->layout()->addWidget(devManager);
-        connect(devManager, &deviceManager::deviceSelected, this, &MainWindow::deviceEvent);
-    }
-    void deviceEvent(comm_device_interface *devComm)
-    {
-        emit deviceSelected(devComm);
-        if(devComm == nullptr)
-        {
-            lockInterface(true);
-            statusBar()->showMessage("No interface", 0);
-            return;
-        }
-        statusBar()->showMessage(devComm->DeviceUniqueID, 0);
+    void setDeviceManager(deviceManager *devManager);
+    void deviceEvent(comm_device_interface *devComm);
 
-        if( devComm->info() )
-            lockInterface(false);                  // Показываем кнопки старт и сброс памяти
-    }
-
-    //void deviceEvent(device dev);
-
-    void lockInterface(bool lockFlag);
     void ecu_connected();
     void createMap(mapDefinition *dMap);
     void Log(QString str);
