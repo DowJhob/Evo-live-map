@@ -46,21 +46,21 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
 
     //панель лямбды
     grBx = new QGroupBox("Select wideband", this);
-
-    grBx->setLayout(&widebandLayout);
+    ll = new QGridLayout(this);
+    grBx->setLayout(ll);
     l->addWidget(grBx);
 
     QGroupBox *grBxAv = new QGroupBox("Available wideband", this);
-    widebandLayout.addWidget(grBxAv, 0, 0);
+    ll->addWidget(grBxAv, 0, 0);
     QGroupBox *grBxWBprt = new QGroupBox("Wideband proto", this);
-    widebandLayout.addWidget(grBxWBprt, 0, 1);
+    ll->addWidget(grBxWBprt, 0, 1);
 
-    ll = new QGridLayout(this);
-    grBxAv->setLayout(ll);
 
-    availWB = new QComboBox(this);
-    availWB->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    ll->addWidget(availWB);
+    grBxAv->setLayout(&widebandLayout);
+
+//    availWB = new QComboBox(this);
+//    availWB->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+//    widebandLayout.addWidget(availWB);
 
 
 
@@ -69,13 +69,13 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
 
     protoWB = new QComboBox(this);
     protoWB->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    ll->addWidget(protoWB);
+    widebandLayout.addWidget(protoWB);
 
     protoWB->addItem("Innovate");
     protoWB->addItem("PLX");
     protoWB->addItem("AEM");
 
-    connect(availWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commParamWidget::WBSelected);
+    //connect(availWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commParamWidget::WBSelected);
     connect(protoWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commParamWidget::WBprotoSelected);
 
 

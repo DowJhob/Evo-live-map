@@ -67,9 +67,9 @@ void wbManager::_deviceSelected(int index)
 {
     qDebug()<< "deviceManager::_deviceSelected start";
     //qDebug()<< "deviceManager::_deviceSelected start" << itemData(index);
-    wbLogger *cdWB = qvariant_cast<wbLogger*>(itemData(index));
-    qDebug()<< "deviceManager::_deviceSelected finish" << cdWB;
+    wbLogger *wblog = qvariant_cast<wbLogger*>(itemData(index));
+    qDebug()<< "deviceManager::_deviceSelected finish" << wblog;
     //qDebug()<< "deviceManager::_deviceSelected finish" << devComm->DeviceUniqueID; // Не делай так!!! devComm может быть нулл!!!
 
-    emit deviceSelected(cdWB);
+    emit deviceSelected(wblog);
 }

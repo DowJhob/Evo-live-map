@@ -45,8 +45,13 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::setDeviceManager(deviceManager *devManager)
 {
     cpW->setDeviceManager(devManager);
-    //settings->layout()->addWidget(devManager);
     connect(devManager, &deviceManager::deviceSelected, this, &MainWindow::deviceEvent);
+}
+
+void MainWindow::setWBManager(wbManager *wbManager)
+{
+    cpW->setWBManager(wbManager);
+    //connect(wbManager, &wbManager::deviceSelected, this, &MainWindow::deviceEvent);
 }
 
 void MainWindow::deviceEvent(comm_device_interface *devComm)

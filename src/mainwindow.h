@@ -17,8 +17,8 @@
 #include "types.h"
 
 //#include "comm-device-interface/comm-device-interface.h"
-#include "comm-device-interface/op13.h"
-#include "comm-device-interface/op20.h"
+//#include "comm-device-interface/op13.h"
+//#include "comm-device-interface/op20.h"
 
 #include "deviceNativeFilter.h"
 
@@ -28,7 +28,7 @@
 
 
 #include "comm-device-interface/devicemanager.h"
-#include "/wideband/wb-manager.h"
+#include "wideband/wb-manager.h"
 
 #include "widgets/mapWidget/mapwidget.h"
 #include "widgets/hexEditor/qhexedit/qhexedit.h"
@@ -53,12 +53,7 @@ protected:
 
 public slots:
     void setDeviceManager(deviceManager *devManager);
-    void setWBManager(wbManager *wbManager)
-    {
-        cpW->setWBManager(wbManager);
-        //settings->layout()->addWidget(devManager);
-        connect(wbManager, &wbManager::deviceSelected, this, &MainWindow::deviceEvent);
-    }
+    void setWBManager(wbManager *wbManager);
 
 
     void deviceEvent(comm_device_interface *devComm);
