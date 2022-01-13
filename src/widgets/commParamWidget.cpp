@@ -92,14 +92,3 @@ void commParamWidget::WBprotoSelected(int index)
 {
 
 }
-
-void commParamWidget::baudChng()   // Обновляем скорость обмена
-{
-    baudRate = el_baudRate->text().toUInt();
-    //emit baudChanged(el_baudRate->text().toUInt());
-}
-
-void commParamWidget::logchng()
-{
-    emit logChanged(1000/el_logRate->text().toUInt());
-}

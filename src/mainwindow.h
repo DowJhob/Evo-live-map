@@ -73,7 +73,7 @@ public slots:
 
 private slots:
     //void commDeviceSelected(device dev);
-    void DMAprotoSelected(int proto);
+    void setDMAprotoSelected(int proto);
     void StartButton_slot();
     void itemChecks(QTreeWidgetItem *item, int column);
 
@@ -101,10 +101,6 @@ private:
     void colorFromFile(QString filename);
 
 signals:
-    void protoSelected(int proto);
-    //void baudChanged(int);
-    void logChanged(int);
-
     void getECUconnectMainWindow(int);
     void getECUdisconnectMainWindow();
 

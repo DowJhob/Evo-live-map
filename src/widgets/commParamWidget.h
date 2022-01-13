@@ -27,7 +27,6 @@ public slots:
     void removeWB(device dev);
     void WBSelected(int index);
     void WBprotoSelected(int index);
-    //void protoSelected(int index);
 
 private:
     QGroupBox commonGrpBx{"Communication parameters"};
@@ -35,25 +34,13 @@ private:
 
     QGridLayout widebandLayout;
 
-    QHash<QString, device> dev;
-    QComboBox *protoListBox;
     QComboBox *availWB;
     QComboBox *protoWB;
-
-    QLineEdit *el_baudRate;
-    QLineEdit *el_logRate;
-
-    void baudChng();
-
-    void logchng();
 
 signals:
     void protoSelected(int);
     void wbSelected(int);
     void wbProtoSelected(int);
-
-    void baudChanged(int);
-    void logChanged(int);
 
 };
 

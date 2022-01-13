@@ -11,9 +11,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     //=============================================================================
     cpW = new commParamWidget(this, 62500, 10);
-    //connect(cpW, &commParamWidget::interfaceSelected, this, &MainWindow::commDeviceSelected);
-    connect(cpW, &commParamWidget::protoSelected, this, &MainWindow::DMAprotoSelected);
-    connect(cpW, &commParamWidget::logChanged, this, &MainWindow::logChanged);
     ui->Settings->layout()->addWidget(cpW);
     //=============================================================================
     hexEdit = new hexEditor(this);
@@ -31,9 +28,6 @@ MainWindow::~MainWindow()
     qDebug() << "~MainWindow";
 
     gaugeDelete();
-    //_logger.deleteLater();
-    //logger_thread.quit();
-    //logger_thread.wait(1000);
     delete ui;
 }
 
@@ -67,10 +61,9 @@ void MainWindow::deviceEvent(comm_device_interface *devComm)
         _mainToolBar->lockConnect(false);         // Показываем кнопки старт и сброс памяти
 }
 
-void MainWindow::DMAprotoSelected(int proto)
+void MainWindow::setDMAprotoSelected(int proto)
 {    
     //qDebug()<< "MainWindow::_protoSelected" << proto;
-    emit protoSelected(proto);
 }
 
 void MainWindow::StartButton_slot()
