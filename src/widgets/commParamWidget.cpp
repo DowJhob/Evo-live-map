@@ -19,7 +19,7 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
     grBx = new QGroupBox("Select wideband", this);
     ll = new QGridLayout();
     grBx->setLayout(ll);
-    commonGrpBxLayout.addWidget(grBx, 3, 0);
+    commonGrpBxLayout.addWidget(grBx, 2, 0);
 
     QGroupBox *grBxAv = new QGroupBox("Available wideband", this);
     ll->addWidget(grBxAv, 0, 0);
@@ -50,12 +50,16 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
 
     baudRate = defaultBaudRate;
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+
+
+    QSpacerItem *si = new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    commonGrpBxLayout.addItem(si, 3, 0);
 }
 
 void commParamWidget::setDeviceManager(deviceManager *devManager)
 {
     commonGrpBxLayout.addWidget(devManager, 0, 0);
-    devManager->baudRateUpdate();
+    //devManager->baudRateUpdate();
 }
 
 void commParamWidget::setProtoManager(protoManager *protoManager)

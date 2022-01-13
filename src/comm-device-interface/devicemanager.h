@@ -22,7 +22,6 @@ class deviceManager : public QGroupBox
 public:
     uint baudRate;
     deviceManager(QWidget *parent = nullptr);
-    void baudRateUpdate();
 
 public slots:
     void deviceEvent(device dev);
@@ -39,6 +38,7 @@ private:
 
 private slots:
     void _deviceSelected(int index);
+    void baudRateUpdate();
 
 signals:
     void deviceSelected(comm_device_interface*);
