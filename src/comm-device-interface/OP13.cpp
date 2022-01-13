@@ -54,7 +54,7 @@ bool OP13::info()
 bool OP13::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
 {
     this->protocol = protocol;
-    this->baudRate = baudRate;
+    //this->baudRate = baudRate;
 
     p_in_buff = in_buf;
     p_out_buff = out_buf;
