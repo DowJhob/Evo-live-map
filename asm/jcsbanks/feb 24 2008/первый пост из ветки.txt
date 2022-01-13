@@ -1,0 +1,16 @@
+I will make better info threads later, but here I attach the two main SH2 asm files that I've been working on and commenting to make them as universal as possbile.
+
+The first file is hooked into the MUT processing routine, it grabs requests E0,E1,E2 and setups up a 6 byte DMA transfer that has a 4 byte address and 2 byte length.
+
+The second file uses DMA end and transmit end interrupts to setup a further DMA transfer to/from the 4 byte address of the 2 byte length. It uses flags to clean up afterwards.
+
+A third file I've not put here yet runs off the main ECU loop to kill DMA and reset our flags if the comms timeout.
+
+Example:
+
+E0 ... wait 10ms .... 00035920 0040 will then have the ECU dump 64 (40) bytes from the addresses pointed to by 35920, 35924, 35928 etc (DMA logging)
+
+E1 ... wait 10ms .... FFFF8500 00FF will then have the ECU dump 255 (FF) bytes from FFFF8500 in ECU RAM.
+
+E2 ... wait 10ms .... FFFF8500 00FF followed by 255 (FF) bytes will get the ECU to write these bytes at FFFF8500 in ECU RAM.
+Attached Files

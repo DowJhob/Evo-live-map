@@ -1,0 +1,92 @@
+/*This code checks for E0,E1,E2 request ID, if so it makes no reply and sets up up a 6 byte DMA receive*/
+/*This is stored at DMAread and contains the address (4bytes) and length (2bytes)*/
+/*E0=indirect DMA read - used for logging - can use a custom MUT table in ROM or RAM*/
+/*E1=direct DMA read - used for reading map blocks - can read ROM or RAM*/
+/*E2=direct DMA write - used for writing map blocks - RAM only*/
+
+mov.w (E2),r0
+cmp/hi r0,r1 /*only process if E0,E1,E2*/
+bt exit
+nop
+mov #0,r0
+mov.l (RECEIVE_COUNTER),r10 /*reset MUT receive buffer*/
+mov.w r0,@r10
+mov.l (DMAOPFLAG2),r10
+mov.l r1,@r10 /*store request ID in our variable - used in later interrupt to process correct request*/
+mov #0xfffffffc,r0
+mov.l (CHCR3),r10
+mov.l @r10,r10
+and r0,r10
+mov.l (CHCR3),r11 /*read-modify-write to disable DMA Ch 3*/
+mov.l r10,@r11
+mov.l (RDR0),r0
+mov.l (SAR3),r11 /*source is serial port 0*/
+mov.l r0,@r11
+mov.l (DMAread),r0 /*dest is our RAM buffer*/
+mov.l (DAR3),r11
+mov.l r0,@r11
+mov #6,r0 /*size 6 bytes - 4 address, 2 length*/
+mov.l (DMATCR3),r11
+mov.l r0,@r11
+mov #0x37,r0 /*0x37 is our code to prevent ECU wiping out our DMA settings*/
+mov.l (DMAOPFLAG),r10
+mov.l r0,@r10
+mov.l (SSR0),r10
+mov.b @r10,r0
+and #0x87,r0 /*reset serial port*/
+mov.b r0,@r10
+mov.l (DMA3CONFIGread),r0
+mov.l (CHCR3),r10 /*start DMA*/
+mov.l r0,@r10
+mov.w (FFFF),r8
+exit:
+mov.l (returnaddress),r10
+jmp @r10 /*return to MUT routine*/
+nop 
+
+.align 2
+
+/*Our DMA flags*/
+DMAOPFLAG:
+.long 0xffff8400
+DMAOPFLAG2:
+.long 0xffff8404
+DMAread:
+.long 0xffff8408
+
+returnaddress:
+.long 0x219E2 /*TO BE CHANGED FOR EACH ROM*/
+
+/*Serial status and receive buffer position*/
+RDR0:
+.long 0xffff0005
+SSR0:
+.long 0xfffff004
+RECEIVE_COUNTER:
+.long 0xffff7048 /*TO BE CHANGED FOR EACH ROM*/
+
+/*DMA registers*/
+SAR3:
+.long 0xffffecf0 /*source*/
+DAR3:
+.long 0xffffecf4 /*dest*/
+DMATCR3:
+.long 0xffffecf8 /*length*/
+CHCR3:
+.long 0xffffecfc /*config register*/
+DMA3CONFIGread:
+.long 0x20105 /*config for DMA read from serial port 0*/
+
+FFFF:
+.word 0xffff /*stops MUT replying*/
+E2:
+.word 0xe2 /*only process our E0,E1,E2 request IDs*/
+
+/*FOLLOWING CODE goes into MUT routine to hook out to the code above*/
+.align 2
+nop /*219D4 on 88570008 - TO BE CHANGED FOR EACH ROM */
+mov.l (jumpout),r10
+jmp @r10
+nop
+jumpout:
+.long 0x48000 /*address of the above routine that we jump out to*/

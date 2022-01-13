@@ -1,0 +1,255 @@
+DMAEND: /*DMA end interrupt routine*/ 
+sts.l pr,@-r15
+mov.l r0,@-r15
+mov.l r10,@-r15 /*push to stack*/
+mov.l (int_disable),r10 /*stop interrupts whilst this is being processed*/
+jsr @r10
+nop
+
+mov #0xfffffffc,r0
+mov.l (CHCR3),r10
+mov.l @r10,r10
+and r10,r0
+mov.l (CHCR3),r10 /*read-modify-write to stop DMA ch 3*/
+mov.l r0,@r10
+
+mov.l (DMAOPFLAG2),r0
+mov.l @r0,r0 /*load in status of our flag - 1st time is request ID, 2nd time directs the routine to exit properly depending if receive or transmit*/
+mov.w (E0),r10
+extu.w r10,r10
+cmp/eq r10,r0
+bt brE0 /*write indirect - logging from custom MUT table*/
+nop
+mov.w (E1),r10
+extu.w r10,r10
+cmp/eq r10,r0
+bt brE1 /*write direct*/
+nop
+mov.w (E2),r10
+extu.w r10,r10
+cmp/eq r10,r0
+bt brE2 /*read direct*/
+nop
+mov.w (E01),r10 /*2nd time - after E0 or E1*/ 
+extu.w r10,r10
+cmp/eq r10,r0
+bt br01
+nop
+bra TEIEinvade /*2nd time from E2*/
+nop
+
+br01:
+mov.l (SSR0),r10
+mov.b @r10,r0
+tst #4,r0 /*if transmission already finished then clean up...*/
+bf TEIEinvade
+nop
+
+mov.l (SCR0_CLRTIE_SETTEIE),r0
+mov.l (SCR0),r10
+mov.b r0,@r10 /*...if not finished setup interrupt to catch the transmit end*/
+
+mov.l (int_enable),r10
+jsr @r10 /*re-enable interrupts, restore stack and exit*/
+nop
+mov.l @r15+,r10
+mov.l @r15+,r0
+lds.l @r15+,pr
+rte
+nop
+
+brE0:
+mov.w (E01),r0 /*store our variable for the 2nd time*/
+extu.w r0,r0
+mov.l (DMAOPFLAG2),r10
+mov.l r0,@r10
+mov.l (DMAaddress),r0
+mov.l @r0,r0
+mov.l (SAR3),r10
+mov.l r0,@r10
+mov.l (TDR0),r0
+mov.l (DAR3),r10
+mov.l r0,@r10
+mov.l (DMAlength),r0
+mov.w @r0,r0
+extu.w r0,r0
+mov.l (DMATCR3),r10
+mov.l r0,@r10
+mov #0x37,r0
+mov.l (DMAOPFLAG),r10
+mov.l r0,@r10
+mov.l (SCR0_CLRRE_SETTEI),r0
+mov.l (SCR0),r10
+mov.b r0,@r10
+mov.l (DMA3CONFIGwriteindirect),r0
+mov.l (CHCR3),r10
+mov.l r0,@r10
+mov.l (int_enable),r10
+jsr @r10
+nop
+mov.l @r15+,r10
+mov.l @r15+,r0
+lds.l @r15+,pr
+rte
+nop
+
+brE1:
+mov.w (E01),r0
+extu.w r0,r0
+mov.l (DMAOPFLAG2),r10
+mov.l r0,@r10
+mov.l (DMAaddress),r0
+mov.l @r0,r0
+mov.l (SAR3),r10
+mov.l r0,@r10
+mov.l (TDR0),r0
+mov.l (DAR3),r10
+mov.l r0,@r10
+mov.l (DMAlength),r0
+mov.w @r0,r0
+extu.w r0,r0
+mov.l (DMATCR3),r10
+mov.l r0,@r10
+mov #0x37,r0
+mov.l (DMAOPFLAG),r10
+mov.l r0,@r10
+mov.l (SCR0_CLRRE_SETTEI),r0
+mov.l (SCR0),r10
+mov.b r0,@r10
+mov.l (DMA3CONFIGwritedirect),r0
+mov.l (CHCR3),r10
+mov.l r0,@r10
+mov.l (int_enable),r10
+jsr @r10
+nop
+mov.l @r15+,r10
+mov.l @r15+,r0
+lds.l @r15+,pr
+rte
+nop
+
+brE2:
+mov.w (E02),r0
+extu.w r0,r0
+mov.l (DMAOPFLAG2),r10
+mov.l r0,@r10
+mov.l (RDR0),r0
+mov.l (SAR3),r10
+mov.l r0,@r10
+mov.l (DMAaddress),r0
+mov.l @r0,r0
+mov.l (DAR3),r10
+mov.l r0,@r10
+mov.l (DMAlength),r0
+mov.w @r0,r0
+extu.w r0,r0
+mov.l (DMATCR3),r10
+mov.l r0,@r10
+mov #0x37,r0
+mov.l (DMAOPFLAG),r10
+mov.l r0,@r10
+mov.l (SSR0),r10
+mov.b @r10,r0
+and #0x87,r0
+mov.b r0,@r10
+mov.l (DMA3CONFIGread),r0
+mov.l (CHCR3),r10
+mov.l r0,@r10
+mov.l r0,@r10
+mov.l (int_enable),r10
+jsr @r10
+nop
+mov.l @r15+,r10
+mov.l @r15+,r0
+lds.l @r15+,pr
+rte
+nop
+
+.align 4
+TEIE: /*transmit end interrupt*/
+sts.l pr,@-r15
+mov.l r0,@-r15
+mov.l r10,@-r15
+mov.l (int_disable),r10
+jsr @r10
+nop
+TEIEinvade: /*jump in here from earlier if transmit has already ended - no need to setup interrupt in this case*/
+mov #0,r0
+mov.l (DMAOPFLAG),r10
+mov.l r0,@r10 /*clear our flags*/
+mov.l (SCR0_SETRE_CLRTEIE),r0 /*clears transmit interrupt needed for DMA, clears transmit end interrupt enable*/
+mov.l (SCR0),r10
+mov.b r0,@r10
+
+mov.l (SSR0),r10
+mov.b @r10,r0
+and #0x87,r0 /*clear up serial status*/
+mov.b r0,@r10
+
+
+mov.l (int_enable),r10
+jsr @r10
+nop
+mov.l @r15+,r10
+mov.l @r15+,r0
+lds.l @r15+,pr
+rte
+nop
+
+.align 2
+SAR3:
+.long 0xffffecf0
+DAR3:
+.long 0xffffecf4
+DMATCR3:
+.long 0xffffecf8
+CHCR3:
+.long 0xffffecfc
+
+SCR0:
+.long 0xfffff002
+SSR0:
+.long 0xfffff004
+TDR0:
+.long 0xfffff003
+RDR0:
+.long 0xfffff005
+SCR0_CLRRE_SETTEI:
+.long 0xa0
+
+DMAaddress:
+.long 0xffff8408
+DMAlength:
+.long 0xffff840c
+
+DMA3CONFIGwriteindirect:
+.long 0x10011005
+DMA3CONFIGwritedirect:
+.long 0x11005
+DMA3CONFIGread:
+.long 0x20105
+
+DMAOPFLAG:
+.long 0xffff8400
+DMAOPFLAG2:
+.long 0xffff8404
+SCR0_CLRTIE_SETTEIE: /*setup transmit end interrupt*/
+.long 0x24
+SCR0_SETRE_CLRTEIE:
+.long 0x70
+
+int_disable:
+.long 0x400
+int_enable:
+.long 0x41e
+
+E0:
+.word 0xE0
+E1:
+.word 0xE1
+E2:
+.word 0xE2
+E01: /*2nd time*/
+.word 0x01
+E02: /*2nd time*/
+.word 0x02
