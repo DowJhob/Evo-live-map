@@ -8,6 +8,7 @@
 #include <QLineEdit>
 
 #include "../comm-device-interface/devicemanager.h"
+#include "../DMA-proto/proto-manager.h"
 #include "../wideband/wb-manager.h"
 
 class commParamWidget : public QWidget
@@ -18,14 +19,9 @@ public:
     explicit commParamWidget(QWidget *parent = nullptr, uint defaultBaudRate = 62500, uint defaultLogRate = 10);
 
 public slots:
-    void setDeviceManager(deviceManager *devManager)
-    {
-        communicationLayout.addWidget(devManager, 0, 0);
-    }
-    void setWBManager(wbManager *wbManager)
-    {
-        widebandLayout.addWidget(wbManager, 0, 0);
-    }
+    void setDeviceManager(deviceManager *devManager);
+    void setProtoManager(protoManager *protoManager);
+    void setWBManager(wbManager *wbManager);
 
     void addWB(device dev);
     void removeWB(device dev);
@@ -34,7 +30,9 @@ public slots:
     //void protoSelected(int index);
 
 private:
-    QGridLayout communicationLayout;
+    QGroupBox commonGrpBx{"Communication parameters"};
+    QGridLayout commonGrpBxLayout;
+
     QGridLayout widebandLayout;
 
     QHash<QString, device> dev;

@@ -1,5 +1,10 @@
 #include "stockDMA.h"
 
+stockDMA::stockDMA()
+{
+    qDebug() << "stockDMA";
+}
+
 stockDMA::stockDMA(comm_device_interface **devComm)
 {
     this->devComm = devComm;
@@ -12,13 +17,13 @@ stockDMA::~stockDMA()
     qDebug() << "~stockDMA";
 }
 
-bool stockDMA::connect(uint baudRate = 10200)
+bool stockDMA::connect()
 {
-    qDebug() << "=========== stockDMA::connect ================ baudRate" << baudRate;
+    qDebug() << "=========== stockDMA::connect ================ baudRate" << (*devComm)->getBaudRate();
      (*devComm)->open(Protocol::ISO9141, //ConnectFlag((uint)
                       ConnectFlag::ISO9141NoChecksum //| (uint)ConnectFlag::ISO9141KLineOnly
                       //     )
-                      , baudRate);
+                      , (*devComm)->getBaudRate());
 
      if (!(*devComm)->connect())
      {

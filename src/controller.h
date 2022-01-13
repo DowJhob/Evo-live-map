@@ -23,18 +23,16 @@ class controller : public QObject
 {
     Q_OBJECT
 public:
-    bool connected = false;
     explicit controller(QObject *parent = nullptr);
     ~controller();
     void start();
 
 public slots:
-    //void commDeviceSelected(device dev);
-    void commDeviceSelected(comm_device_interface *dev);
-    void commDeviceRemoved(device dev);
-    void setProto(int proto);
+    void setCommDevice(comm_device_interface *dev);
+    void setProto(DMA_proto *ECUproto);
+    void setLogRate(uint logRate);
 
-    void getECUconnect(uint baudRate);
+    void getECUconnect();
     void getECUdisconnect();
 
     void startLogger();
@@ -43,7 +41,6 @@ public slots:
     void updateRAM(abstractMemoryScaled memory);
     void RAMreset();
 
-    void setBaudRate(int baudRate);
 
 private:
     QThread *this_thread = nullptr;

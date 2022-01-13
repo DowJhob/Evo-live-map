@@ -26,17 +26,18 @@ class DMA_proto : public QObject
     Q_OBJECT
 public:
     comm_device_interface **devComm = nullptr;
-    explicit DMA_proto(comm_device_interface **devComm = nullptr);
-    virtual ~DMA_proto();
+    //DMA_proto();
+    //explicit DMA_proto(comm_device_interface **devComm = nullptr);
+    //virtual ~DMA_proto();
 
 public slots:
-    virtual bool connect(uint baudRate = 0) = 0;
+    virtual bool connect() = 0;
 
     virtual QByteArray indirectDMAread(quint32 addr, int lenght) = 0;
     virtual QByteArray directDMAread(quint32 addr, int len) = 0;
     virtual void directDMAwrite(quint32 addr, char *buf, int lenght) = 0;
 
-    void setBaudRate(uint baudRate);
+    void setCommDev(comm_device_interface **devComm = nullptr);
 
 private slots:
 

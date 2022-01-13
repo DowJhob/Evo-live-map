@@ -4,6 +4,7 @@
 
 #include "deviceNativeFilter.h"
 #include "comm-device-interface/devicemanager.h"
+#include "DMA-proto/proto-manager.h"
 #include "mainwindow.h"
 #include "controller.h"
 
@@ -18,40 +19,44 @@ int main(int argc, char *argv[])
 
     deviceNativeFilter Enumerator;
     deviceManager devManager;
+    protoManager protoManager;
     MainWindow mainWindow;
     controller controller;
-    mainWindow.setDeviceManager(&devManager);
 
     //========================================================================================
-    QObject::connect(&Enumerator, &deviceNativeFilter::deviceEvent, &devManager, &deviceManager::deviceEvent);
-    //QObject::connect(&Enumerator, &enumerator::Log, &mainWindow, &MainWindow::Log);
+    QObject::connect(&Enumerator,   &deviceNativeFilter::deviceEvent,       &devManager, &deviceManager::deviceEvent);
     //========================================================================================
-    QObject::connect(&mainWindow, &MainWindow::deviceSelected, &controller, &controller::commDeviceSelected);
-    QObject::connect(&mainWindow, &MainWindow::protoSelected, &controller, &controller::setProto);
-    //QObject::connect(&controller, &controller::getWB, &mainWindow, &MainWindow::createWB);
+    QObject::connect(&devManager,   &deviceManager::deviceSelected,         &controller, &controller::setCommDevice);
+    QObject::connect(&protoManager, &protoManager::protoSelected,           &controller, &controller::setProto);
+    QObject::connect(&protoManager, &protoManager::logRateChanged,          &controller, &controller::setLogRate);
     //========================================================================================
     //========================================================================================
-    QObject::connect(&mainWindow, &MainWindow::getECUconnectMainWindow, &controller, &controller::getECUconnect);
-    QObject::connect(&mainWindow, &MainWindow::getECUdisconnectMainWindow, &controller, &controller::getECUdisconnect);
-    QObject::connect(&controller, &controller::ecu_connected, &mainWindow, &MainWindow::ecu_connected);
+    QObject::connect(&mainWindow,   &MainWindow::getECUconnectMainWindow,    &controller, &controller::getECUconnect);
+    QObject::connect(&mainWindow,   &MainWindow::getECUdisconnectMainWindow, &controller, &controller::getECUdisconnect);
+    QObject::connect(&controller,   &controller::ecu_connected,              &mainWindow, &MainWindow::ecu_connected);
     //========================================================================================
-    QObject::connect(&controller, &controller::create_table, &mainWindow, &MainWindow::createMap);
+    QObject::connect(&controller,   &controller::create_table,               &mainWindow, &MainWindow::createMap);
     //========================================================================================
-    QObject::connect(&mainWindow, &MainWindow::resetRAM, &controller, &controller::RAMreset);
-    QObject::connect(&mainWindow, &MainWindow::updateRAM, &controller, &controller::updateRAM);
+    QObject::connect(&mainWindow,   &MainWindow::resetRAM,                   &controller, &controller::RAMreset);
+    QObject::connect(&mainWindow,   &MainWindow::updateRAM,                  &controller, &controller::updateRAM);
     //========================= logger ===============================================================
-    QObject::connect(&mainWindow, &MainWindow::logChanged,  &controller, &controller::logChanged);
-    QObject::connect(&controller, &controller::logReady,    &mainWindow, &MainWindow::logReady//, Qt::DirectConnection
+    QObject::connect(&mainWindow,   &MainWindow::logChanged,                 &controller, &controller::logChanged);
+    QObject::connect(&controller,   &controller::logReady,                   &mainWindow, &MainWindow::logReady//, Qt::DirectConnection
                      );
     //========================================================================================
     QObject::connect(&controller, &controller::Log, &mainWindow, &MainWindow::Log);
 
 
 
+    mainWindow.setProtoManager(&protoManager);
+
+    mainWindow.setDeviceManager(&devManager);
+
 
     //Подписываемся на события
     Enumerator.notifyRegister((HWND)mainWindow.winId());
     Enumerator.getPresentCommDevices();
+
     //=============================================================================
 
     app.installNativeEventFilter(&Enumerator);

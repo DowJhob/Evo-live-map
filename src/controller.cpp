@@ -38,51 +38,41 @@ void controller::start()
     this_thread->start();  // запустим поток,
 }
 
-//void controller::commDeviceSelected(device dev)
-void controller::commDeviceSelected(comm_device_interface *dev)
+void controller::setCommDevice(comm_device_interface *dev)
 {
+    qDebug() << "=========== controller::setCommDevice ================" << dev;
     devComm = dev;
+    this->ECUproto->setCommDev(&devComm);
     if (devComm != nullptr  )
     {
         p_in_buff = devComm->p_in_buff;
     }
-}
-
-void controller::commDeviceRemoved(device dev)
-{
-    if (devComm != nullptr && devComm->DeviceUniqueID == dev.DeviceUniqueID )
+    else
     {
+        // все интерфесы отключены, сделай что нибудь!!!!
+
         _dataLogger->stop();
-        //devComm->close();
-        devComm->deleteLater();
-        devComm = nullptr;
     }
 }
 
-void controller::setProto(int proto)
+void controller::setProto(DMA_proto *ECUproto)
 {
-    if ( ECUproto != nullptr )
-        ECUproto->deleteLater();
-    //qDebug()<< "setProto" << proto;
-    switch (proto) {
-    case 0 : ECUproto = new jcsbanksDMA(&devComm);break;
-    case 1 : ECUproto = new stockDMA(&devComm);break;
-    case 2 : ECUproto = new evoX_DMA(&devComm);break;
-    }
-    //qDebug()<<"=========== proto ================";
-    //connect(this, &controller::getMap, ECUproto, &ECU_interface::getMap);
-    //connect(ECUproto, &ECU_interface::gettedMap, this, &controller::create_table);
-
-    //connect(ecu_polling_timer, &QTimer::timeout, ECUproto, &ECU_interface::DMApoll);
+    qDebug() << "=========== controller::setProto ================" << ECUproto;
+    this->ECUproto = ECUproto;
 }
 
-void controller::getECUconnect(uint baudRate)
+void controller::setLogRate(uint logRate)
 {
-    qDebug() << "=========== controller::getECUconnect ================";
-    if (!ECUproto->connect(baudRate))
+    _dataLogger->setLogRate(logRate);
+}
+
+void controller::getECUconnect()
+{
+    qDebug() << "=========== controller::getECUconnect ================" << devComm->getBaudRate();
+    if (!ECUproto->connect())
     {
-        emit Log("failure get ECU connect " + QString::number( baudRate));
-       return ;
+        emit Log("failure get ECU connect " + QString::number( devComm->getBaudRate()));
+        return ;
     }
 
     QByteArray a = ECUproto->directDMAread( 0xF52, 4);                        //читаем номер калибровки
@@ -114,8 +104,8 @@ void controller::getECUconnect(uint baudRate)
         emit create_table( getMap(tab) );
     }
     //char f = 0x1f;
-//    devComm->p_out_buff[0] = 0x1e;
-//ECUproto->directDMAwrite(0xfffff000, devComm->p_out_buff, 1);
+    //    devComm->p_out_buff[0] = 0x1e;
+    //ECUproto->directDMAwrite(0xfffff000, devComm->p_out_buff, 1);
     _dataLogger->start();
 }
 
@@ -192,10 +182,4 @@ void controller::init()
     _dataLogger = new dataLogger(&_ecu_definition, &devComm, &ECUproto);
     connect(_dataLogger, &dataLogger::logReady, this, &controller::logReady);
     connect(this, &controller::logChanged, _dataLogger, &dataLogger::setLogRate);
-}
-
-void controller::setBaudRate(int baudRate)
-{
-    qDebug() << "baud rate changed" << baudRate;
-    //this->baudRate = baudRate;
 }

@@ -1,5 +1,9 @@
 #include "jcsbanksDMA.h"
 
+jcsbanksDMA::jcsbanksDMA()
+{
+    qDebug() << "jcsbanksDMA";
+}
 jcsbanksDMA::jcsbanksDMA(comm_device_interface **devComm)
 {
     this->devComm = devComm;
@@ -12,13 +16,13 @@ jcsbanksDMA::~jcsbanksDMA()
     qDebug() << "~jcsbanksDMA";
 }
 
-bool jcsbanksDMA::connect(uint baudRate = 15625)
+bool jcsbanksDMA::connect()
 {
-    qDebug() << "=========== jcsbanksDMA::connect ================ baudRate" << baudRate;
+    qDebug() << "=========== jcsbanksDMA::connect ================ baudRate" << (*devComm)->getBaudRate();
     (*devComm)->open(Protocol::ISO9141, //ConnectFlag((uint)
                      ConnectFlag::ISO9141NoChecksum //| (uint)ConnectFlag::ISO9141KLineOnly
                      //     )
-                     , baudRate);
+                     , (*devComm)->getBaudRate());
 
     if (!(*devComm)->connect())
     {

@@ -70,7 +70,7 @@ void dataLogger::stop()
     scaledRAM_MUTvalue.clear();
 }
 
-void dataLogger::setLogRate(int pollInt)
+void dataLogger::setLogRate(uint pollInt)
 {
     this->pollInt = pollInt;
     pollTimer.setInterval(pollInt);

@@ -44,7 +44,7 @@ private:
 public slots:
     void start();
     void stop();
-    void setLogRate(int pollInt);
+    void setLogRate(uint pollInt);
 
     void logger( QString str );
     void writeLogItem(QVector<float> scaledRAM_MUTvalue);

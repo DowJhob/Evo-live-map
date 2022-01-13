@@ -30,3 +30,13 @@ bool comm_device_interface::connect()
 
     return status;
 }
+
+void comm_device_interface::setBaudRate(unsigned int BaudRate)
+{
+    baudRate = BaudRate;
+}
+
+uint comm_device_interface::getBaudRate()
+{
+    return baudRate;
+}

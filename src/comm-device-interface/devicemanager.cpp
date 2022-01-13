@@ -1,9 +1,21 @@
 #include "devicemanager.h"
 
-deviceManager::deviceManager(QWidget *parent):QComboBox(parent)
+deviceManager::deviceManager(QWidget *parent):QGroupBox(parent)
 {
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    connect(this,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &deviceManager::_deviceSelected);
+    setTitle("Communication devices");
+    setLayout(&layout);
+    //setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    /*
+    availCommDev.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    bd.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    el_baudRate.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);*/
+
+    layout.addWidget(&availCommDev, 0, 0);
+    layout.addWidget(&bd, 0, 1);
+    layout.addWidget(&el_baudRate, 0, 2);
+
+    connect(&availCommDev,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &deviceManager::_deviceSelected);
+    connect(&el_baudRate,  &QLineEdit::editingFinished, this, &deviceManager::baudRateUpdate);
 }
 
 void deviceManager::deviceEvent(device dev)
@@ -26,9 +38,10 @@ void deviceManager::addDevice(device dev)
     case deviceType::J2534 : devComm = new j2534_interface(dev.FunctionLibrary, dev.DeviceUniqueID); break;
     default                : return;                                            //  но поскольку тут вылетим без добавления то вроде и не важно
     }
-    //commDeviceStore.insert(dev.DeviceDesc+dev.DeviceUniqueID, devComm);
+    devComm->setBaudRate(el_baudRate.text().toUInt());
+    connect(this,  &deviceManager::baudRateChanged, devComm, &comm_device_interface::setBaudRate);
 
-    addItem(dev.DeviceDesc + " / " + dev.DeviceUniqueID, QVariant::fromValue<comm_device_interface*>(devComm));
+    availCommDev.addItem(dev.DeviceDesc + " / " + dev.DeviceUniqueID, QVariant::fromValue<comm_device_interface*>(devComm));
 }
 
 void deviceManager::removeDevice(device dev)
@@ -37,14 +50,14 @@ void deviceManager::removeDevice(device dev)
     //devComm->deleteLater();
     //qDebug()<< "deviceManager::removeDevice count" << count();
     //qDebug()<< "deviceManager::removeDevice start" << dev.DeviceDesc + " / " + dev.DeviceUniqueID;
-    int index = findText(dev.DeviceDesc + " / " + dev.DeviceUniqueID);
+    int index = availCommDev.findText(dev.DeviceDesc + " / " + dev.DeviceUniqueID);
     //qDebug()<< "deviceManager::removeDevice start" << index;
-    comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(itemData(index));
+    comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(availCommDev.itemData(index));
     if( devComm != nullptr)
         devComm->deleteLater();
 
-    if( index < count())
-        removeItem(index);
+    if( index < availCommDev.count())
+        availCommDev.removeItem(index);
     else
         qDebug() << "Error deleting item";
 
@@ -55,9 +68,16 @@ void deviceManager::_deviceSelected(int index)
 {
     qDebug()<< "deviceManager::_deviceSelected start";
     //qDebug()<< "deviceManager::_deviceSelected start" << itemData(index);
-    comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(itemData(index));
+    comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(availCommDev.itemData(index));
     qDebug()<< "deviceManager::_deviceSelected finish" << devComm;
     //qDebug()<< "deviceManager::_deviceSelected finish" << devComm->DeviceUniqueID; // Не делай так!!! devComm может быть нулл!!!
     //if( devComm != nullptr)
     emit deviceSelected(devComm);
+}
+
+void deviceManager::baudRateUpdate()   // Обновляем скорость обмена
+{
+    baudRate = el_baudRate.text().toUInt();
+    emit baudRateChanged(el_baudRate.text().toUInt());
+    qDebug() << "=========== deviceManager::baudRateUpdate ================" << baudRate;
 }

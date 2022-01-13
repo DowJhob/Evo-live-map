@@ -24,6 +24,7 @@ TEMPLATE = app
 
 SOURCES += src/main.cpp\
     src/DMA-proto/DMA-proto.cpp \
+    src/DMA-proto/proto-manager.cpp \
     src/abstract-memory.cpp \
     src/comm-device-interface/devicemanager.cpp \
     src/comm-device-interface/op13.cpp \
@@ -65,6 +66,7 @@ SOURCES += src/main.cpp\
 
 HEADERS  += src/mainwindow.h \
     src/DMA-proto/DMA-proto.h \
+    src/DMA-proto/proto-manager.h \
     src/abstract-memory.h \
     src/comm-device-interface/devicemanager.h \
     src/controller.h \

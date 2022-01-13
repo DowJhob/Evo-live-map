@@ -13,12 +13,13 @@ class evoX_DMA : public DMA_proto
 {
     Q_OBJECT
 public:
-    j2534_interface **devComm;
+//    j2534_interface **devComm;
+    evoX_DMA();
     explicit evoX_DMA(comm_device_interface **devComm);
     ~evoX_DMA();
 
 public slots:
-    bool connect(uint baudRate);
+    bool connect();
     QByteArray indirectDMAread(quint32 addr, int lenght);
     QByteArray directDMAread(quint32 addr, int lenght);
     void directDMAwrite(quint32 addr, char *buf, int lenght);

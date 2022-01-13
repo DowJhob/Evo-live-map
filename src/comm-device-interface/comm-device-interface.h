@@ -43,6 +43,9 @@ public:
 public slots:
     virtual QByteArray read(uint lenght = 0) = 0;
     virtual void write(int lenght ) = 0;
+    void setBaudRate(unsigned int BaudRate);
+
+    uint getBaudRate();
 
 private slots:
 

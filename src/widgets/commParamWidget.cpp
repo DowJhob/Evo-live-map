@@ -7,54 +7,24 @@
 
 commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint defaultLogRate) : QWidget(parent)
 {
-    QLayout *l = new QGridLayout(this);
-    setLayout(l);
     //общая панель
-    QGroupBox *grBx = new QGroupBox("Communication parameters", this);
-    grBx->setFlat(false);
-    l->addWidget(grBx);
-    l = new QGridLayout(this);
-    grBx->setLayout(l);
+    setLayout(&commonGrpBxLayout);
 
-    //панель для интерфейса
-    grBx = new QGroupBox("Communication devices", this);
-    l->addWidget(grBx);
-    QGridLayout *ll = new QGridLayout(this);
-    grBx->setLayout(&communicationLayout);
-    QLabel *lb = new QLabel("Baud rate, Baud:", this);
-    lb->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    communicationLayout.addWidget(lb, 0, 1);
-    el_baudRate = new QLineEdit(QString::number(defaultBaudRate), this);
-    el_baudRate->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    communicationLayout.addWidget(el_baudRate, 0, 2);
-
-    //панель для протокола
-    grBx = new QGroupBox("ECU proto", this);
-    ll = new QGridLayout(this);
-    grBx->setLayout(ll);
-    l->addWidget(grBx);
-    protoListBox = new QComboBox(this);
-    protoListBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    ll->addWidget(protoListBox);
-    lb = new QLabel("Logging rate, Hz:", this);
-    lb->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    ll->addWidget(lb, 0, 1);
-    el_logRate = new QLineEdit(QString::number(defaultLogRate), this);
-    el_logRate->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    ll->addWidget(el_logRate, 0, 2);
-
+    QGroupBox *grBx //= new QGroupBox("ECU proto", this)
+            ;
+    QGridLayout *ll //= new QGridLayout()
+            ;
 
     //панель лямбды
     grBx = new QGroupBox("Select wideband", this);
-    ll = new QGridLayout(this);
+    ll = new QGridLayout();
     grBx->setLayout(ll);
-    l->addWidget(grBx);
+    commonGrpBxLayout.addWidget(grBx, 3, 0);
 
     QGroupBox *grBxAv = new QGroupBox("Available wideband", this);
     ll->addWidget(grBxAv, 0, 0);
     QGroupBox *grBxWBprt = new QGroupBox("Wideband proto", this);
     ll->addWidget(grBxWBprt, 0, 1);
-
 
     grBxAv->setLayout(&widebandLayout);
 
@@ -62,13 +32,11 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
 //    availWB->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 //    widebandLayout.addWidget(availWB);
 
-
-
-    ll = new QGridLayout(this);
+    ll = new QGridLayout();
     grBxWBprt->setLayout(ll);
 
     protoWB = new QComboBox(this);
-    protoWB->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    //protoWB->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     widebandLayout.addWidget(protoWB);
 
     protoWB->addItem("Innovate");
@@ -78,22 +46,27 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
     //connect(availWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commParamWidget::WBSelected);
     connect(protoWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commParamWidget::WBprotoSelected);
 
-
-    QSpacerItem *si = new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    l->addItem(si);
-
-    protoListBox->addItem("Custom DMA proto by jcsbanks");
-    protoListBox->addItem("Stock DMA proto by nanner55");
-    protoListBox->addItem("evoX_DMA by tephra");
-
-    connect(protoListBox,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commParamWidget::protoSelected);
-
-
-    connect(el_baudRate,  &QLineEdit::editingFinished, this, &commParamWidget::baudChng);
-    connect(el_logRate,  &QLineEdit::editingFinished, this, &commParamWidget::logchng);
+    qDebug() << " hop";
 
     baudRate = defaultBaudRate;
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+}
+
+void commParamWidget::setDeviceManager(deviceManager *devManager)
+{
+    commonGrpBxLayout.addWidget(devManager, 0, 0);
+    devManager->baudRateUpdate();
+}
+
+void commParamWidget::setProtoManager(protoManager *protoManager)
+{
+    commonGrpBxLayout.addWidget(protoManager, 1, 0);
+    protoManager->addProtos();
+}
+
+void commParamWidget::setWBManager(wbManager *wbManager)
+{
+    widebandLayout.addWidget(wbManager, 2, 0);
 }
 
 void commParamWidget::addWB(device dev)

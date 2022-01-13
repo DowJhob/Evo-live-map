@@ -11,11 +11,12 @@ class jcsbanksDMA : public DMA_proto
 {
     Q_OBJECT
 public:
+    jcsbanksDMA();
     explicit jcsbanksDMA(comm_device_interface **devComm);
     ~jcsbanksDMA();
 
 public slots:
-    bool connect(uint baudRate);
+    bool connect();
     QByteArray indirectDMAread(quint32 addr, int lenght);
     QByteArray directDMAread(quint32 addr, int lenght);
     void directDMAwrite(quint32 addr, char *buf, int lenght);

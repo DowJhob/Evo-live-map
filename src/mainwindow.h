@@ -28,6 +28,7 @@
 
 
 #include "comm-device-interface/devicemanager.h"
+#include "DMA-proto/proto-manager.h"
 #include "wideband/wb-manager.h"
 
 #include "widgets/mapWidget/mapwidget.h"
@@ -53,6 +54,13 @@ protected:
 
 public slots:
     void setDeviceManager(deviceManager *devManager);
+
+    void setProtoManager(protoManager *protoManager)
+    {
+        cpW->setProtoManager(protoManager);
+        //connect(protoManager, &deviceManager::deviceSelected, this, &MainWindow::deviceEvent);
+    }
+
     void setWBManager(wbManager *wbManager);
 
 
@@ -93,9 +101,6 @@ private:
     void colorFromFile(QString filename);
 
 signals:
-    void deviceSelected(comm_device_interface*);
-    //void deviceSelected(device);
-    //void interfaceRemoved(device);
     void protoSelected(int proto);
     //void baudChanged(int);
     void logChanged(int);

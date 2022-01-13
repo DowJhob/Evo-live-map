@@ -56,7 +56,6 @@ void MainWindow::setWBManager(wbManager *wbManager)
 
 void MainWindow::deviceEvent(comm_device_interface *devComm)
 {
-    emit deviceSelected(devComm);
     if(devComm == nullptr)
     {
         _mainToolBar->lockConnect(true);
