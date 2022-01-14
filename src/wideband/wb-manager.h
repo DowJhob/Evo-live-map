@@ -1,8 +1,12 @@
 #ifndef WB_MANAGER_H
 #define WB_MANAGER_H
 
-#include <QComboBox>
 #include <QObject>
+#include <QGroupBox>
+#include <QGridLayout>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QLabel>
 
 //#include "../deviceNativeFilter.h"
 //#include "../comm-device-interface/comm-device-interface.h"
@@ -11,7 +15,7 @@
 
 Q_DECLARE_METATYPE( commDeviceWB* )
 
-class wbManager : public QComboBox
+class wbManager : public QGroupBox
 {
     Q_OBJECT
 public:
@@ -22,11 +26,16 @@ public slots:
     void deviceEvent();
 
 private:
+    QGridLayout layout;
+    QComboBox availWB;
+    //QLabel lgrt{"Logging rate, Hz:"};
+    //QLineEdit el_lograte{"20"};
+
     void addDevice();
     void removeDevice();
 
 private slots:
-    void _deviceSelected(int index);
+    void wbSelected(int index);
 
 signals:
     void deviceSelected(wbLogger*);

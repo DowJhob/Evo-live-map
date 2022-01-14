@@ -15,6 +15,7 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
     QGridLayout *ll //= new QGridLayout()
             ;
 
+    /*
     //панель лямбды
     grBx = new QGroupBox("Select wideband", this);
     ll = new QGridLayout();
@@ -41,10 +42,10 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
 
     protoWB->addItem("Innovate");
     protoWB->addItem("PLX");
-    protoWB->addItem("AEM");
+    protoWB->addItem("AEM");*/
 
     //connect(availWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commParamWidget::WBSelected);
-    connect(protoWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commParamWidget::WBprotoSelected);
+    //connect(protoWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commParamWidget::WBprotoSelected);
 
     qDebug() << " hop";
 
@@ -70,7 +71,7 @@ void commParamWidget::setProtoManager(protoManager *protoManager)
 
 void commParamWidget::setWBManager(wbManager *wbManager)
 {
-    widebandLayout.addWidget(wbManager, 2, 0);
+    commonGrpBxLayout.addWidget(wbManager, 2, 0);
 }
 
 void commParamWidget::addWB(device dev)

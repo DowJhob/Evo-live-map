@@ -5,6 +5,7 @@
 #include "deviceNativeFilter.h"
 #include "comm-device-interface/devicemanager.h"
 #include "DMA-proto/proto-manager.h"
+#include "wideband/wb-manager.h"
 #include "mainwindow.h"
 #include "controller.h"
 
@@ -17,18 +18,19 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
-    deviceNativeFilter Enumerator;
+    deviceNativeFilter usbFilter;
     deviceManager devManager;
     protoManager protoManager;
+    wbManager wbManager;
     MainWindow mainWindow;
     controller controller;
 
     //========================================================================================
-    QObject::connect(&Enumerator,   &deviceNativeFilter::deviceEvent,       &devManager, &deviceManager::deviceEvent);
+    QObject::connect(&usbFilter,    &deviceNativeFilter::deviceEvent,        &devManager, &deviceManager::deviceEvent);
     //========================================================================================
-    QObject::connect(&devManager,   &deviceManager::deviceSelected,         &controller, &controller::setCommDevice);
-    QObject::connect(&protoManager, &protoManager::protoSelected,           &controller, &controller::setProto);
-    QObject::connect(&protoManager, &protoManager::logRateChanged,          &controller, &controller::setLogRate);
+    QObject::connect(&devManager,   &deviceManager::deviceSelected,          &controller, &controller::setCommDevice);
+    QObject::connect(&protoManager, &protoManager::protoSelected,            &controller, &controller::setProto);
+    QObject::connect(&protoManager, &protoManager::logRateChanged,           &controller, &controller::setLogRate);
     //========================================================================================
     //========================================================================================
     QObject::connect(&mainWindow,   &MainWindow::getECUconnectMainWindow,    &controller, &controller::getECUconnect);
@@ -51,14 +53,16 @@ int main(int argc, char *argv[])
 
     mainWindow.setDeviceManager(&devManager);
 
+    mainWindow.setWBManager(&wbManager);
+
 
     //Подписываемся на события
-    Enumerator.notifyRegister((HWND)mainWindow.winId());
-    Enumerator.getPresentCommDevices();
+    usbFilter.notifyRegister((HWND)mainWindow.winId());
+    usbFilter.getPresentCommDevices();
 
     //=============================================================================
 
-    app.installNativeEventFilter(&Enumerator);
+    app.installNativeEventFilter(&usbFilter);
     controller.start();
     mainWindow.show();
     return app.exec();

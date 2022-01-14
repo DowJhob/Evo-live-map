@@ -8,7 +8,7 @@ class OP20 : public j2534_interface, public commDeviceWB
 {
     Q_OBJECT
 public:
-    OP20(QString dllName = nullptr, QString DeviceUniqueID = "");
+    OP20(QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
     ~OP20();
     virtual bool openWB();
 

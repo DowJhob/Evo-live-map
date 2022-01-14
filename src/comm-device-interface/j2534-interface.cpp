@@ -1,8 +1,8 @@
 #include "j2534-interface.h"
 
-j2534_interface::j2534_interface(QString dllName, QString DeviceUniqueID) : comm_device_interface( dllName, DeviceUniqueID)
+j2534_interface::j2534_interface(QString dllName, QString DeviceDesc, QString DeviceUniqueID) : comm_device_interface( dllName, DeviceDesc, DeviceUniqueID)
 {
-    devType = deviceType::J2534;
+    //devType = deviceType::J2534;
     p_in_buff = rx_msg.m_data;
     p_out_buff = tx_msg.m_data;
 

@@ -15,10 +15,10 @@ class comm_device_interface : public QObject
 {
     Q_OBJECT
 public:
-    deviceType devType = deviceType::undef;
+    //deviceType devType = deviceType::undef;
     QString dllName;
     QString DeviceUniqueID;
-
+QString DeviceDesc;
     char* p_in_buff;
     char* p_out_buff;
 
@@ -29,7 +29,7 @@ public:
     unsigned long _readTimeout = 2000;
     unsigned long writeTimeout = 0;
 
-    explicit comm_device_interface(QString dllName = nullptr, QString DeviceUniqueID = "");
+    explicit comm_device_interface(QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
     virtual ~comm_device_interface();
 
     virtual bool open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate) = 0;

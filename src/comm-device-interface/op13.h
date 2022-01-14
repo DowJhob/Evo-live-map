@@ -8,7 +8,7 @@
 class OP13: public comm_device_interface
 {
 public:
-    OP13( QString dllName = nullptr, QString DeviceUniqueID = "");
+    OP13( QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
     virtual ~OP13();
     bool open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate);
     bool close();

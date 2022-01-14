@@ -25,7 +25,7 @@ class j2534_interface : public comm_device_interface
 public:
     // J2534
 
-    j2534_interface( QString dllName = nullptr, QString DeviceUniqueID = "");
+    j2534_interface( QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
     virtual ~j2534_interface();
 
     bool info();

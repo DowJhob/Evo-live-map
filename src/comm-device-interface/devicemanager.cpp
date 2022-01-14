@@ -30,12 +30,12 @@ void deviceManager::deviceEvent(device dev)
 void deviceManager::addDevice(device dev)
 {
     //qDebug()<< "deviceManager::addDevice start" << dev.DeviceDesc;
-    comm_device_interface *devComm = nullptr;                                  // это важно если бы мы пытались добавить не инициализированную, тогда бы при попытке извлечь девайсСелектед она не прошла проверку кУвариант
+    comm_device_interface *devComm = nullptr;  // это важно если бы мы пытались добавить не инициализированную, тогда бы при попытке извлечь девайсСелектед она не прошла проверку кУвариант
     switch (dev.type)
     {
-    case deviceType::OP13  : devComm = new OP13(dev.FunctionLibrary, dev.DeviceUniqueID); break;
-    case deviceType::OP20  : devComm = new OP20(dev.FunctionLibrary, dev.DeviceUniqueID); break;
-    case deviceType::J2534 : devComm = new j2534_interface(dev.FunctionLibrary, dev.DeviceUniqueID); break;
+    case deviceType::OP13  : devComm = new OP13(dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
+    case deviceType::OP20  : devComm = new OP20(dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
+    case deviceType::J2534 : devComm = new j2534_interface(dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
     default                : return;                                            //  но поскольку тут вылетим без добавления то вроде и не важно
     }
     devComm->setBaudRate(el_baudRate.text().toUInt());

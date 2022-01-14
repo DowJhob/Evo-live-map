@@ -1,9 +1,9 @@
 #include "op13.h"
 #include <QCoreApplication>
 
-OP13::OP13(QString dllName, QString DeviceUniqueID) :  comm_device_interface( dllName, DeviceUniqueID)
+OP13::OP13(QString dllName, QString DeviceDesc, QString DeviceUniqueID) :  comm_device_interface( dllName, DeviceDesc, DeviceUniqueID)
 {
-    devType = deviceType::OP13;
+    //devType = deviceType::OP13;
     _ftdi = new ftdi(QCoreApplication::applicationDirPath() + "\\ftd2xx.dll");
     p_in_buff = in_buf;
     p_out_buff = out_buf;

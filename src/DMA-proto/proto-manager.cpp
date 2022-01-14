@@ -26,7 +26,8 @@ void protoManager::addProtos()
 //    if ( ECUproto != nullptr )
 //        ECUproto->deleteLater();
     //qDebug()<< "deviceManager::addDevice start" << dev.DeviceDesc;
-    proto = new jcsbanksDMA();
+
+    DMA_proto *proto = new jcsbanksDMA();
     availProto.addItem("Custom DMA proto by jcsbanks", QVariant::fromValue<DMA_proto*>(proto));
     proto = new stockDMA();
     availProto.addItem("Stock DMA proto by nanner55", QVariant::fromValue<DMA_proto*>(proto));

@@ -1,8 +1,8 @@
 #include "op20.h"
 
-OP20::OP20(QString dllName, QString DeviceUniqueID) : j2534_interface(dllName, DeviceUniqueID)
+OP20::OP20(QString dllName, QString DeviceDesc, QString DeviceUniqueID) : j2534_interface(dllName, DeviceDesc, DeviceUniqueID)
 {
-    devType = deviceType::OP20;
+    //devType = deviceType::OP20;
     //qDebug() << "OP20" << DeviceUniqueID;
 }
 

@@ -32,7 +32,7 @@ private:
     QGroupBox commonGrpBx{"Communication parameters"};
     QGridLayout commonGrpBxLayout;
 
-    QGridLayout widebandLayout;
+    //QGridLayout widebandLayout;
 
     QComboBox *availWB;
     QComboBox *protoWB;

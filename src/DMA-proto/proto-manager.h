@@ -28,7 +28,6 @@ public slots:
     //void deviceEvent(device dev);
 
 private:
-    DMA_proto *proto = nullptr;
     QGridLayout layout;
     QComboBox availProto;
     QLabel lgrt{"Logging rate, Hz:"};

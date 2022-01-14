@@ -56,7 +56,7 @@ void MainWindow::deviceEvent(comm_device_interface *devComm)
         statusBar()->showMessage("No interface", 0);
         return;
     }
-    statusBar()->showMessage(devComm->DeviceUniqueID, 0);
+    statusBar()->showMessage(devComm->DeviceDesc + " / " + devComm->DeviceUniqueID, 0);
     if( devComm->info() )
         _mainToolBar->lockConnect(false);         // Показываем кнопки старт и сброс памяти
 }
