@@ -22,14 +22,14 @@ controller::controller(QObject *parent) : QObject(parent)
 
 controller::~controller()
 {
-    getECUdisconnect();
+//    getECUdisconnect();
 
-    if (ECUproto != nullptr)
-        ECUproto->deleteLater();
+//    if (ECUproto != nullptr)
+//        ECUproto->deleteLater();
 
 
-    if (devComm != nullptr)
-        devComm->deleteLater();
+//    if (devComm != nullptr)
+//        devComm->deleteLater();
     qDebug() << "~controller";
 }
 
