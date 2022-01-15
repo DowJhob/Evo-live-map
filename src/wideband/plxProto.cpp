@@ -1,6 +1,6 @@
 #include "plxProto.h"
 
-void plxProto::handleWB()
+float plxProto::handleWB(QByteArray a)
 {
     uchar b;
     if (b == (uchar) 0x80) {
@@ -52,5 +52,5 @@ void plxProto::handleWB()
         //        );
         break;
     }
-    //        return null;
+    return 0;
 }

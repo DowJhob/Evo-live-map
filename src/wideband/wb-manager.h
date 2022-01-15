@@ -7,12 +7,13 @@
 #include <QComboBox>
 #include <QLineEdit>
 #include <QLabel>
+#include <QPushButton>
 
 //#include "../deviceNativeFilter.h"
 //#include "../comm-device-interface/comm-device-interface.h"
 #include "../comm-device-interface/op20.h"
 #include "commdevicewb-interface.h"
-#include "wblogger.h"
+//#include "wblogger.h"
 
 Q_DECLARE_METATYPE( commDeviceWB* )
 
@@ -29,6 +30,8 @@ public slots:
 private:
     QGridLayout layout;
     QComboBox availWB;
+    QComboBox protoWB;
+    QPushButton startBtn{"Start"};
     //QLabel lgrt{"Logging rate, Hz:"};
     //QLineEdit el_lograte{"20"};
 
@@ -36,10 +39,12 @@ private:
     void removeDevice();
 
 private slots:
-    void wbSelected(int index);
+    void _wbSelected(int index);
 
 signals:
-    void deviceSelected(wbLogger*);
+    void wbSelected(commDeviceWB*);
+    void protoSelected(int);
+    void wbStart(bool);
 
 };
 

@@ -55,25 +55,19 @@ protected:
 public slots:
     void setDeviceManager(deviceManager *devManager);
 
-    void setProtoManager(protoManager *protoManager)
-    {
-        cpW->setProtoManager(protoManager);
-        //connect(protoManager, &deviceManager::deviceSelected, this, &MainWindow::deviceEvent);
-    }
+    void setProtoManager(protoManager *protoManager);
 
     void setWBManager(wbManager *wbManager);
 
+    void setWidebandWidge(gaugeWidget *wbWgt);
 
     void deviceEvent(comm_device_interface *devComm);
 
     void ecu_connected();
     void createMap(mapDefinition *dMap);
     void Log(QString str);
-    void createWB(commDeviceWB *wb);
 
 private slots:
-    //void commDeviceSelected(device dev);
-    void setDMAprotoSelected(int proto);
     void StartButton_slot();
     void itemChecks(QTreeWidgetItem *item, int column);
 
@@ -93,9 +87,9 @@ private:
 
     //======================== widget's =================================
     hexEditor *hexEdit;
-    gauge_widget *tactrix_afr_lcd = nullptr;
+    gaugeWidget *tactrix_afr_lcd = nullptr;
     //======================== widget lists =================================
-    QSet<gauge_widget*> gauge_widget_set;
+    QSet<gaugeWidget*> gauge_widget_set;
 
     QVector<QColor> colormap;
     void colorFromFile(QString filename);
@@ -107,7 +101,7 @@ signals:
     void updateRAM(abstractMemoryScaled);
     void resetRAM();
 
-    void logReady(QVector<float>);
+    void dataLog(QVector<float>);
 
     void _exit();
 

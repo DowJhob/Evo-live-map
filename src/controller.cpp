@@ -59,6 +59,8 @@ void controller::setProto(DMA_proto *ECUproto)
 {
     qDebug() << "=========== controller::setProto ================" << ECUproto;
     this->ECUproto = ECUproto;
+
+    //this->ECUproto->setCommDev(&devComm);
 }
 
 void controller::setLogRate(uint logRate)

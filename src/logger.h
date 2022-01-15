@@ -55,7 +55,6 @@ private slots:
 
 signals:
     void logReady(QVector<float>);
-    void loop();
 
 };
 

@@ -8,6 +8,8 @@
 #include "wideband/wb-manager.h"
 #include "mainwindow.h"
 #include "controller.h"
+#include "wblogger.h"
+#include "widgets/gauge_widget.h"
 
 #include <QElapsedTimer>
 
@@ -24,11 +26,16 @@ int main(int argc, char *argv[])
     wbManager wbManager;
     MainWindow mainWindow;
     controller controller;
-
+    wbLogger wbLogger;
+gaugeWidget wbWgt("  = Wideband =  ", 4);
 
     QObject::connect(&devManager,   &deviceManager::tactrixArrived,          &wbManager, &wbManager::addTactrix);
 
+    QObject::connect(&wbManager,   &wbManager::wbSelected,                   &wbLogger, &wbLogger::setWB);
+    QObject::connect(&wbManager,   &wbManager::protoSelected,                &wbLogger, &wbLogger::setProto);
+    QObject::connect(&wbManager,   &wbManager::wbStart,                      &wbLogger, &wbLogger::start_stop);
 
+    QObject::connect(&wbLogger,   &wbLogger::logReady,                       &wbWgt, &gaugeWidget::display);
 
 
 
@@ -49,7 +56,7 @@ int main(int argc, char *argv[])
     QObject::connect(&mainWindow,   &MainWindow::resetRAM,                   &controller, &controller::RAMreset);
     QObject::connect(&mainWindow,   &MainWindow::updateRAM,                  &controller, &controller::updateRAM);
     //========================= logger ===============================================================
-    QObject::connect(&controller,   &controller::logReady,                   &mainWindow, &MainWindow::logReady//, Qt::DirectConnection
+    QObject::connect(&controller,   &controller::logReady,                   &mainWindow, &MainWindow::dataLog//, Qt::DirectConnection
                      );
     //========================================================================================
     QObject::connect(&controller, &controller::Log, &mainWindow, &MainWindow::Log);
@@ -61,7 +68,7 @@ int main(int argc, char *argv[])
     mainWindow.setDeviceManager(&devManager);
 
     mainWindow.setWBManager(&wbManager);
-
+    mainWindow.setWidebandWidge(&wbWgt);
 
     //Подписываемся на события
     usbFilter.notifyRegister((HWND)mainWindow.winId());

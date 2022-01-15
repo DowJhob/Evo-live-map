@@ -81,7 +81,7 @@ typedef struct
 class innoProto
 {
 public:
-    void handleWB();
+    float handleWB(QByteArray a);
 
 private:
     uchar* data;

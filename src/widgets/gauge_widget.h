@@ -11,14 +11,14 @@
 
 #include <src/ecu/ecu-definition.h>
 
-class gauge_widget:public QWidget
+class gaugeWidget:public QWidget
 {
     Q_OBJECT
 public:
     uint offset;
     Scaling *scaling;
     QLCDNumber lcd;
-    gauge_widget(QString name, uint DigitNum = 4, QWidget* parent = nullptr);
+    gaugeWidget(QString name, uint DigitNum = 4, QWidget* parent = nullptr);
 
 protected:
     virtual void contextMenuEvent(QContextMenuEvent* pe);

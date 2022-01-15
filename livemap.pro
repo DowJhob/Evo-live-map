@@ -47,7 +47,7 @@ SOURCES += src/main.cpp\
     src/wideband/plxProto.cpp \
     src/wideband/wb-manager.cpp \
     src/wideband/wb-proto.cpp \
-    src/wideband/wblogger.cpp \
+    src/wblogger.cpp \
     src/widgets/hexEditor/qhexedit/chunks.cpp \
     src/widgets/hexEditor/qhexedit/commands.cpp \
     src/widgets/hexEditor/qhexedit/qhexedit.cpp \
@@ -98,7 +98,7 @@ HEADERS  += src/mainwindow.h \
     src/wideband/plxProto.h \
     src/wideband/wb-manager.h \
     src/wideband/wb-proto.h \
-    src/wideband/wblogger.h \
+    src/wblogger.h \
     src/widgets/commParamWidget.h \
     src/widgets/gauge_widget.h \
     src/widgets/hexEditor/qhexedit/chunks.h \

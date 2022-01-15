@@ -51,7 +51,7 @@ const int StringBufferSize = 256;
 
 } // anonymous namespace
 
-Q_LOGGING_CATEGORY(QT_CANBUS_PLUGINS_PASSTHRU, "qt.canbus.plugins.passthru", QtWarningMsg)
+//Q_LOGGING_CATEGORY(LIVEMAP_PASSTHRU, "qt.canbus.plugins.passthru", QtWarningMsg)
 
 namespace J2534 {
 
@@ -82,7 +82,7 @@ PassThru::PassThru(const QString &libraryPath, QObject *parent) : QObject(parent
         m_lastError = LoadFailed;
         m_lastErrorString = m_libJ2534.errorString();
 
-        qCWarning(QT_CANBUS_PLUGINS_PASSTHRU, "%ls", qUtf16Printable(m_lastErrorString));
+        //qCWarning(LIVEMAP_PASSTHRU, "%ls", qUtf16Printable(m_lastErrorString));
     }
 }
 
@@ -190,8 +190,8 @@ PassThru::Status PassThru::handleResult(long statusCode)
             m_lastErrorString = QString::fromLatin1(description);
         } else {
             m_lastErrorString = QString::fromLatin1(description);
-            qDebug() << "m_lastErrorString" << m_lastErrorString;
-            qCWarning(QT_CANBUS_PLUGINS_PASSTHRU, "GetLastError failed with code %ld ", descStatus);
+            //qDebug() << "m_lastErrorString" << m_lastErrorString;
+            //qCWarning(LIVEMAP_PASSTHRU, "GetLastError failed with code %ld ", descStatus);
         }
     }
     return Status(statusCode);

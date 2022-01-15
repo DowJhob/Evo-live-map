@@ -1,6 +1,6 @@
 #include "gauge_widget.h"
 
-gauge_widget::gauge_widget(QString name, uint DigitNum, QWidget *parent):QWidget(parent)
+gaugeWidget::gaugeWidget(QString name, uint DigitNum, QWidget *parent):QWidget(parent)
 {
     //       setMinimumSize(64, 64);
     //        setMaximumSize(100, 100);
@@ -47,21 +47,21 @@ gauge_widget::gauge_widget(QString name, uint DigitNum, QWidget *parent):QWidget
     pAction->setCheckable(true);
 
 
-    connect(group, &QActionGroup::triggered, this, &gauge_widget::setProto);
+    connect(group, &QActionGroup::triggered, this, &gaugeWidget::setProto);
     setToolTip("Press right mouse button for set wideband proto");
 }
 
-void gauge_widget::contextMenuEvent(QContextMenuEvent *pe)
+void gaugeWidget::contextMenuEvent(QContextMenuEvent *pe)
 {
     m_pmnu->exec(pe->globalPos());
 }
 
-void gauge_widget::display(float in)
+void gaugeWidget::display(float in)
 {
     lcd.display(QString::number(in));
 }
 
-void gauge_widget::setProto(QAction* pAction)
+void gaugeWidget::setProto(QAction* pAction)
 {
     QString wbProto = pAction->text();
     qDebug() << "wbProto" << wbProto;

@@ -1,6 +1,6 @@
 #include "innoProto.h"
 
-void innoProto::handleWB()
+float innoProto::handleWB(QByteArray a)
 {
 //    if (msg->RxStatus & START_OF_MESSAGE)
 //        return; // skip
@@ -39,7 +39,7 @@ void innoProto::handleWB()
             payload = 14; // LM-1 V1 payload is a fixed size
         }
         if (payload + 2 != *DataSize)
-            return;
+            return -1;
         msgptr = data + 2;
         // work our way through the payload bytes
         while (payload)

@@ -39,7 +39,7 @@ public:
 
 private:
     PassThru *j2534;
-    unsigned long devID;
+    unsigned long devID = 0;   // использую как индикатор открытости, если ноль не опен!
     unsigned long chanID;
     unsigned long NumMsgs;
 

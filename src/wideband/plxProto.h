@@ -18,7 +18,7 @@ public:
     uchar* data;
     ulong *DataSize;
 
-    void handleWB();
+    float handleWB(QByteArray a);
 
 private:
     float result;

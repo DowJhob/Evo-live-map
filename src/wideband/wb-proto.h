@@ -7,7 +7,7 @@
 class wbProto : public plxProto, public innoProto
 {
 public:
-    void handleWB();
+    float handleWB(int proto, QByteArray a);
 
 private:
 };

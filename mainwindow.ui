@@ -179,7 +179,7 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>  After pushing &quot;Start&quot; button program trying to connect controller
+              <string> After pushing &quot;Start&quot; button program trying to connect controller
 using MUT protocol. In success, program reads calibration 
 numbers from controller's memory. By using calibration number, 
 program searching for xml file in home folder. The name of file 
@@ -193,7 +193,7 @@ of this variable. I have ready a patch for GTA 80770010 evo
 (airtrek) and 90550001 evo7 Ralliart my rom without tephra mod.
   After edit cells (select another cell or push enter) value 
 Immediately send's to ECU. This client worked with two interface,
- OpenPort1.3 and OpenPort2.0 (slowly). For make patch use 
+ OpenPort1.3 and OpenPort2.0. For make patch use 
 tuner pro from http://www.tunerpro.net/downloadApp.htm, and 
 xdf file.
 

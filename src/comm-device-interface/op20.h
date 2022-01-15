@@ -11,13 +11,15 @@ public:
     OP20(QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
     ~OP20();
 
-    bool openWB();
+    bool isClosed();
+
+    bool openWB(uint baudRate);
 
     bool connectWB(uint baudRate);
 
     bool closeWB();
 
-    bool readWB();
+    QByteArray readWB();
 
 public slots:
 

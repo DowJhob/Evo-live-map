@@ -10,15 +10,29 @@ wbManager::wbManager(QWidget *parent):QGroupBox(parent)
     //el_lograte.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
     layout.addWidget(&availWB, 0, 0);
-    //layout.addWidget(&lgrt, 0, 1);
-    //layout.addWidget(&el_lograte, 0, 2);
+    layout.addWidget(&protoWB, 0, 1);
+    layout.addWidget(&startBtn, 0, 2);
 
-    connect(&availWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::wbSelected);
+    connect(&availWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::_wbSelected);
+    connect(&protoWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::protoSelected);
+    connect(&startBtn, &QPushButton::clicked, this, [this](){
+        if(startBtn.text() == "Start")
+        {
+            emit wbStart(true);
+            startBtn.setText("Stop");
+        }
+        else
+        {
+            emit wbStart(false);
+            startBtn.setText("Start");
+        }
+    });
     //connect(&el_lograte,  &QLineEdit::editingFinished, this, &protoManager::_logRateChanged);
 
     //QGroupBox *grBxWBprt = new QGroupBox("Wideband proto", this);
     //ll->addWidget(grBxWBprt, 0, 1);
 
+    protoWB.addItems({"Innovate", "AEM", "PLX"});
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 }
 
@@ -81,13 +95,13 @@ void wbManager::removeDevice()
     //emit deviceSelected(nullptr);  // не нужен потому что будет селект с нулем
 }
 
-void wbManager::wbSelected(int index)
+void wbManager::_wbSelected(int index)
 {
     qDebug()<< "deviceManager::_deviceSelected start";
     //qDebug()<< "deviceManager::_deviceSelected start" << itemData(index);
-////    wbLogger *wblog = qvariant_cast<wbLogger*>(itemData(index));
+commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(availWB.itemData(index));
 ////    qDebug()<< "deviceManager::_deviceSelected finish" << wblog;
     //qDebug()<< "deviceManager::_deviceSelected finish" << devComm->DeviceUniqueID; // Не делай так!!! devComm может быть нулл!!!
 
-////    emit deviceSelected(wblog);
+    emit wbSelected(cdWB);
 }

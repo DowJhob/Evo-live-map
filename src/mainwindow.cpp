@@ -42,10 +42,22 @@ void MainWindow::setDeviceManager(deviceManager *devManager)
     connect(devManager, &deviceManager::deviceSelected, this, &MainWindow::deviceEvent);
 }
 
+void MainWindow::setProtoManager(protoManager *protoManager)
+{
+    cpW->setProtoManager(protoManager);
+    //connect(protoManager, &deviceManager::deviceSelected, this, &MainWindow::deviceEvent);
+}
+
 void MainWindow::setWBManager(wbManager *wbManager)
 {
     cpW->setWBManager(wbManager);
     //connect(wbManager, &wbManager::deviceSelected, this, &MainWindow::deviceEvent);
+}
+
+void MainWindow::setWidebandWidge(gaugeWidget *wbWgt)
+{
+    _mainToolBar->addWidget(wbWgt);
+    _mainToolBar->addSeparator();
 }
 
 void MainWindow::deviceEvent(comm_device_interface *devComm)
@@ -59,11 +71,6 @@ void MainWindow::deviceEvent(comm_device_interface *devComm)
     statusBar()->showMessage(devComm->DeviceDesc + " / " + devComm->DeviceUniqueID, 0);
     if( devComm->info() )
         _mainToolBar->lockConnect(false);         // Показываем кнопки старт и сброс памяти
-}
-
-void MainWindow::setDMAprotoSelected(int proto)
-{    
-    //qDebug()<< "MainWindow::_protoSelected" << proto;
 }
 
 void MainWindow::StartButton_slot()
@@ -112,7 +119,7 @@ void MainWindow::createMap(mapDefinition *dMap)
 
     connect(table->mapModel_, &mapModel::updateRAM, this, &MainWindow::updateRAM);
 
-    connect(this, &MainWindow::logReady, table->mapTable, &mapView::logReady);
+    connect(this, &MainWindow::dataLog, table->mapTable, &mapView::logReady);
 
     connect(this, &MainWindow::_exit, table, &QWidget::deleteLater);
 
@@ -168,7 +175,7 @@ void MainWindow::create_gauge(QString name, mutParam *param)
         //insertToolBar(ui->toolBar, loggerWidgetBar);
         addToolBar(Qt::BottomToolBarArea, loggerWidgetBar);
     }
-    gauge_widget *_gauge_widget = new gauge_widget(name, 4, ui->tabWidget);
+    gaugeWidget *_gauge_widget = new gaugeWidget(name, 4, ui->tabWidget);
     //    ui->toolBar->addWidget(_graph_log_widget);
     //ui->logger_verticalLayout->layout()->addWidget(_gauge_widget);
     loggerWidgetBar->addWidget(_gauge_widget);
@@ -215,9 +222,3 @@ void MainWindow::Log(QString str)
     ui->systemLog->addItem(str);
 }
 
-void MainWindow::createWB(commDeviceWB *wb)
-{
-    gauge_widget *_gauge_widget = new gauge_widget("AFR", 4, ui->tabWidget);
-    _mainToolBar->addWidget(_gauge_widget);
-    _mainToolBar->addSeparator();
-}

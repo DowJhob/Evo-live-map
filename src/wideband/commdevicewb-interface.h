@@ -9,11 +9,12 @@ public:
     QString DeviceDesc;// + " / " + cdWB->DeviceUniqueID
     explicit commDeviceWB();
 
-    virtual bool openWB() = 0;
+    virtual bool isClosed() = 0;
+    virtual bool openWB(uint baudRate) = 0;
 
     virtual bool connectWB(unsigned int baudRate) = 0;
     virtual bool closeWB() = 0;
-    virtual bool readWB() = 0;
+    virtual QByteArray readWB() = 0;
 
 };
 
