@@ -1,10 +1,12 @@
 #ifndef COMMDEVICEWB_INTERFACE_H
 #define COMMDEVICEWB_INTERFACE_H
 
+#include <QString>
+
 class commDeviceWB
 {
-
 public:
+    QString DeviceDesc;// + " / " + cdWB->DeviceUniqueID
     explicit commDeviceWB();
 
     virtual bool openWB() = 0;

@@ -34,7 +34,9 @@ void deviceManager::addDevice(device dev)
     switch (dev.type)
     {
     case deviceType::OP13  : devComm = new OP13(dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
-    case deviceType::OP20  : devComm = new OP20(dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
+    case deviceType::OP20  : devComm = new OP20(dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID);
+        emit tactrixArrived(devComm);
+        break;
     case deviceType::J2534 : devComm = new j2534_interface(dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
     default                : return;                                            //  но поскольку тут вылетим без добавления то вроде и не важно
     }
@@ -61,7 +63,7 @@ void deviceManager::removeDevice(device dev)
     else
         qDebug() << "Error deleting item";
 
-    //emit deviceSelected(nullptr);  // не нужен потому что будет селект с нулем
+    emit tactrixRemoved(devComm);
 }
 
 void deviceManager::_deviceSelected(int index)

@@ -25,6 +25,13 @@ int main(int argc, char *argv[])
     MainWindow mainWindow;
     controller controller;
 
+
+    QObject::connect(&devManager,   &deviceManager::tactrixArrived,          &wbManager, &wbManager::addTactrix);
+
+
+
+
+
     //========================================================================================
     QObject::connect(&usbFilter,    &deviceNativeFilter::deviceEvent,        &devManager, &deviceManager::deviceEvent);
     //========================================================================================

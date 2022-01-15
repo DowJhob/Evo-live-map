@@ -10,6 +10,7 @@
 
 //#include "../deviceNativeFilter.h"
 //#include "../comm-device-interface/comm-device-interface.h"
+#include "../comm-device-interface/op20.h"
 #include "commdevicewb-interface.h"
 #include "wblogger.h"
 
@@ -22,7 +23,7 @@ public:
     wbManager(QWidget *parent = nullptr);
 
 public slots:
-    void tactrixEvent(commDeviceWB *cdWB);
+    void addTactrix(comm_device_interface *cdWB);
     void deviceEvent();
 
 private:

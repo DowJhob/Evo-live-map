@@ -16,22 +16,19 @@ wbManager::wbManager(QWidget *parent):QGroupBox(parent)
     connect(&availWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::wbSelected);
     //connect(&el_lograte,  &QLineEdit::editingFinished, this, &protoManager::_logRateChanged);
 
-
     //QGroupBox *grBxWBprt = new QGroupBox("Wideband proto", this);
     //ll->addWidget(grBxWBprt, 0, 1);
-
-
-
-
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 }
 
-void wbManager::tactrixEvent(commDeviceWB *cdWB)
+void wbManager::addTactrix(comm_device_interface *cdWB)
 {
-    wbLogger *wblog = new wbLogger(&cdWB);
-    emit deviceSelected(wblog);
+            commDeviceWB *ss = static_cast<OP20*>(cdWB);
 
+    //wbLogger *wblog = new wbLogger(&cdWB);
+    //emit deviceSelected(wblog);
+    availWB.addItem(cdWB->DeviceDesc + " / " + cdWB->DeviceUniqueID, QVariant::fromValue<commDeviceWB*>(ss));
 //    addItem("tactrix", QVariant::fromValue<wbLogger*>(wblog));
 }
 

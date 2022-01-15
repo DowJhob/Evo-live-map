@@ -44,6 +44,9 @@ signals:
     void deviceSelected(comm_device_interface*);
     void baudRateChanged(uint);
 
+    void tactrixArrived(comm_device_interface*);
+        void tactrixRemoved(comm_device_interface*);
+
 };
 
 #endif // DEVICEMANAGER_H

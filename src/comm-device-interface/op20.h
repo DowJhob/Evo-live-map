@@ -10,13 +10,14 @@ class OP20 : public j2534_interface, public commDeviceWB
 public:
     OP20(QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
     ~OP20();
-    virtual bool openWB();
 
-    virtual bool connectWB(uint baudRate);
+    bool openWB();
 
-    virtual bool closeWB();
+    bool connectWB(uint baudRate);
 
-    virtual bool readWB();
+    bool closeWB();
+
+    bool readWB();
 
 public slots:
 

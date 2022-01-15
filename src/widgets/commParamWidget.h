@@ -23,24 +23,11 @@ public slots:
     void setProtoManager(protoManager *protoManager);
     void setWBManager(wbManager *wbManager);
 
-    void addWB(device dev);
-    void removeWB(device dev);
-    void WBSelected(int index);
-    void WBprotoSelected(int index);
-
 private:
     QGroupBox commonGrpBx{"Communication parameters"};
     QGridLayout commonGrpBxLayout;
 
-    //QGridLayout widebandLayout;
-
-    QComboBox *availWB;
-    QComboBox *protoWB;
-
 signals:
-    void protoSelected(int);
-    void wbSelected(int);
-    void wbProtoSelected(int);
 
 };
 
