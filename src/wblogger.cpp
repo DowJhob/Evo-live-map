@@ -3,6 +3,8 @@
 wbLogger::wbLogger()//:cdWB(cdWB)
 {
 
+    pollTimer = new QTimer(this);
+    connect(pollTimer, &QTimer::timeout, this, &wbLogger::poll);
 
     QThread *this_thread = new QThread();
     QObject::connect(this_thread, &QThread::started, this, [this](){
@@ -13,8 +15,8 @@ wbLogger::wbLogger()//:cdWB(cdWB)
     //connect(this_thread, &QThread::started, this, &controller::loop, Qt::QueuedConnection);
     QObject::connect(this, &wbLogger::destroyed, this_thread, &QThread::quit);            // Когда удалим объект остановим поток
     QObject::connect(this_thread, &QThread::finished, this_thread, &QThread::deleteLater);  // Когда остановим поток удалим его
-    moveToThread(this_thread);
-    this_thread->start();
+    //moveToThread(this_thread);
+    //this_thread->start();
 }
 
 void wbLogger::setWB(commDeviceWB *cdWB)
@@ -31,7 +33,8 @@ void wbLogger::setWB(commDeviceWB *cdWB)
     this->cdWB = cdWB;
     if (cdWB != nullptr  )
     {
-        qDebug() << "=========== wbLogger::cdWB->openWB ================" << cdWB;
+        //cdWB->moveToThread(thread());
+        //qDebug() << "=========== wbLogger::cdWB->openWB ================" << cdWB;
         //        cdWB->openWB(19600);
         //cdWB->connectWB(19600);
         //        start();
@@ -72,6 +75,7 @@ void wbLogger::stop()
 
 void wbLogger::poll()
 {
+    qDebug() << "=========== wbLogger::poll ================";
     QByteArray a = cdWB->readWB();
     if(a.size() > 0)
     {

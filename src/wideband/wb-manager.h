@@ -8,12 +8,14 @@
 #include <QLineEdit>
 #include <QLabel>
 #include <QPushButton>
+#include <QSerialPortInfo>
+#include <QSerialPort>
 
 //#include "../deviceNativeFilter.h"
 //#include "../comm-device-interface/comm-device-interface.h"
 #include "../comm-device-interface/op20.h"
 #include "commdevicewb-interface.h"
-//#include "wblogger.h"
+#include "serialwb.h"
 
 Q_DECLARE_METATYPE( commDeviceWB* )
 
@@ -35,6 +37,7 @@ private:
     //QLabel lgrt{"Logging rate, Hz:"};
     //QLineEdit el_lograte{"20"};
 
+    void getAllSerial();
     void addDevice();
     void removeDevice();
 

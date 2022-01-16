@@ -31,7 +31,7 @@ wbManager::wbManager(QWidget *parent):QGroupBox(parent)
 
     //QGroupBox *grBxWBprt = new QGroupBox("Wideband proto", this);
     //ll->addWidget(grBxWBprt, 0, 1);
-
+getAllSerial();
     protoWB.addItems({"Innovate", "AEM", "PLX"});
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 }
@@ -54,6 +54,14 @@ void wbManager::deviceEvent()
     //    case  : addDevice(dev); break;
     //    case dir::remove : removeDevice(dev); break;
     //    }
+}
+
+void wbManager::getAllSerial()
+{
+    for( const auto &portInfo : QSerialPortInfo::availablePorts())
+    {
+        availWB.addItem(portInfo.description() + " / " + portInfo.serialNumber(), QVariant::fromValue<commDeviceWB*>(new serialWB(portInfo, this)));
+    }
 }
 
 void wbManager::addDevice()

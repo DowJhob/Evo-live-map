@@ -1,10 +1,12 @@
 #ifndef COMMDEVICEWB_INTERFACE_H
 #define COMMDEVICEWB_INTERFACE_H
 
+#include <QObject>
 #include <QString>
 
-class commDeviceWB
-{
+class commDeviceWB//:public QObject
+{    
+    //Q_OBJECT
 public:
     QString DeviceDesc;// + " / " + cdWB->DeviceUniqueID
     explicit commDeviceWB();

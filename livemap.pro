@@ -45,6 +45,7 @@ SOURCES += src/main.cpp\
     src/wideband/commdevicewb-interface.cpp \
     src/wideband/innoProto.cpp \
     src/wideband/plxProto.cpp \
+    src/wideband/serialwb.cpp \
     src/wideband/wb-manager.cpp \
     src/wideband/wb-proto.cpp \
     src/wblogger.cpp \
@@ -96,6 +97,7 @@ HEADERS  += src/mainwindow.h \
     src/wideband/commdevicewb-interface.h \
     src/wideband/innoProto.h \
     src/wideband/plxProto.h \
+    src/wideband/serialwb.h \
     src/wideband/wb-manager.h \
     src/wideband/wb-proto.h \
     src/wblogger.h \

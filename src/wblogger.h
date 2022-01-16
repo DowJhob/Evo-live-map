@@ -8,6 +8,7 @@
 
 
 #include "wideband/commdevicewb-interface.h"
+#include "wideband/serialwb.h"
 #include "wideband/wb-proto.h"
 
 class wbLogger:public QObject, public wbProto
