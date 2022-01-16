@@ -49,6 +49,7 @@ void wbLogger::setWB(commDeviceWB *cdWB)
 
 void wbLogger::setProto(int proto)
 {
+    qDebug() << "=========== wbLogger::setProto ================" << proto;
     this->_wbProto = proto;
 }
 
@@ -75,7 +76,7 @@ void wbLogger::stop()
 
 void wbLogger::poll()
 {
-    qDebug() << "=========== wbLogger::poll ================";
+    //qDebug() << "=========== wbLogger::poll ================";
     QByteArray a = cdWB->readWB();
     if(a.size() > 0)
     {

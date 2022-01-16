@@ -9,15 +9,23 @@ float innoProto::handleWB(QByteArray a)
 //    for (unsigned int i = 0; i < msg->DataSize; i++)
 //        printf("%02X ",msg->Data[i]);
 //    printf("\n");
+//    82 43 13 0b 0c
 
-//    if (msg->DataSize < 2)
-//        return;
+//a = QByteArray{"\xb2\x82\x47\x13\x01\x51"};
+//    a = QByteArray{"b2:82:43:13:0a:60"};
+
+
+//    a = QByteArray{"60:b2:82:43:13:0a"};
+    uchar *data = (uchar*)a.data();
+    if (a.size() < 2)
+        return 0;
 
     inno_v1_mts_hdr hdrv1;
     inno_v2_mts_hdr hdrv2;
 
     *((int*)&hdrv1) = data[0]*256 + data[1];
     *((int*)&hdrv2) = data[0]*256 + data[1];
+    //qDebug() << "=====================================================================================================" << data[0] << data[1] << a.data()[0] << a.data()[1];
     unsigned int payload;
     unsigned char* msgptr;
     unsigned int auxcnt = 1;
@@ -35,12 +43,12 @@ float innoProto::handleWB(QByteArray a)
         }
         else
         {
-            qDebug() << "-- LM-1 headerless --";
+            //qDebug() << "-- LM-1 headerless --";
             payload = 14; // LM-1 V1 payload is a fixed size
         }
-        if (payload + 2 != *DataSize)
+        if (payload + 2 != a.size())
             return -1;
-        msgptr = data + 2;
+        msgptr = (uchar*)data + 2;
         // work our way through the payload bytes
         while (payload)
         {
@@ -53,7 +61,7 @@ float innoProto::handleWB(QByteArray a)
                     *((int*)&pkt) = (msgptr[0]<<24) + (msgptr[1]<<16) + (msgptr[2]<<8) + msgptr[3];
                     msgptr += 4;
                     payload -= 4;
-                    func_check(pkt.func, pkt.afr_msb * 128 + pkt.afr, pkt.lambda_hi * 128 + pkt.lambda);
+                    return func_check(pkt.func, pkt.afr_msb * 128 + pkt.afr, pkt.lambda_hi * 128 + pkt.lambda);
                 }
                 else if ((*msgptr & 0xA2) == 0x80) // LM-1 packet (within v2 header)
                 {
@@ -62,7 +70,7 @@ float innoProto::handleWB(QByteArray a)
                     is_lm1_packet = true;
                     msgptr += 2;
                     payload -= 2;
-                    func_check(hdrv1.func, hdrv1.afr_msb * 128 + hdrv1.afr, 1);
+                    return func_check(hdrv1.func, hdrv1.afr_msb * 128 + hdrv1.afr, 1);
                 }
                 else  // must be AUX packet
                 {
@@ -76,28 +84,31 @@ float innoProto::handleWB(QByteArray a)
             }
             else  // -- LM-1 packet --
             {
-                //qDebug() << "-- LM-1 packet --";
+                qDebug() << "-- LM-1 packet --";
                 // LM-1 packet
                 inno_v1_lm1_pkt pkt;
                 *((int*)&pkt) = (msgptr[0]<<24) + (msgptr[1]<<16) + (msgptr[2]<<8) + msgptr[3];
                 msgptr += 4;
                 payload -= 4;
 
-                func_check(hdrv1.func, hdrv1.afr_msb * 128 + hdrv1.afr, pkt.lambda_hi * 128 + pkt.lambda);
+                return func_check(hdrv1.func, hdrv1.afr_msb * 128 + hdrv1.afr, pkt.lambda_hi * 128 + pkt.lambda);
 
                 // get 5 AUX packets
+                qDebug() << "-- 5 AUX packets --";
                 for (int i = 0; i < 5; i++)
                 {
                     inno_v1_aux_pkt pkt;
                     *((int*)&pkt) = (msgptr[0]<<8) + msgptr[1];
                     msgptr += 2;
                     payload -= 2;
+                    qDebug() << "AUX packet --" << i << (pkt.aux_msbs << 7) + pkt.aux_lsbs;
                     printf("aux%d: %d\n",auxcnt++,(pkt.aux_msbs << 7) + pkt.aux_lsbs);
                 }
                 is_lm1_packet = false;
             }
         }
     }
+    return 0;
 }
 
 float innoProto::func_check(int func, uint _afr, uint _lambda)

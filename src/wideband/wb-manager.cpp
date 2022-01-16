@@ -105,7 +105,7 @@ void wbManager::removeDevice()
 
 void wbManager::_wbSelected(int index)
 {
-    qDebug()<< "deviceManager::_deviceSelected start";
+    qDebug()<< "deviceManager::_deviceSelected start" ;
     //qDebug()<< "deviceManager::_deviceSelected start" << itemData(index);
 commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(availWB.itemData(index));
 ////    qDebug()<< "deviceManager::_deviceSelected finish" << wblog;
