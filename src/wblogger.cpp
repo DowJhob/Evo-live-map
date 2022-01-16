@@ -76,7 +76,7 @@ void wbLogger::stop()
 
 void wbLogger::poll()
 {
-    qDebug() << "=========== wbLogger::poll ================";
+    //qDebug() << "=========== wbLogger::poll ================";
     QByteArray a = cdWB->readWB();
     if(a.size() > 0)
     {

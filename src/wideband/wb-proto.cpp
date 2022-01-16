@@ -2,7 +2,7 @@
 
 float wbProto::handleWB(int proto, QByteArray a)
 {
-    qDebug() << "=========== wbProto::handleWB ================" << a.toHex(':');
+    //qDebug() << "=========== wbProto::handleWB ================" << a.toHex(':');
     switch (proto)
     {
     case 0: return innoProto::handleWB(a); break;
