@@ -53,7 +53,7 @@ float innoProto::handleWB(QByteArray a)
                     *((int*)&pkt) = (msgptr[0]<<24) + (msgptr[1]<<16) + (msgptr[2]<<8) + msgptr[3];
                     msgptr += 4;
                     payload -= 4;
-                    func_check(pkt.func, pkt.afr_msb * 128 + pkt.afr, pkt.lambda_hi * 128 + pkt.lambda);
+                    return func_check(pkt.func, pkt.afr_msb * 128 + pkt.afr, pkt.lambda_hi * 128 + pkt.lambda);
                 }
                 else if ((*msgptr & 0xA2) == 0x80) // LM-1 packet (within v2 header)
                 {
@@ -62,7 +62,7 @@ float innoProto::handleWB(QByteArray a)
                     is_lm1_packet = true;
                     msgptr += 2;
                     payload -= 2;
-                    func_check(hdrv1.func, hdrv1.afr_msb * 128 + hdrv1.afr, 1);
+                    return func_check(hdrv1.func, hdrv1.afr_msb * 128 + hdrv1.afr, 1);
                 }
                 else  // must be AUX packet
                 {
@@ -83,7 +83,7 @@ float innoProto::handleWB(QByteArray a)
                 msgptr += 4;
                 payload -= 4;
 
-                func_check(hdrv1.func, hdrv1.afr_msb * 128 + hdrv1.afr, pkt.lambda_hi * 128 + pkt.lambda);
+                return func_check(hdrv1.func, hdrv1.afr_msb * 128 + hdrv1.afr, pkt.lambda_hi * 128 + pkt.lambda);
 
                 // get 5 AUX packets
                 for (int i = 0; i < 5; i++)
