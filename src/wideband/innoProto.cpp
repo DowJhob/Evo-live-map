@@ -38,9 +38,9 @@ float innoProto::handleWB(QByteArray a)
             qDebug() << "-- LM-1 headerless --";
             payload = 14; // LM-1 V1 payload is a fixed size
         }
-        if (payload + 2 != *DataSize)
+        if (payload + 2 != a.size())
             return -1;
-        msgptr = data + 2;
+        msgptr = (uchar*)a.data() + 2;
         // work our way through the payload bytes
         while (payload)
         {

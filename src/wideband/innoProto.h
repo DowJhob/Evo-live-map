@@ -84,8 +84,8 @@ public:
     float handleWB(QByteArray a);
 
 private:
-    uchar* data;
-    ulong *DataSize;
+    //uchar* data;
+    //ulong *DataSize;
     float result;
     float func_check(int func, uint _afr, uint _lambda);
 
