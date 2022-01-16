@@ -42,6 +42,7 @@ SOURCES += src/main.cpp\
     src/libs/j2534passthru.cpp \
     src/logger.cpp \
     src/map-decl/map.cpp \
+    src/wideband/aemProto.cpp \
     src/wideband/commdevicewb-interface.cpp \
     src/wideband/innoProto.cpp \
     src/wideband/plxProto.cpp \
@@ -94,6 +95,7 @@ HEADERS  += src/mainwindow.h \
     src/map-decl/submap.h \
     src/test-map.h \
     src/types.h \
+    src/wideband/aemProto.h \
     src/wideband/commdevicewb-interface.h \
     src/wideband/innoProto.h \
     src/wideband/plxProto.h \

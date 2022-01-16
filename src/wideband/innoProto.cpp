@@ -1,8 +1,13 @@
 #include "innoProto.h"
 
+innoProto::innoProto()
+{
+    baudRate = 19200;
+}
+
 float innoProto::handleWB(QByteArray a)
 {
-//    if (msg->RxStatus & START_OF_MESSAGE)
+    //    if (msg->RxStatus & START_OF_MESSAGE)
 //        return; // skip
 
 //    printf("[%u] ",msg->Timestamp);

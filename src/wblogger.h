@@ -11,7 +11,7 @@
 #include "wideband/serialwb.h"
 #include "wideband/wb-proto.h"
 
-class wbLogger:public QObject, public wbProto
+class wbLogger:public QObject//, public wbProto
 {
     Q_OBJECT
 public:
@@ -19,7 +19,7 @@ public:
 
 public slots:
     void setWB(commDeviceWB *cdWB);
-    void setProto(int proto);
+    void setProto(wbProto *proto);
     void start_stop(bool start);
     void start();
 
@@ -29,7 +29,7 @@ private:
     commDeviceWB *cdWB = nullptr;
     QTimer *pollTimer;
     int pollInt = 20;
-    int _wbProto = 0;
+    wbProto *_wbProto = nullptr;
 
     void poll();
 

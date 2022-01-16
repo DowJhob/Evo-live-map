@@ -14,7 +14,7 @@ wbManager::wbManager(QWidget *parent):QGroupBox(parent)
     layout.addWidget(&startBtn, 0, 2);
 
     connect(&availWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::_wbSelected);
-    connect(&protoWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::protoSelected);
+    connect(&protoWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::_protoSelected);
     connect(&startBtn, &QPushButton::clicked, this, [this](){
         if(startBtn.text() == "Start")
         {
@@ -32,8 +32,27 @@ wbManager::wbManager(QWidget *parent):QGroupBox(parent)
     //QGroupBox *grBxWBprt = new QGroupBox("Wideband proto", this);
     //ll->addWidget(grBxWBprt, 0, 1);
 getAllSerial();
-    protoWB.addItems({"Innovate", "AEM", "PLX"});
+    //protoWB.addItems({"Innovate", "AEM", "PLX"});
+addProto();
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+}
+
+void wbManager::addProto()
+{
+    //    //qDebug()<< "deviceManager::addDevice start" << dev.DeviceDesc;
+    //    comm_device_interface *devComm = nullptr;                                  // это важно если бы мы пытались добавить не инициализированную, тогда бы при попытке извлечь девайсСелектед она не прошла проверку кУвариант
+    //    switch (dev.type)
+    //    {
+    //    case deviceType::OP13  : devComm = new OP13(dev.FunctionLibrary, dev.DeviceUniqueID); break;
+    //    case deviceType::OP20  : devComm = new OP20(dev.FunctionLibrary, dev.DeviceUniqueID); break;
+    //    case deviceType::J2534 : devComm = new j2534_interface(dev.FunctionLibrary, dev.DeviceUniqueID); break;
+    //    default                : return;                                           //  но поскольку тут вылетим без добавления то вроде и не важно
+    //    }
+    //    //commDeviceStore.insert(dev.DeviceDesc+dev.DeviceUniqueID, devComm);
+
+    protoWB.addItem("Innovate", QVariant::fromValue<wbProto*>(new innoProto()));
+    protoWB.addItem("AEM", QVariant::fromValue<wbProto*>(new aemProto()));
+    protoWB.addItem("PLX", QVariant::fromValue<wbProto*>(new plxProto()));
 }
 
 void wbManager::addTactrix(comm_device_interface *cdWB)
@@ -55,6 +74,7 @@ void wbManager::deviceEvent()
     //    case dir::remove : removeDevice(dev); break;
     //    }
 }
+
 
 void wbManager::getAllSerial()
 {
@@ -112,4 +132,10 @@ commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(availWB.itemData(index));
     //qDebug()<< "deviceManager::_deviceSelected finish" << devComm->DeviceUniqueID; // Не делай так!!! devComm может быть нулл!!!
 
     emit wbSelected(cdWB);
+}
+
+void wbManager::_protoSelected(int index)
+{
+    wbProto *_protoWB = qvariant_cast<wbProto*>(protoWB.itemData(index));
+    emit protoSelected(_protoWB);
 }
