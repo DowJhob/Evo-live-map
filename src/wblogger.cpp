@@ -49,6 +49,7 @@ void wbLogger::setWB(commDeviceWB *cdWB)
 
 void wbLogger::setProto(int proto)
 {
+    qDebug() << "=========== wbLogger::setProto ================" << proto;
     this->_wbProto = proto;
 }
 

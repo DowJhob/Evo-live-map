@@ -98,6 +98,7 @@ float innoProto::handleWB(QByteArray a)
             }
         }
     }
+    return 0;
 }
 
 float innoProto::func_check(int func, uint _afr, uint _lambda)
