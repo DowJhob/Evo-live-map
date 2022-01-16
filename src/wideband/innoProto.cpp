@@ -10,14 +10,14 @@ float innoProto::handleWB(QByteArray a)
 //        printf("%02X ",msg->Data[i]);
 //    printf("\n");
 
-//    if (msg->DataSize < 2)
-//        return;
+    if (a.size() < 2)
+        return 0;
 
     inno_v1_mts_hdr hdrv1;
     inno_v2_mts_hdr hdrv2;
 
-    *((int*)&hdrv1) = data[0]*256 + data[1];
-    *((int*)&hdrv2) = data[0]*256 + data[1];
+    *((int*)&hdrv1) = a.data()[0]*256 + a.data()[1];
+    *((int*)&hdrv2) = a.data()[0]*256 + a.data()[1];
     unsigned int payload;
     unsigned char* msgptr;
     unsigned int auxcnt = 1;
