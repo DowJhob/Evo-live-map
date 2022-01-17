@@ -1,5 +1,10 @@
 #include "plxProto.h"
 
+plxProto::plxProto()
+{
+    baudRate = 0;
+}
+
 float plxProto::handleWB(QByteArray a)
 {
     uchar b;

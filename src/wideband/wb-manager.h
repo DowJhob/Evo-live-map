@@ -13,11 +13,17 @@
 
 //#include "../deviceNativeFilter.h"
 //#include "../comm-device-interface/comm-device-interface.h"
+#include "wb-proto.h"
+#include "innoProto.h"
+#include "aemProto.h"
+#include "plxProto.h"
+
 #include "../comm-device-interface/op20.h"
 #include "commdevicewb-interface.h"
 #include "serialwb.h"
 
 Q_DECLARE_METATYPE( commDeviceWB* )
+Q_DECLARE_METATYPE( wbProto* )
 
 class wbManager : public QGroupBox
 {
@@ -30,6 +36,7 @@ public slots:
     void deviceEvent();
 
 private:
+    void addProto();
     QGridLayout layout;
     QComboBox availWB;
     QComboBox protoWB;
@@ -43,10 +50,11 @@ private:
 
 private slots:
     void _wbSelected(int index);
+    void _protoSelected(int index);
 
 signals:
     void wbSelected(commDeviceWB*);
-    void protoSelected(int);
+    void protoSelected(wbProto*);
     void wbStart(bool);
 
 };

@@ -1,15 +1,18 @@
 #ifndef WBPROTO_H
 #define WBPROTO_H
 
-#include "innoProto.h"
-#include "plxProto.h"
+#include <QByteArray>
+//#include "innoProto.h"
+//#include "plxProto.h"
 
-class wbProto : public plxProto, public innoProto
+class wbProto //: public plxProto, public innoProto
 {
 public:
-    float handleWB(int proto, QByteArray a);
+    int baudRate = 0;
+    virtual float handleWB(QByteArray a) = 0;
 
 private:
+
 };
 
 #endif // WBPROTO_H
