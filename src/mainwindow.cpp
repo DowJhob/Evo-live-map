@@ -79,11 +79,11 @@ void MainWindow::StartButton_slot()
     {
         qDebug() << "MainWindow::StartButton_slot Start";
 
-        emit getECUconnectMainWindow(cpW->baudRate);
+        emit connectECU(cpW->baudRate);
     }
     else
     {
-        emit getECUdisconnectMainWindow();
+        emit disConnectECU();
 
         start_action = "Start";
         _mainToolBar->lockReset( true);

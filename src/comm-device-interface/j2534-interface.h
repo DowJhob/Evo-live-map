@@ -24,6 +24,7 @@ class j2534_interface : public comm_device_interface
     friend class OP20;
 public:
     // J2534
+    unsigned long devID = 0;   // использую как индикатор открытости, если ноль не опен!
 
     j2534_interface( QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
     virtual ~j2534_interface();
@@ -39,7 +40,6 @@ public:
 
 private:
     PassThru *j2534;
-    unsigned long devID = 0;   // использую как индикатор открытости, если ноль не опен!
     unsigned long chanID;
     unsigned long NumMsgs;
 

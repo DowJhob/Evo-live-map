@@ -26,6 +26,7 @@ bool jcsbanksDMA::connect()
 
     if (!(*devComm)->connect())
     {
+        qDebug() << "=========== jcsbanksDMA::connect ================ failure connect" << (*devComm)->getBaudRate();
         (*devComm)->close();
         return false;
     }
@@ -76,9 +77,9 @@ void jcsbanksDMA::sendDMAcomand(char command, unsigned long addr, unsigned long 
     //QThread::msleep(1);
     if ( buf != nullptr)
     {
-        memcpy((*devComm)->p_out_buff+6, buf, count);
-        //qDebug() << "jcsbanksDMA::sendDMAcomand payload data" << count;
-        (*devComm)->write( count+6);
+        memcpy((*devComm)->p_out_buff, buf, count);
+        qDebug() << "jcsbanksDMA::sendDMAcomand payload data" << count;
+        (*devComm)->write( count);
     }
 
     //(*devComm)->write( 6+subcount);
