@@ -26,11 +26,11 @@ bool OP20::openWB(uint baudRate)
         if (j2534->PassThruOpen(nullptr, &devID))         // Get devID
         {
             qDebug() << "==================== OP20:openWB::PassThruOpen ==================================" << j2534->lastErrorString();
-            emit Log("PassThruOpen error: " + j2534->lastErrorString());
+            //emit Log("PassThruOpen error: " + j2534->lastErrorString());
             return false;
         }
     qDebug() << "==================== OP20:openWB3 ==================================" << j2534->lastErrorString();
-    emit Log("PassThruOpen deviceID: " + QString::number(devID) + " /opened");
+    //emit Log("PassThruOpen deviceID: " + QString::number(devID) + " /opened");
 
 
     // try to connect to the specific channel we would like to use
@@ -107,6 +107,6 @@ QByteArray OP20::readWB()
 
     //qDebug() << "OP20::read: readWB" << a << "\n\n";
 
-
+//emit readyRead2();
     return a;
 }

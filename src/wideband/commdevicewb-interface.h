@@ -4,9 +4,9 @@
 #include <QObject>
 #include <QString>
 
-class commDeviceWB//:public QObject
+class commDeviceWB:public QObject
 {    
-    //Q_OBJECT
+    Q_OBJECT
 public:
     QString DeviceDesc;// + " / " + cdWB->DeviceUniqueID
     explicit commDeviceWB();
@@ -18,6 +18,11 @@ public:
     virtual bool closeWB() = 0;
     virtual QByteArray readWB() = 0;
 
+signals:
+    void readyRead();
+
 };
+
+Q_DECLARE_METATYPE( commDeviceWB* )
 
 #endif // COMMDEVICEWB_INTERFACE_H

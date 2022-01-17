@@ -6,7 +6,7 @@
 
 class OP20 : public j2534_interface, public commDeviceWB
 {
-    Q_OBJECT
+    //Q_OBJECT
 public:
     OP20(QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
     ~OP20();
@@ -21,9 +21,9 @@ public:
 
     QByteArray readWB();
 
-public slots:
+//public slots:
 
-private slots:
+//private slots:
 
 private:
     unsigned long chanID_INNO;
@@ -33,7 +33,8 @@ private:
     unsigned long msgId;
     unsigned long numRxMsg = 1;
 
-signals:
+//signals:
+
 };
 
 

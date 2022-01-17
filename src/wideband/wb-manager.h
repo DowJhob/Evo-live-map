@@ -22,7 +22,6 @@
 #include "commdevicewb-interface.h"
 #include "serialwb.h"
 
-Q_DECLARE_METATYPE( commDeviceWB* )
 Q_DECLARE_METATYPE( wbProto* )
 
 class wbManager : public QGroupBox
@@ -40,7 +39,7 @@ private:
     QGridLayout layout;
     QComboBox availWB;
     QComboBox protoWB;
-    QPushButton startBtn{"Start"};
+    QPushButton startBtn{"Start", this};
     //QLabel lgrt{"Logging rate, Hz:"};
     //QLineEdit el_lograte{"20"};
 

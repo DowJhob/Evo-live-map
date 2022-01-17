@@ -26,6 +26,7 @@ bool jcsbanksDMA::connect()
 
     if (!(*devComm)->connect())
     {
+        qDebug() << "=========== jcsbanksDMA::connect ================ failure connect" << (*devComm)->getBaudRate();
         (*devComm)->close();
         return false;
     }

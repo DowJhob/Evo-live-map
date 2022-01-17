@@ -33,6 +33,11 @@ void wbLogger::setWB(commDeviceWB *cdWB)
     this->cdWB = cdWB;
     if (cdWB != nullptr  )
     {
+        connect(cdWB, &commDeviceWB::readyRead, this, [this](){
+            QByteArray a = this->cdWB->readWB();
+            logReady(_wbProto->handleWB(a));
+            qDebug() << "=========== wbLogger::readyRead ================";
+        });
         //cdWB->moveToThread(thread());
         //qDebug() << "=========== wbLogger::cdWB->openWB ================" << cdWB;
         //        cdWB->openWB(19600);

@@ -11,14 +11,14 @@
 
 #include "src/types.h"
 
-class comm_device_interface : public QObject
+class comm_device_interface //: public QObject
 {
-    Q_OBJECT
+    //Q_OBJECT
 public:
     //deviceType devType = deviceType::undef;
     QString dllName;
     QString DeviceUniqueID;
-QString DeviceDesc;
+    QString DeviceDesc;
     char* p_in_buff;
     char* p_out_buff;
 
@@ -40,25 +40,25 @@ QString DeviceDesc;
 
     bool connect();
 
-public slots:
+//public slots:
     virtual QByteArray read(uint lenght = 0) = 0;
     virtual void write(int lenght ) = 0;
     void setBaudRate(unsigned int BaudRate);
 
     uint getBaudRate();
 
-private slots:
+//private slots:
 
 private:
     virtual bool ISO9141() = 0;
     virtual bool ISO15765() = 0;
     virtual bool ISO14230() = 0;
 
-signals:
-    void readyInterface(bool);
-    void readyRead(QByteArray);
+//signals:
+    //void readyInterface(bool);
+    //void readyRead(QByteArray);
 
-    void Log(QString);
+    //void Log(QString);
 };
 
 #endif // COMM_DEVICE_INTERFACE_H

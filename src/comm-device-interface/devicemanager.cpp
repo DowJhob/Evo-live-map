@@ -41,7 +41,7 @@ void deviceManager::addDevice(device dev)
     default                : return;                                            //  но поскольку тут вылетим без добавления то вроде и не важно
     }
     devComm->setBaudRate(el_baudRate.text().toUInt());
-    connect(this,  &deviceManager::baudRateChanged, devComm, &comm_device_interface::setBaudRate);
+    connect(this,  &deviceManager::baudRateChanged, this, [&devComm](uint baudRate){devComm->setBaudRate(baudRate);});
 
     availCommDev.addItem(dev.DeviceDesc + " / " + dev.DeviceUniqueID, QVariant::fromValue<comm_device_interface*>(devComm));
 }
@@ -56,7 +56,8 @@ void deviceManager::removeDevice(device dev)
     //qDebug()<< "deviceManager::removeDevice start" << index;
     comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(availCommDev.itemData(index));
     if( devComm != nullptr)
-        devComm->deleteLater();
+        delete devComm;
+        //devComm->deleteLater();
 
     if( index < availCommDev.count())
         availCommDev.removeItem(index);

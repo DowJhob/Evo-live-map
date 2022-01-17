@@ -68,7 +68,7 @@ void controller::setLogRate(uint logRate)
     _dataLogger->setLogRate(logRate);
 }
 
-void controller::getECUconnect()
+void controller::connectECU()
 {
     qDebug() << "=========== controller::getECUconnect ================" << devComm->getBaudRate();
     if (!ECUproto->connect())
@@ -111,7 +111,7 @@ void controller::getECUconnect()
     _dataLogger->start();
 }
 
-void controller::getECUdisconnect()
+void controller::disConnectECU()
 {
     _dataLogger->stop();
 

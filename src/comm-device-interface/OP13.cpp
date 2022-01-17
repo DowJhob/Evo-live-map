@@ -43,7 +43,7 @@ bool OP13::info()
                         "  SerialNumber: " + QString::fromLatin1( devInfo[i].SerialNumber) +
                         "  Description: " + QString::fromLatin1(devInfo[i].Description);
                 // qDebug() << "info: " << info;
-                emit Log(info);
+                //emit Log(info);
             }
         }
     }
@@ -70,12 +70,12 @@ bool OP13::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
         s = _ftdi->ftStatus = _ftdi->FT_SetTimeouts(_ftdi->ftHandle, 20000, 2500);
         s = _ftdi->ftStatus = _ftdi->FT_SetLatencyTimer(_ftdi->ftHandle, 1);
         s = _ftdi->ftStatus = _ftdi->FT_SetBaudRate(_ftdi->ftHandle, baudRate);
-        // qDebug() << " FT_Open" <<  s;
-        emit Log(" FT_Open status " + QString::number(s));
+        qDebug() << " FT_Open" <<  s;
+        //emit Log(" FT_Open status " + QString::number(s));
         return true;
     }
-    emit Log(" FT_Open failed status " + QString::number(s));
-    // qDebug() << " FT_Open failed" << s << QString::fromLatin1( _ftdi->getLastError());
+    //emit Log(" FT_Open failed status " + QString::number(s));
+    qDebug() << " FT_Open failed" << s << QString::fromLatin1( _ftdi->getLastError());
 
 
 
@@ -86,7 +86,7 @@ bool OP13::close()
 {
     ulong s = _ftdi->FT_Close( _ftdi->ftHandle);
     //   qDebug() << " close" << s;
-    emit Log(" FT_Close status " + QString::number(s));
+    //emit Log(" FT_Close status " + QString::number(s));
     return true;
 }
 
@@ -101,19 +101,19 @@ bool OP13::five_baud_init()
     QString aa = a.toHex(':');
 
     qDebug() << "FT_five_baud_ response size" << a.size() << "response" << aa;
-    emit Log("FT_five_baud_ response size " + QString::number(a.size())  + " / response " + aa);
+    //emit Log("FT_five_baud_ response size " + QString::number(a.size())  + " / response " + aa);
 
     if (a.size() < 4)
     {
         qDebug() << "FT five_baud failed";
-        emit Log("FT_ five_baud failed: ");
+        //emit Log("FT_ five_baud failed: ");
         return false;
     }
 
 
 
     qDebug() << "FT_five_baud_OK" << aa;
-    emit Log("FT_five_baud_OK: " + aa);
+    //emit Log("FT_five_baud_OK: " + aa);
     return true;
 }
 

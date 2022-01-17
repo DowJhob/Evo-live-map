@@ -3,7 +3,8 @@
 //#include "src/test-map.h"
 
 
-comm_device_interface::comm_device_interface(QString dllName, QString DeviceDesc, QString DeviceUniqueID) : QObject(), dllName(dllName), DeviceUniqueID(DeviceUniqueID), DeviceDesc(DeviceDesc)
+comm_device_interface::comm_device_interface(QString dllName, QString DeviceDesc, QString DeviceUniqueID) : //QObject(),
+    dllName(dllName), DeviceUniqueID(DeviceUniqueID), DeviceDesc(DeviceDesc)
 {
     //qDebug() << "comm_device_interface";
 }

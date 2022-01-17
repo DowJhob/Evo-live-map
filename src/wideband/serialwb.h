@@ -1,6 +1,7 @@
 #ifndef SERIALWB_H
 #define SERIALWB_H
 
+#include <QObject>
 #include <QDebug>
 #include <QString>
 #include <QSerialPort>
@@ -8,8 +9,10 @@
 
 #include "commdevicewb-interface.h"
 
-class serialWB: public commDeviceWB, public QSerialPort
+class serialWB: public commDeviceWB//, public QObject//
+        //, public QSerialPort
 {
+    //Q_OBJECT
 public:
     QString DeviceDesc;// + " / " + cdWB->DeviceUniqueID
     explicit serialWB(QSerialPortInfo portInfo, QObject *parent);
@@ -21,7 +24,8 @@ public:
     virtual QByteArray readWB();
 
 private:
-QSerialPortInfo portInfo;
+    QSerialPortInfo portInfo;
+    QSerialPort port;
 
 };
 

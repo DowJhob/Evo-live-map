@@ -32,8 +32,8 @@ public slots:
     void setProto(DMA_proto *ECUproto);
     void setLogRate(uint logRate);
 
-    void getECUconnect();
-    void getECUdisconnect();
+    void connectECU();
+    void disConnectECU();
 
     void startLogger();
     void stopLogger();
