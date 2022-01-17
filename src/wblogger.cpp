@@ -57,7 +57,7 @@ void wbLogger::start_stop(bool start)
 {
     qDebug() << "=========== wbLogger::start_stop ================" << cdWB;
     if(cdWB->isClosed())
-        cdWB->openWB(19200);
+        cdWB->openWB(_wbProto->baudRate);
     if(start)
         pollTimer->start(50);
     else
