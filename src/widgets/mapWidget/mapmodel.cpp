@@ -89,21 +89,21 @@ QVariant mapModel::headerData(int section, Qt::Orientation orientation, int role
     {
         return QString().asprintf(s->format.toLatin1(), value);
     } break;
-    case Qt::BackgroundRole :
-    {
-        float ColorDiscret = 0;
-        if( orientation == Qt::Horizontal)
-            ColorDiscret = xAxisColorDiscret;
-        if( orientation == Qt::Vertical)
-            ColorDiscret = yAxisColorDiscret;
-        auto c = getColor(value, s->min, ColorDiscret);
-        //qDebug() << "headerData ColorDiscret" << ColorDiscret << "value" << value << "color" << c;
-        QPalette pal;
-        pal.setBrush(QPalette::Background, c);
-        return pal;
+//    case Qt::BackgroundRole :
+//    {
+//        float ColorDiscret = 0;
+//        if( orientation == Qt::Horizontal)
+//            ColorDiscret = xAxisColorDiscret;
+//        if( orientation == Qt::Vertical)
+//            ColorDiscret = yAxisColorDiscret;
+//        auto c = getColor(value, s->min, ColorDiscret);
+//        qDebug() << "headerData ColorDiscret" << ColorDiscret << "value" << value << "color" << c;
+//        QPalette pal;
+//        pal.setBrush(QPalette::Background, c);
+//        return c;
 
-    }
-        break;
+//    }
+//        break;
 
     case Qt::UserRole: return value; break;
     }
@@ -119,6 +119,7 @@ bool mapModel::setHeaderData(int section, Qt::Orientation orientation, const QVa
         if ( orientation == Qt::Vertical)
             verticalHeaderData[section] = value.toFloat();
     }
+    //emit headerDataChanged(orientation, 0, 1);
     return true;
 }
 
@@ -137,9 +138,9 @@ QBrush mapModel::getColor(float value, int min, float ColorDiscret) const
     int colorIndex = (value - min) / ColorDiscret - 1;
     if (colorIndex < 0)
         colorIndex = 0;
-    if (colorIndex > coloringMap->count())
-        colorIndex = coloringMap->count()-1;
-    //qDebug() << "colorIndex" << colorIndex << min << ColorDiscret;
+    if (colorIndex > coloringMap->size()-1)
+        colorIndex = coloringMap->size()-1;
+    //qDebug() << "colorIndex" << colorIndex << min << ColorDiscret << "coloringMap->size()" << coloringMap->count();
     QBrush Background(coloringMap->at(colorIndex));
     return Background;
 }
@@ -198,7 +199,7 @@ void mapModel::c_updateRAM(float value, const QModelIndex &index)
     }
 
     abstractMemoryScaled buff(&declaration->rom_scaling, value);
-    qDebug()<<index.row() << index.column() << buff.toHex(':');
+    qDebug()<< "mapModel::c_updateRAM" << index.row() << index.column() << buff.toHex(':');
     //qDebug() <<"hop";
     offset *= declaration->rom_scaling.getElementSize();
     buff.addr = declaration->addr + offset;
@@ -243,7 +244,7 @@ void mapModel::tracer_calc(float x, float y)
     current_marker.Y = axis_lookup(y, verticalHeaderData, declaration->Y_axis.elements);
     //qDebug() << "current_marker.X" << current_marker.X;
     //----------------------- блокируем обновления редакции ----------------------------------------------------------
-    blockSignals( true );
+//    blockSignals( true );
     // Если координаты маркера не менялись то нет нужды сохранять основные цвета и перерисовывать предыдущий
     // достаточно просто пересчитать насыщенность
     if ((pred_marker.X != current_marker.X) ||(pred_marker.Y != current_marker.Y))
@@ -261,15 +262,15 @@ void mapModel::tracer_calc(float x, float y)
     //------------------- рисуем новое положение маркера ---------------------------------------------------------
     renderTracer(&current_marker);
     //----------------------- разблокируем обновления редакции -------------------------------------------------------
-    blockSignals(false);//
+//    blockSignals(false);//
 
     //qDebug() << "current_marker" << current_marker.X << current_marker.Y << current_marker.X+1 << current_marker.Y+1;
     auto i = index(current_marker.Y, current_marker.X);
 
     auto j = index(current_marker.Y+1, current_marker.X+1);
-
+//qDebug() << "mapModel::tracer_calc indexes" << i.flags() << j;
     emit dataChanged(i, j, QVector<int>{Qt::BackgroundRole});
-    //emit upd();
+
 }
 
 void mapModel::saveTracer()

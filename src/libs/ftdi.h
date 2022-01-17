@@ -28,7 +28,6 @@
             dbgprintptmsg args_in_parens; \
     }
 
-
 class ftdi
 {
 public:

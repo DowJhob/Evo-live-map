@@ -8,7 +8,7 @@ CONFIG += c++11
 #CONFIG += qhexedit4
 #CONFIG += qwt
 #CONFIG   += rtti
-QT       += core gui xml
+QT       += core gui xml serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 DEFINES += QT_DEPRECATED_WARNINGS
@@ -23,47 +23,61 @@ TEMPLATE = app
 
 
 SOURCES += src/main.cpp\
+    src/DMA-proto/DMA-proto.cpp \
+    src/DMA-proto/proto-manager.cpp \
     src/abstract-memory.cpp \
-    src/ecu-proto/ECU-interface.cpp \
+    src/comm-device-interface/devicemanager.cpp \
+    src/comm-device-interface/op13.cpp \
     src/comm-device-interface/comm-device-interface.cpp \
     src/comm-device-interface/j2534-interface.cpp \
-    src/ecu-proto/evoX-DMA.cpp \
-    src/ecu-proto/jcsbanksDMA.cpp \
-    src/ecu-proto/stockDMA.cpp \
+    src/DMA-proto/evoX-DMA.cpp \
+    src/DMA-proto/jcsbanksDMA.cpp \
+    src/DMA-proto/stockDMA.cpp \
+    src/comm-device-interface/op20.cpp \
+    src/comm-device-interface/op20wbreader.cpp \
     src/controller.cpp \
+    src/deviceNativeFilter.cpp \
     src/ecu/ecu-definition.cpp \
     src/ecu/rawstockmsg.cpp \
     src/fast-notation.cpp \
-    src/enumdev.cpp \
     src/libs/j2534passthru.cpp \
-    src/log-reader.cpp \
     src/logger.cpp \
     src/map-decl/map.cpp \
-    src/map-request.cpp \
-    src/qhexedit/chunks.cpp \
-    src/qhexedit/commands.cpp \
-    src/qhexedit/qhexedit.cpp \
+    src/wideband/aemProto.cpp \
+    src/wideband/commdevicewb-interface.cpp \
+    src/wideband/innoProto.cpp \
+    src/wideband/plxProto.cpp \
+    src/wideband/serialwb.cpp \
+    src/wideband/wb-manager.cpp \
+    src/wideband/wb-proto.cpp \
+    src/wblogger.cpp \
+    src/widgets/hexEditor/qhexedit/chunks.cpp \
+    src/widgets/hexEditor/qhexedit/commands.cpp \
+    src/widgets/hexEditor/qhexedit/qhexedit.cpp \
+    src/widgets/hexEditor/hexeditor.cpp \
     src/mainwindow.cpp \
 #    src/libs/J2534.cpp \
     src/libs/ftdi.cpp \
     src/map-decl/scaling.cpp \
-    src/read-request.cpp \
-    src/serial/common-serial-interface.cpp \
     src/map-decl/submap.cpp \
     src/widgets/commParamWidget.cpp \
-    src/widgets/custom_tablewidget.cpp \
     src/widgets/gauge_widget.cpp \
+    src/widgets/maintoolbar.cpp \
     src/widgets/mapWidget/mapmodel.cpp \
     src/widgets/mapWidget/mapview.cpp \
     src/widgets/mapWidget/mapwidget.cpp
 
 HEADERS  += src/mainwindow.h \
+    src/DMA-proto/DMA-proto.h \
+    src/DMA-proto/proto-manager.h \
     src/abstract-memory.h \
-    src/ecu-proto/ECU-interface.h \
+    src/comm-device-interface/devicemanager.h \
+    src/comm-device-interface/op20wbreader.h \
     src/controller.h \
-    src/ecu-proto/evoX-DMA.h \
-    src/ecu-proto/jcsbanksDMA.h \
-    src/ecu-proto/stockDMA.h \
+    src/DMA-proto/evoX-DMA.h \
+    src/DMA-proto/jcsbanksDMA.h \
+    src/DMA-proto/stockDMA.h \
+    src/deviceNativeFilter.h \
     src/ecu/ecu-definition.h \
     src/ecu/evo7.h \
     src/ecu/rawstockmsg.h \
@@ -77,26 +91,27 @@ HEADERS  += src/mainwindow.h \
     src/comm-device-interface/op13.h \
     src/comm-device-interface/op20.h \
     src/libs/j2534passthru.h \
-    src/log-reader.h \
     src/map-decl/map.h \
     src/map-decl/scaling.h \
-    src/map-request.h \
-    src/read-request.h \
-    src/serial/common-serial-interface.h \
-    src/serial/tactrix-serial.h \
     src/logger.h \
-    src/enumdev.h \
     src/map-decl/submap.h \
     src/test-map.h \
     src/types.h \
-    src/wideband/_wideband_input_device.h \
-    src/wideband/tactrix_wb_input.h \
+    src/wideband/aemProto.h \
+    src/wideband/commdevicewb-interface.h \
+    src/wideband/innoProto.h \
+    src/wideband/plxProto.h \
+    src/wideband/serialwb.h \
+    src/wideband/wb-manager.h \
+    src/wideband/wb-proto.h \
+    src/wblogger.h \
     src/widgets/commParamWidget.h \
-    src/widgets/custom_tablewidget.h \
     src/widgets/gauge_widget.h \
-    src/qhexedit/chunks.h \
-    src/qhexedit/commands.h \
-    src/qhexedit/qhexedit.h \
+    src/widgets/hexEditor/qhexedit/chunks.h \
+    src/widgets/hexEditor/qhexedit/commands.h \
+    src/widgets/hexEditor/qhexedit/qhexedit.h \
+    src/widgets/hexEditor/hexeditor.h \
+    src/widgets/maintoolbar.h \
     src/widgets/mapWidget/mapmodel.h \
     src/widgets/mapWidget/mapview.h \
     src/widgets/mapWidget/mapwidget.h
@@ -115,6 +130,7 @@ FORMS    += mainwindow.ui
 LIBS += -lSetupapi
 LIBS += -ladvapi32
 LIBS += -luser32
+CONFIG(release, debug|release):CONFIG += -static
 win32-g++ {
                 QMAKE_CXXFLAGS  += -flto -funroll-loops
                 QMAKE_CXXFLAGS  += -fforce-addr
@@ -125,7 +141,7 @@ win32-g++ {
 #                CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
             }
 win32-msvc {
-                QMAKE_LFLAGS_RELEASE += /LTCG
+#                QMAKE_LFLAGS_RELEASE += /LTCG
                 QMAKE_CXXFLAGS  += /O2
                 QMAKE_CXXFLAGS  += /arch:AVX
                 QMAKE_CXXFLAGS  += /Arch: SSE2

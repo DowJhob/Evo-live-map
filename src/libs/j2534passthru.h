@@ -330,13 +330,6 @@ public:
 
 
 
-
-
-
-
-
-
-
     Status PassThruIoctl(Handle channelId, IoctlID IoctlID, const void *pInput, void *pOutput);
 //    Status clear(Handle channelId, ClearTarget target);
 

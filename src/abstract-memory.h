@@ -29,12 +29,7 @@ public:
 
     abstractMemoryScaled(Scaling *scaling, float value2);
 
-    abstractMemoryScaled& operator  = (const QByteArray &mem)
-    {
-        resize(mem.size());
-        memcpy(data(), mem.data(), mem.size());
-        return *this;
-    }
+    abstractMemoryScaled& operator  = (const QByteArray &mem);
 
     QByteArray fromFloat(Scaling *scaling, float value2);
 

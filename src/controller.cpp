@@ -18,21 +18,18 @@ controller::controller(QObject *parent) : QObject(parent)
     //ecu_polling_timer = new QTimer();
 
     setProto(0);
-
 }
 
 controller::~controller()
 {
-    getECUdisconnect();
+//    getECUdisconnect();
+
+//    if (ECUproto != nullptr)
+//        ECUproto->deleteLater();
 
 
-
-    if (ECUproto != nullptr)
-        ECUproto->deleteLater();
-
-
-    if (devComm != nullptr)
-        devComm->deleteLater();
+//    if (devComm != nullptr)
+//        devComm->deleteLater();
     qDebug() << "~controller";
 }
 
@@ -41,73 +38,44 @@ void controller::start()
     this_thread->start();  // запустим поток,
 }
 
-void controller::commDeviceSelected(device dev)
+void controller::setCommDevice(comm_device_interface *dev)
 {
+    qDebug() << "=========== controller::setCommDevice ================" << dev;
+    devComm = dev;
+    this->ECUproto->setCommDev(&devComm);
     if (devComm != nullptr  )
     {
-        devComm->close();
-        devComm->deleteLater();
+        p_in_buff = devComm->p_in_buff;
     }
-    switch (dev.type) {
-    //case dev_type::OP13  : devComm = new OP13(dev.FunctionLibrary); break;
-    case dev_type::OP20  : devComm = new OP20(dev.FunctionLibrary, dev.DeviceUniqueID); break;
-    case dev_type::J2534 : devComm = new j2534_interface(dev.FunctionLibrary, dev.DeviceUniqueID); break;
-    default              : return;
-    }
-    p_in_buff = devComm->p_in_buff;
-
-    //connect(devComm, &comm_device_interface::readyInterface, this, &controller::interfaceReady); // форвардим сигнал готовности ннаружу для разблокировки гуя
-    connect(devComm, &comm_device_interface::Log, this, &controller::Log, Qt::QueuedConnection);
-    connect(this, &controller::baudChanged, devComm, &comm_device_interface::setBaudRate);
-
-    if( devComm->info() )
-        emit interfaceReady(true);                  // Показываем кнопки старт и сброс памяти
-
-    //if ( isTactrix )
+    else
     {
-        //            if( tactrix_afr_lcd == nullptr )
-        //            {
-        //                tactrix_afr_lcd = new gauge_widget("tactrixAFR", 4, 0, nullptr, ui->toolBar);
-        //                ui->toolBar->addWidget(tactrix_afr_lcd);
-        //                connect(vehicle_ecu_comm, &comm_device_interface::AFR, tactrix_afr_lcd, &gauge_widget::display);
-        //            }
-    }
-}
+        // все интерфесы отключены, сделай что нибудь!!!!
 
-void controller::commDeviceRemoved(device dev)
-{
-    if (devComm != nullptr && devComm->DeviceUniqueID == dev.DeviceUniqueID )
-    {
         _dataLogger->stop();
-        //devComm->close();
-        devComm->deleteLater();
-        devComm = nullptr;
     }
 }
 
-void controller::setProto(int proto)
+void controller::setProto(DMA_proto *ECUproto)
 {
-    if ( ECUproto != nullptr )
-        ECUproto->deleteLater();
-    //qDebug()<< "setProto" << proto;
-    switch (proto) {
-    case 0 : ECUproto = new stockDMA(&devComm);break;
-    case 1 : ECUproto = new jcsbanksDMA(&devComm);break;
-    case 2 : ECUproto = new evoX_DMA(&devComm);break;
-    }
-    //qDebug()<<"=========== proto ================";
-    //connect(this, &controller::getMap, ECUproto, &ECU_interface::getMap);
-    //connect(ECUproto, &ECU_interface::gettedMap, this, &controller::create_table);
-    connect(this, &controller::_updateRAM, ECUproto, &ECU_interface::updateRAM);
-    connect(this, &controller::_RAMreset, ECUproto, &ECU_interface::RAMreset);
+    qDebug() << "=========== controller::setProto ================" << ECUproto;
+    this->ECUproto = ECUproto;
 
-    //connect(ecu_polling_timer, &QTimer::timeout, ECUproto, &ECU_interface::DMApoll);
+    //this->ECUproto->setCommDev(&devComm);
 }
 
-void controller::getECUconnect()
+void controller::setLogRate(uint logRate)
 {
+    _dataLogger->setLogRate(logRate);
+}
+
+void controller::connectECU()
+{
+    qDebug() << "=========== controller::getECUconnect ================" << devComm->getBaudRate();
     if (!ECUproto->connect())
-       return ;
+    {
+        emit Log("failure get ECU connect " + QString::number( devComm->getBaudRate()));
+        return ;
+    }
 
     QByteArray a = ECUproto->directDMAread( 0xF52, 4);                        //читаем номер калибровки
 
@@ -135,13 +103,15 @@ void controller::getECUconnect()
     // переберем все описания таблиц
     for ( Map *tab : qAsConst(_ecu_definition->RAMtables) )
     {
-        emit create_table( ECUproto->getMap(tab) );
+        emit create_table( getMap(tab) );
     }
-
+    //char f = 0x1f;
+    //    devComm->p_out_buff[0] = 0x1e;
+    //ECUproto->directDMAwrite(0xfffff000, devComm->p_out_buff, 1);
     _dataLogger->start();
 }
 
-void controller::getECUdisconnect()
+void controller::disConnectECU()
 {
     _dataLogger->stop();
 
@@ -169,16 +139,35 @@ void controller::stopLogger()
     //QMetaObject::invokeMethod(vehicle_ecu_comm, &comm_device_interface::log0x81);
 }
 
-void controller::setLoggingInterval(int im)
-{
-    //ecu_polling_timer->setInterval(im);
-    //ecu_polling_timer->start(im);
-}
-
 void controller::RAMreset()
 {
-    qDebug() << "controller::RAMreset(addr:" << _ecu_definition->DEAD_var << "):";
-    emit _RAMreset(_ecu_definition->DEAD_var);
+    qDebug() << "controller::RAMreset(addr::" << _ecu_definition->DEAD_var << ");";
+    quint16 r = 0x0000;
+    ECUproto->directDMAwrite(_ecu_definition->DEAD_var, (char*)&r, 2);
+}
+
+mapDefinition *controller::getMap(Map *declMap)
+{
+    //qDebug()<<"ECU_interface::getMap"<<declMap->Name;
+    //if(declMap->rom_scaling._storagetype == Storagetype::undef || declMap->rom_scaling._storagetype == Storagetype::bloblist)
+    //    return &mapDefinition();
+    mapDefinition *defMap = new mapDefinition;
+    defMap->declMap = declMap;
+    if(declMap->X_axis.addr != 0)
+        defMap->X_axis = ECUproto->directDMAread(declMap->X_axis.addr, declMap->X_axis.byteSize());   // читаем оси
+    if(declMap->Y_axis.addr != 0)
+        defMap->Y_axis = ECUproto->directDMAread(declMap->Y_axis.addr, declMap->Y_axis.byteSize());
+    defMap->Map = ECUproto->directDMAread(declMap->addr, declMap->byteSize());
+    //emit gettedMap(defMap);
+    return defMap;
+}
+
+void controller::updateRAM(abstractMemoryScaled memory)
+{
+    //_dataLogger->stop();
+    ECUproto->directDMAwrite(memory.addr, memory.data(), memory.size());
+    //_dataLogger->start();
+    //QThread::msleep(50);
 }
 
 QString controller::SearchFiles(QString path, QString CalID)       // Для поиска файлов в каталоге
@@ -198,4 +187,3 @@ void controller::init()
     connect(_dataLogger, &dataLogger::logReady, this, &controller::logReady);
     connect(this, &controller::logChanged, _dataLogger, &dataLogger::setLogRate);
 }
-

@@ -12,30 +12,28 @@
 //#include <QMessageBox>
 #include <QStatusBar>
 
+
+
 #include "types.h"
 
-#include "widgets/custom_tablewidget.h"
+//#include "comm-device-interface/comm-device-interface.h"
+//#include "comm-device-interface/op13.h"
+//#include "comm-device-interface/op20.h"
 
-#include "qhexedit/qhexedit.h"
+#include "deviceNativeFilter.h"
 
-#include "comm-device-interface/comm-device-interface.h"
-#include "comm-device-interface/op13.h"
-#include "comm-device-interface/op20.h"
-
-#include "enumdev.h"
-
-
-
-
+#include "widgets/maintoolbar.h"
 #include "widgets/gauge_widget.h"
 #include "widgets/commParamWidget.h"
+
+
+#include "comm-device-interface/devicemanager.h"
+#include "DMA-proto/proto-manager.h"
+#include "wideband/wb-manager.h"
+
 #include "widgets/mapWidget/mapwidget.h"
-
-//#include "widgets/mapWidget/mapview.h"
-//#include "widgets/mapWidget/mapmodel.h"
-
-
-//#include "test-map.h"
+#include "widgets/hexEditor/qhexedit/qhexedit.h"
+#include "widgets/hexEditor/hexeditor.h"
 
 namespace Ui {
 class MainWindow;
@@ -46,11 +44,8 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-
     QHash<QString, mapWidget*> ptrRAMtables;
 
-    QStringList listFiles;
-    QString FirstFile_by_Name = {};
     ~MainWindow();
     explicit MainWindow(QWidget *parent = nullptr);
 
@@ -58,95 +53,57 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 public slots:
-    void deviceEvent(device dev);
+    void setDeviceManager(deviceManager *devManager);
 
-    void readyInterface(bool lockFlag);
-    void ecu_connected(//QHash<QString, Map *> m
-                       );
+    void setProtoManager(protoManager *protoManager);
 
-    void create_table(mapDefinition *dMap);
+    void setWBManager(wbManager *wbManager);
 
+    void setWidebandWidge(gaugeWidget *wbWgt);
+
+    void deviceEvent(comm_device_interface *devComm);
+
+    void ecu_connected();
+    void createMap(mapDefinition *dMap);
     void Log(QString str);
 
-protected :
-
 private slots:
-    void commDeviceSelected(device dev);
-    void _protoSelected(int proto);
-
-
     void StartButton_slot();
-    void logger_slot();
-
-
-    void debugButton_slot();
-
-
-    void on_start_addr_lineEdit_returnPressed();
-    void on_count_lineEdit_returnPressed();
     void itemChecks(QTreeWidgetItem *item, int column);
 
 private:
+    QString start_action= "Start";
     Ui::MainWindow *ui;
+    mainToolBar *_mainToolBar;
     commParamWidget *cpW;
-
-    void gaugeDelete();
 
     void createMapTree(Map *tab);
     void freeMapTree();
 
     void create_gauge(QString name, mutParam *param);
-
-    QAction *start_action;
-    QAction *ram_reset;
-
-    QAction *logger;
-
-    QAction *debug_action;
-
-    QThread logger_thread;
-
-    ecu_definition *_ecu;
-    comm_device_interface *vehicle_ecu_comm = nullptr;
-
-    bool  debug = false;
+    void gaugeDelete();
 
     QToolBar *loggerWidgetBar = nullptr;
 
     //======================== widget's =================================
-    QHexEdit *hexEdit;
-    gauge_widget *tactrix_afr_lcd = nullptr;
+    hexEditor *hexEdit;
+    gaugeWidget *tactrix_afr_lcd = nullptr;
     //======================== widget lists =================================
-    QSet<gauge_widget*> gauge_widget_set;
+    QSet<gaugeWidget*> gauge_widget_set;
 
     QVector<QColor> colormap;
     void colorFromFile(QString filename);
-    void test();
 
 signals:
-    void devSelected(device);
-    void interfaceRemoved(device);
-    void protoSelected(int proto);
-    void baudChanged(int);
-    void logChanged(int);
-
-
-    void getECUconnectMainWindow();
-    void ecu_test_connect();
-    void getECUdisconnectMainWindow();
-
-    void startLogger();
-    void stopLogger();
-
-    void _exit();
+    void connectECU(int);
+    void disConnectECU();
 
     void updateRAM(abstractMemoryScaled);
-    void RAM_reset();
+    void resetRAM();
 
-    void start_WB();
-    void setLoggingInterval(int);
+    void dataLog(QVector<float>);
 
-    void logReady(QVector<float>);
+    void _exit();
 
 };
 #endif // MAINWINDOW_H

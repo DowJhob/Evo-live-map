@@ -53,17 +53,20 @@
 	<scaling name="DynamicBoost" units="%" toexpr="(x-128)/2" frexpr="x*2+128" format="%.1f" min="-64" max="63.5" inc="0.5" storagetype="uint8" endian="big" />
   	
 	<table name="RAM_MUT" category="EvoLiveMap" type="RAM MUT scaling" address="FFFFA000" DEAD_var="FFFFA800">
-		<ram_mut name="Load"          scaling="Load"       offset="0x00"/>
-		<ram_mut name="RPM"           scaling="RPM"        offset="0x02"/>
-		<ram_mut name="Air Volume"    scaling="AirFlow Hz" offset="0x04"/>
-		<ram_mut name="knock"         scaling="uint8"      offset="0x06"/>
-		<ram_mut name="timing scaled" scaling="uint8"      offset="0x07"/>
-		<ram_mut name="TPS"           scaling="TPS"        offset="0x08"/>
-		<ram_mut name="IPW"           scaling="uint16"     offset="0x09"/>
-		<ram_mut name="IAT"           scaling="Temp8"      offset="0x0B"/>
-		<ram_mut name="coolant"       scaling="Temp8"      offset="0x0C"/>
-		<ram_mut name="trim low"      scaling="uint8"      offset="0x0D"/>
-		<ram_mut name="VSS"           scaling="uint8"      offset="0x0E"/>
+		<ram_mut name="Load"			scaling="Tephra1byteLoad"	number="0x00"/>
+		<ram_mut name="RPM"				scaling="RPMStatLimit8"		number="0x01"/>
+		<ram_mut name="Knock"			scaling="uint8"				number="0x02"/>
+		<ram_mut name="Timing Scaled"	scaling="TimingScaled"		number="0x03"/>
+		<ram_mut name="Air Temp Scaled"	scaling="Temp8"				number="0x04"/>
+		<ram_mut name="WGDC"			scaling="WGDuty"			number="0x05"/>
+		<ram_mut name="O2Sensor2"		scaling="O2Voltage"			number="0x06"/>
+		<ram_mut name="MAP_Bar"			scaling="MAP_BoostBar"		number="0x07"/>
+		<ram_mut name="TPS"				scaling="Percent255"		number="0x08"/>
+		<ram_mut name="Inj Pulse Width"	scaling="InjLatency"		number="0x09"/>
+		<ram_mut name="Gear"			scaling="uint8"				number="0x0A"/>
+		<ram_mut name="Gear"			scaling="uint8"				number="0x0B"/>
+		<ram_mut name="Gear"			scaling="uint8"				number="0x0C"/>
+		<ram_mut name="Gear"			scaling="uint8"				number="0x0D"/>
 	</table>
 	
 	<table name="Alternate High Octane Fuel Map" category="Fuel" address="37b4d" type="3D" swapxy="true" scaling="AFR" RAM_addr="FFFFA04D">

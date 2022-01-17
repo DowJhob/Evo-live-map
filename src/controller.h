@@ -9,50 +9,51 @@
 #include "comm-device-interface/op13.h"
 #include "comm-device-interface/op20.h"
 
-#include "ecu-proto/jcsbanksDMA.h"
-#include "ecu-proto/stockDMA.h"
-#include "ecu-proto/evoX-DMA.h"
+#include "DMA-proto/jcsbanksDMA.h"
+#include "DMA-proto/stockDMA.h"
+#include "DMA-proto/evoX-DMA.h"
 
 #include "ecu/ecu-definition.h"
 #include "logger.h"
 #include <src/abstract-memory.h>
 //#include "read-request.h"
-#include "enumdev.h"
-
+#include "deviceNativeFilter.h"
 
 class controller : public QObject
 {
     Q_OBJECT
 public:
-    bool connected = false;
     explicit controller(QObject *parent = nullptr);
     ~controller();
     void start();
 
 public slots:
-    void commDeviceSelected(device dev);
-    void commDeviceRemoved(device dev);
-    void setProto(int proto);
+    void setCommDevice(comm_device_interface *dev);
+    void setProto(DMA_proto *ECUproto);
+    void setLogRate(uint logRate);
 
-    void getECUconnect();
-    void getECUdisconnect();
+    void connectECU();
+    void disConnectECU();
 
     void startLogger();
     void stopLogger();
-    void setLoggingInterval(int im);
 
+    void updateRAM(abstractMemoryScaled memory);
     void RAMreset();
+
 
 private:
     QThread *this_thread = nullptr;
     ecu_definition *_ecu_definition = nullptr;
     comm_device_interface *devComm = nullptr;
-    ECU_interface *ECUproto = nullptr;
+    DMA_proto *ECUproto = nullptr;
 
     dataLogger *_dataLogger;
 
     char* p_in_buff;
     char* p_out_buff;
+
+    mapDefinition *getMap(Map *declMap);
 
     QString SearchFiles(QString path, QString CalID);
 
@@ -62,14 +63,13 @@ private slots:
 signals:
     void baudChanged(int);
     void logChanged(int);
-    void interfaceReady(bool);
+    //void interfaceReady(bool);
 
     void ecu_connected();
     void create_table(mapDefinition*);
-    void _RAMreset(quint32);
+    void getWB(commDeviceWB*);
 
     void Log(QString);
-    void _updateRAM(abstractMemoryScaled);
     void logReady(QVector<float>);
 
 };

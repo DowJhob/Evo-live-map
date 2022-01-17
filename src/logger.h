@@ -12,9 +12,7 @@
 #include "ecu/ecu-definition.h"
 #include "abstract-memory.h"
 
-#include "ecu-proto/ECU-interface.h"
-#include "abstract-memory.h"
-#include "log-reader.h"
+#include "DMA-proto/DMA-proto.h"
 
 class dataLogger:public QObject
 {
@@ -23,16 +21,15 @@ public:
     ecu_definition **_ecu_definition;
     QMap<int, float> log_param;
     QVector<float> scaledRAM_MUTvalue;
-    ECU_interface **ECUproto;
+    DMA_proto **ECUproto;
 
-    dataLogger(ecu_definition **_ecu = nullptr, comm_device_interface **devComm = nullptr, ECU_interface **ECUproto = nullptr);
+    dataLogger(ecu_definition **_ecu = nullptr, comm_device_interface **devComm = nullptr, DMA_proto **ECUproto = nullptr);
     ~dataLogger();
 
     void setECU(ecu_definition **_ecu);
 
 private:
     comm_device_interface **devComm = nullptr;
-    j2534listener *listener;
 
     QTimer pollTimer;
     int pollInt = 20;
@@ -47,18 +44,16 @@ private:
 public slots:
     void start();
     void stop();
-    void setLogRate(int pollInt);
+    void setLogRate(uint pollInt);
 
     void logger( QString str );
-    void scalingLogData(abstractMemoryScaled mem);
+    void writeLogItem(QVector<float> scaledRAM_MUTvalue);
 
 private slots:
     void poll();
-    void read(abstractMemoryScaled a);
 
 signals:
     void logReady(QVector<float>);
-    void loop();
 
 };
 

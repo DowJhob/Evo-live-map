@@ -89,7 +89,7 @@ void mapView::actionIncrease()
     for (auto index : qAsConst(sIx))
     {
         auto value =  model()->index(index.row(),index.column()).data(Qt::UserRole).toFloat()
-                +declaration->rom_scaling.increment
+                + declaration->rom_scaling.increment
                 ;
         qDebug()<< "value"<<value;
         model()->setData( index, value , Qt::EditRole );

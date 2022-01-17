@@ -5,41 +5,29 @@
 #include <QWidget>
 #include <QComboBox>
 #include <QLayout>
+#include <QLineEdit>
 
-#include "../enumdev.h"
+#include "../comm-device-interface/devicemanager.h"
+#include "../DMA-proto/proto-manager.h"
+#include "../wideband/wb-manager.h"
 
 class commParamWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit commParamWidget(QWidget *parent = nullptr);
+    uint baudRate;
+    explicit commParamWidget(QWidget *parent = nullptr, uint defaultBaudRate = 62500, uint defaultLogRate = 10);
 
 public slots:
-    void addDevice(device dev);
-    void removeDevice(device dev);
-
-    void deviceSelected(int index);
-    //void protoSelected(int index);
+    void setDeviceManager(deviceManager *devManager);
+    void setProtoManager(protoManager *protoManager);
+    void setWBManager(wbManager *wbManager);
 
 private:
-    QHash<QString, device> dev;
-    QComboBox *commListBox;
-    QComboBox *protoListBox;
-
-    QLineEdit *baudRate;
-QLineEdit *logRate;
-    void baudChng();
-
-    void logchng();
-
+    QGroupBox commonGrpBx{"Communication parameters"};
+    QGridLayout commonGrpBxLayout;
 
 signals:
-    void interfaceSelected(device);
-    //void interfaceRemoved(device);
-    void protoSelected(int);
-
-    void baudChanged(int);
-    void logChanged(int);
 
 };
 

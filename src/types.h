@@ -3,6 +3,12 @@
 
 #include "map-decl/scaling.h"
 
+enum class dir
+{
+    arrive,
+    remove
+};
+
 enum class Protocol : uint {
     //// J2534-1
     J1850VPW        = 1,
@@ -51,7 +57,8 @@ enum class eLogMsgType : quint8
     LOG_INV,
     LOG_LT
 };
-enum class dev_type{
+
+enum class deviceType{
     undef = 0,
     OP13 = 13,
     OP20 = 20,
