@@ -2,6 +2,7 @@
 
 mapWidget::mapWidget(QWidget *parent, mapDefinition *def, QVector<QColor> *colormap) : QWidget(nullptr, Qt::Window | Qt::WindowCloseButtonHint ), decl(def->declMap)
 {
+    setWindowTitle(def->declMap->Name);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QGridLayout *_layout = new QGridLayout(this);
     _layout->setSizeConstraint(QLayout::SetFixedSize);
@@ -22,7 +23,7 @@ mapWidget::mapWidget(QWidget *parent, mapDefinition *def, QVector<QColor> *color
     setLayout(_layout);
 
     //connect(mapModel_, &mapModel::upd, mapTable, &mapView::reset);
-
+//mapModel_->headerDataChanged(Qt::Horizontal, 0, 10);
     //show();
 }
 

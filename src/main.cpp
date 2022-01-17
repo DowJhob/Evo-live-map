@@ -61,6 +61,8 @@ int main(int argc, char *argv[])
     QObject::connect(&controller,   &controller::Log,                 &mainWindow, &MainWindow::Log);
 
 
+    wbManager.fillSerial();
+    wbManager.fillProto();
 
     mainWindow.setProtoManager(&protoManager);
 

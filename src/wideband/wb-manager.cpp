@@ -27,17 +27,14 @@ wbManager::wbManager(QWidget *parent):QGroupBox(parent)
             startBtn.setText("Start");
         }
     });
-    //connect(&el_lograte,  &QLineEdit::editingFinished, this, &protoManager::_logRateChanged);
 
-    //QGroupBox *grBxWBprt = new QGroupBox("Wideband proto", this);
-    //ll->addWidget(grBxWBprt, 0, 1);
-    getAllSerial();
-    //protoWB.addItems({"Innovate", "AEM", "PLX"});
-    addProto();
+    //fillSerial();
+
+    //fillProto();
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 }
 
-void wbManager::addProto()
+void wbManager::fillProto()
 {
     //    //qDebug()<< "deviceManager::addDevice start" << dev.DeviceDesc;
     //    comm_device_interface *devComm = nullptr;                                  // это важно если бы мы пытались добавить не инициализированную, тогда бы при попытке извлечь девайсСелектед она не прошла проверку кУвариант
@@ -76,7 +73,7 @@ void wbManager::deviceEvent()
 }
 
 
-void wbManager::getAllSerial()
+void wbManager::fillSerial()
 {
     for( const auto &portInfo : QSerialPortInfo::availablePorts())
     {

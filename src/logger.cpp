@@ -125,15 +125,3 @@ void dataLogger::poll()
     }
 }
 
-void dataLogger::read(abstractMemoryScaled a)
-{
-    for( int i = 0; i < (*_ecu_definition)->RAM_MUT.size() ; i++  )
-    {
-        scaledRAM_MUTvalue[i] = a.toFloatOffset( &(*_ecu_definition)->RAM_MUT[i].scaling, (*_ecu_definition)->RAM_MUT[i].offset );
-    }
-
-
-    //qDebug() << "dataLogger::poll + scalad: " << QString::number( tt.nsecsElapsed()/1000000.0);
-    //t.start();
-    emit logReady(scaledRAM_MUTvalue);
-}
