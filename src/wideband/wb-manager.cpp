@@ -31,9 +31,9 @@ wbManager::wbManager(QWidget *parent):QGroupBox(parent)
 
     //QGroupBox *grBxWBprt = new QGroupBox("Wideband proto", this);
     //ll->addWidget(grBxWBprt, 0, 1);
-getAllSerial();
+    getAllSerial();
     //protoWB.addItems({"Innovate", "AEM", "PLX"});
-addProto();
+    addProto();
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 }
 
@@ -57,12 +57,12 @@ void wbManager::addProto()
 
 void wbManager::addTactrix(comm_device_interface *cdWB)
 {
-            commDeviceWB *ss = static_cast<OP20*>(cdWB);
+    commDeviceWB *ss = static_cast<OP20*>(cdWB);
 
     //wbLogger *wblog = new wbLogger(&cdWB);
     //emit deviceSelected(wblog);
     availWB.addItem(cdWB->DeviceDesc + " / " + cdWB->DeviceUniqueID, QVariant::fromValue<commDeviceWB*>(ss));
-//    addItem("tactrix", QVariant::fromValue<wbLogger*>(wblog));
+    //    addItem("tactrix", QVariant::fromValue<wbLogger*>(wblog));
 }
 
 void wbManager::deviceEvent()
@@ -106,19 +106,19 @@ void wbManager::removeDevice()
     //devComm->deleteLater();
     //qDebug()<< "deviceManager::removeDevice count" << count();
     //qDebug()<< "deviceManager::removeDevice start" << dev.DeviceDesc + " / " + dev.DeviceUniqueID;
-////    int index = findText("");
+    ////    int index = findText("");
     //qDebug()<< "deviceManager::removeDevice start" << index;
-////    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(itemData(index));
-////    if( cdWB != nullptr)
+    ////    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(itemData(index));
+    ////    if( cdWB != nullptr)
     {
-////        delete cdWB;
+        ////        delete cdWB;
         //cdWB->deleteLater();
     }
 
-////    if( index < count())
-////        removeItem(index);
-////    else
-///        qDebug() << "Error deleting item";
+    ////    if( index < count())
+    ////        removeItem(index);
+    ////    else
+    ///        qDebug() << "Error deleting item";
 
     //emit deviceSelected(nullptr);  // не нужен потому что будет селект с нулем
 }
@@ -127,8 +127,8 @@ void wbManager::_wbSelected(int index)
 {
     qDebug()<< "deviceManager::_deviceSelected start" ;
     //qDebug()<< "deviceManager::_deviceSelected start" << itemData(index);
-commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(availWB.itemData(index));
-////    qDebug()<< "deviceManager::_deviceSelected finish" << wblog;
+    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(availWB.itemData(index));
+    ////    qDebug()<< "deviceManager::_deviceSelected finish" << wblog;
     //qDebug()<< "deviceManager::_deviceSelected finish" << devComm->DeviceUniqueID; // Не делай так!!! devComm может быть нулл!!!
 
     emit wbSelected(cdWB);

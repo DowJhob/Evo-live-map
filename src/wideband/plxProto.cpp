@@ -5,7 +5,7 @@ plxProto::plxProto()
     baudRate = 0;
 }
 
-float plxProto::handleWB(QByteArray a)
+QString plxProto::handleWB(QByteArray a)
 {
     uchar b;
     if (b == (uchar) 0x80) {
@@ -57,5 +57,5 @@ float plxProto::handleWB(QByteArray a)
         //        );
         break;
     }
-    return 0;
+    return "PLX";
 }

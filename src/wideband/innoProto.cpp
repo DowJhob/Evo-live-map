@@ -5,7 +5,7 @@ innoProto::innoProto()
     baudRate = 19200;
 }
 
-float innoProto::handleWB(QByteArray a)
+QString innoProto::handleWB(QByteArray a)
 {
     //    if (msg->RxStatus & START_OF_MESSAGE)
 //        return; // skip
@@ -52,7 +52,7 @@ float innoProto::handleWB(QByteArray a)
             payload = 14; // LM-1 V1 payload is a fixed size
         }
         if (payload + 2 != a.size())
-            return -1;
+            return "ERR";
         msgptr = (uchar*)data + 2;
         // work our way through the payload bytes
         while (payload)
@@ -113,10 +113,10 @@ float innoProto::handleWB(QByteArray a)
             }
         }
     }
-    return 0;
+    return "ERRR";
 }
 
-float innoProto::func_check(int func, uint _afr, uint _lambda)
+QString innoProto::func_check(int func, uint _afr, uint _lambda)
 {
     double lambda,afr;
     //result.clear();
@@ -138,7 +138,7 @@ float innoProto::func_check(int func, uint _afr, uint _lambda)
     case 0b110: result = (_lambda << 3) + func; break;
 
     }
-    return result;
+    return QString::number(result);
     //      emit AFR(result);
     //        010 Free air calibration in progress, Lambda data not valid
     //        011 Need Free air Calibration Request, Lambda data not valid
