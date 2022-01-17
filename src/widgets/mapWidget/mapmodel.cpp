@@ -89,21 +89,21 @@ QVariant mapModel::headerData(int section, Qt::Orientation orientation, int role
     {
         return QString().asprintf(s->format.toLatin1(), value);
     } break;
-    case Qt::BackgroundRole :
-    {
-        float ColorDiscret = 0;
-        if( orientation == Qt::Horizontal)
-            ColorDiscret = xAxisColorDiscret;
-        if( orientation == Qt::Vertical)
-            ColorDiscret = yAxisColorDiscret;
-        auto c = getColor(value, s->min, ColorDiscret);
-        //qDebug() << "headerData ColorDiscret" << ColorDiscret << "value" << value << "color" << c;
-        QPalette pal;
-        pal.setBrush(QPalette::Background, c);
-        return pal;
+//    case Qt::BackgroundRole :
+//    {
+//        float ColorDiscret = 0;
+//        if( orientation == Qt::Horizontal)
+//            ColorDiscret = xAxisColorDiscret;
+//        if( orientation == Qt::Vertical)
+//            ColorDiscret = yAxisColorDiscret;
+//        auto c = getColor(value, s->min, ColorDiscret);
+//        //qDebug() << "headerData ColorDiscret" << ColorDiscret << "value" << value << "color" << c;
+//        QPalette pal;
+//        pal.setBrush(QPalette::Background, c);
+//        return pal;
 
-    }
-        break;
+//    }
+//        break;
 
     case Qt::UserRole: return value; break;
     }
@@ -139,7 +139,7 @@ QBrush mapModel::getColor(float value, int min, float ColorDiscret) const
         colorIndex = 0;
     if (colorIndex > coloringMap->size()-1)
         colorIndex = coloringMap->size()-1;
-    qDebug() << "colorIndex" << colorIndex << min << ColorDiscret << "coloringMap->size()" << coloringMap->count();
+    //qDebug() << "colorIndex" << colorIndex << min << ColorDiscret << "coloringMap->size()" << coloringMap->count();
     QBrush Background(coloringMap->at(colorIndex));
     return Background;
 }

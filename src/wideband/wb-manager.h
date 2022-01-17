@@ -33,9 +33,10 @@ public:
 public slots:
     void addTactrix(comm_device_interface *cdWB);
     void deviceEvent();
+    void fillSerial();
+    void fillProto();
 
 private:
-    void addProto();
     QGridLayout layout;
     QComboBox availWB;
     QComboBox protoWB;
@@ -43,7 +44,6 @@ private:
     //QLabel lgrt{"Logging rate, Hz:"};
     //QLineEdit el_lograte{"20"};
 
-    void getAllSerial();
     void addDevice();
     void removeDevice();
 
