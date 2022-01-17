@@ -51,7 +51,6 @@ public slots:
 
 private slots:
     void poll();
-    void read(abstractMemoryScaled a);
 
 signals:
     void logReady(QVector<float>);

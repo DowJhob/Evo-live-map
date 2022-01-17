@@ -97,10 +97,10 @@ QVariant mapModel::headerData(int section, Qt::Orientation orientation, int role
 //        if( orientation == Qt::Vertical)
 //            ColorDiscret = yAxisColorDiscret;
 //        auto c = getColor(value, s->min, ColorDiscret);
-//        //qDebug() << "headerData ColorDiscret" << ColorDiscret << "value" << value << "color" << c;
+//        qDebug() << "headerData ColorDiscret" << ColorDiscret << "value" << value << "color" << c;
 //        QPalette pal;
 //        pal.setBrush(QPalette::Background, c);
-//        return pal;
+//        return c;
 
 //    }
 //        break;
@@ -119,6 +119,7 @@ bool mapModel::setHeaderData(int section, Qt::Orientation orientation, const QVa
         if ( orientation == Qt::Vertical)
             verticalHeaderData[section] = value.toFloat();
     }
+    //emit headerDataChanged(orientation, 0, 1);
     return true;
 }
 
