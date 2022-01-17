@@ -5,7 +5,7 @@ aemProto::aemProto()
     baudRate = 9200;
 }
 
-float aemProto::handleWB(QByteArray a)
+QString aemProto::handleWB(QByteArray a)
 {
-    return 0;
+    return a;
 }

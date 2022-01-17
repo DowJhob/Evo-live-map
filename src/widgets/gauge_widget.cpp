@@ -56,9 +56,9 @@ void gaugeWidget::contextMenuEvent(QContextMenuEvent *pe)
     m_pmnu->exec(pe->globalPos());
 }
 
-void gaugeWidget::display(float in)
+void gaugeWidget::display(QString in)
 {
-    lcd.display(QString::number(in));
+    lcd.display(in);
 }
 
 void gaugeWidget::setProto(QAction* pAction)

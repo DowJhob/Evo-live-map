@@ -34,7 +34,7 @@ private:
     void poll();
 
 signals:
-    void logReady(float);
+    void logReady(QString);
 };
 
 #endif // WBLOGGER_H

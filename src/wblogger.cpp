@@ -82,4 +82,6 @@ void wbLogger::poll()
     {
         logReady(_wbProto->handleWB(a));
     }
+    else
+        logReady("ERR");
 }

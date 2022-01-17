@@ -24,7 +24,7 @@ protected:
     virtual void contextMenuEvent(QContextMenuEvent* pe);
 
 public slots:
-    void display(float in);
+    void display(QString in);
 
 private:
     QMenu* m_pmnu;
