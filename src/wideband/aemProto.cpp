@@ -7,5 +7,6 @@ aemProto::aemProto()
 
 QString aemProto::handleWB(QByteArray a)
 {
+    a.chop(2);
     return a;
 }
