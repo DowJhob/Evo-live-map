@@ -137,9 +137,9 @@ QBrush mapModel::getColor(float value, int min, float ColorDiscret) const
     int colorIndex = (value - min) / ColorDiscret - 1;
     if (colorIndex < 0)
         colorIndex = 0;
-    if (colorIndex > coloringMap->count())
-        colorIndex = coloringMap->count()-1;
-    //qDebug() << "colorIndex" << colorIndex << min << ColorDiscret;
+    if (colorIndex > coloringMap->size()-1)
+        colorIndex = coloringMap->size()-1;
+    qDebug() << "colorIndex" << colorIndex << min << ColorDiscret << "coloringMap->size()" << coloringMap->count();
     QBrush Background(coloringMap->at(colorIndex));
     return Background;
 }

@@ -164,7 +164,7 @@ mapDefinition *controller::getMap(Map *declMap)
 
 void controller::updateRAM(abstractMemoryScaled memory)
 {
-    _dataLogger->stop();
+    //_dataLogger->stop();
     ECUproto->directDMAwrite(memory.addr, memory.data(), memory.size());
     //_dataLogger->start();
     //QThread::msleep(50);
