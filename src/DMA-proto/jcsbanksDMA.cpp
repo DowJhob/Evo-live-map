@@ -78,7 +78,7 @@ void jcsbanksDMA::sendDMAcomand(char command, unsigned long addr, unsigned long 
     if ( buf != nullptr)
     {
         memcpy((*devComm)->p_out_buff, buf, count);
-        qDebug() << "jcsbanksDMA::sendDMAcomand payload data" << count;
+        //qDebug() << "jcsbanksDMA::sendDMAcomand payload data" << count;
         (*devComm)->write( count);
     }
 
