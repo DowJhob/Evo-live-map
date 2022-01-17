@@ -9,9 +9,7 @@ class wbProto //: public plxProto, public innoProto
 {
 public:
     int baudRate = 0;
-    //virtual float handleWB(QByteArray a) = 0;
     virtual QString handleWB(QByteArray a) = 0;
-    //virtual QString handleWB(float a) = 0;
 
 private:
 

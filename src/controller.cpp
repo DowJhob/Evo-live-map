@@ -164,8 +164,9 @@ mapDefinition *controller::getMap(Map *declMap)
 
 void controller::updateRAM(abstractMemoryScaled memory)
 {
+    _dataLogger->stop();
     ECUproto->directDMAwrite(memory.addr, memory.data(), memory.size());
-    QThread::msleep(50);
+    //QThread::msleep(50);
 }
 
 QString controller::SearchFiles(QString path, QString CalID)       // Для поиска файлов в каталоге

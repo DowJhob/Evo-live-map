@@ -3,7 +3,12 @@
 serialWB::serialWB(QSerialPortInfo portInfo, QObject *parent)//:QSerialPort(portInfo, parent)
 {
     port.setPort(portInfo);
-    connect(&port, &QSerialPort::readyRead, this, &commDeviceWB::readyRead);
+    connect(&port, &QSerialPort::readyRead, this, [this](){
+        QByteArray a = readWB();
+        if (a.size() > 0)
+            emit readyRead(a);
+    });
+   // &commDeviceWB::readyRead);
 }
 
 bool serialWB::isClosed()

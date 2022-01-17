@@ -4,6 +4,21 @@ OP20::OP20(QString dllName, QString DeviceDesc, QString DeviceUniqueID) : j2534_
 {
     //devType = deviceType::OP20;
     //qDebug() << "OP20" << DeviceUniqueID;
+    QThread *this_thread = new QThread();
+    QObject::connect(this_thread, &QThread::started, this, [this](){
+        pollTimer = new QTimer(this);
+        QObject::connect(pollTimer, &QTimer::timeout, this, [this](){
+            QByteArray a = readWB();
+            if (a.size() > 0)
+                emit readyRead(a);
+        });
+    }
+    );
+    //connect(this_thread, &QThread::started, this, &controller::loop, Qt::QueuedConnection);
+    QObject::connect(this, &OP20::destroyed, this_thread, &QThread::quit);            // Когда удалим объект остановим поток
+    QObject::connect(this_thread, &QThread::finished, this_thread, &QThread::deleteLater);  // Когда остановим поток удалим его
+    moveToThread(this_thread);
+    this_thread->start();
 }
 
 OP20::~OP20()
@@ -84,6 +99,7 @@ bool OP20::closeWB()
     {
         //   reportJ2534Error();
     }
+    devID = 0;
     return true;
 }
 
@@ -107,6 +123,6 @@ QByteArray OP20::readWB()
 
     //qDebug() << "OP20::read: readWB" << a << "\n\n";
 
-//emit readyRead2();
+//
     return a;
 }

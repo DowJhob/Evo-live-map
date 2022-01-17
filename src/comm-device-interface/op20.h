@@ -26,6 +26,7 @@ public:
 //private slots:
 
 private:
+    QTimer *pollTimer;
     unsigned long chanID_INNO;
 
     Message rxmsg;

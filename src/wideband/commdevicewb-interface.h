@@ -10,6 +10,7 @@ class commDeviceWB:public QObject
 public:
     QString DeviceDesc;// + " / " + cdWB->DeviceUniqueID
     explicit commDeviceWB();
+    virtual ~commDeviceWB();
 
     virtual bool isClosed() = 0;
     virtual bool openWB(uint baudRate) = 0;
@@ -19,7 +20,7 @@ public:
     virtual QByteArray readWB() = 0;
 
 signals:
-    void readyRead();
+    void readyRead(QByteArray);
 
 };
 

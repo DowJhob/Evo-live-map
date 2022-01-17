@@ -28,7 +28,10 @@ public:
     comm_device_interface **devComm = nullptr;
     //DMA_proto();
     //explicit DMA_proto(comm_device_interface **devComm = nullptr);
-    //virtual ~DMA_proto();
+    virtual ~DMA_proto()
+    {
+
+    }
 
 public slots:
     virtual bool connect() = 0;

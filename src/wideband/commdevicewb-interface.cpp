@@ -4,3 +4,8 @@ commDeviceWB::commDeviceWB()
 {
 
 }
+
+commDeviceWB::~commDeviceWB()
+{
+
+}

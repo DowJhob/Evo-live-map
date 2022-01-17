@@ -68,18 +68,20 @@ bool j2534_interface::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint
 
     rx_msg.setProtocolId(protocol);
     tx_msg.setProtocolId(protocol);
-
-    if (j2534->PassThruOpen(nullptr, &devID))         // Get devID
+    if(devID == 0)
     {
-        qDebug() << "==================== j2534_interface:open ==================================" << j2534->lastErrorString();
-        //emit Log("PassThruOpen error: " + reportJ2534Error());
-        return false;
+        if (j2534->PassThruOpen(nullptr, &devID))         // Get devID
+        {
+            qDebug() << "==================== j2534_interface::open::PassThruOpen ==================================" << j2534->lastErrorString();
+            //emit Log("PassThruOpen error: " + reportJ2534Error());
+            return false;
+        }
     }
-    qDebug() << "==================== j2534_interface:open2 ==================================" << j2534->lastErrorString();
     //emit Log("PassThruOpen deviceID: " + QString::number(devID) + " /opened");
 
     if (j2534->PassThruConnect(devID, protocol, ConnectFlag, baudRate, &chanID))
     {
+        qDebug() << "==================== j2534_interface::open::PassThruConnect ==================================" << j2534->lastErrorString();
         //emit Log( "PassThruConnect: error" + reportJ2534Error() );
         return false;
     }
@@ -92,6 +94,7 @@ bool j2534_interface::close()
 {
     if (j2534->PassThruStopMsgFilter(chanID, msgId) != PassThru::Status::NoError )
     {
+        qDebug() << "==================== j2534_interface::close::PassThruStopMsgFilter ==================================" << j2534->lastErrorString();
         //emit Log("PassThruStopMsgFilter error: " + reportJ2534Error() );
         reportJ2534Error();
         return false;
@@ -101,6 +104,7 @@ bool j2534_interface::close()
     // shut down the channel
     if (j2534->PassThruDisconnect(chanID) != PassThru::Status::NoError )
     {
+        qDebug() << "==================== j2534_interface::close::PassThruDisconnect ==================================" << j2534->lastErrorString();
         //emit Log("PassThruDisconnect error: " + reportJ2534Error() );
         reportJ2534Error();
         return false;
@@ -109,7 +113,7 @@ bool j2534_interface::close()
 
     if (j2534->PassThruClose(devID) != PassThru::Status::NoError)
     {
-        qDebug()<<"PassThruClose error: ";
+        qDebug() << "==================== j2534_interface::close::PassThruClose ==================================" << j2534->lastErrorString();
         //emit Log("PassThruClose error: " + reportJ2534Error() );
         return false;
     }
