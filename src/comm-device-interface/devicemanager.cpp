@@ -41,7 +41,9 @@ void deviceManager::addDevice(device dev)
     default                : return;                                            //  но поскольку тут вылетим без добавления то вроде и не важно
     }
     devComm->setBaudRate(el_baudRate.text().toUInt());
-    connect(this,  &deviceManager::baudRateChanged, this, [&devComm](uint baudRate){devComm->setBaudRate(baudRate);});
+//    connect(this,  &deviceManager::baudRateChanged, this, [&devComm](uint baudRate){
+//        devComm->setBaudRate(baudRate);
+//    });
 
     availCommDev.addItem(dev.DeviceDesc + " / " + dev.DeviceUniqueID, QVariant::fromValue<comm_device_interface*>(devComm));
 }
@@ -80,7 +82,10 @@ void deviceManager::_deviceSelected(int index)
 
 void deviceManager::baudRateUpdate()   // Обновляем скорость обмена
 {
+    comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(availCommDev.currentData());
+
     baudRate = el_baudRate.text().toUInt();
-    emit baudRateChanged(el_baudRate.text().toUInt());
+    devComm->setBaudRate(baudRate);
+    //emit baudRateChanged(el_baudRate.text().toUInt());
     qDebug() << "=========== deviceManager::baudRateUpdate ================" << baudRate;
 }

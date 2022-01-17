@@ -152,6 +152,8 @@ device deviceNativeFilter::getDevProp(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceI
 
 device deviceNativeFilter::getDevProp(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
 {
+    if(pDevInf == NULL)
+        return device();
     QStringList qDevInf = QString::fromWCharArray((wchar_t*)pDevInf->dbcc_name).split('#');
     //qDebug() << "enumerator::getDevProp pDevInf->dbcc_name" << qDevInf << "pDevInf->dbcc_classguid" << pDevInf->dbcc_classguid << endl;
         if (qDevInf.length() >= 3)
