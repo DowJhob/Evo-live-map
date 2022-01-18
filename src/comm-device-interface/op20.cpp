@@ -35,16 +35,17 @@ bool OP20::isClosed()
 
 bool OP20::openWB(uint baudRate)
 {
-    qDebug() << "==================== OP20:openWB ==================================" << j2534->lastErrorString();
+    //qDebug() << "==================== OP20:openWB ==================================" << j2534->lastErrorString();
     // nothing to open, opening in j2534_interface constructor
-    if (devID == 0)
+    if (countUSE == 0)
         if (j2534->PassThruOpen(nullptr, &devID))         // Get devID
         {
             qDebug() << "==================== OP20:openWB::PassThruOpen ==================================" << j2534->lastErrorString();
             //emit Log("PassThruOpen error: " + j2534->lastErrorString());
             return false;
         }
-    qDebug() << "==================== OP20:openWB3 ==================================" << j2534->lastErrorString();
+    countUSE++;
+    //qDebug() << "==================== OP20:openWB3 ==================================" << j2534->lastErrorString();
     //emit Log("PassThruOpen deviceID: " + QString::number(devID) + " /opened");
 
 
@@ -57,12 +58,13 @@ bool OP20::openWB(uint baudRate)
     //
     // note that the ISO9141_NO_CHECKSUM connection flag is used to avoid requiring the data
     // to have valid ISO9141 checksums (it doesn't)
-    if (j2534->PassThruConnect(devID, Protocol::ISO9141_INNO, ConnectFlag::ISO9141NoChecksum, baudRate, &chanID_INNO))
-    {
-        qDebug() << "==================== OP20:openWB::PassThruConnect ==================================" << j2534->lastErrorString();
-        qDebug() << "PassThruConnect: tactrix wb error " ;
-        return false;
-    }
+    if (chanID_INNO == 0)
+        if (j2534->PassThruConnect(devID, Protocol::ISO9141_INNO, ConnectFlag::ISO9141NoChecksum, baudRate, &chanID_INNO))
+        {
+            qDebug() << "==================== OP20:openWB::PassThruConnect ==================================" << j2534->lastErrorString();
+            chanID_INNO = 0;
+            return false;
+        }
     qDebug() << "==================== OP20:openWB::PassThruConnect2 ==================================" << "devID" << devID << "chanID_INNO" << chanID_INNO;
     // all J2534 channels need filters in order to receive anything at all
     //
@@ -81,9 +83,9 @@ bool OP20::openWB(uint baudRate)
     if (j2534->PassThruStartMsgFilter(chanID_INNO, PassThru::PassFilter, &msgMask, &msgPattern, NULL, &msgId))
     {
         qDebug() << "==================== OP20:openWB::PassThruStartMsgFilter ==================================" << j2534->lastErrorString();
-        qDebug() << "PassThruStartMsgFilter : tactrix wb error:" << reportJ2534Error();
         return false;
     }
+
     return true;
 }
 
@@ -94,12 +96,21 @@ bool OP20::connectWB(uint baudRate)
 
 bool OP20::closeWB()
 {
-    qDebug() << "==================== OP20:closeWB ==================================";
+    qDebug() << "\n==================== OP20::closeWB ==================================";
     if (j2534->PassThruDisconnect(chanID_INNO))
     {
-        //   reportJ2534Error();
+        qDebug() << "==================== OP20:closeWB::PassThruDisconnect ==================================" << j2534->lastErrorString();
     }
-    devID = 0;
+    if(--countUSE <= 0)  // если последний то закрываем
+    {
+        countUSE = 0;   // на всякий случай
+        j2534->PassThruClose(devID);
+        devID = 0;
+
+        chanID_INNO = 0;
+    }
+
+    chanID_INNO = 0;
     return true;
 }
 
@@ -123,6 +134,6 @@ QByteArray OP20::readWB()
 
     //qDebug() << "OP20::read: readWB" << a << "\n\n";
 
-//
+    //
     return a;
 }
