@@ -24,6 +24,7 @@ class j2534_interface : public comm_device_interface
     friend class OP20;
 public:
     // J2534
+    uint countUSE = 0; // if higher zero device in use
     unsigned long devID = 0;   // использую как индикатор открытости, если ноль не опен!
 
     j2534_interface( QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
@@ -36,11 +37,9 @@ public:
     QByteArray read(uint lenght = 0);
     void write(int lenght);
 
-    QString reportJ2534Error();
-
 private:
     PassThru *j2534;
-    unsigned long chanID;
+    unsigned long chanID = 0;
     unsigned long NumMsgs;
 
     unsigned long msgId = 0;
