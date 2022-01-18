@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QString>
 
-class commDeviceWB:public QObject
+class commDeviceWB : public QObject
 {    
     Q_OBJECT
 public:

@@ -4,7 +4,7 @@
 #include "j2534-interface.h"
 #include "src/wideband/commdevicewb-interface.h"
 
-class OP20 : public j2534_interface, public commDeviceWB
+class OP20 : public commDeviceWB, public j2534_interface
 {
     //Q_OBJECT
 public:
@@ -27,7 +27,7 @@ public:
 
 private:
     QTimer *pollTimer;
-    unsigned long chanID_INNO;
+    unsigned long chanID_INNO = 0;
 
     Message rxmsg;
     Message msgMask, msgPattern;

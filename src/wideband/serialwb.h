@@ -17,11 +17,11 @@ public:
     QString DeviceDesc;// + " / " + cdWB->DeviceUniqueID
     explicit serialWB(QSerialPortInfo portInfo, QObject *parent);
 
-    virtual bool isClosed();
-    virtual bool openWB(uint baudRate);
-    virtual bool connectWB(unsigned int baudRate);
-    virtual bool closeWB();
-    virtual QByteArray readWB();
+    bool isClosed();
+    bool openWB(uint baudRate);
+    bool connectWB(unsigned int baudRate);
+    bool closeWB();
+    QByteArray readWB();
 
 private:
     QSerialPortInfo portInfo;

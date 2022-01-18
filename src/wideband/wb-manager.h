@@ -2,6 +2,7 @@
 #define WB_MANAGER_H
 
 #include <QObject>
+#include <QMetaObject>
 #include <QGroupBox>
 #include <QGridLayout>
 #include <QComboBox>
@@ -41,6 +42,10 @@ private:
     QComboBox availWB;
     QComboBox protoWB;
     QPushButton startBtn{"Start", this};
+
+    QMetaObject::Connection wbToProto;
+    QMetaObject::Connection ProtoToLog;
+
     //QLabel lgrt{"Logging rate, Hz:"};
     //QLineEdit el_lograte{"20"};
 
@@ -55,6 +60,8 @@ signals:
     void wbSelected(commDeviceWB*);
     void protoSelected(wbProto*);
     void wbStart(bool);
+
+    void logReady(QString);
 
 };
 

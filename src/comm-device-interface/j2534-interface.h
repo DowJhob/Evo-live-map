@@ -2,6 +2,7 @@
 #define J2534_INTERFACE_H
 
 #include <QDebug>
+#include <QMutex>
 
 #include "src/libs/j2534passthru.h"
 #include "comm-device-interface.h"
@@ -24,10 +25,37 @@ class j2534_interface : public comm_device_interface
     friend class OP20;
 public:
     // J2534
+    volatile
+    uint countUSE = 0; // if higher zero device in use
     unsigned long devID = 0;   // использую как индикатор открытости, если ноль не опен!
 
     j2534_interface( QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
     virtual ~j2534_interface();
+
+    QMutex mu;
+
+    void setUse()
+    {
+        mu.lock();
+        countUSE++;
+        mu.unlock();
+    }
+    bool resetUse()
+    {
+        mu.lock();
+        bool b = (--countUSE <= 0);
+        if (b)
+            countUSE = 0;
+        mu.unlock();
+        return b;
+    }
+    bool isNotUse()
+    {
+        mu.lock();
+        bool b = (countUSE == 0);
+        mu.unlock();
+        return b;
+    }
 
     bool info();
     bool open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate);
@@ -36,11 +64,9 @@ public:
     QByteArray read(uint lenght = 0);
     void write(int lenght);
 
-    QString reportJ2534Error();
-
 private:
     PassThru *j2534;
-    unsigned long chanID;
+    unsigned long chanID = 0;
     unsigned long NumMsgs;
 
     unsigned long msgId = 0;
