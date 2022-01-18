@@ -27,7 +27,7 @@ bool j2534_interface::info()
             //emit Log("PassThruOpen error: " + reportJ2534Error());
             return false;
         }
-    countUSE++;
+    setUse();
     qDebug() << "==================== j2534_interface:info open2 ==================================" << j2534->lastErrorString();
     //emit Log("PassThruOpen deviceID: " + QString::number(devID) + " /opened");
 
@@ -54,13 +54,11 @@ bool j2534_interface::info()
     if (j2534->PassThruClose(devID) != PassThru::Status::NoError)
     {
         qDebug()<<"PassThruClose error: ";
-        //emit Log("PassThruClose error: " + reportJ2534Error() );
         return false;
     }
-    countUSE--;
-    devID = 0;
+
+    resetUse();
     return true;
-    //emit readyInterface(true);
 }
 
 bool j2534_interface::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
@@ -71,28 +69,22 @@ bool j2534_interface::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint
     rx_msg.setProtocolId(protocol);
     tx_msg.setProtocolId(protocol);
 
-    if (countUSE == 0)
+    if (isNotUse())
     {
         if (j2534->PassThruOpen(nullptr, &devID))         // Get devID
         {
             qDebug() << "==================== j2534_interface::open::PassThruOpen ==================================" << j2534->lastErrorString();
-            //emit Log("PassThruOpen error: " + reportJ2534Error());
             return false;
         }
-        countUSE++;
+        setUse();;
     }
-    //emit Log("PassThruOpen deviceID: " + QString::number(devID) + " /opened");
-
     if (chanID == 0)
         if (j2534->PassThruConnect(devID, protocol, ConnectFlag, baudRate, &chanID))
         {
-            qDebug() << "==================== j2534_interface::open::PassThruConnect ==================================" << j2534->lastErrorString();
-            //emit Log( "PassThruConnect: error" + reportJ2534Error() );
+            qDebug() << "==================== j2534_interface::open::PassThruConnect ==================================" << j2534->lastErrorString() << "chanID" << chanID;
             chanID = 0;
             return false;
         }
-    //emit Log("PassThruConnect channel: " + QString::number(chanID) + " /connected");
-
     return true;
 }
 
@@ -116,19 +108,14 @@ bool j2534_interface::close()
             return false;
         }
     chanID = 0;
-    //emit Log("PassThruDisconnect channel: " + QString::number(chanID) + " /disconnected" );
 
-    if (--countUSE <= 0)
+    if (resetUse())
         if (j2534->PassThruClose(devID) != PassThru::Status::NoError)
         {
             qDebug() << "==================== j2534_interface::close::PassThruClose ==================================" << j2534->lastErrorString();
             chanID = 0;
             return false;
         }
-    //emit Log("PassThruClose deviceID: " + QString::number(devID) + " /closed" );
-    countUSE = 0;
-    chanID = 0;
-
     return true;
 }
 

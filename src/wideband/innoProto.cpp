@@ -138,6 +138,8 @@ QString innoProto::func_check(int func, uint _afr, uint _lambda)
     case 0b110: result = (_lambda << 3) + func; break;
 
     }
+
+    emit logReady(QString::number(result));
     return QString::number(result);
     //      emit AFR(result);
     //        010 Free air calibration in progress, Lambda data not valid
