@@ -57,5 +57,6 @@ QString plxProto::handleWB(QByteArray a)
         //        );
         break;
     }
+    emit logReady(QString::number(result));
     return "PLX";
 }

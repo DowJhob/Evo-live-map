@@ -27,7 +27,7 @@ OP20::~OP20()
 
 bool OP20::isClosed()
 {
-    if (devID == 0)
+    if (chanID_INNO == 0)
         return true;
     else
         return false;
@@ -36,18 +36,15 @@ bool OP20::isClosed()
 bool OP20::openWB(uint baudRate)
 {
     //qDebug() << "==================== OP20:openWB ==================================" << j2534->lastErrorString();
-    // nothing to open, opening in j2534_interface constructor
-    if (countUSE == 0)
+    if (isNotUse())
         if (j2534->PassThruOpen(nullptr, &devID))         // Get devID
         {
             qDebug() << "==================== OP20:openWB::PassThruOpen ==================================" << j2534->lastErrorString();
-            //emit Log("PassThruOpen error: " + j2534->lastErrorString());
             return false;
         }
-    countUSE++;
-    //qDebug() << "==================== OP20:openWB3 ==================================" << j2534->lastErrorString();
-    //emit Log("PassThruOpen deviceID: " + QString::number(devID) + " /opened");
+    setUse();
 
+    //qDebug() << "==================== OP20:openWB3 ==================================" << j2534->lastErrorString();
 
     // try to connect to the specific channel we would like to use
     //
@@ -58,11 +55,12 @@ bool OP20::openWB(uint baudRate)
     //
     // note that the ISO9141_NO_CHECKSUM connection flag is used to avoid requiring the data
     // to have valid ISO9141 checksums (it doesn't)
+    qDebug() << "==================== OP20:openWB::PassThruConnect before ==================================" << j2534->lastErrorString() << "devID" << devID << "chanID_INNO" << chanID_INNO;
     if (chanID_INNO == 0)
         if (j2534->PassThruConnect(devID, Protocol::ISO9141_INNO, ConnectFlag::ISO9141NoChecksum, baudRate, &chanID_INNO))
         {
-            qDebug() << "==================== OP20:openWB::PassThruConnect ==================================" << j2534->lastErrorString();
-            chanID_INNO = 0;
+            qDebug() << "==================== OP20:openWB::PassThruConnect after ==================================" << j2534->lastErrorString() << "devID" << devID << "chanID_INNO" << chanID_INNO;
+
             return false;
         }
     qDebug() << "==================== OP20:openWB::PassThruConnect2 ==================================" << "devID" << devID << "chanID_INNO" << chanID_INNO;
@@ -96,17 +94,17 @@ bool OP20::connectWB(uint baudRate)
 
 bool OP20::closeWB()
 {
-    qDebug() << "\n==================== OP20::closeWB ==================================";
+    qDebug() << "\n==================== OP20::closeWB ==================================" << "chanID_INNO" << chanID_INNO;
     if (j2534->PassThruDisconnect(chanID_INNO))
     {
         qDebug() << "==================== OP20:closeWB::PassThruDisconnect ==================================" << j2534->lastErrorString();
     }
-    if(--countUSE <= 0)  // если последний то закрываем
+
+    resetUse();
+    if(countUSE <= 0)  // если последний то закрываем
     {
         countUSE = 0;   // на всякий случай
         j2534->PassThruClose(devID);
-        devID = 0;
-
         chanID_INNO = 0;
     }
 

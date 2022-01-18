@@ -16,15 +16,30 @@ wbManager::wbManager(QWidget *parent):QGroupBox(parent)
     connect(&availWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::_wbSelected);
     connect(&protoWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::_protoSelected);
     connect(&startBtn, &QPushButton::clicked, this, [this](){
+
+
+
+        commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(availWB.currentData());
+        wbProto *_protoWB = qvariant_cast<wbProto*>(protoWB.currentData());
+        qDebug() << "=========== wbManager::startBtn clicked ================" << cdWB << _protoWB;
+
         if(startBtn.text() == "Start")
         {
-            emit wbStart(true);
-            startBtn.setText("Stop");
+            if(cdWB->isClosed())
+                if(cdWB->openWB(_protoWB->baudRate))
+                {
+                    emit wbStart(true);
+                    startBtn.setText("Stop");
+                }
         }
         else
         {
-            emit wbStart(false);
-            startBtn.setText("Start");
+            if(!cdWB->isClosed())
+                if(cdWB->closeWB())
+                {
+                    emit wbStart(false);
+                    startBtn.setText("Start");
+                }
         }
     });
 
@@ -71,7 +86,6 @@ void wbManager::deviceEvent()
     //    case dir::remove : removeDevice(dev); break;
     //    }
 }
-
 
 void wbManager::fillSerial()
 {
@@ -122,17 +136,37 @@ void wbManager::removeDevice()
 
 void wbManager::_wbSelected(int index)
 {
-    qDebug()<< "deviceManager::_deviceSelected start" ;
-    //qDebug()<< "deviceManager::_deviceSelected start" << itemData(index);
+    qDebug()<< "wbManager::_wbSelected" ;
     commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(availWB.itemData(index));
-    ////    qDebug()<< "deviceManager::_deviceSelected finish" << wblog;
-    //qDebug()<< "deviceManager::_deviceSelected finish" << devComm->DeviceUniqueID; // Не делай так!!! devComm может быть нулл!!!
+    if(cdWB == nullptr)
+        return;
+    wbProto *_protoWB = qvariant_cast<wbProto*>(protoWB.currentData());
+    if(_protoWB == nullptr)
+        return;
+    //emit wbSelected(cdWB);
 
-    emit wbSelected(cdWB);
+    disconnect(wbToProto);
+    disconnect(ProtoToLog);
+    wbToProto = connect(cdWB, &commDeviceWB::readyRead, _protoWB, &wbProto::handleWB);
+    ProtoToLog = connect(_protoWB, &wbProto::logReady, this, &wbManager::logReady);
+
+    //qDebug() << "=========== wbLogger::readyRead ================";
+
 }
 
 void wbManager::_protoSelected(int index)
 {
     wbProto *_protoWB = qvariant_cast<wbProto*>(protoWB.itemData(index));
-    emit protoSelected(_protoWB);
+    if(_protoWB == nullptr)
+        return;
+    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(availWB.currentData());
+    if(cdWB == nullptr)
+        return;
+    disconnect(wbToProto);
+    disconnect(ProtoToLog);
+    wbToProto = connect(cdWB, &commDeviceWB::readyRead, _protoWB, &wbProto::handleWB);
+    ProtoToLog = connect(_protoWB, &wbProto::logReady, this, &wbManager::logReady);
+
+
+    //emit protoSelected(_protoWB);
 }

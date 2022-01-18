@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>624</width>
+    <width>673</width>
     <height>645</height>
    </rect>
   </property>
@@ -35,7 +35,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>eulle@ya.ru     v 1.0</string>
+   <string/>
   </property>
   <property name="layoutDirection">
    <enum>Qt::LeftToRight</enum>

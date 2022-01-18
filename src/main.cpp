@@ -19,22 +19,27 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
+    app.setApplicationDisplayName(QString("livemap by eulle@ya.ru ver %1").arg(GIT_VERSION));
+    qDebug() << QString("Version: %1").arg(GIT_VERSION);
+
     deviceNativeFilter usbFilter;
     deviceManager devManager;
     protoManager protoManager;
     wbManager wbManager;
     MainWindow mainWindow;
     controller controller;
-    wbLogger wbLogger;
+    //wbLogger wbLogger;
     gaugeWidget wbWgt("         = Wideband =         ", 4);
 
     QObject::connect(&devManager,   &deviceManager::tactrixArrived,   &wbManager,  &wbManager::addTactrix);
 
-    QObject::connect(&wbManager,   &wbManager::wbSelected,            &wbLogger,   &wbLogger::setWB);
-    QObject::connect(&wbManager,   &wbManager::protoSelected,         &wbLogger,   &wbLogger::setProto);
-    QObject::connect(&wbManager,   &wbManager::wbStart,               &wbLogger,   &wbLogger::start_stop);
+    //QObject::connect(&wbManager,   &wbManager::wbSelected,            &wbLogger,   &wbLogger::setWB);
+    //QObject::connect(&wbManager,   &wbManager::protoSelected,         &wbLogger,   &wbLogger::setProto);
+    //QObject::connect(&wbManager,   &wbManager::wbStart,               &wbLogger,   &wbLogger::start_stop);
+    QObject::connect(&wbManager,   &wbManager::logReady,                &wbWgt,      &gaugeWidget::display);
 
-    QObject::connect(&wbLogger,   &wbLogger::logReady,                &wbWgt,      &gaugeWidget::display);
+
+    //QObject::connect(&wbLogger,   &wbLogger::logReady,                &wbWgt,      &gaugeWidget::display);
 
 
 
