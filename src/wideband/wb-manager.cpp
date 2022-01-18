@@ -138,8 +138,11 @@ void wbManager::_wbSelected(int index)
 {
     qDebug()<< "wbManager::_wbSelected" ;
     commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(availWB.itemData(index));
-
+    if(cdWB == nullptr)
+        return;
     wbProto *_protoWB = qvariant_cast<wbProto*>(protoWB.currentData());
+    if(_protoWB == nullptr)
+        return;
     //emit wbSelected(cdWB);
 
     disconnect(wbToProto);
@@ -147,17 +150,18 @@ void wbManager::_wbSelected(int index)
     wbToProto = connect(cdWB, &commDeviceWB::readyRead, _protoWB, &wbProto::handleWB);
     ProtoToLog = connect(_protoWB, &wbProto::logReady, this, &wbManager::logReady);
 
-        //qDebug() << "=========== wbLogger::readyRead ================";
+    //qDebug() << "=========== wbLogger::readyRead ================";
 
 }
 
 void wbManager::_protoSelected(int index)
 {
     wbProto *_protoWB = qvariant_cast<wbProto*>(protoWB.itemData(index));
-
-
+    if(_protoWB == nullptr)
+        return;
     commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(availWB.currentData());
-
+    if(cdWB == nullptr)
+        return;
     disconnect(wbToProto);
     disconnect(ProtoToLog);
     wbToProto = connect(cdWB, &commDeviceWB::readyRead, _protoWB, &wbProto::handleWB);

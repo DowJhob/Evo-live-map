@@ -22,9 +22,7 @@ bool serialWB::openWB(uint baudRate)
     qDebug() << "=========== serialWB::openWB ================";
     port.setBaudRate(baudRate, QSerialPort::AllDirections);
     //qDebug() << "=========== serialWB::openWB2 ================";
-    port.open(QIODevice::ReadWrite);
-    //qDebug() << "=========== serialWB::openWB3 ================";
-    return true;
+    return port.open(QIODevice::ReadWrite);
 }
 
 bool serialWB::connectWB(unsigned int baudRate)
@@ -35,7 +33,8 @@ bool serialWB::connectWB(unsigned int baudRate)
 
 bool serialWB::closeWB()
 {
-
+    qDebug() << "=========== serialWB::closeWB ================";
+    port.close();
     return true;
 }
 
