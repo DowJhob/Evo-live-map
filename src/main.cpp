@@ -19,6 +19,9 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
+    app.setApplicationDisplayName(QString("livemap by eulle@ya.ru ver %1").arg(GIT_VERSION));
+    qDebug() << QString("Version: %1").arg(GIT_VERSION);
+
     deviceNativeFilter usbFilter;
     deviceManager devManager;
     protoManager protoManager;

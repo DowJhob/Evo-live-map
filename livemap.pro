@@ -5,10 +5,37 @@
 #-------------------------------------------------
 
 CONFIG += c++11
-#CONFIG += qhexedit4
-#CONFIG += qwt
-#CONFIG   += rtti
 QT       += core gui xml serialport
+
+GIT_VERSION = $$system(git --git-dir $$PWD/.git --work-tree $$PWD describe --always --tags)
+DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
+VERSION = $$GIT_VERSION
+win32 {
+    VERSION ~= s/-\d+-g[a-f0-9]{6,}//
+}
+
+CONFIG(release, debug|release):CONFIG += -static
+win32-g++ {
+                QMAKE_CXXFLAGS  += -flto -funroll-loops
+                QMAKE_CXXFLAGS  += -fforce-addr
+                QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mtune=core2
+                #QMAKE_CXXFLAGS  += -mfpmath=sse
+                QMAKE_CXXFLAGS  += -msse4
+#                LIBS += -L$$PWD/mingw-dll -lqwt
+#                CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
+            }
+win32-msvc {
+#                QMAKE_LFLAGS_RELEASE += /LTCG
+                QMAKE_CXXFLAGS  += /O2
+                QMAKE_CXXFLAGS  += /arch:AVX
+                QMAKE_CXXFLAGS  += /Arch: SSE2
+                QMAKE_CFLAGS  += /O2
+                QMAKE_CFLAGS  += /arch:AVX
+                QMAKE_CFLAGS  += /Arch: SSE2
+
+#                LIBS += -L$$PWD/msvc-dll -lqwt
+            }
+
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 DEFINES += QT_DEPRECATED_WARNINGS
@@ -130,27 +157,7 @@ FORMS    += mainwindow.ui
 LIBS += -lSetupapi
 LIBS += -ladvapi32
 LIBS += -luser32
-CONFIG(release, debug|release):CONFIG += -static
-win32-g++ {
-                QMAKE_CXXFLAGS  += -flto -funroll-loops
-                QMAKE_CXXFLAGS  += -fforce-addr
-                QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mtune=core2
-                #QMAKE_CXXFLAGS  += -mfpmath=sse
-                QMAKE_CXXFLAGS  += -msse4
-#                LIBS += -L$$PWD/mingw-dll -lqwt
-#                CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
-            }
-win32-msvc {
-#                QMAKE_LFLAGS_RELEASE += /LTCG
-                QMAKE_CXXFLAGS  += /O2
-                QMAKE_CXXFLAGS  += /arch:AVX
-                QMAKE_CXXFLAGS  += /Arch: SSE2
-                QMAKE_CFLAGS  += /O2
-                QMAKE_CFLAGS  += /arch:AVX
-                QMAKE_CFLAGS  += /Arch: SSE2
 
-#                LIBS += -L$$PWD/msvc-dll -lqwt
-            }
 
 
 DEFINES += QHEXEDIT_EXPORTS
