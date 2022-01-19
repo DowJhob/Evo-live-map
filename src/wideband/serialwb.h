@@ -9,7 +9,7 @@
 
 #include "commdevicewb-interface.h"
 
-class serialWB: public commDeviceWB//, public QObject//
+class serialWB: public commDeviceWB//
         //, public QSerialPort
 {
     //Q_OBJECT

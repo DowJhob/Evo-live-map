@@ -43,6 +43,9 @@ public slots:
 
 
 private:
+    QVector<float> scaledRAM_MUTvalue;
+    int readSize = 0;
+
     QThread *this_thread = nullptr;
     ecu_definition *_ecu_definition = nullptr;
     comm_device_interface *devComm = nullptr;
@@ -55,22 +58,24 @@ private:
 
     mapDefinition *getMap(Map *declMap);
 
-    QString SearchFiles(QString path, QString CalID);
-
 private slots:
     void init();
 
 signals:
     void baudChanged(int);
-    void logChanged(int);
+    void logRateChanged(int);
     //void interfaceReady(bool);
 
     void ecu_connected();
     void create_table(mapDefinition*);
-    void getWB(commDeviceWB*);
+    //void getWB(commDeviceWB*);
 
     void Log(QString);
     void logReady(QVector<float>);
+
+    void startPoll();
+    void stopPoll();
+
 
 };
 

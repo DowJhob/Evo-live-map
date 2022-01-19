@@ -2,6 +2,7 @@
 #define ECU_DEFINITION_H
 
 #include <QFile>
+#include <QFileDialog>
 
 #include <QtXml/QDomDocument>
 #include <src/abstract-memory.h>
@@ -42,9 +43,10 @@ public:
     ~ecu_definition();
 public:
     bool fromFile(QString filename);
+    //bool fromROMID(QString ROMID);
+    QString SearchFiles(QString path, QString CalID);
 
 private:
-
     QHash<QString, Scaling> scaling_qmap;                     //контейнер скалингов
 
     void _parser(QIODevice *device);

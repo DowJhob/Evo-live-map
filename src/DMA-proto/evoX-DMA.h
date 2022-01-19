@@ -18,13 +18,28 @@ public:
     explicit evoX_DMA(comm_device_interface **devComm);
     ~evoX_DMA();
 
-public slots:
+//public slots:
     bool connect();
     QByteArray indirectDMAread(quint32 addr, int lenght);
     QByteArray directDMAread(quint32 addr, int lenght);
     void directDMAwrite(quint32 addr, char *buf, int lenght);
 
+public slots:
+    void startLog()
+    {
+
+    }
+    void stopLog()
+    {
+
+    }
+
 private slots:
+    void poll()
+    {
+
+    }
+
 
 private:
     void setHeader(DMAcomand command, uchar count, quint32 addr);
@@ -79,7 +94,7 @@ private:
 //        qDebug() << "logDMAread read for safe" <<bb.toHex(':');
 //    }
 
-signals:
+//signals:
     //void readyInterface(bool);
     //void readyRead(QByteArray);
 

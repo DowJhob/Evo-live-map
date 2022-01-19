@@ -7,6 +7,8 @@
 #include "src/libs/j2534passthru.h"
 #include "comm-device-interface.h"
 
+//#include "pollhelper.h"
+
 typedef struct
 {
     unsigned int length;
@@ -20,7 +22,8 @@ typedef struct
 } outbuf;
 
 using namespace J2534;
-class j2534_interface : public comm_device_interface
+class j2534_interface : public comm_device_interface//,
+        //public pollHelper
 {
     friend class OP20;
 public:
@@ -29,33 +32,14 @@ public:
     uint countUSE = 0; // if higher zero device in use
     unsigned long devID = 0;   // использую как индикатор открытости, если ноль не опен!
 
-    j2534_interface( QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
+    j2534_interface(QObject *parent, QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
     virtual ~j2534_interface();
 
     QMutex mu;
 
-    void setUse()
-    {
-        mu.lock();
-        countUSE++;
-        mu.unlock();
-    }
-    bool resetUse()
-    {
-        mu.lock();
-        bool b = (--countUSE <= 0);
-        if (b)
-            countUSE = 0;
-        mu.unlock();
-        return b;
-    }
-    bool isNotUse()
-    {
-        mu.lock();
-        bool b = (countUSE == 0);
-        mu.unlock();
-        return b;
-    }
+    void setUse();
+    bool resetUse();
+    bool isNotUse();
 
     bool info();
     bool open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate);
@@ -64,8 +48,8 @@ public:
     QByteArray read(uint lenght = 0);
     void write(int lenght);
 
-private:
     PassThru *j2534;
+private:
     unsigned long chanID = 0;
     unsigned long NumMsgs;
 

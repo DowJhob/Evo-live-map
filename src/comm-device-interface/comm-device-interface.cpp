@@ -3,7 +3,7 @@
 //#include "src/test-map.h"
 
 
-comm_device_interface::comm_device_interface(QString dllName, QString DeviceDesc, QString DeviceUniqueID) : //QObject(),
+comm_device_interface::comm_device_interface(QObject *parent, QString dllName, QString DeviceDesc, QString DeviceUniqueID) : QObject(parent),
     dllName(dllName), DeviceUniqueID(DeviceUniqueID), DeviceDesc(DeviceDesc)
 {
     //qDebug() << "comm_device_interface";
@@ -32,7 +32,7 @@ bool comm_device_interface::connect()
     return status;
 }
 
-void comm_device_interface::setBaudRate(unsigned int BaudRate)
+void comm_device_interface::setBaudRate(uint BaudRate)
 {
     baudRate = BaudRate;
 }

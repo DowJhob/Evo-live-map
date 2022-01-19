@@ -22,14 +22,14 @@ controller::controller(QObject *parent) : QObject(parent)
 
 controller::~controller()
 {
-//    getECUdisconnect();
+    //    getECUdisconnect();
 
-//    if (ECUproto != nullptr)
-//        ECUproto->deleteLater();
+    //    if (ECUproto != nullptr)
+    //        ECUproto->deleteLater();
 
 
-//    if (devComm != nullptr)
-//        devComm->deleteLater();
+    //    if (devComm != nullptr)
+    //        devComm->deleteLater();
     qDebug() << "~controller";
 }
 
@@ -42,6 +42,7 @@ void controller::setCommDevice(comm_device_interface *dev)
 {
     qDebug() << "=========== controller::setCommDevice ================" << dev;
     devComm = dev;
+    //connect((pollHelper*)devComm, &pollHelper::readyRead, this, &controller::poll);
     this->ECUproto->setCommDev(&devComm);
     if (devComm != nullptr  )
     {
@@ -51,7 +52,7 @@ void controller::setCommDevice(comm_device_interface *dev)
     {
         // все интерфесы отключены, сделай что нибудь!!!!
 
-        _dataLogger->stop();
+        //_dataLogger->stop();
     }
 }
 
@@ -59,7 +60,7 @@ void controller::setProto(DMA_proto *ECUproto)
 {
     qDebug() << "=========== controller::setProto ================" << ECUproto;
     this->ECUproto = ECUproto;
-
+connect(ECUproto, &DMA_proto::logReady, this, &controller::logReady);
     //this->ECUproto->setCommDev(&devComm);
 }
 
@@ -90,25 +91,30 @@ void controller::connectECU()
     //emit Log("CurrDir: " + QApplication::applicationDirPath());
 
     _ecu_definition = new ecu_definition;
-
-    if (!_ecu_definition->fromFile(SearchFiles(QApplication::applicationDirPath() + "/xml/", romID)))
+    if (!ECUproto->getECU(romID))
     {
-        delete _ecu_definition;
-        qDebug() << "XML NOT FOUND!!!!!!!!!!!!!!!!!!!!!!!!!";
         emit Log("xml not found");
         return;
     }
+    //    i!_ecu_definition->fromFile(SearchFiles(QApplication::applicationDirPath() + "/xml/", romID))
+    //    {
+    //        delete _ecu_definition;
+    //        qDebug() << "XML NOT FOUND!!!!!!!!!!!!!!!!!!!!!!!!!";
+    //
+    //    }
 
     emit ecu_connected();
     // переберем все описания таблиц
-    for ( Map *tab : qAsConst(_ecu_definition->RAMtables) )
+    for ( Map *tab : qAsConst(ECUproto->_ecu_definition.RAMtables) )
     {
         emit create_table( getMap(tab) );
     }
     //char f = 0x1f;
     //    devComm->p_out_buff[0] = 0x1e;
     //ECUproto->directDMAwrite(0xfffff000, devComm->p_out_buff, 1);
-    _dataLogger->start();
+
+    startLogger();
+    //_dataLogger->start();
 }
 
 void controller::disConnectECU()
@@ -127,9 +133,11 @@ void controller::disConnectECU()
 
 void controller::startLogger()
 {
-    qDebug()<<"=========== test log ================";
-    //QMetaObject::invokeMethod (vehicle_ecu_comm, &comm_device_interface::log0x81, Qt::QueuedConnection);
-    //ecu_polling_timer->start(200);
+    qDebug()<<"=========== controller::startLogger ================";
+
+    QMetaObject::invokeMethod(ECUproto, "startLog");
+
+    //ECUproto->startLog();
 }
 
 void controller::stopLogger()
@@ -170,20 +178,9 @@ void controller::updateRAM(abstractMemoryScaled memory)
     //QThread::msleep(50);
 }
 
-QString controller::SearchFiles(QString path, QString CalID)       // Для поиска файлов в каталоге
-{
-    // Пытаемся найти правильные файлы, в текущем каталоге
-    QStringList listFiles = QDir(path).entryList((CalID + "*.xml ").split(" "), QDir::Files);  //выборка файлов по маскам
-    if (listFiles.size()  == 0)            // если файл не найдем вернем егог
-        return "";
-    //return QFileDialog::getOpenFileName(nullptr,  tr("Open xml"), path, tr("xml files (*.xml)"));
-    else
-        return path + listFiles.at(0);
-}
-
 void controller::init()
 {
     _dataLogger = new dataLogger(&_ecu_definition, &devComm, &ECUproto);
     connect(_dataLogger, &dataLogger::logReady, this, &controller::logReady);
-    connect(this, &controller::logChanged, _dataLogger, &dataLogger::setLogRate);
+    connect(this, &controller::logRateChanged, _dataLogger, &dataLogger::setLogRate);
 }

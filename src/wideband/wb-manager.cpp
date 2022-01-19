@@ -67,14 +67,15 @@ void wbManager::fillProto()
     protoWB.addItem("PLX", QVariant::fromValue<wbProto*>(new plxProto()));
 }
 
-void wbManager::addTactrix(comm_device_interface *cdWB)
+void wbManager::addTactrix(commDeviceWB *cdWB)
 {
-    commDeviceWB *ss = static_cast<OP20*>(cdWB);
-
-    //wbLogger *wblog = new wbLogger(&cdWB);
-    //emit deviceSelected(wblog);
-    availWB.addItem(cdWB->DeviceDesc + " / " + cdWB->DeviceUniqueID, QVariant::fromValue<commDeviceWB*>(ss));
-    //    addItem("tactrix", QVariant::fromValue<wbLogger*>(wblog));
+    qDebug()<< "wbManager::addTactrix";
+    availWB.addItem(cdWB->DeviceDesc, QVariant::fromValue<commDeviceWB*>(cdWB));
+    connect(cdWB, &commDeviceWB::destroyed, this, [this](QObject *o){
+        qDebug()<< "commDeviceWB::destroyed::Tactrix";
+        int index = availWB.findData(QVariant::fromValue<commDeviceWB*>(static_cast<commDeviceWB*>(o)));
+        availWB.removeItem(index);
+    });
 }
 
 void wbManager::deviceEvent()
@@ -113,7 +114,6 @@ void wbManager::addDevice()
 
 void wbManager::removeDevice()
 {
-    //comm_device_interface *devComm = commDeviceStore.take(dev.DeviceDesc+dev.DeviceUniqueID);
     //devComm->deleteLater();
     //qDebug()<< "deviceManager::removeDevice count" << count();
     //qDebug()<< "deviceManager::removeDevice start" << dev.DeviceDesc + " / " + dev.DeviceUniqueID;

@@ -1,38 +1,36 @@
 #ifndef OP20_H
 #define OP20_H
 
-#include "j2534-interface.h"
-#include "src/wideband/commdevicewb-interface.h"
+#include <QTimer>
 
-class OP20 : public commDeviceWB, public j2534_interface
+#include "j2534-interface.h"
+//#include "src/wideband/commdevicewb-interface.h"
+
+class OP20 : public j2534_interface//, public commDeviceWB
 {
     //Q_OBJECT
 public:
-    OP20(QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
+    OP20(QObject *parent, QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
     ~OP20();
 
-    bool isClosed();
+//    bool isClosed();
 
-    bool openWB(uint baudRate);
+//    bool openWB(uint baudRate);
 
-    bool connectWB(uint baudRate);
+//    bool connectWB(uint baudRate);
 
-    bool closeWB();
+//    bool closeWB();
 
-    QByteArray readWB();
+//    QByteArray readWB();
 
 //public slots:
 
 //private slots:
 
-private:
-    QTimer *pollTimer;
     unsigned long chanID_INNO = 0;
 
-    Message rxmsg;
-    Message msgMask, msgPattern;
-    unsigned long msgId;
-    unsigned long numRxMsg = 1;
+
+private:
 
 //signals:
 

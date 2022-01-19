@@ -5,10 +5,12 @@
 #include "src/libs/ftdi.h"
 #include "comm-device-interface.h"
 
+//#include "pollhelper.h"
+
 class OP13: public comm_device_interface
 {
 public:
-    OP13( QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
+    OP13(QObject *parent, QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
     virtual ~OP13();
     bool open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate);
     bool close();
