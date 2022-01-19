@@ -60,7 +60,7 @@ void controller::setProto(DMA_proto *ECUproto)
 {
     qDebug() << "=========== controller::setProto ================" << ECUproto;
     this->ECUproto = ECUproto;
-connect(ECUproto, &DMA_proto::logReady, this, &controller::logReady);
+    //connect(ECUproto, &DMA_proto::logReady, this, &controller::logReady);
     //this->ECUproto->setCommDev(&devComm);
 }
 
@@ -93,6 +93,7 @@ void controller::connectECU()
     _ecu_definition = new ecu_definition;
     if (!ECUproto->getECU(romID))
     {
+        (*ECUproto->devComm)->close();
         emit Log("xml not found");
         return;
     }
@@ -119,16 +120,10 @@ void controller::connectECU()
 
 void controller::disConnectECU()
 {
-    _dataLogger->stop();
-
-    qDebug() << "controller::getECUdisconnect _dataLogger->stop";
+    qDebug() << "=========== controller::disConnectECU ================";
+    //_dataLogger->stop();
+    stopLogger();
     devComm->close();
-    qDebug() << "controller::getECUdisconnect devComm->close";
-    if (_ecu_definition != nullptr)
-    {
-        delete _ecu_definition;
-        _ecu_definition = nullptr;
-    }
 }
 
 void controller::startLogger()
@@ -142,9 +137,8 @@ void controller::startLogger()
 
 void controller::stopLogger()
 {
-
-    //ecu_polling_timer->stop();
-    //QMetaObject::invokeMethod(vehicle_ecu_comm, &comm_device_interface::log0x81);
+    qDebug()<<"=========== controller::stopLogger ================";
+    QMetaObject::invokeMethod(ECUproto, "stopLog");
 }
 
 void controller::RAMreset()

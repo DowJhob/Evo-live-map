@@ -2,6 +2,7 @@
 #define OP13_H
 
 #include <QDebug>
+#include <QTimer>
 #include "src/libs/ftdi.h"
 #include "comm-device-interface.h"
 
@@ -9,6 +10,7 @@
 
 class OP13: public comm_device_interface
 {
+    Q_OBJECT
 public:
     OP13(QObject *parent, QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
     virtual ~OP13();

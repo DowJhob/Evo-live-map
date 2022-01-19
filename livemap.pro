@@ -14,15 +14,21 @@ win32 {
     VERSION ~= s/-\d+-g[a-f0-9]{6,}//
 }
 
-CONFIG(release, debug|release):CONFIG += -static
+CONFIG(release, release|debug){
+            win32-g++ {
+                            QMAKE_CXXFLAGS  += -flto -funroll-loops
+                            CONFIG += -static
+                            message("release mode")
+                        }
+                    }
 win32-g++ {
-                QMAKE_CXXFLAGS  += -flto -funroll-loops
+
                 QMAKE_CXXFLAGS  += -fforce-addr
                 QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mtune=core2
-                #QMAKE_CXXFLAGS  += -mfpmath=sse
+                QMAKE_CXXFLAGS  += -mfpmath=sse
                 QMAKE_CXXFLAGS  += -msse4
-#                LIBS += -L$$PWD/mingw-dll -lqwt
-#                CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
+##                LIBS += -L$$PWD/mingw-dll -lqwt
+##                CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
             }
 win32-msvc {
 #                QMAKE_LFLAGS_RELEASE += /LTCG
