@@ -16,14 +16,14 @@ pollHelper::pollHelper() //: QObject(parent)
     this_thread->start();
 }
 
-void pollHelper::startLog()
-{
-    //   qDebug()<<"=========== pollHelper::startPoll ================";
-    int rateHz = 50;
-    pollTimer->start(rateHz);
-}
+//void pollHelper::startLog()
+//{
+//    //   qDebug()<<"=========== pollHelper::startPoll ================";
+//    int rateHz = 50;
+//    pollTimer->start(rateHz);
+//}
 
-void pollHelper::stopLog()
-{
-    pollTimer->stop();
-}
+//void pollHelper::stopLog()
+//{
+//    pollTimer->stop();
+//}

@@ -32,7 +32,7 @@ void wbLogger::setWB(commDeviceWB *cdWB)
     if (cdWB != nullptr  )
     {
         connect(cdWB, &commDeviceWB::readyRead, this, [this](QByteArray a){
-            logReady(_wbProto->handleWB(a));
+            emit logReady(_wbProto->handleWB(a));
             qDebug() << "=========== wbLogger::readyRead ================";
         });
     }
@@ -82,8 +82,8 @@ void wbLogger::poll()
     QByteArray a = cdWB->readWB();
     if(a.size() > 0)
     {
-        logReady(_wbProto->handleWB(a));
+        emit logReady(_wbProto->handleWB(a));
     }
     else
-        logReady("ERR");
+        emit logReady("ERR");
 }

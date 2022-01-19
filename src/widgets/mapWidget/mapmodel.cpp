@@ -222,12 +222,20 @@ void mapModel::logReady(QVector<float> scaledValue)
 
 QBrush mapModel::background(int x, int y)
 {
+    if(x > declaration->X_axis.elements-1)
+        x = declaration->X_axis.elements-1;
+    if(y > declaration->Y_axis.elements-1)
+        y = declaration->Y_axis.elements-1;
     int offset = y * declaration->X_axis.elements + x;
     return backgroundColorMap[offset];
 }
 
 void mapModel::setBackground(int x, int y, QBrush color)
 {
+    if(x > declaration->X_axis.elements-1)
+        x = declaration->X_axis.elements-1;
+    if(y > declaration->Y_axis.elements-1)
+        y = declaration->Y_axis.elements-1;
     int offset = y * declaration->X_axis.elements + x;
     backgroundColorMap[offset] = color;
 }

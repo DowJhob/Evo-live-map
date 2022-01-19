@@ -80,7 +80,8 @@ void jcsbanksDMA::startLog()
 
 void jcsbanksDMA::stopLog()
 {
-
+    qDebug()<<"=========== jcsbanksDMA::stopLog ================";
+    pollTimer->stop();
 }
 
 void jcsbanksDMA::poll()
