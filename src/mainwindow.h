@@ -22,18 +22,19 @@
 
 #include "deviceNativeFilter.h"
 
-#include "widgets/maintoolbar.h"
+#include "ecuManager.h"
+//#include "widgets/maintoolbar.h"
 #include "widgets/gauge_widget.h"
 #include "widgets/commParamWidget.h"
+#include "widgets/mapWidget/mapwidget.h"
+#include "widgets/hexEditor/qhexedit/qhexedit.h"
+#include "widgets/hexEditor/hexeditor.h"
 
 
 #include "comm-device-interface/devicemanager.h"
 #include "DMA-proto/proto-manager.h"
 #include "wideband/wb-manager.h"
 
-#include "widgets/mapWidget/mapwidget.h"
-#include "widgets/hexEditor/qhexedit/qhexedit.h"
-#include "widgets/hexEditor/hexeditor.h"
 
 namespace Ui {
 class MainWindow;
@@ -53,56 +54,39 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 public slots:
-    void setDeviceManager(deviceManager *devManager);
-
-    void setProtoManager(protoManager *protoManager);
-
-    void setWBManager(wbManager *wbManager);
-
-    void setWidebandWidge(gaugeWidget *wbWgt);
-
-    void deviceEvent(comm_device_interface *devComm);
-
-    void ecu_connected();
-    void createMap(mapDefinition *dMap);
+    void setUSBfilter(deviceNativeFilter *usbFilter);
     void Log(QString str);
 
 private slots:
-    void StartButton_slot();
+    void deviceEvent(comm_device_interface *devComm);
+    void ecu_connected();
+    void disConnectECUaction();
+    void createMap(mapDefinition *dMap);
     void itemChecks(QTreeWidgetItem *item, int column);
 
 private:
-    QString start_action= "Start";
     Ui::MainWindow *ui;
-    mainToolBar *_mainToolBar;
-    commParamWidget *cpW;
 
+    void setCPW();
     void createMapTree(Map *tab);
     void freeMapTree();
 
+    void colorFromFile(QString filename);
+
+    //======================== widget's =================================
+    ecuManager _ecuManager;
+    commParamWidget cpW;
+    hexEditor *hexEdit;
+    gaugeWidget wbWgt{"           = Wideband =           ", 4};
+
+    //======================== widget lists =================================
+    QSet<gaugeWidget*> gauge_widget_set;
+    QToolBar *loggerWidgetBar = nullptr;
+    QVector<QColor> colormap;
     void create_gauge(QString name, mutParam *param);
     void gaugeDelete();
 
-    QToolBar *loggerWidgetBar = nullptr;
-
-    //======================== widget's =================================
-    hexEditor *hexEdit;
-    gaugeWidget *tactrix_afr_lcd = nullptr;
-    //======================== widget lists =================================
-    QSet<gaugeWidget*> gauge_widget_set;
-
-    QVector<QColor> colormap;
-    void colorFromFile(QString filename);
-
 signals:
-    void connectECU(int);
-    void disConnectECU();
-
-    void updateRAM(abstractMemoryScaled);
-    void resetRAM();
-
-    void dataLog(QVector<float>);
-
     void _exit();
 
 };

@@ -32,7 +32,7 @@ public:
     wbManager(QWidget *parent = nullptr);
 
 public slots:
-    void addTactrix(comm_device_interface *cdWB);
+    void addTactrix(commDeviceWB *cdWB);
     void deviceEvent();
     void fillSerial();
     void fillProto();
@@ -55,6 +55,7 @@ private:
 private slots:
     void _wbSelected(int index);
     void _protoSelected(int index);
+    void startStop();
 
 signals:
     void wbSelected(commDeviceWB*);

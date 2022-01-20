@@ -1,6 +1,6 @@
 #include "j2534-interface.h"
 
-j2534_interface::j2534_interface(QString dllName, QString DeviceDesc, QString DeviceUniqueID) : comm_device_interface( dllName, DeviceDesc, DeviceUniqueID)
+j2534_interface::j2534_interface(QObject *parent, QString dllName, QString DeviceDesc, QString DeviceUniqueID) : comm_device_interface(parent, dllName, DeviceDesc, DeviceUniqueID)
 {
     //devType = deviceType::J2534;
     p_in_buff = rx_msg.m_data;
@@ -16,6 +16,31 @@ j2534_interface::~j2534_interface()
 {
     j2534->deleteLater();
     //qDebug() << "~j2534_interface";
+}
+
+void j2534_interface::setUse()
+{
+    mu.lock();
+    countUSE++;
+    mu.unlock();
+}
+
+bool j2534_interface::resetUse()
+{
+    mu.lock();
+    bool b = (--countUSE <= 0);
+    if (b)
+        countUSE = 0;
+    mu.unlock();
+    return b;
+}
+
+bool j2534_interface::isNotUse()
+{
+    mu.lock();
+    bool b = (countUSE == 0);
+    mu.unlock();
+    return b;
 }
 
 bool j2534_interface::info()
@@ -122,10 +147,10 @@ bool j2534_interface::close()
 QByteArray j2534_interface::read(uint lenght)
 {
     QByteArray a;
-    QElapsedTimer tt;
+    //QElapsedTimer tt;
     NumMsgs = 1;
     rx_msg.m_rxStatus = 0;
-    tt.start();
+    //tt.start();
     do
     {
         j2534->PassThruReadMsgs(chanID, &rx_msg, &NumMsgs, _readTimeout);
@@ -139,7 +164,7 @@ QByteArray j2534_interface::read(uint lenght)
     }
     while(rx_msg.m_rxStatus == Message::RxStatusBit::InStartOfMessage);
 
-    qDebug() << "j2534_interface::read: total" << QString::number( tt.nsecsElapsed()/1000000.0) << "\n\n";
+    //qDebug() << "j2534_interface::read: total" << QString::number( tt.nsecsElapsed()/1000000.0) << "\n\n";
 
     return a;
 }

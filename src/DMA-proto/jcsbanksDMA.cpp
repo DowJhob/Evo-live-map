@@ -56,9 +56,46 @@ QByteArray jcsbanksDMA::directDMAread(quint32 addr, int lenght)
     return (*devComm)->read(lenght);
 }
 
-void jcsbanksDMA::directDMAwrite(quint32 addr, char *buf, int lenght)
+void jcsbanksDMA::directDMAwrite(quint32 addr, char* buf, int lenght)
 {
+    qDebug()<<"=========== jcsbanksDMA::directDMAwrite ================" << QString::number(addr, 16) << QByteArray(buf, 1).toHex(':');
     sendDMAcomand(0xE2, addr, lenght, buf);
+}
+
+void jcsbanksDMA::startLog()
+{
+    qDebug()<<"=========== jcsbanksDMA::startLog ================";
+
+    for( int i = 0; i < _ecu_definition.RAM_MUT.size() ; ++i  )
+    {
+        _ecu_definition.RAM_MUT[i].offset = readSize;
+        readSize += _ecu_definition.RAM_MUT[i].scaling.getElementSize();
+        //qDebug() << "dataLogger::start" << (*_ecu_definition)->RAM_MUT[i].scaling.name << (*_ecu_definition)->RAM_MUT[i].scaling.getElementSize();
+    }
+    scaledRAM_MUTvalue.resize(_ecu_definition.RAM_MUT.size());
+
+    pollTimer->start();
+
+    //((pollHelper*)ECUproto)->startLog();
+}
+
+void jcsbanksDMA::stopLog()
+{
+    qDebug()<<"=========== jcsbanksDMA::stopLog ================";
+    pollTimer->stop();
+}
+
+void jcsbanksDMA::poll()
+{
+    //qDebug() << "jcsbanksDMA::poll" ;
+    abstractMemoryScaled a = indirectDMAread(_ecu_definition.RAM_MUT_addr, readSize);
+    //a[0] = abs(QCursor::pos().x())/10;
+    //a[1] = abs(QCursor::pos().y())/6;
+    for( int i = 0; i < _ecu_definition.RAM_MUT.size() ; i++  )
+    {
+        scaledRAM_MUTvalue[i] = a.toFloatOffset( &_ecu_definition.RAM_MUT[i].scaling, _ecu_definition.RAM_MUT[i].offset );
+    }
+    emit logReady(scaledRAM_MUTvalue);
 }
 
 void jcsbanksDMA::sendDMAcomand(char command, unsigned long addr, unsigned long count, char *buf)
