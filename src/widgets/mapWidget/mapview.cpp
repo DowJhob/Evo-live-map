@@ -32,7 +32,7 @@ extern QElapsedTimer t;
 void mapView::logReady(QVector<float> scaledValue)
 {
     //setUpdatesEnabled(false);
-    //qDebug() << "mapView::tracer_calc: " << QString::number( t.nsecsElapsed()/1000000.0) << declaration->Name;
+    //qDebug() << "mapView::logReady" << declaration->Name;
     //{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
     mapModel *m = static_cast<mapModel*>(model());
     m->logReady(scaledValue);

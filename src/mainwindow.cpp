@@ -4,21 +4,22 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    _mainToolBar = new mainToolBar(this);
-    addToolBar(Qt::TopToolBarArea, _mainToolBar);
-    connect(_mainToolBar, &mainToolBar::s_connect, this, &MainWindow::StartButton_slot);
-    connect(_mainToolBar, &mainToolBar::s_ramReset, this, &MainWindow::resetRAM);
 
+    addToolBar(Qt::TopToolBarArea, &_ecuManager);
+    connect(&_ecuManager, &ecuManager::disConnectECUaction, this, &MainWindow::disConnectECUaction);
+    connect(&_ecuManager, &ecuManager::ecu_connected,       this, &MainWindow::ecu_connected);
+    connect(&_ecuManager, &ecuManager::create_table,        this, &MainWindow::createMap);
+    connect(&_ecuManager, &ecuManager::Log,                 this, &MainWindow::Log);
+    //========================================================================================
+    _ecuManager.addWidget(&wbWgt);
+    _ecuManager.addSeparator();
     //=============================================================================
-    cpW = new commParamWidget(this, 62500, 10);
-    ui->Settings->layout()->addWidget(cpW);
+    setCPW();
     //=============================================================================
     hexEdit = new hexEditor(this);
     ui->directHex->layout()->addWidget(hexEdit);
     //=============================================================================
-
     connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &MainWindow::itemChecks);
-    //connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(itemChecks(QTreeWidgetItem*, int)));
     statusBar()->showMessage("No interface", 0);
     colorFromFile("C:\\Program Files (x86)\\OpenECU\\EcuFlash\\colormaps\\COLDFIRE.MAP") ;
 }
@@ -36,77 +37,60 @@ void MainWindow::closeEvent(QCloseEvent *event)
     emit _exit();
 }
 
-void MainWindow::setDeviceManager(deviceManager *devManager)
+void MainWindow::setUSBfilter(deviceNativeFilter *usbFilter)
 {
-    cpW->setDeviceManager(devManager);
-    connect(devManager, &deviceManager::deviceSelected, this, &MainWindow::deviceEvent);
+    connect(usbFilter, &deviceNativeFilter::deviceEvent, &cpW.devManager, &deviceManager::deviceEvent);
+    //connect(usbFilter, &deviceNativeFilter::deviceEvent, this, &MainWindow::deviceEvent);
 }
 
-void MainWindow::setProtoManager(protoManager *protoManager)
+void MainWindow::setCPW()
 {
-    cpW->setProtoManager(protoManager);
-    //connect(protoManager, &deviceManager::deviceSelected, this, &MainWindow::deviceEvent);
-}
+    ui->Settings->layout()->addWidget(&cpW);
 
-void MainWindow::setWBManager(wbManager *wbManager)
-{
-    cpW->setWBManager(wbManager);
-    //connect(wbManager, &wbManager::deviceSelected, this, &MainWindow::deviceEvent);
-}
+    connect(&cpW._protoManager, &protoManager::protoSelected,     &_ecuManager,     &ecuManager::setProto);
+    connect(&cpW.devManager,    &deviceManager::deviceSelected,   &_ecuManager,     &ecuManager::setCommDevice);
+    //QObject::connect(&cpW._protoManager, &protoManager::logRateChanged,    &controller,     &ecuManager::setLogRate);
+    cpW._protoManager.addProtos();   // костыль пока
 
-void MainWindow::setWidebandWidge(gaugeWidget *wbWgt)
-{
-    _mainToolBar->addWidget(wbWgt);
-    _mainToolBar->addSeparator();
+    connect(&cpW.devManager, &deviceManager::deviceSelected, this, &MainWindow::deviceEvent);
+    connect(&cpW._wbManager,    &wbManager::logReady,             &wbWgt,          &gaugeWidget::display);
+
+    cpW._wbManager.fillSerial();
+    cpW._wbManager.fillProto();
 }
 
 void MainWindow::deviceEvent(comm_device_interface *devComm)
 {
     if(devComm == nullptr)
     {
-        _mainToolBar->lockConnect(true);
+        _ecuManager.lockConnect(true);
         statusBar()->showMessage("No interface", 0);
         return;
     }
     statusBar()->showMessage(devComm->DeviceDesc + " / " + devComm->DeviceUniqueID, 0);
     if( devComm->info() )
-        _mainToolBar->lockConnect(false);         // Показываем кнопки старт и сброс памяти
+        _ecuManager.lockConnect(false);         // Показываем кнопки старт и сброс памяти
 }
 
-void MainWindow::StartButton_slot()
+void MainWindow::disConnectECUaction()
 {
-    if (start_action == "Start")
+    cpW.setDisabled(false);
+
+    gaugeDelete();
+
+    ui->treeWidget->clear();
+
+    for(mapWidget *c: qAsConst(ptrRAMtables))
     {
-        qDebug() << "MainWindow::StartButton_slot Start";
-
-        emit connectECU(cpW->baudRate);
+        c->hide();
+        c->deleteLater();
     }
-    else
-    {
-        emit disConnectECU();
-
-        start_action = "Start";
-        _mainToolBar->lockReset( true);
-        cpW->setDisabled(false);
-
-        gaugeDelete();
-
-        ui->treeWidget->clear();
-
-        for(mapWidget *c: qAsConst(ptrRAMtables))
-        {
-            c->hide();
-            c->deleteLater();
-        }
-        ptrRAMtables.clear();
-    }
+    ptrRAMtables.clear();
 }
 
 void MainWindow::ecu_connected()
 {
-    cpW->setDisabled(true);
-    start_action = "Stop";
-    _mainToolBar->lockReset( false);
+    cpW.setDisabled(true);
 }
 
 void MainWindow::createMap(mapDefinition *dMap)
@@ -117,9 +101,11 @@ void MainWindow::createMap(mapDefinition *dMap)
 
     mapWidget *table = new mapWidget(nullptr, dMap, &colormap);
 
-    connect(table->mapModel_, &mapModel::updateRAM, this, &MainWindow::updateRAM);
+    //connect(table->mapModel_, &mapModel::updateRAM, this, &MainWindow::updateRAM);
+    connect(table->mapModel_, &mapModel::updateRAM, &_ecuManager, &ecuManager::updateRAM);
 
-    connect(this, &MainWindow::dataLog, table->mapTable, &mapView::logReady);
+    //connect(this, &MainWindow::dataLog, table->mapTable, &mapView::logReady);
+    connect(&_ecuManager, &ecuManager::logReady, table->mapTable, &mapView::logReady);
 
     connect(this, &MainWindow::_exit, table, &QWidget::deleteLater);
 
@@ -221,4 +207,3 @@ void MainWindow::Log(QString str)
 {
     ui->systemLog->addItem(str);
 }
-

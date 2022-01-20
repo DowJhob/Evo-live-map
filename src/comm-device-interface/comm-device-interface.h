@@ -1,19 +1,15 @@
 #ifndef COMM_DEVICE_INTERFACE_H
 #define COMM_DEVICE_INTERFACE_H
 
-#include <QObject>
-#include <QDebug>
-#include <QTimer>
 #include <QThread>
-#include <QtEndian>
-#include <QElapsedTimer>
+
 //#include "src/libs/J2534.h"
 
 #include "src/types.h"
 
-class comm_device_interface //: public QObject
+class comm_device_interface : public QObject
 {
-    //Q_OBJECT
+    Q_OBJECT
 public:
     //deviceType devType = deviceType::undef;
     QString dllName;
@@ -29,7 +25,7 @@ public:
     unsigned long _readTimeout = 2000;
     unsigned long writeTimeout = 0;
 
-    explicit comm_device_interface(QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
+    explicit comm_device_interface(QObject *parent, QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
     virtual ~comm_device_interface();
 
     virtual bool open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate) = 0;
@@ -38,12 +34,12 @@ public:
 
     virtual bool five_baud_init() = 0;
 
-    bool connect();
-
 //public slots:
     virtual QByteArray read(uint lenght = 0) = 0;
     virtual void write(int lenght ) = 0;
-    void setBaudRate(unsigned int BaudRate);
+
+    bool connect();
+    void setBaudRate(uint BaudRate);
 
     uint getBaudRate();
 
@@ -60,5 +56,7 @@ private:
 
     //void Log(QString);
 };
+
+Q_DECLARE_METATYPE( comm_device_interface* )
 
 #endif // COMM_DEVICE_INTERFACE_H

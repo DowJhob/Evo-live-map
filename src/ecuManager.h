@@ -1,13 +1,14 @@
-#ifndef CONTROLLER_H
-#define CONTROLLER_H
+#ifndef ECUMANAGER_H
+#define ECUMANAGER_H
 
 #include <QApplication>
 #include <QObject>
+#include <QToolBar>
 
 #include <QFileDialog>
 
-#include "comm-device-interface/op13.h"
-#include "comm-device-interface/op20.h"
+//#include "comm-device-interface/op13.h"
+//#include "comm-device-interface/op20.h"
 
 #include "DMA-proto/jcsbanksDMA.h"
 #include "DMA-proto/stockDMA.h"
@@ -19,13 +20,12 @@
 //#include "read-request.h"
 #include "deviceNativeFilter.h"
 
-class controller : public QObject
+class ecuManager : public QToolBar
 {
     Q_OBJECT
 public:
-    explicit controller(QObject *parent = nullptr);
-    ~controller();
-    void start();
+    explicit ecuManager(QWidget *parent = nullptr);
+    ~ecuManager();
 
 public slots:
     void setCommDevice(comm_device_interface *dev);
@@ -35,15 +35,23 @@ public slots:
     void connectECU();
     void disConnectECU();
 
-    void startLogger();
-    void stopLogger();
+//    void startLogger();
+//    void stopLogger();
 
     void updateRAM(abstractMemoryScaled memory);
     void RAMreset();
 
+    void lockConnect(bool lockFlag);
+    void lockReset(bool lockFlag);
 
 private:
-    QThread *this_thread = nullptr;
+    void createUI();
+    QAction *a_start_action;
+    QAction *a_ramReset;
+
+    //QVector<float> scaledRAM_MUTvalue;
+    //int readSize = 0;
+
     ecu_definition *_ecu_definition = nullptr;
     comm_device_interface *devComm = nullptr;
     DMA_proto *ECUproto = nullptr;
@@ -55,23 +63,19 @@ private:
 
     mapDefinition *getMap(Map *declMap);
 
-    QString SearchFiles(QString path, QString CalID);
-
 private slots:
-    void init();
+    void startAction();
 
 signals:
-    void baudChanged(int);
-    void logChanged(int);
-    //void interfaceReady(bool);
-
     void ecu_connected();
+    void disConnectECUaction();
     void create_table(mapDefinition*);
-    void getWB(commDeviceWB*);
+
 
     void Log(QString);
     void logReady(QVector<float>);
 
+
 };
 
-#endif // CONTROLLER_H
+#endif // ECUMANAGER_H

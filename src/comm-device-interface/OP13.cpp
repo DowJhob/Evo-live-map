@@ -1,14 +1,13 @@
 #include "op13.h"
 #include <QCoreApplication>
 
-OP13::OP13(QString dllName, QString DeviceDesc, QString DeviceUniqueID) :  comm_device_interface( dllName, DeviceDesc, DeviceUniqueID)
+OP13::OP13(QObject *parent, QString dllName, QString DeviceDesc, QString DeviceUniqueID) :  comm_device_interface(parent, dllName, DeviceDesc, DeviceUniqueID)
 {
-    //devType = deviceType::OP13;
     _ftdi = new ftdi(QCoreApplication::applicationDirPath() + "\\ftd2xx.dll");
     p_in_buff = in_buf;
     p_out_buff = out_buf;
     //qDebug() << "OP13" << DeviceUniqueID;
-    info();
+    //info();
 }
 
 OP13::~OP13()
@@ -67,7 +66,7 @@ bool OP13::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
         // FT_Open OK, use ftHandle to access device
         s = _ftdi->ftStatus = _ftdi->FT_ResetDevice(_ftdi->ftHandle);
         s = _ftdi->ftStatus = _ftdi->FT_Purge(_ftdi->ftHandle, FT_PURGE_RX | FT_PURGE_TX);
-        s = _ftdi->ftStatus = _ftdi->FT_SetTimeouts(_ftdi->ftHandle, 20000, 2500);
+        s = _ftdi->ftStatus = _ftdi->FT_SetTimeouts(_ftdi->ftHandle, 2000, 2500);
         s = _ftdi->ftStatus = _ftdi->FT_SetLatencyTimer(_ftdi->ftHandle, 1);
         s = _ftdi->ftStatus = _ftdi->FT_SetBaudRate(_ftdi->ftHandle, baudRate);
         qDebug() << " FT_Open" <<  s;
@@ -85,8 +84,7 @@ bool OP13::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
 bool OP13::close()
 {
     ulong s = _ftdi->FT_Close( _ftdi->ftHandle);
-    //   qDebug() << " close" << s;
-    //emit Log(" FT_Close status " + QString::number(s));
+    qDebug() << "OP13::close" << s;
     return true;
 }
 
@@ -94,6 +92,8 @@ bool OP13::five_baud_init()
 {
     qDebug() << "Five baud init";
     ftdi_low_baud_sender(5, 0x00);                                 //5 baud, 0x00 ecu addr, 0x05 TCU?
+
+    //qDebug() << "Five baud init sended";
     //QThread::msleep(300);                             // W1 60 - 300ms
     //Get bytes waiting to be read
     QByteArray a = read(4);
@@ -120,17 +120,21 @@ bool OP13::five_baud_init()
 QByteArray OP13::read(uint lenght)
 {
     //Get bytes waiting to be read
-    DWORD FT_RxQ_Bytes;
-    do
-    {
-        _ftdi->FT_GetQueueStatus(_ftdi->ftHandle, &FT_RxQ_Bytes);
-        //qDebug() << "OP13::read2" << FT_RxQ_Bytes;
-    }
-    while (FT_RxQ_Bytes < lenght);
+//    DWORD FT_RxQ_Bytes;
+//    do
+//    {
+//        _ftdi->FT_GetQueueStatus(_ftdi->ftHandle, &FT_RxQ_Bytes);
+//        //qDebug() << "OP13::read2" << FT_RxQ_Bytes;
+//    }
+//    while ((FT_RxQ_Bytes < lenght) && timeout);
 
     ulong Reads;
-    _ftdi->FT_Read(_ftdi->ftHandle, in_buf, FT_RxQ_Bytes, &Reads);
-    QByteArray a = QByteArray( (char*)in_buf, Reads);
+    //_ftdi->FT_Read(_ftdi->ftHandle, in_buf, FT_RxQ_Bytes, &Reads);
+    _ftdi->FT_Read(_ftdi->ftHandle, in_buf, lenght, &Reads);
+
+
+    //QByteArray a = QByteArray( (char*)in_buf, Reads);
+    QByteArray a = QByteArray( (char*)in_buf, lenght);
 //    qDebug() << "Readed bytes " << a.toHex(':') << Reads << endl;
     return a;
 }

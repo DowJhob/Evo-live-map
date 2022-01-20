@@ -15,33 +15,7 @@ wbManager::wbManager(QWidget *parent):QGroupBox(parent)
 
     connect(&availWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::_wbSelected);
     connect(&protoWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::_protoSelected);
-    connect(&startBtn, &QPushButton::clicked, this, [this](){
-
-
-
-        commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(availWB.currentData());
-        wbProto *_protoWB = qvariant_cast<wbProto*>(protoWB.currentData());
-        qDebug() << "=========== wbManager::startBtn clicked ================" << cdWB << _protoWB;
-
-        if(startBtn.text() == "Start")
-        {
-            if(cdWB->isClosed())
-                if(cdWB->openWB(_protoWB->baudRate))
-                {
-                    emit wbStart(true);
-                    startBtn.setText("Stop");
-                }
-        }
-        else
-        {
-            if(!cdWB->isClosed())
-                if(cdWB->closeWB())
-                {
-                    emit wbStart(false);
-                    startBtn.setText("Start");
-                }
-        }
-    });
+    connect(&startBtn, &QPushButton::clicked, this, &wbManager::startStop);
 
     //fillSerial();
 
@@ -51,30 +25,20 @@ wbManager::wbManager(QWidget *parent):QGroupBox(parent)
 
 void wbManager::fillProto()
 {
-    //    //qDebug()<< "deviceManager::addDevice start" << dev.DeviceDesc;
-    //    comm_device_interface *devComm = nullptr;                                  // это важно если бы мы пытались добавить не инициализированную, тогда бы при попытке извлечь девайсСелектед она не прошла проверку кУвариант
-    //    switch (dev.type)
-    //    {
-    //    case deviceType::OP13  : devComm = new OP13(dev.FunctionLibrary, dev.DeviceUniqueID); break;
-    //    case deviceType::OP20  : devComm = new OP20(dev.FunctionLibrary, dev.DeviceUniqueID); break;
-    //    case deviceType::J2534 : devComm = new j2534_interface(dev.FunctionLibrary, dev.DeviceUniqueID); break;
-    //    default                : return;                                           //  но поскольку тут вылетим без добавления то вроде и не важно
-    //    }
-    //    //commDeviceStore.insert(dev.DeviceDesc+dev.DeviceUniqueID, devComm);
-
     protoWB.addItem("Innovate", QVariant::fromValue<wbProto*>(new innoProto()));
     protoWB.addItem("AEM", QVariant::fromValue<wbProto*>(new aemProto()));
     protoWB.addItem("PLX", QVariant::fromValue<wbProto*>(new plxProto()));
 }
 
-void wbManager::addTactrix(comm_device_interface *cdWB)
+void wbManager::addTactrix(commDeviceWB *cdWB)
 {
-    commDeviceWB *ss = static_cast<OP20*>(cdWB);
-
-    //wbLogger *wblog = new wbLogger(&cdWB);
-    //emit deviceSelected(wblog);
-    availWB.addItem(cdWB->DeviceDesc + " / " + cdWB->DeviceUniqueID, QVariant::fromValue<commDeviceWB*>(ss));
-    //    addItem("tactrix", QVariant::fromValue<wbLogger*>(wblog));
+    qDebug()<< "wbManager::addTactrix";
+    availWB.addItem(cdWB->DeviceDesc, QVariant::fromValue<commDeviceWB*>(cdWB));
+    connect(cdWB, &commDeviceWB::destroyed, this, [this](QObject *o){
+        qDebug()<< "commDeviceWB::destroyed::Tactrix";
+        int index = availWB.findData(QVariant::fromValue<commDeviceWB*>(static_cast<commDeviceWB*>(o)));
+        availWB.removeItem(index);
+    });
 }
 
 void wbManager::deviceEvent()
@@ -113,7 +77,6 @@ void wbManager::addDevice()
 
 void wbManager::removeDevice()
 {
-    //comm_device_interface *devComm = commDeviceStore.take(dev.DeviceDesc+dev.DeviceUniqueID);
     //devComm->deleteLater();
     //qDebug()<< "deviceManager::removeDevice count" << count();
     //qDebug()<< "deviceManager::removeDevice start" << dev.DeviceDesc + " / " + dev.DeviceUniqueID;
@@ -169,4 +132,30 @@ void wbManager::_protoSelected(int index)
 
 
     //emit protoSelected(_protoWB);
+}
+
+void wbManager::startStop()
+{
+    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(availWB.currentData());
+    wbProto *_protoWB = qvariant_cast<wbProto*>(protoWB.currentData());
+    qDebug() << "=========== wbManager::startBtn clicked ================" << cdWB << _protoWB;
+
+    if(startBtn.text() == "Start")
+    {
+        if(cdWB->isClosed())
+            if(cdWB->openWB(_protoWB->baudRate))
+            {
+                emit wbStart(true);
+                startBtn.setText("Stop");
+            }
+    }
+    else
+    {
+        if(!cdWB->isClosed())
+            if(cdWB->closeWB())
+            {
+                emit wbStart(false);
+                startBtn.setText("Start");
+            }
+    }
 }

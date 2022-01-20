@@ -14,15 +14,21 @@ win32 {
     VERSION ~= s/-\d+-g[a-f0-9]{6,}//
 }
 
-CONFIG(release, debug|release):CONFIG += -static
+CONFIG(release, release|debug){
+            win32-g++ {
+                            QMAKE_CXXFLAGS  += -flto -funroll-loops
+                            CONFIG += -static
+                            message("release mode")
+                        }
+                    }
 win32-g++ {
-                QMAKE_CXXFLAGS  += -flto -funroll-loops
+
                 QMAKE_CXXFLAGS  += -fforce-addr
                 QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mtune=core2
-                #QMAKE_CXXFLAGS  += -mfpmath=sse
+                QMAKE_CXXFLAGS  += -mfpmath=sse
                 QMAKE_CXXFLAGS  += -msse4
-#                LIBS += -L$$PWD/mingw-dll -lqwt
-#                CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
+##                LIBS += -L$$PWD/mingw-dll -lqwt
+##                CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
             }
 win32-msvc {
 #                QMAKE_LFLAGS_RELEASE += /LTCG
@@ -61,8 +67,9 @@ SOURCES += src/main.cpp\
     src/DMA-proto/jcsbanksDMA.cpp \
     src/DMA-proto/stockDMA.cpp \
     src/comm-device-interface/op20.cpp \
-    src/comm-device-interface/op20wbreader.cpp \
-    src/controller.cpp \
+    src/ecuManager.cpp \
+    src/wideband/op20wb.cpp \
+    src/DMA-proto/pollhelper.cpp \
     src/deviceNativeFilter.cpp \
     src/ecu/ecu-definition.cpp \
     src/ecu/rawstockmsg.cpp \
@@ -77,7 +84,6 @@ SOURCES += src/main.cpp\
     src/wideband/serialwb.cpp \
     src/wideband/wb-manager.cpp \
     src/wideband/wb-proto.cpp \
-    src/wblogger.cpp \
     src/widgets/hexEditor/qhexedit/chunks.cpp \
     src/widgets/hexEditor/qhexedit/commands.cpp \
     src/widgets/hexEditor/qhexedit/qhexedit.cpp \
@@ -89,7 +95,6 @@ SOURCES += src/main.cpp\
     src/map-decl/submap.cpp \
     src/widgets/commParamWidget.cpp \
     src/widgets/gauge_widget.cpp \
-    src/widgets/maintoolbar.cpp \
     src/widgets/mapWidget/mapmodel.cpp \
     src/widgets/mapWidget/mapview.cpp \
     src/widgets/mapWidget/mapwidget.cpp
@@ -99,8 +104,9 @@ HEADERS  += src/mainwindow.h \
     src/DMA-proto/proto-manager.h \
     src/abstract-memory.h \
     src/comm-device-interface/devicemanager.h \
-    src/comm-device-interface/op20wbreader.h \
-    src/controller.h \
+    src/ecuManager.h \
+    src/wideband/op20wb.h \
+    src/DMA-proto/pollhelper.h \
     src/DMA-proto/evoX-DMA.h \
     src/DMA-proto/jcsbanksDMA.h \
     src/DMA-proto/stockDMA.h \
@@ -131,14 +137,12 @@ HEADERS  += src/mainwindow.h \
     src/wideband/serialwb.h \
     src/wideband/wb-manager.h \
     src/wideband/wb-proto.h \
-    src/wblogger.h \
     src/widgets/commParamWidget.h \
     src/widgets/gauge_widget.h \
     src/widgets/hexEditor/qhexedit/chunks.h \
     src/widgets/hexEditor/qhexedit/commands.h \
     src/widgets/hexEditor/qhexedit/qhexedit.h \
     src/widgets/hexEditor/hexeditor.h \
-    src/widgets/maintoolbar.h \
     src/widgets/mapWidget/mapmodel.h \
     src/widgets/mapWidget/mapview.h \
     src/widgets/mapWidget/mapwidget.h

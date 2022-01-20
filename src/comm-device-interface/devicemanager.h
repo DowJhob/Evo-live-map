@@ -14,7 +14,7 @@
 #include "op20.h"
 #include "op13.h"
 
-Q_DECLARE_METATYPE( comm_device_interface* )
+#include "../wideband/op20wb.h"
 
 class deviceManager : public QGroupBox
 {
@@ -38,14 +38,13 @@ private:
 
 private slots:
     void _deviceSelected(int index);
-    void baudRateUpdate();
+    void _baudRateChanged();
 
 signals:
     void deviceSelected(comm_device_interface*);
-    void baudRateChanged(uint);
 
-    void tactrixArrived(comm_device_interface*);
-        void tactrixRemoved(comm_device_interface*);
+    void tactrixArrived(commDeviceWB *);
+    void tactrixRemoved(comm_device_interface*);
 
 };
 

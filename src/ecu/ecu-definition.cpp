@@ -20,6 +20,17 @@ bool ecu_definition::fromFile(QString filename)
     return true;
 }
 
+QString ecu_definition::SearchFiles(QString path, QString CalID)       // Для поиска файлов в каталоге
+{
+    // Пытаемся найти правильные файлы, в текущем каталоге
+    QStringList listFiles = QDir(path).entryList((CalID + "*.xml ").split(" "), QDir::Files);  //выборка файлов по маскам
+    if (listFiles.size()  == 0)            // если файл не найдем вернем егог
+        return "";
+    //return QFileDialog::getOpenFileName(nullptr,  tr("Open xml"), path, tr("xml files (*.xml)"));
+    else
+        return path + listFiles.at(0);
+}
+
 void ecu_definition::_parser(QIODevice *device)
 {
     QString errorStr;
