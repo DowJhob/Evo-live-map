@@ -45,6 +45,15 @@ public:
 
 public slots:
     virtual void directDMAwrite(quint32 addr, char *buf, int lenght) = 0;
+    virtual void directDMAwrite(abstractMemoryScaled memory)
+    {
+        qDebug()<< "DMA_proto::directDMAwrite" << memory.toHex(':');
+//        QMetaObject::invokeMethod(this, "directDMAwrite", Qt::QueuedConnection,
+//                                  Q_ARG(quint32, memory.addr),
+//                                  Q_ARG(char *, memory.data()),
+//                                  Q_ARG(int, memory.size()));
+        directDMAwrite(memory.addr, memory.data(), memory.size());
+    }
 
     virtual void startLog() = 0;
     virtual void stopLog() = 0;

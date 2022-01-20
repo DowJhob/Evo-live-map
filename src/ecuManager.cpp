@@ -152,11 +152,9 @@ void ecuManager::startAction()
 void ecuManager::updateRAM(abstractMemoryScaled memory)
 {
     qDebug()<< "ecuManager::updateRAM" << memory.toHex(':');
-    QMetaObject::invokeMethod(ECUproto, "directDMAwrite", Qt::QueuedConnection,
-                              Q_ARG(quint32, memory.addr),
-                              Q_ARG(char *, memory.data()),
-                              Q_ARG(int, memory.size()));
-    //ECUproto->directDMAwrite(memory.addr, memory.data(), memory.size());
+//    QMetaObject::invokeMethod(ECUproto, "directDMAwrite", Qt::QueuedConnection,
+//                              Q_ARG(abstractMemoryScaled, memory));
+    ECUproto->directDMAwrite(memory);
 }
 
 void ecuManager::lockConnect(bool lockFlag)
