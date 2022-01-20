@@ -149,10 +149,11 @@ void ecuManager::startAction()
 
 void ecuManager::updateRAM(abstractMemoryScaled memory)
 {
-    //_dataLogger->stop();
-    ECUproto->directDMAwrite(memory.addr, memory.data(), memory.size());
-    //_dataLogger->start();
-    //QThread::msleep(50);
+    QMetaObject::invokeMethod(ECUproto, "directDMAwrite", Qt::QueuedConnection,
+                              Q_ARG(uint, memory.addr),
+                              Q_ARG(char*, memory.data()),
+                              Q_ARG(int, memory.size()));
+    //ECUproto->directDMAwrite(memory.addr, memory.data(), memory.size());
 }
 
 void ecuManager::lockConnect(bool lockFlag)
