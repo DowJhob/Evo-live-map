@@ -5,12 +5,12 @@
 #include "commdevicewb-interface.h"
 #include "../comm-device-interface/op20.h"
 
-class op20wb : public commDeviceWB//
+class op20wb : public commDeviceWB
 {
     Q_OBJECT
 public:
     explicit op20wb(OP20 *j2534);
-    ~op20wb();
+    virtual ~op20wb();
 
     bool isClosed();
 
@@ -22,9 +22,14 @@ public:
 
     QByteArray readWB();
 
+private slots:
+    void poll();
+
 private:
     OP20 *op20;
+    QTimer *pollTimer;
 
+    void pollHelper();
 
     Message rxmsg;
     Message msgMask, msgPattern;

@@ -25,15 +25,15 @@
 #include "widgets/maintoolbar.h"
 #include "widgets/gauge_widget.h"
 #include "widgets/commParamWidget.h"
+#include "widgets/mapWidget/mapwidget.h"
+#include "widgets/hexEditor/qhexedit/qhexedit.h"
+#include "widgets/hexEditor/hexeditor.h"
 
 
 #include "comm-device-interface/devicemanager.h"
 #include "DMA-proto/proto-manager.h"
 #include "wideband/wb-manager.h"
 
-#include "widgets/mapWidget/mapwidget.h"
-#include "widgets/hexEditor/qhexedit/qhexedit.h"
-#include "widgets/hexEditor/hexeditor.h"
 
 namespace Ui {
 class MainWindow;
@@ -53,13 +53,7 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 public slots:
-    void setDeviceManager(deviceManager *devManager);
-
-    void setProtoManager(protoManager *protoManager);
-
-    void setWBManager(wbManager *wbManager);
-
-    void setWidebandWidge(gaugeWidget *wbWgt);
+    void setCPW(commParamWidget *cpW);
 
     void deviceEvent(comm_device_interface *devComm);
 
@@ -87,7 +81,7 @@ private:
 
     //======================== widget's =================================
     hexEditor *hexEdit;
-    gaugeWidget *tactrix_afr_lcd = nullptr;
+    gaugeWidget wbWgt{"           = Wideband =           ", 4};
     //======================== widget lists =================================
     QSet<gaugeWidget*> gauge_widget_set;
 

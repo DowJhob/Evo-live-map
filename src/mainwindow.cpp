@@ -10,8 +10,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(_mainToolBar, &mainToolBar::s_ramReset, this, &MainWindow::resetRAM);
 
     //=============================================================================
-    cpW = new commParamWidget(this, 62500, 10);
-    ui->Settings->layout()->addWidget(cpW);
+    _mainToolBar->addWidget(&wbWgt);
+    _mainToolBar->addSeparator();
     //=============================================================================
     hexEdit = new hexEditor(this);
     ui->directHex->layout()->addWidget(hexEdit);
@@ -36,28 +36,18 @@ void MainWindow::closeEvent(QCloseEvent *event)
     emit _exit();
 }
 
-void MainWindow::setDeviceManager(deviceManager *devManager)
+void MainWindow::setCPW(commParamWidget *cpW)
 {
-    cpW->setDeviceManager(devManager);
-    connect(devManager, &deviceManager::deviceSelected, this, &MainWindow::deviceEvent);
-}
+    this->cpW = cpW;
+    ui->Settings->layout()->addWidget(cpW);
+    connect(&cpW->devManager, &deviceManager::deviceSelected, this, &MainWindow::deviceEvent);
 
-void MainWindow::setProtoManager(protoManager *protoManager)
-{
-    cpW->setProtoManager(protoManager);
-    //connect(protoManager, &deviceManager::deviceSelected, this, &MainWindow::deviceEvent);
-}
+    QObject::connect(&cpW->_wbManager,    &wbManager::logReady,             &wbWgt,          &gaugeWidget::display);
 
-void MainWindow::setWBManager(wbManager *wbManager)
-{
-    cpW->setWBManager(wbManager);
-    //connect(wbManager, &wbManager::deviceSelected, this, &MainWindow::deviceEvent);
-}
 
-void MainWindow::setWidebandWidge(gaugeWidget *wbWgt)
-{
-    _mainToolBar->addWidget(wbWgt);
-    _mainToolBar->addSeparator();
+
+    cpW->_wbManager.fillSerial();
+    cpW->_wbManager.fillProto();
 }
 
 void MainWindow::deviceEvent(comm_device_interface *devComm)
@@ -77,7 +67,7 @@ void MainWindow::StartButton_slot()
 {
     if (start_action == "Start")
     {
-        qDebug() << "MainWindow::StartButton_slot Start";
+        qDebug() << "MainWindow::StartButton_slot Start" << cpW;
 
         emit connectECU(cpW->baudRate);
     }

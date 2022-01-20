@@ -55,6 +55,7 @@ private:
 private slots:
     void _wbSelected(int index);
     void _protoSelected(int index);
+    void startStop();
 
 signals:
     void wbSelected(commDeviceWB*);

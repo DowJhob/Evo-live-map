@@ -40,7 +40,7 @@ void controller::start()
 
 void controller::setCommDevice(comm_device_interface *dev)
 {
-    qDebug() << "=========== controller::setCommDevice ================" << dev;
+    qDebug() << "=========== controller::setCommDevice ================" << dev << this->ECUproto;
     devComm = dev;
     //connect((pollHelper*)devComm, &pollHelper::readyRead, this, &controller::poll);
     this->ECUproto->setCommDev(&devComm);
@@ -58,9 +58,10 @@ void controller::setCommDevice(comm_device_interface *dev)
 
 void controller::setProto(DMA_proto *ECUproto)
 {
-    qDebug() << "=========== controller::setProto ================" << ECUproto;
+    qDebug() << "=========== controller::setProto ================"// << ECUproto
+                ;
     this->ECUproto = ECUproto;
-    //connect(ECUproto, &DMA_proto::logReady, this, &controller::logReady);
+    connect(ECUproto, &DMA_proto::logReady, this, &controller::logReady);
     //this->ECUproto->setCommDev(&devComm);
 }
 

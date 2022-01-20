@@ -16,16 +16,19 @@ class commParamWidget : public QWidget
     Q_OBJECT
 public:
     uint baudRate;
+    deviceManager devManager;
+    protoManager _protoManager;
+    wbManager _wbManager;
+
     explicit commParamWidget(QWidget *parent = nullptr, uint defaultBaudRate = 62500, uint defaultLogRate = 10);
+    virtual ~commParamWidget();
 
 public slots:
-    void setDeviceManager(deviceManager *devManager);
-    void setProtoManager(protoManager *protoManager);
-    void setWBManager(wbManager *wbManager);
 
 private:
     QGroupBox commonGrpBx{"Communication parameters"};
     QGridLayout commonGrpBxLayout;
+
 
 signals:
 

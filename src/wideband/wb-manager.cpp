@@ -15,33 +15,7 @@ wbManager::wbManager(QWidget *parent):QGroupBox(parent)
 
     connect(&availWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::_wbSelected);
     connect(&protoWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::_protoSelected);
-    connect(&startBtn, &QPushButton::clicked, this, [this](){
-
-
-
-        commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(availWB.currentData());
-        wbProto *_protoWB = qvariant_cast<wbProto*>(protoWB.currentData());
-        qDebug() << "=========== wbManager::startBtn clicked ================" << cdWB << _protoWB;
-
-        if(startBtn.text() == "Start")
-        {
-            if(cdWB->isClosed())
-                if(cdWB->openWB(_protoWB->baudRate))
-                {
-                    emit wbStart(true);
-                    startBtn.setText("Stop");
-                }
-        }
-        else
-        {
-            if(!cdWB->isClosed())
-                if(cdWB->closeWB())
-                {
-                    emit wbStart(false);
-                    startBtn.setText("Start");
-                }
-        }
-    });
+    connect(&startBtn, &QPushButton::clicked, this, &wbManager::startStop);
 
     //fillSerial();
 
@@ -51,17 +25,6 @@ wbManager::wbManager(QWidget *parent):QGroupBox(parent)
 
 void wbManager::fillProto()
 {
-    //    //qDebug()<< "deviceManager::addDevice start" << dev.DeviceDesc;
-    //    comm_device_interface *devComm = nullptr;                                  // это важно если бы мы пытались добавить не инициализированную, тогда бы при попытке извлечь девайсСелектед она не прошла проверку кУвариант
-    //    switch (dev.type)
-    //    {
-    //    case deviceType::OP13  : devComm = new OP13(dev.FunctionLibrary, dev.DeviceUniqueID); break;
-    //    case deviceType::OP20  : devComm = new OP20(dev.FunctionLibrary, dev.DeviceUniqueID); break;
-    //    case deviceType::J2534 : devComm = new j2534_interface(dev.FunctionLibrary, dev.DeviceUniqueID); break;
-    //    default                : return;                                           //  но поскольку тут вылетим без добавления то вроде и не важно
-    //    }
-    //    //commDeviceStore.insert(dev.DeviceDesc+dev.DeviceUniqueID, devComm);
-
     protoWB.addItem("Innovate", QVariant::fromValue<wbProto*>(new innoProto()));
     protoWB.addItem("AEM", QVariant::fromValue<wbProto*>(new aemProto()));
     protoWB.addItem("PLX", QVariant::fromValue<wbProto*>(new plxProto()));
@@ -169,4 +132,30 @@ void wbManager::_protoSelected(int index)
 
 
     //emit protoSelected(_protoWB);
+}
+
+void wbManager::startStop()
+{
+    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(availWB.currentData());
+    wbProto *_protoWB = qvariant_cast<wbProto*>(protoWB.currentData());
+    qDebug() << "=========== wbManager::startBtn clicked ================" << cdWB << _protoWB;
+
+    if(startBtn.text() == "Start")
+    {
+        if(cdWB->isClosed())
+            if(cdWB->openWB(_protoWB->baudRate))
+            {
+                emit wbStart(true);
+                startBtn.setText("Stop");
+            }
+    }
+    else
+    {
+        if(!cdWB->isClosed())
+            if(cdWB->closeWB())
+            {
+                emit wbStart(false);
+                startBtn.setText("Start");
+            }
+    }
 }

@@ -84,7 +84,6 @@ SOURCES += src/main.cpp\
     src/wideband/serialwb.cpp \
     src/wideband/wb-manager.cpp \
     src/wideband/wb-proto.cpp \
-    src/wblogger.cpp \
     src/widgets/hexEditor/qhexedit/chunks.cpp \
     src/widgets/hexEditor/qhexedit/commands.cpp \
     src/widgets/hexEditor/qhexedit/qhexedit.cpp \
@@ -139,7 +138,6 @@ HEADERS  += src/mainwindow.h \
     src/wideband/serialwb.h \
     src/wideband/wb-manager.h \
     src/wideband/wb-proto.h \
-    src/wblogger.h \
     src/widgets/commParamWidget.h \
     src/widgets/gauge_widget.h \
     src/widgets/hexEditor/qhexedit/chunks.h \
