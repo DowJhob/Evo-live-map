@@ -35,17 +35,17 @@ public:
     //explicit DMA_proto(comm_device_interface **devComm = nullptr);
     virtual ~DMA_proto();
 
+    void setCommDev(comm_device_interface **devComm = nullptr);
     bool getECU(QString romID);
 
     virtual bool connect() = 0;
 
     virtual QByteArray indirectDMAread(quint32 addr, int lenght) = 0;
     virtual QByteArray directDMAread(quint32 addr, int len) = 0;
-    virtual void directDMAwrite(quint32 addr, char *buf, int lenght) = 0;
-
-    void setCommDev(comm_device_interface **devComm = nullptr);
 
 public slots:
+    virtual void directDMAwrite(quint32 addr, char *buf, int lenght) = 0;
+
     virtual void startLog() = 0;
     virtual void stopLog() = 0;
 

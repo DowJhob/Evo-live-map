@@ -7,6 +7,8 @@ ecuManager::ecuManager(QWidget *parent) : QToolBar(parent)
     qRegisterMetaType<abstractMemoryScaled>("abstractMemoryScaled");
     qRegisterMetaType<QVector<float>>("QVector<float>");
 
+    qRegisterMetaType<char *>("char *");
+
     setProto(0);
 
     createUI();
@@ -22,14 +24,14 @@ ecuManager::~ecuManager()
 
     //    if (devComm != nullptr)
     //        devComm->deleteLater();
-    qDebug() << "~controller";
+    qDebug() << "~ecuManager";
 }
 
 void ecuManager::setCommDevice(comm_device_interface *dev)
 {
-    qDebug() << "=========== controller::setCommDevice ================" << dev << this->ECUproto;
+    qDebug() << "=========== ecuManager::setCommDevice ================" << dev << this->ECUproto;
     devComm = dev;
-    //connect((pollHelper*)devComm, &pollHelper::readyRead, this, &controller::poll);
+    //connect((pollHelper*)devComm, &pollHelper::readyRead, this, &ecuManager::poll);
     this->ECUproto->setCommDev(&devComm);
     if (devComm != nullptr  )
     {
@@ -45,7 +47,7 @@ void ecuManager::setCommDevice(comm_device_interface *dev)
 
 void ecuManager::setProto(DMA_proto *ECUproto)
 {
-    qDebug() << "=========== controller::setProto ================"// << ECUproto
+    qDebug() << "=========== ecuManager::setProto ================"// << ECUproto
                 ;
     this->ECUproto = ECUproto;
     connect(ECUproto, &DMA_proto::logReady, this, &ecuManager::logReady);
@@ -59,7 +61,7 @@ void ecuManager::setLogRate(uint logRate)
 
 void ecuManager::connectECU()
 {
-    qDebug() << "=========== controller::getECUconnect ================" << devComm;
+    qDebug() << "=========== ecuManager::getECUconnect ================" << devComm;
     if (!ECUproto->connect())
     {
         emit Log("failure get ECU connect " + QString::number( devComm->getBaudRate()));
@@ -101,7 +103,7 @@ a_start_action->setText("Stop");
 
 void ecuManager::disConnectECU()
 {
-    qDebug() << "=========== controller::disConnectECU ================";
+    qDebug() << "=========== ecuManager::disConnectECU ================";
     QMetaObject::invokeMethod(ECUproto, "stopLog");
     QThread::msleep(1000);
     devComm->close();
@@ -109,7 +111,7 @@ void ecuManager::disConnectECU()
 
 void ecuManager::RAMreset()
 {
-    qDebug() << "controller::RAMreset(addr::" << _ecu_definition->DEAD_var << ");";
+    qDebug() << "ecuManager::RAMreset(addr::" << _ecu_definition->DEAD_var << ");";
     quint16 r = 0x0000;
     ECUproto->directDMAwrite(_ecu_definition->DEAD_var, (char*)&r, 2);
 }
@@ -149,9 +151,10 @@ void ecuManager::startAction()
 
 void ecuManager::updateRAM(abstractMemoryScaled memory)
 {
+    qDebug()<< "ecuManager::updateRAM" << memory.toHex(':');
     QMetaObject::invokeMethod(ECUproto, "directDMAwrite", Qt::QueuedConnection,
-                              Q_ARG(uint, memory.addr),
-                              Q_ARG(char*, memory.data()),
+                              Q_ARG(quint32, memory.addr),
+                              Q_ARG(char *, memory.data()),
                               Q_ARG(int, memory.size()));
     //ECUproto->directDMAwrite(memory.addr, memory.data(), memory.size());
 }

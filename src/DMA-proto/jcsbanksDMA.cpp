@@ -56,8 +56,9 @@ QByteArray jcsbanksDMA::directDMAread(quint32 addr, int lenght)
     return (*devComm)->read(lenght);
 }
 
-void jcsbanksDMA::directDMAwrite(quint32 addr, char *buf, int lenght)
+void jcsbanksDMA::directDMAwrite(quint32 addr, char* buf, int lenght)
 {
+    qDebug()<<"=========== jcsbanksDMA::directDMAwrite ================" << QString::number(addr, 16) << QByteArray(buf, 1).toHex(':');
     sendDMAcomand(0xE2, addr, lenght, buf);
 }
 
