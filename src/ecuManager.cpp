@@ -112,10 +112,10 @@ void ecuManager::disConnectECU()
 
 void ecuManager::RAMreset()
 {
-    qDebug() << "ecuManager::RAMreset(addr::" << _ecu_definition->DEAD_var << ");";
+    qDebug() << "ecuManager::RAMreset(addr::" << ECUproto->_ecu_definition.DEAD_var << ");";
     quint16 r = 0x0000;
     abstractMemoryScaled a = abstractMemoryScaled(QByteArray((char*)&r, 2));
-    a.addr = _ecu_definition->DEAD_var;
+    a.addr = ECUproto->_ecu_definition.DEAD_var;
     QMetaObject::invokeMethod(ECUproto, "directDMAwrite", Qt::QueuedConnection,
                               Q_ARG(abstractMemoryScaled, a));
     //ECUproto->directDMAwrite(_ecu_definition->DEAD_var, (char*)&r, 2);
