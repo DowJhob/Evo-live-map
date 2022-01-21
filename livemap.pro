@@ -67,7 +67,7 @@ SOURCES += src/main.cpp\
     src/DMA-proto/jcsbanksDMA.cpp \
     src/DMA-proto/stockDMA.cpp \
     src/comm-device-interface/op20.cpp \
-    src/ecuManager.cpp \
+    src/widgets/ecuManager.cpp \
     src/wideband/op20wb.cpp \
     src/DMA-proto/pollhelper.cpp \
     src/deviceNativeFilter.cpp \
@@ -104,7 +104,7 @@ HEADERS  += src/mainwindow.h \
     src/DMA-proto/proto-manager.h \
     src/abstract-memory.h \
     src/comm-device-interface/devicemanager.h \
-    src/ecuManager.h \
+    src/widgets/ecuManager.h \
     src/wideband/op20wb.h \
     src/DMA-proto/pollhelper.h \
     src/DMA-proto/evoX-DMA.h \

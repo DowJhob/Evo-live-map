@@ -1,25 +1,21 @@
 #ifndef ECU_DEFINITION_H
 #define ECU_DEFINITION_H
 
+#include <QDebug>
+#include <QApplication>
 #include <QFile>
 #include <QFileDialog>
-
-#include <QtXml/QDomDocument>
-#include <src/abstract-memory.h>
-
 #include <QtEndian>
 #include <QList>
 #include <QStack>
 #include <QChar>
 #include <QMap>
-#include <QDebug>
+#include <QtXml/QDomDocument>
 
-
-
-#include <math.h>
 #include "../types.h"
 #include "../map-decl/map.h"
-
+#include "../abstract-memory.h"
+#include "../DMA-proto/DMA-proto.h"
 
 typedef struct                                       // Содержимое таблицы
 {
@@ -29,24 +25,51 @@ typedef struct                                       // Содержимое т�
     abstractMemoryScaled Y_axis;
 } mapDefinition;
 
-class ecu_definition
+class ecuDefinition : public QObject
 {
+    Q_OBJECT
 public:
+    comm_device_interface *devComm = nullptr;
+    DMA_proto *ECUproto = nullptr;
+
     quint32 DEAD_var;
     quint32 RAM_MUT_addr;
     QVector<mutParam> RAM_MUT;
-    quint32 RAM_MUT_count = 0;
 
     QHash<QString, Map*> RAMtables;
 
-    ecu_definition();
-    ~ecu_definition();
-public:
+    ecuDefinition();
+    ~ecuDefinition();
+
     bool fromFile(QString filename);
-    //bool fromROMID(QString ROMID);
-    QString SearchFiles(QString path, QString CalID);
+    bool fromROMID(QString ROMID);
+    QString getFile(QString path, QString CalID);
+
+public slots:
+    void setComDev(comm_device_interface *_devComm);
+    void setDMAproto(DMA_proto *_ECUproto);
+
+    bool connectECU();
+
+    void disConnectECU();
+
+    void RAMreset();
+
+    void updateRAM(abstractMemoryScaled memory);
+
+    mapDefinition *getMap(Map *declMap);
+
+    virtual void startLog();
+    //virtual void stopLog();
+
+private slots:
+    void poll();
 
 private:
+    QVector<float> scaledRAM_MUTvalue;
+    int readSize = 0;
+    QTimer *pollTimer;
+
     QHash<QString, Scaling> scaling_qmap;                     //контейнер скалингов
 
     void _parser(QIODevice *device);
@@ -54,6 +77,16 @@ private:
 
     void getLivemap(const QDomElement &element);
     void getScaling(const QDomElement &el);
+
+signals:
+    void ecu_connected();
+    void disConnectECUaction();
+    void create_table(mapDefinition*);
+
+    void Log(QString);
+
+    void logReady(QVector<float>);
+
 };
 
 #endif // ECU_DEFINITION_H

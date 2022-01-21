@@ -22,15 +22,14 @@
 
 #include "deviceNativeFilter.h"
 
-#include "ecuManager.h"
-//#include "widgets/maintoolbar.h"
-#include "widgets/gauge_widget.h"
 #include "widgets/commParamWidget.h"
 #include "widgets/mapWidget/mapwidget.h"
 #include "widgets/hexEditor/qhexedit/qhexedit.h"
 #include "widgets/hexEditor/hexeditor.h"
+#include "widgets/gauge_widget.h"
 
 
+#include "widgets/ecuManager.h"
 #include "comm-device-interface/devicemanager.h"
 #include "DMA-proto/proto-manager.h"
 #include "wideband/wb-manager.h"

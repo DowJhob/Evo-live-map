@@ -1,7 +1,7 @@
 #include "logger.h"
 #include <QCursor>
 
-dataLogger::dataLogger(ecu_definition **_ecu, comm_device_interface **devComm, DMA_proto **ECUproto):_ecu_definition(_ecu), ECUproto(ECUproto), devComm(devComm)
+dataLogger::dataLogger(ecuDefinition **_ecu, comm_device_interface **devComm, DMA_proto **ECUproto):_ecu_definition(_ecu), ECUproto(ECUproto), devComm(devComm)
 {
     //QString filename = startDate.toString("'log_'dd_MM_yyyy'.txt'");
 
@@ -20,7 +20,7 @@ dataLogger::~dataLogger()
     log_file.close();
 }
 
-void dataLogger::setECU(ecu_definition **_ecu)
+void dataLogger::setECU(ecuDefinition **_ecu)
 {
     this->_ecu_definition = _ecu;
     scaledRAM_MUTvalue.fill(0, (*_ecu_definition)->RAM_MUT.size());

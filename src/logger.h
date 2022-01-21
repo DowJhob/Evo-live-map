@@ -18,15 +18,15 @@ class dataLogger:public QObject
 {
     Q_OBJECT
 public:
-    ecu_definition **_ecu_definition;
+    ecuDefinition **_ecu_definition;
     QMap<int, float> log_param;
     QVector<float> scaledRAM_MUTvalue;
     DMA_proto **ECUproto;
 
-    dataLogger(ecu_definition **_ecu = nullptr, comm_device_interface **devComm = nullptr, DMA_proto **ECUproto = nullptr);
+    dataLogger(ecuDefinition **_ecu = nullptr, comm_device_interface **devComm = nullptr, DMA_proto **ECUproto = nullptr);
     ~dataLogger();
 
-    void setECU(ecu_definition **_ecu);
+    void setECU(ecuDefinition **_ecu);
 
 private:
     comm_device_interface **devComm = nullptr;

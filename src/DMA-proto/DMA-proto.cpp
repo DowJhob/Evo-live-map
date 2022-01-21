@@ -10,17 +10,6 @@ DMA_proto::~DMA_proto()
 //    qDebug() << "~ECU_interface";
 }
 
-bool DMA_proto::getECU(QString romID)
-{
-    if (!_ecu_definition.fromFile(_ecu_definition.SearchFiles(QApplication::applicationDirPath() + "/xml/", romID)))
-    {
-        //delete _ecu_definition;
-        qDebug() << "XML NOT FOUND!!!!!!!!!!!!!!!!!!!!!!!!!";
-        return false;
-    }
-    return true;
-}
-
 void DMA_proto::directDMAwrite(abstractMemoryScaled memory)
 {
     qDebug()<< "DMA_proto::directDMAwrite" << memory.toHex(':');

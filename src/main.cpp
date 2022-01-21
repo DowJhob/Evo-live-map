@@ -1,23 +1,21 @@
 #include <QApplication>
 #include <QObject>
-//#include <QStatusBar>
+#include <QElapsedTimer>
 
 #include "deviceNativeFilter.h"
 #include "comm-device-interface/devicemanager.h"
-#include "DMA-proto/proto-manager.h"
 #include "mainwindow.h"
-#include "ecuManager.h"
-//#include "wblogger.h"
-#include "widgets/commParamWidget.h"
 
-#include <QElapsedTimer>
+#include "widgets/commParamWidget.h"
+#include "DMA-proto/proto-manager.h"
+
 
 QElapsedTimer t;
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-
+QThread::currentThread()->setPriority(QThread::TimeCriticalPriority);
     app.setApplicationDisplayName(QString("livemap by eulle@ya.ru ver %1").arg(GIT_VERSION));
     qDebug() << QString("Version: %1").arg(GIT_VERSION);
     //========================================================================================

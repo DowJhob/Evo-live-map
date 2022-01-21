@@ -66,13 +66,13 @@ void jcsbanksDMA::startLog()
 {
     qDebug()<<"=========== jcsbanksDMA::startLog ================";
 
-    for( int i = 0; i < _ecu_definition.RAM_MUT.size() ; ++i  )
+    for( int i = 0; i < RAM_MUT.size() ; ++i  )
     {
-        _ecu_definition.RAM_MUT[i].offset = readSize;
-        readSize += _ecu_definition.RAM_MUT[i].scaling.getElementSize();
+        RAM_MUT[i].offset = readSize;
+        readSize += RAM_MUT[i].scaling.getElementSize();
         //qDebug() << "dataLogger::start" << (*_ecu_definition)->RAM_MUT[i].scaling.name << (*_ecu_definition)->RAM_MUT[i].scaling.getElementSize();
     }
-    scaledRAM_MUTvalue.resize(_ecu_definition.RAM_MUT.size());
+    scaledRAM_MUTvalue.resize(RAM_MUT.size());
 
     pollTimer->start();
 
@@ -88,12 +88,12 @@ void jcsbanksDMA::stopLog()
 void jcsbanksDMA::poll()
 {
     //qDebug() << "jcsbanksDMA::poll" ;
-    abstractMemoryScaled a = indirectDMAread(_ecu_definition.RAM_MUT_addr, readSize);
+    abstractMemoryScaled a = indirectDMAread(RAM_MUT_addr, readSize);
     //a[0] = abs(QCursor::pos().x())/10;
     //a[1] = abs(QCursor::pos().y())/6;
-    for( int i = 0; i < _ecu_definition.RAM_MUT.size() ; i++  )
+    for( int i = 0; i < RAM_MUT.size() ; i++  )
     {
-        scaledRAM_MUTvalue[i] = a.toFloatOffset( &_ecu_definition.RAM_MUT[i].scaling, _ecu_definition.RAM_MUT[i].offset );
+        scaledRAM_MUTvalue[i] = a.toFloatOffset( &RAM_MUT[i].scaling, RAM_MUT[i].offset );
     }
     emit logReady(scaledRAM_MUTvalue);
 }

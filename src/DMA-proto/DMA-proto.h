@@ -1,5 +1,5 @@
-#ifndef ECU_INTERFACE_H
-#define ECU_INTERFACE_H
+#ifndef DMAPROTO_H
+#define DMAPROTO_H
 
 #include <QApplication>
 #include <QObject>
@@ -9,7 +9,7 @@
 #include <QtEndian>
 #include <QElapsedTimer>
 
-#include <src/ecu/ecu-definition.h>
+#include "../abstract-memory.h"
 
 #include "../comm-device-interface/comm-device-interface.h"
 
@@ -29,14 +29,14 @@ class DMA_proto : public pollHelper
     Q_OBJECT
 public:
     comm_device_interface **devComm = nullptr;
-    ecu_definition _ecu_definition;
+    QVector<mutParam> RAM_MUT;
+    quint32 RAM_MUT_addr;
 
     DMA_proto();
     //explicit DMA_proto(comm_device_interface **devComm = nullptr);
     virtual ~DMA_proto();
 
     void setCommDev(comm_device_interface **devComm = nullptr);
-    bool getECU(QString romID);
 
     virtual bool connect() = 0;
 
@@ -50,8 +50,9 @@ public slots:
     virtual void startLog() = 0;
     virtual void stopLog() = 0;
 
-private slots:
     virtual void poll() = 0;
+
+private slots:
 
 private:
 
@@ -64,4 +65,4 @@ private:
 
 };
 
-#endif // ECU_INTERFACE_H
+#endif // DMAPROTO_H

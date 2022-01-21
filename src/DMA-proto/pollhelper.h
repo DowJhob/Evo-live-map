@@ -23,10 +23,11 @@ public slots:
     virtual void startLog() = 0;
     virtual void stopLog() = 0;
 
+    virtual void poll() = 0;
+
 private:
 
 private slots:
-    virtual void poll() = 0;
 
 signals:
     void logReady(QVector<float>);
