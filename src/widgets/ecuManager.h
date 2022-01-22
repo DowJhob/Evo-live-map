@@ -60,7 +60,7 @@ signals:
     void ecu_connected();
     void disConnectECUaction();
     void create_table(mapDefinition*);
-
+    void setRamMut(QVector<mutParam>);
 
     void Log(QString);
     void logReady(QVector<float>);

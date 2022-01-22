@@ -76,6 +76,7 @@ void ecuManager::ecuConnected()
     lockReset( false);
     a_start_action->setText("Stop");
     emit ecu_connected();
+    emit setRamMut(ECUdef.RAM_MUT);
 }
 
 void ecuManager::startAction()

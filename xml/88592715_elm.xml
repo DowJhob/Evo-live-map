@@ -53,11 +53,6 @@
 	<scaling name="IPW" units="ms" toexpr="x*0.256" frexpr="x/0.256" format="%.1f" min="0" max="65.25" inc="1" storagetype="uint8" endian="big"/>
 	<scaling name="VSS" units="MPH" toexpr="x*1.2427424" frexpr="x/1.2427424" format="%.0f" min="0" max="316" inc="1" storagetype="uint8" endian="big"/>
 	<scaling name="MIVEC" units="%" toexpr="72.0-0.6*x/32.0" frexpr="x*32.0/6.0+72.0" format="%.2f" min="-25" max="25" inc="1" storagetype="uint16" endian="big"/>
-	<scaling name="PSIERR" units="PSI" toexpr="x*0.15625-20.0" frexpr="x-20.0/0.15625" format="%.2f" min="-20" max="20" inc="1" storagetype="uint8" endian="big"/>
-	<scaling name="WGDCCOR" units="%" toexpr="x*0.5-64.0" frexpr="x+64.0/0.5" format="%.2f" min="-64" max="64" inc="1" storagetype="uint8" endian="big"/>
-	<scaling name="ICSVDEM" units="%" toexpr="x*100.0/255.0" frexpr="x*255.0/100.0" format="%.2f" min="0" max="100" inc="1" storagetype="uint8" endian="big"/>
-	<scaling name="AFRMAP" units="AFR" toexpr="1881.6/x" frexpr="x*1881.6" format="%.2f" min="7" max="1881.6" inc="1" storagetype="uint8" endian="big"/>
-	<scaling name="LBaMIN" units="lb/min" toexpr="x*0.00312" frexpr="x/0.00312" format="%.2f" min="0" max="204.5" inc="1" storagetype="uint16" endian="big"/>
 
 	<table name="RAM_MUT" category="EvoLiveMap" type="RAM MUT scaling" address="FFFFA230" DEAD_var="FFFFAA30">
 		<ram_mut name="Load"			scaling="Tephra1byteLoad"	number="0x00"/>
