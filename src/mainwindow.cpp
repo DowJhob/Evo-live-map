@@ -5,6 +5,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
     ui->setupUi(this);
 
+    //=============================================================================
     addToolBar(Qt::TopToolBarArea, &_ecuManager);
     connect(&_ecuManager, &ecuManager::disConnectECUaction, this, &MainWindow::disConnectECUaction);
     connect(&_ecuManager, &ecuManager::ecu_connected,       this, &MainWindow::ecu_connected);
@@ -16,8 +17,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     //=============================================================================
     setCPW();
     //=============================================================================
-    hexEdit = new hexEditor(this);
-    ui->directHex->layout()->addWidget(hexEdit);
+    ui->tabWidget->addTab(&hexEdit, "Hex editor");
+    //=============================================================================
+    ui->tabWidget->addTab(&_loggerManager, "Logger");
     //=============================================================================
     connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &MainWindow::itemChecks);
     statusBar()->showMessage("No interface", 0);
@@ -45,7 +47,7 @@ void MainWindow::setUSBfilter(deviceNativeFilter *usbFilter)
 
 void MainWindow::setCPW()
 {
-    ui->Settings->layout()->addWidget(&cpW);
+    ui->tabWidget->addTab(&cpW, "Connection parameters");
 
     connect(&cpW._protoManager, &protoManager::protoSelected,     &_ecuManager,     &ecuManager::setProto);
     connect(&cpW.devManager,    &deviceManager::deviceSelected,   &_ecuManager,     &ecuManager::setCommDevice);

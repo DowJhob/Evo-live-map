@@ -34,6 +34,7 @@
 #include "DMA-proto/proto-manager.h"
 #include "wideband/wb-manager.h"
 
+#include "widgets/loggermanager.h"
 
 namespace Ui {
 class MainWindow;
@@ -66,22 +67,24 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
+    //======================== widget's =================================
+    ecuManager _ecuManager;
+    commParamWidget cpW;
+    loggerManager _loggerManager;
+    hexEditor hexEdit;
+    gaugeWidget wbWgt{"           = Wideband =           ", 4};
+
+    QVector<QColor> colormap;
+
     void setCPW();
     void createMapTree(Map *tab);
     void freeMapTree();
 
     void colorFromFile(QString filename);
 
-    //======================== widget's =================================
-    ecuManager _ecuManager;
-    commParamWidget cpW;
-    hexEditor *hexEdit;
-    gaugeWidget wbWgt{"           = Wideband =           ", 4};
-
     //======================== widget lists =================================
     QSet<gaugeWidget*> gauge_widget_set;
     QToolBar *loggerWidgetBar = nullptr;
-    QVector<QColor> colormap;
     void create_gauge(QString name, mutParam *param);
     void gaugeDelete();
 

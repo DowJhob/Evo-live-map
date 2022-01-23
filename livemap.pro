@@ -95,6 +95,7 @@ SOURCES += src/main.cpp\
     src/map-decl/submap.cpp \
     src/widgets/commParamWidget.cpp \
     src/widgets/gauge_widget.cpp \
+    src/widgets/loggermanager.cpp \
     src/widgets/mapWidget/mapmodel.cpp \
     src/widgets/mapWidget/mapview.cpp \
     src/widgets/mapWidget/mapwidget.cpp
@@ -143,6 +144,7 @@ HEADERS  += src/mainwindow.h \
     src/widgets/hexEditor/qhexedit/commands.h \
     src/widgets/hexEditor/qhexedit/qhexedit.h \
     src/widgets/hexEditor/hexeditor.h \
+    src/widgets/loggermanager.h \
     src/widgets/mapWidget/mapmodel.h \
     src/widgets/mapWidget/mapview.h \
     src/widgets/mapWidget/mapwidget.h

@@ -109,6 +109,40 @@
       </column>
      </widget>
     </item>
+    <item row="1" column="0" colspan="2">
+     <widget class="QListWidget" name="systemLog">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::WinPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <property name="layoutMode">
+       <enum>QListView::SinglePass</enum>
+      </property>
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="viewMode">
+       <enum>QListView::ListMode</enum>
+      </property>
+      <property name="modelColumn">
+       <number>0</number>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+      <property name="selectionRectVisible">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="1">
      <widget class="QTabWidget" name="tabWidget">
       <property name="enabled">
@@ -129,24 +163,6 @@
       <property name="elideMode">
        <enum>Qt::ElideRight</enum>
       </property>
-      <widget class="QWidget" name="Settings">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <attribute name="title">
-        <string>Connection parameters</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_2"/>
-      </widget>
-      <widget class="QWidget" name="directHex">
-       <attribute name="title">
-        <string>direct RAM-ROM reader</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_3"/>
-      </widget>
       <widget class="QWidget" name="about">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
@@ -213,40 +229,6 @@ DMA logging for Mitsu.</string>
         </item>
        </layout>
       </widget>
-     </widget>
-    </item>
-    <item row="1" column="0" colspan="2">
-     <widget class="QListWidget" name="systemLog">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::WinPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Sunken</enum>
-      </property>
-      <property name="layoutMode">
-       <enum>QListView::SinglePass</enum>
-      </property>
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <property name="viewMode">
-       <enum>QListView::ListMode</enum>
-      </property>
-      <property name="modelColumn">
-       <number>0</number>
-      </property>
-      <property name="wordWrap">
-       <bool>true</bool>
-      </property>
-      <property name="selectionRectVisible">
-       <bool>false</bool>
-      </property>
      </widget>
     </item>
    </layout>
