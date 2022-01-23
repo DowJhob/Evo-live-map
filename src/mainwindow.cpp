@@ -17,9 +17,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     //=============================================================================
     setCPW();
     //=============================================================================
-    ui->tabWidget->addTab(&hexEdit, "Hex editor");
+    //ui->tabWidget->addTab(&hexEdit, "Hex editor");
     //=============================================================================
-    ui->tabWidget->addTab(&_loggerManager, "Logger");
+    //ui->tabWidget->addTab(&_loggerManager, "Logger");
     //=============================================================================
     connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &MainWindow::itemChecks);
     statusBar()->showMessage("No interface", 0);

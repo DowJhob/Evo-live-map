@@ -64,38 +64,38 @@ void jcsbanksDMA::directDMAwrite(quint32 addr, char* buf, int lenght)
 
 void jcsbanksDMA::startLog()
 {
-    qDebug()<<"=========== jcsbanksDMA::startLog ================";
+//    qDebug()<<"=========== jcsbanksDMA::startLog ================";
 
-    for( int i = 0; i < RAM_MUT.size() ; ++i  )
-    {
-        RAM_MUT[i].offset = readSize;
-        readSize += RAM_MUT[i].scaling.getElementSize();
-        //qDebug() << "dataLogger::start" << (*_ecu_definition)->RAM_MUT[i].scaling.name << (*_ecu_definition)->RAM_MUT[i].scaling.getElementSize();
-    }
-    scaledRAM_MUTvalue.resize(RAM_MUT.size());
+//    for( int i = 0; i < RAM_MUT.size() ; ++i  )
+//    {
+//        RAM_MUT[i].offset = readSize;
+//        readSize += RAM_MUT[i].scaling.getElementSize();
+//        //qDebug() << "dataLogger::start" << (*_ecu_definition)->RAM_MUT[i].scaling.name << (*_ecu_definition)->RAM_MUT[i].scaling.getElementSize();
+//    }
+//    scaledRAM_MUTvalue.resize(RAM_MUT.size());
 
-    pollTimer->start();
+//    pollTimer->start();
 
-    //((pollHelper*)ECUproto)->startLog();
+//    //((pollHelper*)ECUproto)->startLog();
 }
 
 void jcsbanksDMA::stopLog()
 {
     qDebug()<<"=========== jcsbanksDMA::stopLog ================";
-    pollTimer->stop();
+//    pollTimer->stop();
 }
 
 void jcsbanksDMA::poll()
 {
     //qDebug() << "jcsbanksDMA::poll" ;
-    abstractMemoryScaled a = indirectDMAread(RAM_MUT_addr, readSize);
-    //a[0] = abs(QCursor::pos().x())/10;
-    //a[1] = abs(QCursor::pos().y())/6;
-    for( int i = 0; i < RAM_MUT.size() ; i++  )
-    {
-        scaledRAM_MUTvalue[i] = a.toFloatOffset( &RAM_MUT[i].scaling, RAM_MUT[i].offset );
-    }
-    emit logReady(scaledRAM_MUTvalue);
+//    abstractMemoryScaled a = indirectDMAread(RAM_MUT_addr, readSize);
+//    //a[0] = abs(QCursor::pos().x())/10;
+//    //a[1] = abs(QCursor::pos().y())/6;
+//    for( int i = 0; i < RAM_MUT.size() ; i++  )
+//    {
+//        scaledRAM_MUTvalue[i] = a.toFloatOffset( &RAM_MUT[i].scaling, RAM_MUT[i].offset );
+//    }
+//    emit logReady(scaledRAM_MUTvalue);
 }
 
 void jcsbanksDMA::sendDMAcomand(char command, unsigned long addr, unsigned long count, char *buf)

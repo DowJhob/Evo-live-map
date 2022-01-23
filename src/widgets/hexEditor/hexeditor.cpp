@@ -5,10 +5,15 @@ hexEditor::hexEditor(QWidget *parent):QWidget (parent)
     QGridLayout *lay = new QGridLayout(this);
     setLayout(lay);
     QLabel *addr = new QLabel("Start address in hex:", this);
+    addr->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     QLabel *count = new QLabel("Count", this);
+    count->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     addrEdit = new QLineEdit("0x00000000", this);
+    addrEdit->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     countEdit = new QLineEdit("0", this);
+    countEdit->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     he = new QHexEdit(this);
+    he->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
     lay->addWidget(addr, 0, 0);
     lay->addWidget(count, 0, 1);
     lay->addWidget(addrEdit, 1, 0);
