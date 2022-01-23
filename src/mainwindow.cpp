@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     //=============================================================================
     ui->tabWidget->addTab(&hexEdit, "Hex editor");
     //=============================================================================
-    ui->tabWidget->addTab(&_loggerManager, "Logger");
+    //ui->tabWidget->addTab(&_loggerManager, "Logger");
     //=============================================================================
     connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &MainWindow::itemChecks);
     statusBar()->showMessage("No interface", 0);
@@ -104,7 +104,7 @@ void MainWindow::createMap(mapDefinition *dMap)
     mapWidget *table = new mapWidget(nullptr, dMap, &colormap);
 
     //connect(table->mapModel_, &mapModel::updateRAM, this, &MainWindow::updateRAM);
-    connect(table->mapModel_, &mapModel::updateRAM, &_ecuManager, &ecuManager::updateRAM);
+    connect(table->mapModel_, &mapModel::updateRAM, &_ecuManager, &ecuManager::updateRAM, Qt::QueuedConnection);
 
     //connect(this, &MainWindow::dataLog, table->mapTable, &mapView::logReady);
     connect(&_ecuManager, &ecuManager::logReady, table->mapTable, &mapView::logReady);

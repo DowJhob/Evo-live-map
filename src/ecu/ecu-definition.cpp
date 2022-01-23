@@ -9,13 +9,17 @@ ecuDefinition::ecuDefinition()
     }
     );
     //    //connect(this_thread, &QThread::started, this, &controller::loop, Qt::QueuedConnection);
-    QObject::connect(this, &QObject::destroyed, this_thread, &QThread::quit);            // Когда удалим объект остановим поток
-    QObject::connect(this_thread, &QThread::finished, this_thread, &QThread::deleteLater);  // Когда остановим поток удалим его
+    connect(this, &ecuDefinition::destroyed, this_thread, &QThread::quit);            // Когда удалим объект остановим поток
+    connect(this, &ecuDefinition::destroyed, pollTimer, &QTimer::deleteLater);            // Когда удалим объект остановим поток
+    connect(this_thread, &QThread::finished, this_thread, &QThread::deleteLater);  // Когда остановим поток удалим его
     moveToThread(this_thread);
     this_thread->start();
 }
 
-ecuDefinition::~ecuDefinition(){
+ecuDefinition::~ecuDefinition()
+{
+    qDebug() << "=========== ~ecuDefinition ================";
+    pollTimer->deleteLater();
     for(auto c : qAsConst(RAMtables))
     {
         delete c;
@@ -117,26 +121,20 @@ void ecuDefinition::disConnectECU()
 
 void ecuDefinition::RAMreset()
 {
-    qDebug() << "ecuManager::RAMreset(addr::" << DEAD_var << ");";
+    qDebug() << "ecuDefinition::RAMreset(addr::" << DEAD_var << ");";
     quint16 r = 0x0000;
-    abstractMemoryScaled a = abstractMemoryScaled(QByteArray((char*)&r, 2));
-    a.addr = DEAD_var;
-    QMetaObject::invokeMethod(ECUproto, "directDMAwrite", Qt::QueuedConnection,
-                              Q_ARG(abstractMemoryScaled, a));
-    //ECUproto->directDMAwrite(_ecu_definition->DEAD_var, (char*)&r, 2);
+    ECUproto->directDMAwrite(DEAD_var, (char*)&r, 2);
 }
 
 void ecuDefinition::updateRAM(abstractMemoryScaled memory)
 {
-    qDebug()<< "ecuManager::updateRAM" << memory.toHex(':');
-    QMetaObject::invokeMethod(ECUproto, "directDMAwrite", Qt::QueuedConnection,
-                              Q_ARG(abstractMemoryScaled, memory));
-    //    ECUproto->directDMAwrite(memory);
+    qDebug()<< "ecuDefinition::updateRAM" << memory.toHex(':');
+    ECUproto->directDMAwrite(memory);
 }
 
 mapDefinition *ecuDefinition::getMap(Map *declMap)
 {
-    //qDebug()<<"ECU_interface::getMap"<<declMap->Name;
+    //qDebug()<<"ecuDefinition::getMap"<<declMap->Name;
     //if(declMap->rom_scaling._storagetype == Storagetype::undef || declMap->rom_scaling._storagetype == Storagetype::bloblist)
     //    return &mapDefinition();
     mapDefinition *defMap = new mapDefinition;
@@ -167,6 +165,7 @@ void ecuDefinition::poll()
 {
     //qDebug() << "jcsbanksDMA::poll" ;
     abstractMemoryScaled a = ECUproto->indirectDMAread(RAM_MUT_addr, readSize);
+
     //a[0] = abs(QCursor::pos().x())/10;
     //a[1] = abs(QCursor::pos().y())/6;
     for( int i = 0; i < RAM_MUT.size() ; i++  )
