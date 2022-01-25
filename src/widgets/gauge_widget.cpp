@@ -5,6 +5,7 @@ gaugeWidget::gaugeWidget(QString name, uint DigitNum, QWidget *parent):QWidget(p
     //       setMinimumSize(64, 64);
     //        setMaximumSize(100, 100);
     lcd.setDigitCount(DigitNum);
+    lcd.setSmallDecimalPoint(true);
     lcd.resize(QSize(400, 200));
     // lcd.setMinimumWidth( this->width() + 1 );
     QFont myFont1 = lcd.font();
