@@ -5,7 +5,7 @@ plxProto::plxProto()
     baudRate = 0;
 }
 
-QString plxProto::handleWB(QByteArray a)
+void plxProto::handleWB(QByteArray a)
 {
     uchar b;
     if (b == (uchar) 0x80) {
@@ -58,5 +58,4 @@ QString plxProto::handleWB(QByteArray a)
         break;
     }
     emit logReady(QString::number(result));
-    return "PLX";
 }

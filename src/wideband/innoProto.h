@@ -83,13 +83,10 @@ class innoProto : public wbProto
 {
 public:
     innoProto();
-    QString handleWB(QByteArray a);
+    void handleWB(QByteArray a);
 
 private:
-    //uchar* data;
-    //ulong *DataSize;
-    float result;
-    QString func_check(int func, uint _afr, uint _lambda);
+    void func_check(int func, uint _afr, uint _lambda);
 
 };
 

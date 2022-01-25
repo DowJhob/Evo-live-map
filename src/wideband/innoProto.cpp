@@ -5,25 +5,25 @@ innoProto::innoProto()
     baudRate = 19200;
 }
 
-QString innoProto::handleWB(QByteArray a)
+void innoProto::handleWB(QByteArray a)
 {
     //    if (msg->RxStatus & START_OF_MESSAGE)
-//        return; // skip
+    //        return; // skip
 
-//    printf("[%u] ",msg->Timestamp);
-//    for (unsigned int i = 0; i < msg->DataSize; i++)
-//        printf("%02X ",msg->Data[i]);
-//    printf("\n");
-//    82 43 13 0b 0c
+    //    printf("[%u] ",msg->Timestamp);
+    //    for (unsigned int i = 0; i < msg->DataSize; i++)
+    //        printf("%02X ",msg->Data[i]);
+    //    printf("\n");
+    //    82 43 13 0b 0c
 
-//a = QByteArray{"\xb2\x82\x47\x13\x01\x51"};
-//    a = QByteArray{"b2:82:43:13:0a:60"};
+    //a = QByteArray{"\xb2\x82\x47\x13\x01\x51"};
+    //    a = QByteArray{"b2:82:43:13:0a:60"};
 
 
-//    a = QByteArray{"60:b2:82:43:13:0a"};
+    //    a = QByteArray{"60:b2:82:43:13:0a"};
     uchar *data = (uchar*)a.data();
     if (a.size() < 2)
-        return 0;
+        return;
 
     inno_v1_mts_hdr hdrv1;
     inno_v2_mts_hdr hdrv2;
@@ -52,7 +52,7 @@ QString innoProto::handleWB(QByteArray a)
             payload = 14; // LM-1 V1 payload is a fixed size
         }
         if (payload + 2 != a.size())
-            return "ERR";
+            return;
         msgptr = (uchar*)data + 2;
         // work our way through the payload bytes
         while (payload)
@@ -66,7 +66,7 @@ QString innoProto::handleWB(QByteArray a)
                     *((int*)&pkt) = (msgptr[0]<<24) + (msgptr[1]<<16) + (msgptr[2]<<8) + msgptr[3];
                     msgptr += 4;
                     payload -= 4;
-                    return func_check(pkt.func, pkt.afr_msb * 128 + pkt.afr, pkt.lambda_hi * 128 + pkt.lambda);
+                    func_check(pkt.func, pkt.afr_msb * 128 + pkt.afr, pkt.lambda_hi * 128 + pkt.lambda);
                 }
                 else if ((*msgptr & 0xA2) == 0x80) // LM-1 packet (within v2 header)
                 {
@@ -75,7 +75,7 @@ QString innoProto::handleWB(QByteArray a)
                     is_lm1_packet = true;
                     msgptr += 2;
                     payload -= 2;
-                    return func_check(hdrv1.func, hdrv1.afr_msb * 128 + hdrv1.afr, 1);
+                    func_check(hdrv1.func, hdrv1.afr_msb * 128 + hdrv1.afr, 1);
                 }
                 else  // must be AUX packet
                 {
@@ -96,7 +96,7 @@ QString innoProto::handleWB(QByteArray a)
                 msgptr += 4;
                 payload -= 4;
 
-                return func_check(hdrv1.func, hdrv1.afr_msb * 128 + hdrv1.afr, pkt.lambda_hi * 128 + pkt.lambda);
+                func_check(hdrv1.func, hdrv1.afr_msb * 128 + hdrv1.afr, pkt.lambda_hi * 128 + pkt.lambda);
 
                 // get 5 AUX packets
                 qDebug() << "-- 5 AUX packets --";
@@ -113,34 +113,45 @@ QString innoProto::handleWB(QByteArray a)
             }
         }
     }
-    return "ERRR";
 }
 
-QString innoProto::func_check(int func, uint _afr, uint _lambda)
+void innoProto::func_check(int func, uint _afr, uint _lambda)
 {
     double lambda,afr;
-    //result.clear();
-    switch (func) {
-    case 0b000: {
+    float result = 0.0;
+    QString res;
+
+
+    switch (func)
+    {
+    case 0b000:
+    {
         lambda = 0.5 + 0.001 * _lambda;
         afr = lambda * 0.1 * _afr;
-        result = afr;} break;
-    case 0b001: {
+        res = QString::number(afr, 'f', 2);
+    } break;
+    case 0b001:
+    {
         double pct_o2;
         pct_o2 = 0.1 * _lambda;
         result = pct_o2;
+        res = QString::number(pct_o2, 'f', 2);
         //         qDebug() << "O2: " << pct_o2;
     } break;
-    case 0b010: result = func; break;
-    case 0b011: result = func; break;
-    case 0b100: result = ((_lambda/10) <<3) + func; break;
-    case 0b101: result = func; break;
-    case 0b110: result = (_lambda << 3) + func; break;
+
+//        emit logReady(QString::number(result, 'f', 2));
+//    }
+//    switch (func)
+//    {
+    case 0b010: res = "Cal"; break;                          // 010 Free air calibration in progress, Lambda data not valid
+    case 0b011: res = "Err"; break;                          // 011 Need Free air Calibration Request, Lambda data not valid
+    case 0b100: res = "H" + QString::number(_lambda/10); break;   // 100 Warming up, Lambda value is temp in 1/10% of operating temp.
+    case 0b101: res = "C" + QString::number(_lambda); break;      // 101 Heater Calibration, Lambda value contains calibration countdown.
+    case 0b110: res = "E" + QString::number(_lambda); break;       // 110 Error code in Lambda value
 
     }
 
     emit logReady(QString::number(result, 'f', 2));
-    return QString::number(result);
     //      emit AFR(result);
     //        010 Free air calibration in progress, Lambda data not valid
     //        011 Need Free air Calibration Request, Lambda data not valid

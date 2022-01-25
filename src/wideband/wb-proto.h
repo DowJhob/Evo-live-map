@@ -11,7 +11,7 @@ class wbProto : public QObject
     Q_OBJECT
 public:
     int baudRate = 0;
-    virtual QString handleWB(QByteArray a) = 0;
+    virtual void handleWB(QByteArray a) = 0;
 
 private:
 

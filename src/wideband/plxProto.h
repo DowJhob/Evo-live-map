@@ -21,7 +21,7 @@ public:
     ulong *DataSize;
 
     plxProto();
-    QString handleWB(QByteArray a);
+    void handleWB(QByteArray a);
 
 private:
     float result;
