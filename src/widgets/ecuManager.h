@@ -55,8 +55,8 @@ private slots:
     void startAction();
 
 signals:
-    void ecu_connected();
-    void disConnectECUaction();
+    void ecuConnected_();
+    void ecuDisconnect();
     void create_table(mapDefinition*);
 
     void updateRAM(abstractMemoryScaled memory);

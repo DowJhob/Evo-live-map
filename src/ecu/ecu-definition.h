@@ -79,8 +79,9 @@ private:
     void getScaling(const QDomElement &el);
 
 signals:
-    void ecu_connected();
-    void disConnectECUaction();
+    void ecuConnected();
+    void ecuDisconnected();
+
     void create_table(mapDefinition*);
 
     void Log(QString);

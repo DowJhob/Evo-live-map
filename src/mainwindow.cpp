@@ -7,8 +7,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     //=============================================================================
     addToolBar(Qt::TopToolBarArea, &_ecuManager);
-    connect(&_ecuManager, &ecuManager::disConnectECUaction, this, &MainWindow::disConnectECUaction);
-    connect(&_ecuManager, &ecuManager::ecu_connected,       this, &MainWindow::ecu_connected);
+    connect(&_ecuManager, &ecuManager::ecuDisconnect, this, &MainWindow::ecuDisconnect);
+    connect(&_ecuManager, &ecuManager::ecuConnected,       this, &MainWindow::ecu_connected);
     connect(&_ecuManager, &ecuManager::create_table,        this, &MainWindow::createMap);
     connect(&_ecuManager, &ecuManager::Log,                 this, &MainWindow::Log);
     //========================================================================================
@@ -17,9 +17,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     //=============================================================================
     setCPW();
     //=============================================================================
-    //ui->tabWidget->addTab(&hexEdit, "Hex editor");
+    ui->tabWidget->addTab(&hexEdit, "Hex editor");
     //=============================================================================
-    //ui->tabWidget->addTab(&_loggerManager, "Logger");
+    ui->tabWidget->addTab(&_loggerManager, "Logger");
     //=============================================================================
     connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &MainWindow::itemChecks);
     statusBar()->showMessage("No interface", 0);
@@ -74,7 +74,7 @@ void MainWindow::deviceEvent(comm_device_interface *devComm)
         _ecuManager.lockConnect(false);         // Показываем кнопки старт и сброс памяти
 }
 
-void MainWindow::disConnectECUaction()
+void MainWindow::ecuDisconnect()
 {
     cpW.setDisabled(false);
 

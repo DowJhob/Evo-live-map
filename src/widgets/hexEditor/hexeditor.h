@@ -2,6 +2,7 @@
 #define HEXEDITOR_H
 
 #include <QObject>
+#include <QGroupBox>
 
 #include <QGridLayout>
 #include <QLabel>
@@ -11,7 +12,7 @@
 #include "qhexedit/qhexedit.h"
 
 
-class hexEditor : public QWidget
+class hexEditor : public QGroupBox
 {
     Q_OBJECT
 public:

@@ -10,8 +10,8 @@ ecuManager::ecuManager(QWidget *parent) : QToolBar(parent)
     //qRegisterMetaType<char *>("char *");
 
     ECUdef = new ecuDefinition();
-    connect(ECUdef, &ecuDefinition::ecu_connected, this, &ecuManager::ecu_connected);
-    connect(ECUdef, &ecuDefinition::ecu_connected, this, &ecuManager::ecuConnected);
+    connect(ECUdef, &ecuDefinition::ecuConnected, this, &ecuManager::ecuConnected_);
+    connect(ECUdef, &ecuDefinition::ecuConnected, this, &ecuManager::ecuConnected);
     connect(ECUdef, &ecuDefinition::create_table, this, &ecuManager::create_table);
 
     connect(ECUdef, &ecuDefinition::logReady, this, &ecuManager::logReady);
@@ -70,7 +70,7 @@ void ecuManager::ecuConnected()
     qDebug() << "=========== ecuManager::connectECU ================" << devComm;
     lockReset( false);
     a_start_action->setText("Stop");
-    emit ecu_connected();
+    //emit ecuConnected_();
 }
 
 void ecuManager::startAction()
@@ -87,7 +87,7 @@ void ecuManager::startAction()
         QMetaObject::invokeMethod(ECUdef, "disConnectECU");
         a_start_action->setText("Start");
         lockReset( true);
-        emit disConnectECUaction();
+        emit ecuDisconnect();
     }
 }
 

@@ -60,7 +60,7 @@ public slots:
 private slots:
     void deviceEvent(comm_device_interface *devComm);
     void ecu_connected();
-    void disConnectECUaction();
+    void ecuDisconnect();
     void createMap(mapDefinition *dMap);
     void itemChecks(QTreeWidgetItem *item, int column);
 

@@ -11,7 +11,7 @@
 #include "../DMA-proto/proto-manager.h"
 #include "../wideband/wb-manager.h"
 
-class commParamWidget : public QWidget
+class commParamWidget : public QGroupBox
 {
     Q_OBJECT
 public:

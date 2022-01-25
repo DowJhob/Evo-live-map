@@ -1,6 +1,6 @@
 #include "hexeditor.h"
 
-hexEditor::hexEditor(QWidget *parent):QWidget (parent)
+hexEditor::hexEditor(QWidget *parent):QGroupBox (parent)
 {
     QGridLayout *lay = new QGridLayout(this);
     setLayout(lay);

@@ -166,7 +166,7 @@
       <property name="elideMode">
        <enum>Qt::ElideRight</enum>
       </property>
-      <widget class="QWidget" name="about">
+      <widget class="QGroupBox" name="about">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
          <horstretch>0</horstretch>

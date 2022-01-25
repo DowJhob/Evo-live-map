@@ -101,7 +101,7 @@ bool ecuDefinition::connectECU()
     ECUproto->RAM_MUT = RAM_MUT;
     ECUproto->RAM_MUT_addr = RAM_MUT_addr;
     //==================================================================================================
-    emit ecu_connected();
+    emit ecuConnected();
     // переберем все описания таблиц
     for ( Map *tab : qAsConst(RAMtables) )
     {
@@ -117,6 +117,7 @@ void ecuDefinition::disConnectECU()
     pollTimer->stop();
     QThread::msleep(1000);               // костыль
     devComm->close();
+    emit ecuDisconnected();
 }
 
 void ecuDefinition::RAMreset()

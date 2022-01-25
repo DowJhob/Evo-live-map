@@ -4,15 +4,20 @@
 #include <QWidget>
 #include <QMdiArea>
 #include <QLayout>
+#include <QToolBar>
 
-class loggerManager : public QMdiArea
+#include <QGroupBox>
+
+class loggerManager : public QGroupBox
 {
     Q_OBJECT
 public:
     explicit loggerManager(QWidget *parent = nullptr);
 
 private:
-    //QMdiArea logMdiArea;
+    QGroupBox commonGrpBx;
+    QMdiArea logMdiArea;
+    QToolBar tb;
 
 signals:
 

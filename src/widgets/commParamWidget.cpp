@@ -5,11 +5,11 @@
 #include <QLineEdit>
 #include <QSpacerItem>
 
-commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint defaultLogRate) : QWidget(parent)
+commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint defaultLogRate) : QGroupBox(parent)
 {
     baudRate = defaultBaudRate;
     setLayout(&commonGrpBxLayout);
-
+//setStyleSheet("border-style: sunken; border: 1px solid black;") ;
 
 
     commonGrpBxLayout.addWidget(&_protoManager, 1, 0);
@@ -18,7 +18,7 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
     commonGrpBxLayout.addWidget(&devManager, 0, 0);
 
 ///    _protoManager.addProtos();
-    QObject::connect(&devManager,   &deviceManager::tactrixArrived,   &_wbManager,  &wbManager::addTactrix);
+    connect(&devManager,   &deviceManager::tactrixArrived,   &_wbManager,  &wbManager::addTactrix);
 
 
 
