@@ -1,4 +1,6 @@
-# EVO livemap 
+# EVO livemap
+
+[Канал в дискорд](https://discord.gg/MSFSn5ywRv)
 
 [en README](enREADME.MD)
 

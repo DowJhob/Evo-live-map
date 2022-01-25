@@ -1,5 +1,7 @@
 # EVO livemap
 
+[Discord channel](https://discord.gg/MSFSn5ywRv)
+
 [ru README](README.MD)
 
 Application for editing mitsubishi controller tables on the 
