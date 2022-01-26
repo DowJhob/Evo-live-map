@@ -70,6 +70,7 @@ typedef struct
     Scaling scaling;
     int number;
     int offset;
+    QString name;
 } mutParam;
 
 #endif // TYPES_H
