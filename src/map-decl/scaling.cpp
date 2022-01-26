@@ -34,8 +34,8 @@ void Scaling::fromXML(const QDomElement &el)
     {
         format = el.attribute("format");
         increment = el.attribute("inc").toFloat(nullptr);
-        min = el.attribute("min").toInt(nullptr);
-        max = el.attribute("max").toInt(nullptr);
+        min = el.attribute("min").toFloat(nullptr);
+        max = el.attribute("max").toFloat(nullptr);
         toexpr = el.attribute("toexpr");
         frexpr = el.attribute("frexpr");
         if (el.attribute("endian") == "big")

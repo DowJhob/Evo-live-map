@@ -31,8 +31,8 @@ public:
     QString frexpr;
     QString format;
     bool endian = false;
-    int min = 0;
-    int max = 0;
+    float min = 0.0;
+    float max = 0.0;
     float increment = 0;
     QString Original;
     QString Patched;
