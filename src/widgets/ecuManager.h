@@ -32,9 +32,6 @@ public slots:
     void setProto(DMA_proto *ECUproto);
     void setLogRate(uint logRate);
 
-    void ecuConnected();
-
-
     void lockConnect(bool lockFlag);
     void lockReset(bool lockFlag);
 
@@ -53,17 +50,17 @@ private:
 
 private slots:
     void startAction();
+    void _ecuConnected();
 
 signals:
-    void ecuConnected_();
+    void ecuConnected();
     void ecuDisconnect();
-    void create_table(mapDefinition*);
+    void createMap(mapDefinition*);
 
     void updateRAM(abstractMemoryScaled memory);
 
     void Log(QString);
     void logReady(QVector<float>);
-
 
 };
 

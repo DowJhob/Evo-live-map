@@ -7,10 +7,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     //=============================================================================
     addToolBar(Qt::TopToolBarArea, &_ecuManager);
+    connect(&_ecuManager, &ecuManager::ecuConnected,  this, &MainWindow::ecuConnected);
     connect(&_ecuManager, &ecuManager::ecuDisconnect, this, &MainWindow::ecuDisconnect);
-    connect(&_ecuManager, &ecuManager::ecuConnected,       this, &MainWindow::ecu_connected);
-    connect(&_ecuManager, &ecuManager::create_table,        this, &MainWindow::createMap);
-    connect(&_ecuManager, &ecuManager::Log,                 this, &MainWindow::Log);
+    connect(&_ecuManager, &ecuManager::createMap,     this, &MainWindow::createMap);
+    connect(&_ecuManager, &ecuManager::Log,           this, &MainWindow::Log);
     //========================================================================================
     _ecuManager.addWidget(&wbWgt);
     _ecuManager.addSeparator();
@@ -51,10 +51,10 @@ void MainWindow::setCPW()
 
     connect(&cpW._protoManager, &protoManager::protoSelected,     &_ecuManager,     &ecuManager::setProto);
     connect(&cpW.devManager,    &deviceManager::deviceSelected,   &_ecuManager,     &ecuManager::setCommDevice);
-    //QObject::connect(&cpW._protoManager, &protoManager::logRateChanged,    &controller,     &ecuManager::setLogRate);
+    //connect(&cpW._protoManager, &protoManager::logRateChanged,    &controller,     &ecuManager::setLogRate);
     cpW._protoManager.addProtos();   // костыль пока
 
-    connect(&cpW.devManager, &deviceManager::deviceSelected, this, &MainWindow::deviceEvent);
+    connect(&cpW.devManager,    &deviceManager::deviceSelected, this, &MainWindow::deviceEvent);
     connect(&cpW._wbManager,    &wbManager::logReady,             &wbWgt,          &gaugeWidget::display);
 
     cpW._wbManager.fillSerial();
@@ -90,7 +90,7 @@ void MainWindow::ecuDisconnect()
     ptrRAMtables.clear();
 }
 
-void MainWindow::ecu_connected()
+void MainWindow::ecuConnected()
 {
     cpW.setDisabled(true);
 }

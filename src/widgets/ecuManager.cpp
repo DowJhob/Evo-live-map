@@ -10,13 +10,13 @@ ecuManager::ecuManager(QWidget *parent) : QToolBar(parent)
     //qRegisterMetaType<char *>("char *");
 
     ECUdef = new ecuDefinition();
-    connect(ECUdef, &ecuDefinition::ecuConnected, this, &ecuManager::ecuConnected_);
-    connect(ECUdef, &ecuDefinition::ecuConnected, this, &ecuManager::ecuConnected);
-    connect(ECUdef, &ecuDefinition::create_table, this, &ecuManager::create_table);
+    connect(ECUdef, &ecuDefinition::ecuConnected, this, &ecuManager::ecuConnected,  Qt::QueuedConnection);
+    connect(ECUdef, &ecuDefinition::ecuConnected, this, &ecuManager::_ecuConnected, Qt::QueuedConnection);
+    connect(ECUdef, &ecuDefinition::createMap,    this, &ecuManager::createMap,     Qt::QueuedConnection);
 
-    connect(ECUdef, &ecuDefinition::logReady, this, &ecuManager::logReady);
+    connect(ECUdef, &ecuDefinition::logReady,     this, &ecuManager::logReady,      Qt::QueuedConnection);
 
-    connect(this, &ecuManager::updateRAM, ECUdef, &ecuDefinition::updateRAM, Qt::QueuedConnection);
+    connect(this, &ecuManager::updateRAM,       ECUdef, &ecuDefinition::updateRAM,  Qt::QueuedConnection);
 
     //=============================================================================
     a_start_action = addAction( QIcon( ":ico/connect.png" ), "Start", this, &ecuManager::startAction);
@@ -33,14 +33,6 @@ ecuManager::ecuManager(QWidget *parent) : QToolBar(parent)
 
 ecuManager::~ecuManager()
 {
-    //    getECUdisconnect();
-
-    //    if (ECUproto != nullptr)
-    //        ECUproto->deleteLater();
-
-
-    //    if (devComm != nullptr)
-    //        devComm->deleteLater();
     qDebug() << "~ecuManager";
 }
 
@@ -65,7 +57,7 @@ void ecuManager::setLogRate(uint logRate)
     //_dataLogger->setLogRate(logRate);
 }
 
-void ecuManager::ecuConnected()
+void ecuManager::_ecuConnected()
 {
     qDebug() << "=========== ecuManager::connectECU ================" << devComm;
     lockReset( false);
@@ -90,14 +82,6 @@ void ecuManager::startAction()
         emit ecuDisconnect();
     }
 }
-
-//void ecuManager::updateRAM(abstractMemoryScaled memory)
-//{
-//    qDebug()<< "ecuManager::updateRAM" << memory.toHex(':');
-//    QMetaObject::invokeMethod(&ECUdef, "updateRAM", Qt::QueuedConnection,
-//                              Q_ARG(abstractMemoryScaled, memory));
-//    //    ECUproto->directDMAwrite(memory);
-//}
 
 void ecuManager::lockConnect(bool lockFlag)
 {

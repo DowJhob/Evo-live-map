@@ -82,7 +82,7 @@ signals:
     void ecuConnected();
     void ecuDisconnected();
 
-    void create_table(mapDefinition*);
+    void createMap(mapDefinition*);
 
     void Log(QString);
 

@@ -105,7 +105,7 @@ bool ecuDefinition::connectECU()
     // переберем все описания таблиц
     for ( Map *tab : qAsConst(RAMtables) )
     {
-        emit create_table( getMap(tab) );
+        emit createMap( getMap(tab) );
     }
     startLog();
     return true;
