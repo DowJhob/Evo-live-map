@@ -2,8 +2,7 @@
 #define COMM_DEVICE_INTERFACE_H
 
 #include <QThread>
-
-//#include "src/libs/J2534.h"
+#include <QDebug>
 
 #include "src/types.h"
 

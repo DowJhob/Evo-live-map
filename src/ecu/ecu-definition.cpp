@@ -98,8 +98,8 @@ bool ecuDefinition::connectECU()
         emit Log("xml not found");
         return false;
     }
-    ECUproto->RAM_MUT = RAM_MUT;
-    ECUproto->RAM_MUT_addr = RAM_MUT_addr;
+    //ECUproto->RAM_MUT = RAM_MUT;
+    //ECUproto->RAM_MUT_addr = RAM_MUT_addr;
     //==================================================================================================
     emit ecuConnected();
     // переберем все описания таблиц
@@ -152,12 +152,12 @@ mapDefinition *ecuDefinition::getMap(Map *declMap)
 void ecuDefinition::startLog()
 {
     qDebug()<<"=========== ecuDefinition::startLog ================";
-    for( int i = 0; i < RAM_MUT.size() ; ++i  )
-    {
-        RAM_MUT[i].offset = readSize;
-        readSize += RAM_MUT[i].scaling.getElementSize();
-        //qDebug() << "dataLogger::start" << (*_ecu_definition)->RAM_MUT[i].scaling.name << (*_ecu_definition)->RAM_MUT[i].scaling.getElementSize();
-    }
+//    for( int i = 0; i < RAM_MUT.size() ; ++i  )
+//    {
+//        RAM_MUT[i].offset = readSize;
+//        readSize += RAM_MUT[i].scaling.getElementSize();
+//        //qDebug() << "dataLogger::start" << (*_ecu_definition)->RAM_MUT[i].scaling.name << (*_ecu_definition)->RAM_MUT[i].scaling.getElementSize();
+//    }
     scaledRAM_MUTvalue.resize(RAM_MUT.size());
     pollTimer->start();
 }
@@ -165,7 +165,7 @@ void ecuDefinition::startLog()
 void ecuDefinition::poll()
 {
     //qDebug() << "jcsbanksDMA::poll" ;
-    abstractMemoryScaled a = ECUproto->indirectDMAread(RAM_MUT_addr, readSize);
+    abstractMemoryScaled a = ECUproto->indirectDMAread(RAM_MUT_addr, RAM_MUT_size);
 
     //a[0] = abs(QCursor::pos().x())/10;
     //a[1] = abs(QCursor::pos().y())/6;
@@ -201,17 +201,20 @@ void ecuDefinition::_parser(QIODevice *device)
             getScaling(el);
         if (el.tagName() == "table")                                                   // находим таблицу
         {
-            if (!el.attribute("RAM_addr").isEmpty() )
+            if (!el.attribute("RAM_addr").isEmpty() )           // Если есть адрес в оперативке - парсим
                 getLivemap(el);
+        }
+        if (el.tagName() == "live")                                                   // параметры
+        {
             QString nodeName = el.attribute("name");
-            if (nodeName == "RAM_MUT")                                     //
-            {
-                RAM_MUT_addr = node.toElement().attribute("address").toUInt(nullptr, 16);
-                DEAD_var = node.toElement().attribute("DEAD_var").toUInt(nullptr, 16);
-                getMUTparam(node.toElement());
-            }
-            if (nodeName == "DEAD var")                                    //
+            if (nodeName == "varDEAD")
                 DEAD_var = el.attribute("address").toUInt(nullptr, 16);
+            if (nodeName == "RAM_MUT")
+            {
+                RAM_MUT_addr = el.attribute("address").toUInt(nullptr, 16);
+                getMUTparam(el);
+            }
+            qDebug() << " live " << RAM_MUT_addr;
         }
         node = node.nextSibling();
     }
@@ -220,7 +223,6 @@ void ecuDefinition::_parser(QIODevice *device)
     {
         c->setScaling(&scaling_qmap);
     }
-
 }
 
 void ecuDefinition::getMUTparam(const QDomElement &element)
@@ -231,15 +233,24 @@ void ecuDefinition::getMUTparam(const QDomElement &element)
         QDomElement el = node.toElement();
         if (el.tagName() == "ram_mut") //находим параметры мут таблицы
         {
-            mutParam _mut_param;
-            _mut_param.scaling = scaling_qmap.value(el.attribute("scaling"));
+            mutParam _mut_param(el);
+            _mut_param.setScaling(scaling_qmap.value(el.attribute("scaling")));
 
-            _mut_param.number = el.attribute("number").toInt(nullptr, 16);
-            //++RAM_MUT_count;
-            RAM_MUT.insert(_mut_param.number, _mut_param );
+            if( RAM_MUT.size() < _mut_param.number + 1 )
+                RAM_MUT.resize(_mut_param.number + 1);
+            RAM_MUT[_mut_param.number] = _mut_param;
         }
         node = node.nextSibling();
     }
+    int offset = 0;
+    for(int i = 0; i < RAM_MUT.size(); i++)
+    {
+        RAM_MUT[i].offset = offset;
+        offset += RAM_MUT[i].scaling.getElementSize();
+    }
+
+    RAM_MUT_size = offset;
+    //RAM_MUT.resize(RAM_MUT_size);
 }
 
 void ecuDefinition::getLivemap(const QDomElement &element)

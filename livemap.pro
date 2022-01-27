@@ -4,8 +4,8 @@
 #
 #-------------------------------------------------
 
-CONFIG += c++11
-QT       += core gui xml serialport
+CONFIG += c++11 qwt
+QT     += core gui xml serialport
 
 GIT_VERSION = $$system(git --git-dir $$PWD/.git --work-tree $$PWD describe --always --tags)
 DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
@@ -33,11 +33,11 @@ win32-g++ {
 win32-msvc {
 #                QMAKE_LFLAGS_RELEASE += /LTCG
                 QMAKE_CXXFLAGS  += /O2
-                QMAKE_CXXFLAGS  += /arch:AVX
-                QMAKE_CXXFLAGS  += /Arch: SSE2
+#                QMAKE_CXXFLAGS  += /arch:AVX
+#                QMAKE_CXXFLAGS  += /Arch: SSE2
                 QMAKE_CFLAGS  += /O2
-                QMAKE_CFLAGS  += /arch:AVX
-                QMAKE_CFLAGS  += /Arch: SSE2
+#                QMAKE_CFLAGS  += /arch:AVX
+#                QMAKE_CFLAGS  += /Arch: SSE2
 
 #                LIBS += -L$$PWD/msvc-dll -lqwt
             }
@@ -67,6 +67,7 @@ SOURCES += src/main.cpp\
     src/DMA-proto/jcsbanksDMA.cpp \
     src/DMA-proto/stockDMA.cpp \
     src/comm-device-interface/op20.cpp \
+    src/ecu/mutparam.cpp \
     src/widgets/ecuManager.cpp \
     src/wideband/op20wb.cpp \
     src/DMA-proto/pollhelper.cpp \
@@ -105,6 +106,7 @@ HEADERS  += src/mainwindow.h \
     src/DMA-proto/proto-manager.h \
     src/abstract-memory.h \
     src/comm-device-interface/devicemanager.h \
+    src/ecu/mutparam.h \
     src/widgets/ecuManager.h \
     src/wideband/op20wb.h \
     src/DMA-proto/pollhelper.h \
@@ -154,12 +156,9 @@ HEADERS  += src/mainwindow.h \
 
 FORMS    += mainwindow.ui
 
-#DISTFILES +=
+INCLUDEPATH += C:\\Qt\\qwt-6.2.0\\src
+LIBS += -LC:\\Qt\\qwt-6.2.0\\lib -lqwt
 
-#CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
-
-#INCLUDEPATH += libs/libusb/include
-#LIBS += -Llibs/libusb/MinGW64/dll -lusb-1.0
 LIBS += -lSetupapi
 LIBS += -ladvapi32
 LIBS += -luser32

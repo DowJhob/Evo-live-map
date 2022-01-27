@@ -29,8 +29,8 @@ class DMA_proto : public pollHelper
     Q_OBJECT
 public:
     comm_device_interface **devComm = nullptr;
-    QVector<mutParam> RAM_MUT;
-    quint32 RAM_MUT_addr;
+    //QVector<mutParam> RAM_MUT;
+    //quint32 RAM_MUT_addr;
 
     DMA_proto();
     //explicit DMA_proto(comm_device_interface **devComm = nullptr);

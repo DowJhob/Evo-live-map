@@ -55,8 +55,10 @@
 	<scaling name="BatteryVoltage" units="V" toexpr="x*75/1024" frexpr="x*1024/75" format="%.2f" min="0" max="18.75" inc="0.5" storagetype="uint16" endian="big"/>
 	<scaling name="LoadError" units="%" toexpr="x*5/32-20" frexpr="(x+20)*32/5" format="%.1f" min="-20" max="20" inc="0.5" storagetype="uint16" endian="big" />
 	<scaling name="DynamicBoost" units="%" toexpr="(x-128)/2" frexpr="x*2+128" format="%.1f" min="-64" max="63.5" inc="0.5" storagetype="uint8" endian="big" />
-  		
-	<table name="RAM_MUT" category="EvoLiveMap" type="RAM MUT scaling" address="FFFFA000" DEAD_var="FFFFA800">
+
+	<live name="varDEAD" category="EvoLiveMap" address="FFFFA800" />
+
+	<live name="RAM_MUT" category="EvoLiveMap" address="FFFFA000">
 		<ram_mut name="Load"			scaling="Tephra1byteLoad"	number="0x00"/>
 		<ram_mut name="RPM"				scaling="RPMStatLimit8"		number="0x01"/>
 		<ram_mut name="Knock"			scaling="uint8"				number="0x02"/>
@@ -67,7 +69,7 @@
 		<ram_mut name="MAP_Bar"			scaling="MAP_BoostBar"		number="0x07"/>
 		<ram_mut name="TPS"				scaling="Percent255"		number="0x08"/>
 		<ram_mut name="Inj Pulse Width"	scaling="InjLatency"		number="0x09"/>
-	</table>
+	</live>
 	
 
 	<table name="Alternate High Octane Fuel Map" category="EvoLiveMap" address="37b4d" type="3D" swapxy="true" scaling="AFR" RAM_addr="FFFFA04D">

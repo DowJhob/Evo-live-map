@@ -50,8 +50,10 @@
 	<scaling name="BatteryVoltage" units="V" toexpr="x*75/1024" frexpr="x*1024/75" format="%.2f" min="0" max="18.75" inc="0.5" storagetype="uint16" endian="big"/>
 	<scaling name="LoadError" units="%" toexpr="x*5/32-20" frexpr="(x+20)*32/5" format="%.1f" min="-20" max="20" inc="0.5" storagetype="uint16" endian="big" />
 	<scaling name="DynamicBoost" units="%" toexpr="(x-128)/2" frexpr="x*2+128" format="%.1f" min="-64" max="63.5" inc="0.5" storagetype="uint8" endian="big" />
-  	
-	<table name="RAM_MUT" category="LiveMap" type="RAM MUT scaling" address="FFFF9C10" DEAD_var="FFFF9C0E">
+
+	<live name="varDEAD" category="EvoLiveMap" address="FFFF9C0E" />
+
+	<live name="RAM_MUT" category="EvoLiveMap" address="FFFF9C10">
 		<ram_mut name="Load"          scaling="Load"       number="0x00"/>
 		<ram_mut name="RPM"           scaling="RPM"        number="0x01"/>
 		<ram_mut name="Air Volume"    scaling="AirFlow Hz" number="0x02"/>
@@ -63,7 +65,7 @@
 		<ram_mut name="coolant"       scaling="Temp8"      number="0x08"/>
 		<ram_mut name="trim low"      scaling="uint8"      number="0x09"/>
 		<ram_mut name="VSS"           scaling="uint8"      number="0x0A"/>
-	</table>
+	</live>
 	
 	<table name="High Octane Fuel Map" category="LiveMap" address="37B8F" type="3D" swapxy="true" scaling="AFR" RAM_addr="FFFF9C9F">
 		<table name="Load" address="4fdc" type="X Axis" elements="18" scaling="Load" RAM_mut_number="0x00" ram_mut_scaling="Load"/>

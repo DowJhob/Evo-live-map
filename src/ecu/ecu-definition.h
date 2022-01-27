@@ -12,7 +12,8 @@
 #include <QMap>
 #include <QtXml/QDomDocument>
 
-#include "../types.h"
+//#include "../types.h"
+#include "mutparam.h"
 #include "../map-decl/map.h"
 #include "../abstract-memory.h"
 #include "../DMA-proto/DMA-proto.h"
@@ -34,6 +35,7 @@ public:
 
     quint32 DEAD_var;
     quint32 RAM_MUT_addr;
+    quint16 RAM_MUT_size;
     QVector<mutParam> RAM_MUT;
 
     QHash<QString, Map*> RAMtables;

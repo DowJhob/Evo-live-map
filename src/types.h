@@ -1,7 +1,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include "map-decl/scaling.h"
+#include <QtGlobal>
 
 enum class dir
 {
@@ -64,12 +64,5 @@ enum class deviceType{
     OP20 = 20,
     J2534 = 2534
 };
-
-typedef struct
-{
-    Scaling scaling;
-    int number;
-    int offset;
-} mutParam;
 
 #endif // TYPES_H
