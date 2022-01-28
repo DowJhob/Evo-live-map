@@ -14,7 +14,7 @@
 #include "../DMA-proto/stockDMA.h"
 #include "../DMA-proto/evoX-DMA.h"
 
-#include "../ecu/ecu-definition.h"
+#include "../ecu/ecu.h"
 
 #include "src/abstract-memory.h"
 //#include "read-request.h"
@@ -36,7 +36,7 @@ public slots:
     void lockReset(bool lockFlag);
 
 private:
-    ecuDefinition *ECUdef;
+    ecu *ECU;
 
     QAction *a_start_action;
     QAction *a_ramReset;

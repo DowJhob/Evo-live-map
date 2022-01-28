@@ -9,20 +9,20 @@ ecuManager::ecuManager(QWidget *parent) : QToolBar(parent)
 
     //qRegisterMetaType<char *>("char *");
 
-    ECUdef = new ecuDefinition();
-    connect(ECUdef, &ecuDefinition::ecuConnected, this, &ecuManager::ecuConnected,  Qt::QueuedConnection);
-    connect(ECUdef, &ecuDefinition::ecuConnected, this, &ecuManager::_ecuConnected, Qt::QueuedConnection);
-    connect(ECUdef, &ecuDefinition::createMap,    this, &ecuManager::createMap,     Qt::QueuedConnection);
+    ECU = new ecu();
+    connect(ECU, &ecu::ecuConnected, this, &ecuManager::ecuConnected,  Qt::QueuedConnection);
+    connect(ECU, &ecu::ecuConnected, this, &ecuManager::_ecuConnected, Qt::QueuedConnection);
+    connect(ECU, &ecu::createMap,    this, &ecuManager::createMap,     Qt::QueuedConnection);
 
-    connect(ECUdef, &ecuDefinition::logReady,     this, &ecuManager::logReady,      Qt::QueuedConnection);
+    connect(ECU, &ecu::logReady,     this, &ecuManager::logReady,      Qt::QueuedConnection);
 
-    connect(this, &ecuManager::updateRAM,       ECUdef, &ecuDefinition::updateRAM,  Qt::QueuedConnection);
+    connect(this, &ecuManager::updateRAM,       ECU, &ecu::updateRAM,  Qt::QueuedConnection);
 
     //=============================================================================
     a_start_action = addAction( QIcon( ":ico/connect.png" ), "Start", this, &ecuManager::startAction);
     a_start_action->setDisabled(true);
     addSeparator();
-    a_ramReset = addAction(QIcon( ":ico/Memory-Freer-icon.png" ), "RAM refresh", ECUdef, &ecuDefinition::RAMreset);
+    a_ramReset = addAction(QIcon( ":ico/Memory-Freer-icon.png" ), "RAM refresh", ECU, &ecu::RAMreset);
     a_ramReset->setDisabled(true);
 
     addSeparator();
@@ -41,14 +41,14 @@ void ecuManager::setCommDevice(comm_device_interface *dev)
     qDebug() << "=========== ecuManager::setCommDevice ================" << dev << ECUproto;
     devComm = dev;
     ECUproto->setCommDev(&dev);
-    ECUdef->setComDev(dev);
+    ECU->setComDev(dev);
 }
 
 void ecuManager::setProto(DMA_proto *ECUproto)
 {
     qDebug() << "=========== ecuManager::setProto ================";
     this->ECUproto = ECUproto;
-    ECUdef->setDMAproto(ECUproto);
+    ECU->setDMAproto(ECUproto);
     connect(ECUproto, &DMA_proto::logReady, this, &ecuManager::logReady, Qt::QueuedConnection);
 }
 
@@ -70,13 +70,13 @@ void ecuManager::startAction()
     if (a_start_action->text() == "Start")
     {
         qDebug() << "=========== ecuManager::startAction Start";
-        QMetaObject::invokeMethod(ECUdef, "connectECU");
+        QMetaObject::invokeMethod(ECU, "connectECU");
         qDebug() << "=========== ecuManager::startAction2 Start";
     }
     else
     {
         qDebug() << "=========== ecuManager::startAction Stop ================";
-        QMetaObject::invokeMethod(ECUdef, "disConnectECU");
+        QMetaObject::invokeMethod(ECU, "disConnectECU");
         a_start_action->setText("Start");
         lockReset( true);
         emit ecuDisconnect();

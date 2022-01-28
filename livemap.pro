@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 CONFIG += c++11 qwt
+#CONFIG += qwt
 QT     += core gui xml serialport
 
 GIT_VERSION = $$system(git --git-dir $$PWD/.git --work-tree $$PWD describe --always --tags)
@@ -67,6 +68,7 @@ SOURCES += src/main.cpp\
     src/DMA-proto/jcsbanksDMA.cpp \
     src/DMA-proto/stockDMA.cpp \
     src/comm-device-interface/op20.cpp \
+    src/ecu/ecu.cpp \
     src/ecu/mutparam.cpp \
     src/widgets/ecuManager.cpp \
     src/wideband/op20wb.cpp \
@@ -106,6 +108,7 @@ HEADERS  += src/mainwindow.h \
     src/DMA-proto/proto-manager.h \
     src/abstract-memory.h \
     src/comm-device-interface/devicemanager.h \
+    src/ecu/ecu.h \
     src/ecu/mutparam.h \
     src/widgets/ecuManager.h \
     src/wideband/op20wb.h \
@@ -115,7 +118,6 @@ HEADERS  += src/mainwindow.h \
     src/DMA-proto/stockDMA.h \
     src/deviceNativeFilter.h \
     src/ecu/ecu-definition.h \
-    src/ecu/evo7.h \
     src/ecu/rawstockmsg.h \
     src/fast-notation.h \
 #    src/libs/J2534.h \
@@ -156,8 +158,8 @@ HEADERS  += src/mainwindow.h \
 
 FORMS    += mainwindow.ui
 
-INCLUDEPATH += C:\\Qt\\qwt-6.2.0\\src
-LIBS += -LC:\\Qt\\qwt-6.2.0\\lib -lqwt
+#INCLUDEPATH += C:\\Qt\\qwt-6.2.0\\src
+#LIBS += -LC:\\Qt\\qwt-6.2.0\\lib -lqwt
 
 LIBS += -lSetupapi
 LIBS += -ladvapi32
