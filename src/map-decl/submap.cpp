@@ -30,8 +30,13 @@ int subMap::byteSize()
     return elements * rom_scaling.getElementSize();
 }
 
-void subMap::_setScaling(QHash<QString, Scaling> *scaling)
+void subMap::_setScaling(QHash<QString, Scaling> *scalingsConteiner)
 {
-    rom_scaling = scaling->value( rom_scaling.name );
-    RAM_MUT_scaling = scaling->value( RAM_MUT_scaling.name );
+    rom_scaling = scalingsConteiner->value( rom_scaling.name );
+    RAM_MUT_scaling = scalingsConteiner->value( RAM_MUT_scaling.name );
+}
+
+void subMap::_setMUT_number()
+{
+    ram_mut_number = 0;
 }

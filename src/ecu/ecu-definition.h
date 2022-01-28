@@ -37,6 +37,7 @@ public:
     quint32 RAM_MUT_addr;
     quint16 RAM_MUT_size;
     QVector<mutParam> RAM_MUT;
+    QHash<QString, mutParam> RAM_MUTh;
 
     QHash<QString, Map*> RAMtables;
 

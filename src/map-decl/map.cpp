@@ -26,14 +26,20 @@ void Map::fromXML(const QDomElement &element)
         }
         node = node.nextSibling();
     }
-    //        RAMtables.insert(mainTableDeclaration.Name, mainTableDeclaration);
 }
 
-void Map::setScaling(QHash<QString, Scaling> *scaling)
+void Map::setScaling(QHash<QString, Scaling> *scalingsConteiner)
 {
-    _setScaling(scaling);
-    X_axis._setScaling( scaling);
-    Y_axis._setScaling( scaling);
+    _setScaling(scalingsConteiner);
+    X_axis._setScaling( scalingsConteiner);
+    Y_axis._setScaling( scalingsConteiner);
+}
+
+void Map::setMUT_number()
+{
+    _setMUT_number();
+    X_axis._setMUT_number( );
+    Y_axis._setMUT_number( );
 }
 
 int Map::getMapSize()
@@ -50,5 +56,4 @@ void Map::getSubMapDeclaration(QDomElement node, subMap *_subTableDeclaration)  
 {
     QDomElement el = node.toElement();
     _subTableDeclaration->fromXML(el);
-
 }

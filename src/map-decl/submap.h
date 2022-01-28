@@ -21,7 +21,8 @@ public:
 
     void fromXML(QDomElement el);
     int byteSize();
-    void _setScaling(QHash<QString, Scaling> *scaling);
+    void _setScaling(QHash<QString, Scaling> *scalingsConteiner);
+    void _setMUT_number();
 };
 
 #endif // SUBMAP_H

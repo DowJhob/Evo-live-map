@@ -98,8 +98,6 @@ bool ecuDefinition::connectECU()
         emit Log("xml not found");
         return false;
     }
-    //ECUproto->RAM_MUT = RAM_MUT;
-    //ECUproto->RAM_MUT_addr = RAM_MUT_addr;
     //==================================================================================================
     emit ecuConnected();
     // переберем все описания таблиц
@@ -152,12 +150,6 @@ mapDefinition *ecuDefinition::getMap(Map *declMap)
 void ecuDefinition::startLog()
 {
     qDebug()<<"=========== ecuDefinition::startLog ================";
-//    for( int i = 0; i < RAM_MUT.size() ; ++i  )
-//    {
-//        RAM_MUT[i].offset = readSize;
-//        readSize += RAM_MUT[i].scaling.getElementSize();
-//        //qDebug() << "dataLogger::start" << (*_ecu_definition)->RAM_MUT[i].scaling.name << (*_ecu_definition)->RAM_MUT[i].scaling.getElementSize();
-//    }
     scaledRAM_MUTvalue.resize(RAM_MUT.size());
     pollTimer->start();
 }
@@ -166,7 +158,6 @@ void ecuDefinition::poll()
 {
     //qDebug() << "jcsbanksDMA::poll" ;
     abstractMemoryScaled a = ECUproto->indirectDMAread(RAM_MUT_addr, RAM_MUT_size);
-
     //a[0] = abs(QCursor::pos().x())/10;
     //a[1] = abs(QCursor::pos().y())/6;
     for( int i = 0; i < RAM_MUT.size() ; i++  )
@@ -218,10 +209,11 @@ void ecuDefinition::_parser(QIODevice *device)
         }
         node = node.nextSibling();
     }
-    // проставим скалинги
+
     for(auto c : qAsConst(RAMtables))
     {
-        c->setScaling(&scaling_qmap);
+        c->setScaling(&scaling_qmap);    // проставим скалинги
+        //c->setMUT_number();
     }
 }
 
@@ -239,6 +231,7 @@ void ecuDefinition::getMUTparam(const QDomElement &element)
             if( RAM_MUT.size() < _mut_param.number + 1 )
                 RAM_MUT.resize(_mut_param.number + 1);
             RAM_MUT[_mut_param.number] = _mut_param;
+            RAM_MUTh.insert("", _mut_param);
         }
         node = node.nextSibling();
     }

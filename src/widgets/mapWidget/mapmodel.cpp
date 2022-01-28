@@ -210,15 +210,9 @@ void mapModel::c_updateRAM(float value, const QModelIndex &index)
 
 void mapModel::logReady(QVector<float> scaledValue)
 {
-    //qDebug() << "mapModel::logReady scaledValue" << scaledValue;
-    //qDebug() << "mapModel::logReady scaled" << scaledValue.size() << declaration->X_axis.ram_mut_number << declaration->Y_axis.ram_mut_number;
-
     float x = scaledValue[declaration->X_axis.ram_mut_number];
     float y = scaledValue.at(declaration->Y_axis.ram_mut_number);
-    //tracer_calc( 100,  2000);
     tracer_calc( x,  y);
-
-
 }
 
 QBrush mapModel::background(int x, int y)
@@ -244,14 +238,9 @@ void mapModel::setBackground(int x, int y, QBrush color)
 extern QElapsedTimer t;
 void mapModel::tracer_calc(float x, float y)
 {
-    //qDebug() << "mapModel::tracer_calc: " << QString::number( t.nsecsElapsed()/1000000.0) << declaration->Name;
-
-    // QElapsedTimer t;
-    //        t.start();
     //----------------------- вычисляем координаты маркера------------------------------------------------
     current_marker.X = axis_lookup(x, horizontalHeaderData, declaration->X_axis.elements);
     current_marker.Y = axis_lookup(y, verticalHeaderData, declaration->Y_axis.elements);
-    //qDebug() << "current_marker.X" << current_marker.X;
     //----------------------- блокируем обновления редакции ----------------------------------------------------------
 //    blockSignals( true );
     // Если координаты маркера не менялись то нет нужды сохранять основные цвета и перерисовывать предыдущий
@@ -260,7 +249,6 @@ void mapModel::tracer_calc(float x, float y)
     {
         //        bool save_trace = false;
         //        if (!save_trace)
-        //
         //------------------- гашение предыдущего маркера таблицы ----------------------------------------------------
         renderTracer(&pred_marker);
         //------------------- сохраняем текущее положение для след расчета -------------------------------------------
@@ -272,14 +260,10 @@ void mapModel::tracer_calc(float x, float y)
     renderTracer(&current_marker);
     //----------------------- разблокируем обновления редакции -------------------------------------------------------
 //    blockSignals(false);//
-
-    //qDebug() << "current_marker" << current_marker.X << current_marker.Y << current_marker.X+1 << current_marker.Y+1;
     auto i = index(current_marker.Y, current_marker.X);
-
     auto j = index(current_marker.Y+1, current_marker.X+1);
 //qDebug() << "mapModel::tracer_calc indexes" << i.flags() << j;
     emit dataChanged(i, j, QVector<int>{Qt::BackgroundRole});
-
 }
 
 void mapModel::saveTracer()
@@ -294,7 +278,6 @@ void mapModel::saveTracer()
         {
             pred_marker.color[c++] = background(current_marker.X + Xj, current_marker.Y + Yi).color();
         }
-    //    qDebug() << "saveTracer: " << QString::number( t.nsecsElapsed());
 }
 
 void mapModel::renderTracer(Tracer_marker2 *marker)
@@ -310,7 +293,6 @@ void mapModel::renderTracer(Tracer_marker2 *marker)
             //                if( _item != nullptr )
             setBackground(marker->X + Xj, marker->Y + Yi, QBrush(marker->color[ c++ ]));
         }
-    //   qDebug() << "render: " << QString::number( t.nsecsElapsed());
 }
 
 void mapModel::getSaturation(float x, float y)

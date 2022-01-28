@@ -12,7 +12,8 @@ public:
     subMap Y_axis;                     //Структура заголовка оси
 
     void fromXML(const QDomElement &element);
-    void setScaling(QHash<QString, Scaling> *scaling);
+    void setScaling(QHash<QString, Scaling> *scalingsConteiner);
+    void setMUT_number();
     int getMapSize();
     int byteSize();
 
