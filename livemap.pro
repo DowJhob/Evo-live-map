@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-CONFIG += c++11 qwt
+CONFIG += c++11
 #CONFIG += qwt
 QT     += core gui xml serialport
 
