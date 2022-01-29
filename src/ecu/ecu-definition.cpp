@@ -8,10 +8,17 @@ ecuDefinition::ecuDefinition()
 ecuDefinition::~ecuDefinition()
 {
     qDebug() << "=========== ~ecuDefinition ================";
+    reset();
+}
+
+void ecuDefinition::reset()
+{
+    scalingsMaps.clear();
     for(auto c : qAsConst(RAMtables))
     {
         delete c;
     }
+    RAMtables.clear();
 }
 
 bool ecuDefinition::fromFile(QString filename)
@@ -50,12 +57,13 @@ void ecuDefinition::_parser(QIODevice *device)
     //открываем документ
     if (!doc.setContent(device, true, &errorStr, &errorLine, &errorColumn))
     {
-        qWarning("Line %d, column %d: %s", errorLine, errorColumn, "errorStr.ascii()");
+        lastError = "Line %1, column %2";
+        lastError.arg( errorLine).arg(errorColumn);
         return;
     }
     QDomElement root = doc.documentElement();
     if (root.tagName() != "rom") {
-        qWarning("The file is not a rom xml");
+        lastError = "The file is not a rom xml";
         return;
     }
     QDomNode node = root.firstChild();
@@ -86,7 +94,7 @@ void ecuDefinition::_parser(QIODevice *device)
 
     for(auto c : qAsConst(RAMtables))
     {
-        c->setScaling(&scaling_qmap);    // проставим скалинги
+        c->setScaling(&scalingsMaps);    // проставим скалинги
         //c->setMUT_number();
     }
 }
@@ -100,12 +108,12 @@ void ecuDefinition::getMUTparam(const QDomElement &element)
         if (el.tagName() == "ram_mut") //находим параметры мут таблицы
         {
             mutParam _mut_param(el);
-            _mut_param.setScaling(scaling_qmap.value(el.attribute("scaling")));
+            _mut_param.setScaling(scalingsMaps.value(el.attribute("scaling")));
 
             if( RAM_MUT.size() < _mut_param.number + 1 )
                 RAM_MUT.resize(_mut_param.number + 1);
             RAM_MUT[_mut_param.number] = _mut_param;
-            RAM_MUTh.insert("", _mut_param);
+            //RAM_MUTh.insert("", _mut_param);
         }
         node = node.nextSibling();
     }
@@ -130,5 +138,5 @@ void ecuDefinition::getLivemap(const QDomElement &element)
 void ecuDefinition::getScaling(const QDomElement &el)
 {
     Scaling sc(el);
-    scaling_qmap.insert(sc.name, sc);
+    scalingsMaps.insert(sc.name, sc);
 }

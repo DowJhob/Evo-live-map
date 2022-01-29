@@ -18,12 +18,8 @@ ecu::ecu()
 
 ecu::~ecu()
 {
-    qDebug() << "=========== ~ecuDefinition ================";
+    qDebug() << "=========== ~ecu ================";
     pollTimer->deleteLater();
-    for(auto c : qAsConst(RAMtables))
-    {
-        delete c;
-    }
 }
 
 void ecu::setComDev(comm_device_interface *_devComm)
@@ -74,7 +70,7 @@ bool ecu::connectECU()
     //==================================================================================================
     emit ecuConnected();
     // переберем все описания таблиц
-    for ( Map *tab : qAsConst(RAMtables) )
+    for ( Map *tab : qAsConst(ecuDef.RAMtables) )
     {
         emit createMap( getMap(tab) );
     }
@@ -88,6 +84,7 @@ void ecu::disConnectECU()
     pollTimer->stop();
     QThread::msleep(1000);               // костыль
     devComm->close();
+    ecuDef.reset();
     emit ecuDisconnected();
 }
 
@@ -98,7 +95,7 @@ void ecu::RAMreset()
     ECUproto->directDMAwrite(ecuDef.DEAD_var, (char*)&r, 2);
 }
 
-void ecu::updateRAM(abstractMemoryScaled memory)
+void ecu::updateRAM(offsetMemory memory)
 {
     qDebug()<< "ecuDefinition::updateRAM" << memory.toHex(':');
     ECUproto->directDMAwrite(memory);
@@ -122,7 +119,7 @@ mapDefinition *ecu::getMap(Map *declMap)
 
 void ecu::startLog()
 {
-    qDebug()<<"=========== ecuDefinition::startLog ================";
+    qDebug()<<"=========== ecuDefinition::startLog ================" << ecuDef.RAM_MUT.size();
     scaledRAM_MUTvalue.resize(ecuDef.RAM_MUT.size());
     pollTimer->start();
 }
@@ -130,9 +127,9 @@ void ecu::startLog()
 void ecu::poll()
 {
     //qDebug() << "jcsbanksDMA::poll" ;
-    abstractMemoryScaled a = ECUproto->indirectDMAread(ecuDef.RAM_MUT_addr, ecuDef.RAM_MUT_size);
-    //a[0] = abs(QCursor::pos().x())/10;
-    //a[1] = abs(QCursor::pos().y())/6;
+    offsetMemory a = ECUproto->indirectDMAread(ecuDef.RAM_MUT_addr, ecuDef.RAM_MUT_size);
+    a[0] = abs(QCursor::pos().x())/10;
+    a[1] = abs(QCursor::pos().y())/6;
     for( int i = 0; i < ecuDef.RAM_MUT.size() ; i++  )
     {
         scaledRAM_MUTvalue[i] = a.toFloatOffset( &ecuDef.RAM_MUT[i].scaling, ecuDef.RAM_MUT[i].offset );

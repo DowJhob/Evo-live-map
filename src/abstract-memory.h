@@ -8,7 +8,6 @@
 class abstractMemory: public QByteArray
 {
 public:
-    quint64 addr;
 
     abstractMemory()
     {}
@@ -20,16 +19,23 @@ private:
 
 };
 
-class abstractMemoryScaled: public abstractMemory
+///
+/// \brief The offsetMemory class stored raw memory from ecu with offset adrress
+///
+///
+class offsetMemory: public //abstractMemory
+        QByteArray
 {
 public:
-    abstractMemoryScaled();
+    quint64 addr;
 
-    abstractMemoryScaled(QByteArray a);
+    offsetMemory();
 
-    abstractMemoryScaled(Scaling *scaling, float value2);
+    offsetMemory(QByteArray a);
 
-    abstractMemoryScaled& operator  = (const QByteArray &mem);
+    offsetMemory(Scaling *scaling, float value2);
+
+    offsetMemory& operator  = (const QByteArray &mem);
 
     QByteArray fromFloat(Scaling *scaling, float value2);
 

@@ -45,7 +45,7 @@ public:
 
 public slots:
     virtual void directDMAwrite(quint32 addr, char *buf, int lenght) = 0;
-    virtual void directDMAwrite(abstractMemoryScaled memory);
+    virtual void directDMAwrite(offsetMemory memory);
 
     virtual void startLog() = 0;
     virtual void stopLog() = 0;

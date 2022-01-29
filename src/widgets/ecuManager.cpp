@@ -4,7 +4,7 @@ ecuManager::ecuManager(QWidget *parent) : QToolBar(parent)
 {
     qRegisterMetaType<Map>("Map");
     qRegisterMetaType<mapDefinition>("mapDefinition");
-    qRegisterMetaType<abstractMemoryScaled>("abstractMemoryScaled");
+    qRegisterMetaType<offsetMemory>("abstractMemoryScaled");
     qRegisterMetaType<QVector<float>>("QVector<float>");
 
     //qRegisterMetaType<char *>("char *");

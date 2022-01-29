@@ -70,15 +70,14 @@ SOURCES += src/main.cpp\
     src/comm-device-interface/op20.cpp \
     src/ecu/ecu.cpp \
     src/ecu/mutparam.cpp \
+    src/ecu/rammut.cpp \
     src/widgets/ecuManager.cpp \
     src/wideband/op20wb.cpp \
     src/DMA-proto/pollhelper.cpp \
     src/deviceNativeFilter.cpp \
     src/ecu/ecu-definition.cpp \
-    src/ecu/rawstockmsg.cpp \
     src/fast-notation.cpp \
     src/libs/j2534passthru.cpp \
-    src/logger.cpp \
     src/map-decl/map.cpp \
     src/wideband/aemProto.cpp \
     src/wideband/commdevicewb-interface.cpp \
@@ -110,6 +109,7 @@ HEADERS  += src/mainwindow.h \
     src/comm-device-interface/devicemanager.h \
     src/ecu/ecu.h \
     src/ecu/mutparam.h \
+    src/ecu/rammut.h \
     src/widgets/ecuManager.h \
     src/wideband/op20wb.h \
     src/DMA-proto/pollhelper.h \
@@ -118,7 +118,6 @@ HEADERS  += src/mainwindow.h \
     src/DMA-proto/stockDMA.h \
     src/deviceNativeFilter.h \
     src/ecu/ecu-definition.h \
-    src/ecu/rawstockmsg.h \
     src/fast-notation.h \
 #    src/libs/J2534.h \
 #    src/libs/j2534_tactrix.h \
@@ -131,7 +130,6 @@ HEADERS  += src/mainwindow.h \
     src/libs/j2534passthru.h \
     src/map-decl/map.h \
     src/map-decl/scaling.h \
-    src/logger.h \
     src/map-decl/submap.h \
     src/test-map.h \
     src/types.h \

@@ -13,11 +13,12 @@ class mapWidget : public QWidget
 {
     Q_OBJECT
 public:
+    mapView *mapTable;
+    mapModel *mapModel_;
+
     explicit mapWidget(QWidget *parent = nullptr, mapDefinition *def = nullptr, QVector<QColor> *colormap = nullptr);
     ~mapWidget();
 
-    mapView *mapTable;
-    mapModel *mapModel_;
     void setColorMap(QVector<QColor> *colormap);
 
 private:
@@ -26,7 +27,7 @@ private:
 private slots:
 
 signals:
-    void updateRAM(abstractMemoryScaled);
+    void updateRAM(offsetMemory);
 
 };
 

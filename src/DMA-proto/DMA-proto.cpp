@@ -10,7 +10,7 @@ DMA_proto::~DMA_proto()
 //    qDebug() << "~ECU_interface";
 }
 
-void DMA_proto::directDMAwrite(abstractMemoryScaled memory)
+void DMA_proto::directDMAwrite(offsetMemory memory)
 {
     qDebug()<< "DMA_proto::directDMAwrite" << memory.toHex(':');
     //        QMetaObject::invokeMethod(this, "directDMAwrite", Qt::QueuedConnection,

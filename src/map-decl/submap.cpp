@@ -22,7 +22,7 @@ void subMap::fromXML(QDomElement el)
 
 
     rom_scaling.name =  el.attribute("scaling") ; //сохраним скалинг данных таблицы
-    RAM_MUT_scaling.name =  el.attribute("ram_mut_scaling") ; //сохраним RAM скалинг данных логгера
+    //RAM_MUT_scaling.name =  el.attribute("ram_mut_scaling") ; //сохраним RAM скалинг данных логгера
 }
 
 int subMap::byteSize()
@@ -33,7 +33,7 @@ int subMap::byteSize()
 void subMap::_setScaling(QHash<QString, Scaling> *scalingsConteiner)
 {
     rom_scaling = scalingsConteiner->value( rom_scaling.name );
-    RAM_MUT_scaling = scalingsConteiner->value( RAM_MUT_scaling.name );
+    //RAM_MUT_scaling = scalingsConteiner->value( RAM_MUT_scaling.name );
 }
 
 void subMap::_setMUT_number()

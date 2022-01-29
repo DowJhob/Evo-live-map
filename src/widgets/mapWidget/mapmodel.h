@@ -7,7 +7,7 @@
 #include <QColor>
 #include <QElapsedTimer>
 
-#include "../../ecu/ecu-definition.h"
+#include "../../ecu/ecu.h"
 
 struct Tracer_marker2
 {
@@ -84,7 +84,7 @@ private:
 
 
 signals:    
-    void updateRAM(abstractMemoryScaled);
+    void updateRAM(offsetMemory);
     void upd();
 
 };

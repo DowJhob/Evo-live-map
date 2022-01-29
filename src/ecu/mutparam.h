@@ -6,12 +6,13 @@
 class mutParam
 {
 public:
-    mutParam();
-    mutParam(const QDomElement &el);
-
     Scaling scaling;
     int number;
     int offset;
+
+    mutParam();
+    mutParam(const QDomElement &el);
+
     void fromXML(const QDomElement &el);
     void setScaling(const Scaling _scaling);
 

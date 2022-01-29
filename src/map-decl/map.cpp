@@ -1,7 +1,5 @@
 #include "map.h"
 
-
-
 Map::Map()
 {
 
@@ -9,7 +7,6 @@ Map::Map()
 
 void Map::fromXML(const QDomElement &element)
 {
-    //Map mainTableDeclaration;
     getSubMapDeclaration(element, this);                              // сохраняем заголовок таблицы
 
     QDomNode node = element.firstChild();

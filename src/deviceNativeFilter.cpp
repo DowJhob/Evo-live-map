@@ -155,7 +155,7 @@ device deviceNativeFilter::getDevProp(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
     if(pDevInf == NULL)
         return device();
     QStringList qDevInf = QString::fromWCharArray((wchar_t*)pDevInf->dbcc_name).split('#');
-    //qDebug() << "enumerator::getDevProp pDevInf->dbcc_name" << qDevInf << "pDevInf->dbcc_classguid" << pDevInf->dbcc_classguid << endl;
+    qDebug() << "deviceNativeFilter::getDevProp pDevInf->dbcc_name" << qDevInf << "pDevInf->dbcc_classguid" << pDevInf->dbcc_classguid << endl;
         if (qDevInf.length() >= 3)
         {
             QString DevType = qDevInf[0].mid(qDevInf[0].indexOf("?\\") + 2 );

@@ -199,7 +199,7 @@ void mapModel::c_updateRAM(float value, const QModelIndex &index)
         offset = index.row() * declaration->X_axis.elements + index.column();
     }
 
-    abstractMemoryScaled buff(&declaration->rom_scaling, value);
+    offsetMemory buff(&declaration->rom_scaling, value);
     qDebug()<< "mapModel::c_updateRAM" << index.row() << index.column() << buff.toHex(':');
     //qDebug() <<"hop";
     offset *= declaration->rom_scaling.getElementSize();

@@ -1,23 +1,20 @@
 #ifndef ECU_H
 #define ECU_H
 
+#include <QObject>
 #include <QDebug>
-#include <QApplication>
-#include <QFile>
-#include <QFileDialog>
-#include <QtEndian>
-#include <QList>
-#include <QStack>
-#include <QChar>
-#include <QMap>
-#include <QtXml/QDomDocument>
 
-//#include "../types.h"
 #include "ecu-definition.h"
-//#include "mutparam.h"
-//#include "../map-decl/map.h"
 #include "../abstract-memory.h"
 #include "../DMA-proto/DMA-proto.h"
+
+typedef struct                                       // Содержимое таблицы
+{
+    Map *declMap;
+    offsetMemory Map;
+    offsetMemory X_axis;
+    offsetMemory Y_axis;
+} mapDefinition;
 
 class ecu : public QObject
 {
@@ -27,14 +24,6 @@ public:
 
     comm_device_interface *devComm = nullptr;
     DMA_proto *ECUproto = nullptr;
-
-    //quint32 DEAD_var;
-    //quint32 RAM_MUT_addr;
-    //quint16 RAM_MUT_size;
-    //QVector<mutParam> RAM_MUT;
-    //QHash<QString, mutParam> RAM_MUTh;
-
-    QHash<QString, Map*> RAMtables;
 
     ecu();
     ~ecu();
@@ -49,7 +38,7 @@ public slots:
 
     void RAMreset();
 
-    void updateRAM(abstractMemoryScaled memory);
+    void updateRAM(offsetMemory memory);
 
     mapDefinition *getMap(Map *declMap);
 

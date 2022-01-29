@@ -57,7 +57,7 @@ signals:
     void ecuDisconnect();
     void createMap(mapDefinition*);
 
-    void updateRAM(abstractMemoryScaled memory);
+    void updateRAM(offsetMemory memory);
 
     void Log(QString);
     void logReady(QVector<float>);

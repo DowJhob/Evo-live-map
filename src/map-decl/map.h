@@ -13,6 +13,7 @@ public:
 
     void fromXML(const QDomElement &element);
     void setScaling(QHash<QString, Scaling> *scalingsConteiner);
+
     void setMUT_number();
     int getMapSize();
     int byteSize();
