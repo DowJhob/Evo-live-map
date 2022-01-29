@@ -128,9 +128,9 @@ void ecu::poll()
 {
     //qDebug() << "jcsbanksDMA::poll" ;
     offsetMemory a = ECUproto->indirectDMAread(ecuDef.RAM_MUT_addr, ecuDef.RAM_MUT_size);
-    qDebug() << "ecu::poll" << a.toHex(':') << a.size();
-    a[0] = abs(QCursor::pos().x())/10;
-    a[1] = abs(QCursor::pos().y())/6;
+    //qDebug() << "ecu::poll" << a.toHex(':') << a.size();
+    //a[0] = abs(QCursor::pos().x())/10;
+    //a[1] = abs(QCursor::pos().y())/6;
     for( int i = 0; i < ecuDef.RAM_MUT.size() ; i++  )
     {
         scaledRAM_MUTvalue[i] = a.toFloatOffset( &ecuDef.RAM_MUT[i].scaling, ecuDef.RAM_MUT[i].offset );
