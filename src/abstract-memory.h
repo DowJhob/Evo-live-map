@@ -35,7 +35,7 @@ public:
 
     offsetMemory(Scaling *scaling, float value2);
 
-    offsetMemory& operator  = (const QByteArray &mem);
+    //offsetMemory& operator = (const QByteArray &mem);
 
     QByteArray fromFloat(Scaling *scaling, float value2);
 

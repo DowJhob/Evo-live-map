@@ -44,7 +44,9 @@ QByteArray jcsbanksDMA::indirectDMAread(quint32 addr, int lenght)
 {
     //qDebug() << "jcsbanksDMA::directDMAread";
     sendDMAcomand(0xE0, addr, lenght, nullptr);
-    //qDebug() << "jcsbanksDMA::directDMAread2";
+    QByteArray a = (*devComm)->read(lenght);
+    //qDebug() << "jcsbanksDMA::directDMAread" << a.toHex(':');
+    //return a;
     return (*devComm)->read(lenght);
 }
 

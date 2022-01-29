@@ -4,18 +4,19 @@ offsetMemory::offsetMemory()
 {}
 
 offsetMemory::offsetMemory(QByteArray a)//:abstractMemory(a)
+    :QByteArray(a)
 {
 }
 
 offsetMemory::offsetMemory(Scaling *scaling, float value2):QByteArray(fromFloat(scaling, value2))
 {}
 
-offsetMemory &offsetMemory::operator =(const QByteArray &mem)
-{
-    resize(mem.size());
-    memcpy(data(), mem.data(), mem.size());
-    return *this;
-}
+//offsetMemory &offsetMemory::operator =(const QByteArray &mem)
+//{
+//    resize(mem.size());
+//    memcpy(data(), mem.data(), mem.size());
+//    return *this;
+//}
 
 QByteArray offsetMemory::fromFloat(Scaling *scaling, float value2)
 {
