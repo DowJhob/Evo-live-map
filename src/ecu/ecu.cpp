@@ -96,15 +96,15 @@ void ecu::RAMreset()
 {
     qDebug() << "ecuDefinition::RAMreset(addr::" << ecuDef.ramMut.DEAD_var << ");";
     quint16 r = 0x0000;
-    //ECUproto->directDMAwrite(ecuDef.DEAD_var, (char*)&r, 2);
-    QMetaObject::invokeMethod(ECUproto, "directDMAwrite", Q_ARG(quint32, ecuDef.ramMut.DEAD_var), Q_ARG(char*, (char*)&r), Q_ARG(int, 2));
+    ECUproto->directDMAwrite(ecuDef.ramMut.DEAD_var, (char*)&r, 2);
+    //QMetaObject::invokeMethod(ECUproto, "directDMAwrite", Q_ARG(quint32, ecuDef.ramMut.DEAD_var), Q_ARG(char*, (char*)&r), Q_ARG(int, 2));
 }
 
 void ecu::updateRAM(offsetMemory memory)
 {
     qDebug()<< "ecuDefinition::updateRAM" << memory.toHex(':');
-    //ECUproto->directDMAwrite(memory);
-    QMetaObject::invokeMethod(ECUproto, "updateRAM", Q_ARG(offsetMemory, memory));
+    ECUproto->updateRAM(memory);
+    //QMetaObject::invokeMethod(ECUproto, "updateRAM", Q_ARG(offsetMemory, memory));
 }
 
 mapDefinition *ecu::getMap(Map *declMap)
