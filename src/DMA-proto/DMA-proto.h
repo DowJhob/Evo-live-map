@@ -9,11 +9,11 @@
 #include <QtEndian>
 #include <QElapsedTimer>
 
+#include "../ecu/rammut.h"
 #include "../abstract-memory.h"
-
 #include "../comm-device-interface/comm-device-interface.h"
 
-#include "pollhelper.h"
+//#include "pollhelper.h"
 
 enum class DMAcomand
 {
@@ -24,14 +24,12 @@ enum class DMAcomand
     directRead,
 };
 
-class DMA_proto : public pollHelper
+class DMA_proto : public QObject
 {
     Q_OBJECT
 public:
     comm_device_interface **devComm = nullptr;
-    //QVector<mutParam> RAM_MUT;
-    //quint32 RAM_MUT_addr;
-
+ramMUT *ramMut;
     DMA_proto();
     //explicit DMA_proto(comm_device_interface **devComm = nullptr);
     virtual ~DMA_proto();
@@ -45,12 +43,12 @@ public:
 
 public slots:
     virtual void directDMAwrite(quint32 addr, char *buf, int lenght) = 0;
-    virtual void directDMAwrite(offsetMemory memory);
+    void updateRAM(offsetMemory memory);
 
-    virtual void startLog() = 0;
+    virtual void startLog(ramMUT *_ramMut);
     virtual void stopLog() = 0;
 
-    virtual void poll() = 0;
+    //virtual void poll() = 0;
 
 private slots:
 
@@ -60,8 +58,9 @@ private:
     //ConnectFlag ConnectFlag;
     //uint baudRate;
 
-//signals:
-//    void Log(QString);
+
+signals:
+    void logReady(QVector<float>);
 
 };
 

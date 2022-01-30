@@ -3,11 +3,11 @@
 ecu::ecu()
 {
     QThread *this_thread = new QThread();
-    QObject::connect(this_thread, &QThread::started, this, [this](){
-        pollTimer = new QTimer(this);
-        pollTimer->setInterval(50);
-    }
-    );
+//    QObject::connect(this_thread, &QThread::started, this, [this](){
+//        //pollTimer = new QTimer(this);
+//        //pollTimer->setInterval(50);
+//    }
+//    );
     //    //connect(this_thread, &QThread::started, this, &controller::loop, Qt::QueuedConnection);
     connect(this, &ecu::destroyed, this_thread, &QThread::quit);            // Когда удалим объект остановим поток
     //connect(this, &ecuDefinition::destroyed, pollTimer, &QTimer::deleteLater);            // Когда удалим объект остановим поток
@@ -19,7 +19,7 @@ ecu::ecu()
 ecu::~ecu()
 {
     qDebug() << "=========== ~ecu ================";
-    pollTimer->deleteLater();
+    //pollTimer->deleteLater();
 }
 
 void ecu::setComDev(comm_device_interface *_devComm)
@@ -29,7 +29,8 @@ void ecu::setComDev(comm_device_interface *_devComm)
     if (devComm == nullptr  )
     {
         // все интерфесы отключены, сделай что нибудь!!!!
-        pollTimer->stop();
+        ECUproto->stopLog();
+        //pollTimer->stop();
     }
     else
         ECUproto->setCommDev(&devComm);
@@ -39,7 +40,8 @@ void ecu::setDMAproto(DMA_proto *_ECUproto)
 {
     ECUproto = _ECUproto;
     _ECUproto->setCommDev(&devComm);
-    connect(pollTimer, &QTimer::timeout, this, &ecu::poll, Qt::QueuedConnection);
+    //connect(pollTimer, &QTimer::timeout, this, &ecu::poll, Qt::QueuedConnection);
+    //connect(_ECUproto, &DMA_proto::logReady, this, &ecu::logReady);
 }
 
 bool ecu::connectECU()
@@ -74,6 +76,7 @@ bool ecu::connectECU()
     {
         emit createMap( getMap(tab) );
     }
+    qDebug()<<"=========== ecu::connectECU ================" << QThread::currentThread();
     startLog();
     return true;
 }
@@ -81,7 +84,8 @@ bool ecu::connectECU()
 void ecu::disConnectECU()
 {
     qDebug() << "=========== ecuDefinition::disConnectECU ================";
-    pollTimer->stop();
+    //pollTimer->stop();
+    ECUproto->stopLog();
     QThread::msleep(1000);               // костыль
     devComm->close();
     ecuDef.reset();
@@ -90,15 +94,17 @@ void ecu::disConnectECU()
 
 void ecu::RAMreset()
 {
-    qDebug() << "ecuDefinition::RAMreset(addr::" << ecuDef.DEAD_var << ");";
+    qDebug() << "ecuDefinition::RAMreset(addr::" << ecuDef.ramMut.DEAD_var << ");";
     quint16 r = 0x0000;
-    ECUproto->directDMAwrite(ecuDef.DEAD_var, (char*)&r, 2);
+    //ECUproto->directDMAwrite(ecuDef.DEAD_var, (char*)&r, 2);
+    QMetaObject::invokeMethod(ECUproto, "directDMAwrite", Q_ARG(quint32, ecuDef.ramMut.DEAD_var), Q_ARG(char*, (char*)&r), Q_ARG(int, 2));
 }
 
 void ecu::updateRAM(offsetMemory memory)
 {
     qDebug()<< "ecuDefinition::updateRAM" << memory.toHex(':');
-    ECUproto->directDMAwrite(memory);
+    //ECUproto->directDMAwrite(memory);
+    QMetaObject::invokeMethod(ECUproto, "updateRAM", Q_ARG(offsetMemory, memory));
 }
 
 mapDefinition *ecu::getMap(Map *declMap)
@@ -119,21 +125,28 @@ mapDefinition *ecu::getMap(Map *declMap)
 
 void ecu::startLog()
 {
-    qDebug()<<"=========== ecuDefinition::startLog ================" << ecuDef.RAM_MUT.size();
-    scaledRAM_MUTvalue.resize(ecuDef.RAM_MUT.size());
-    pollTimer->start();
+    qDebug()<<"=========== ecu::startLog ================" << QThread::currentThread();
+    //scaledRAM_MUTvalue.resize(ecuDef.ramMut.size());
+    //pollTimer->start();
+ECUproto->startLog(&ecuDef.ramMut);
+    //QMetaObject::invokeMethod(ECUproto, "startLog");
 }
 
-void ecu::poll()
+void ecu::setLogRate(int freqRate)
 {
-    //qDebug() << "jcsbanksDMA::poll" ;
-    offsetMemory a = ECUproto->indirectDMAread(ecuDef.RAM_MUT_addr, ecuDef.RAM_MUT_size);
-    //qDebug() << "ecu::poll" << a.toHex(':') << a.size();
-    //a[0] = abs(QCursor::pos().x())/10;
-    //a[1] = abs(QCursor::pos().y())/6;
-    for( int i = 0; i < ecuDef.RAM_MUT.size() ; i++  )
-    {
-        scaledRAM_MUTvalue[i] = a.toFloatOffset( &ecuDef.RAM_MUT[i].scaling, ecuDef.RAM_MUT[i].offset );
-    }
-    emit logReady(scaledRAM_MUTvalue);
+    //pollTimer->setInterval(1/freqRate);
 }
+
+//void ecu::poll()
+//{
+//    qDebug() << "ecu::poll" ;
+//    offsetMemory a = ECUproto->indirectDMAread(ecuDef.ramMut.addr, ecuDef.ramMut.byteSize);
+//    //qDebug() << "ecu::poll" << a.toHex(':') << a.size();
+//    //a[0] = abs(QCursor::pos().x())/10;
+//    //a[1] = abs(QCursor::pos().y())/6;
+//    for( int i = 0; i < ecuDef.ramMut.size() ; i++  )
+//    {
+//        scaledRAM_MUTvalue[i] = a.toFloatOffset( &ecuDef.ramMut[i].scaling, ecuDef.ramMut[i].offset );
+//    }
+//    emit logReady(scaledRAM_MUTvalue);
+//}

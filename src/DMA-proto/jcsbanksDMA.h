@@ -5,9 +5,10 @@
 #include <QDebug>
 
 #include "../comm-device-interface/j2534-interface.h"
-#include "DMA-proto.h"
+//#include "DMA-proto.h"
+#include "pollhelper.h"
 
-class jcsbanksDMA : public DMA_proto
+class jcsbanksDMA : public pollHelper
 {
     Q_OBJECT
 public:
@@ -22,7 +23,7 @@ public:
     void directDMAwrite(quint32 addr, char *buf, int lenght);
 
 public slots:
-    void startLog();
+    void startLog(ramMUT *_ramMut);
     void stopLog();
 
 private slots:

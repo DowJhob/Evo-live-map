@@ -7,10 +7,13 @@ class ramMUT : public QVector<mutParam>
 {
 public:
     quint32 DEAD_var;
-    quint32 RAM_MUT_addr;
-    quint16 RAM_MUT_size;
-    QVector<mutParam> RAM_MUT;
-    QHash<QString, mutParam> RAM_MUTh;
+    quint32 addr;
+    quint16 byteSize;
+    //QVector<mutParam> RAM_MUT;
+    ////QHash<QString, mutParam> RAM_MUTh;
+
+    QVector<float> scaledValue;
+    ////int readSize = 0;
 
     ramMUT();
 

@@ -58,7 +58,7 @@ void ecuDefinition::_parser(QIODevice *device)
     if (!doc.setContent(device, true, &errorStr, &errorLine, &errorColumn))
     {
         lastError = "Line %1, column %2";
-        lastError.arg( errorLine).arg(errorColumn);
+        lastError = lastError.arg( errorLine).arg(errorColumn);
         return;
     }
     QDomElement root = doc.documentElement();
@@ -81,13 +81,13 @@ void ecuDefinition::_parser(QIODevice *device)
         {
             QString nodeName = el.attribute("name");
             if (nodeName == "varDEAD")
-                DEAD_var = el.attribute("address").toUInt(nullptr, 16);
+                ramMut.DEAD_var = el.attribute("address").toUInt(nullptr, 16);
             if (nodeName == "RAM_MUT")
             {
-                RAM_MUT_addr = el.attribute("address").toUInt(nullptr, 16);
+                ramMut.addr = el.attribute("address").toUInt(nullptr, 16);
                 getMUTparam(el);
             }
-            qDebug() << " live " << RAM_MUT_addr;
+            qDebug() << " live " << ramMut.addr;
         }
         node = node.nextSibling();
     }
@@ -110,21 +110,21 @@ void ecuDefinition::getMUTparam(const QDomElement &element)
             mutParam _mut_param(el);
             _mut_param.setScaling(scalingsMaps.value(el.attribute("scaling")));
 
-            if( RAM_MUT.size() < _mut_param.number + 1 )
-                RAM_MUT.resize(_mut_param.number + 1);
-            RAM_MUT[_mut_param.number] = _mut_param;
+            if( ramMut.size() < _mut_param.number + 1 )
+                ramMut.resize(_mut_param.number + 1);
+            ramMut[_mut_param.number] = _mut_param;
             //RAM_MUTh.insert("", _mut_param);
         }
         node = node.nextSibling();
     }
     int offset = 0;
-    for(int i = 0; i < RAM_MUT.size(); i++)
+    for(int i = 0; i < ramMut.size(); i++)
     {
-        RAM_MUT[i].offset = offset;
-        offset += RAM_MUT[i].scaling.getElementSize();
+        ramMut[i].offset = offset;
+        offset += ramMut[i].scaling.getElementSize();
     }
 
-    RAM_MUT_size = offset;
+    ramMut.byteSize = offset;
     //RAM_MUT.resize(RAM_MUT_size);
 }
 

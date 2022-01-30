@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QDebug>
 
+#include <QTimer>
+
 #include "ecu-definition.h"
 #include "../abstract-memory.h"
 #include "../DMA-proto/DMA-proto.h"
@@ -33,31 +35,33 @@ public slots:
     void setDMAproto(DMA_proto *_ECUproto);
 
     bool connectECU();
-
     void disConnectECU();
 
-    void RAMreset();
-
     void updateRAM(offsetMemory memory);
+    void RAMreset();
 
     mapDefinition *getMap(Map *declMap);
 
-    virtual void startLog();
+    void startLog();
     //virtual void stopLog();
 
+    void setLogRate(int freqRate);
+
 private slots:
-    void poll();
+//    void poll();
 
 private:
     QVector<float> scaledRAM_MUTvalue;
     int readSize = 0;
-    QTimer *pollTimer;
+    //QTimer *pollTimer;
 
     QHash<QString, Scaling> scaling_qmap;                     //контейнер скалингов
 
 signals:
     void ecuConnected();
     void ecuDisconnected();
+
+    //void updateRAM(offsetMemory);
 
     void createMap(mapDefinition*);
 

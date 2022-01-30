@@ -25,7 +25,7 @@ public:
     void directDMAwrite(quint32 addr, char *buf, int lenght);
 
 public slots:
-    void startLog()
+    void startLog(ramMUT *ramMut)
     {
 
     }

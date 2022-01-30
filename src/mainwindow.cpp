@@ -49,14 +49,15 @@ void MainWindow::setCPW()
 {
     ui->tabWidget->addTab(&cpW, "Connection parameters");
 
-    connect(&cpW._protoManager, &protoManager::protoSelected,     &_ecuManager,     &ecuManager::setProto);
-    connect(&cpW.devManager,    &deviceManager::deviceSelected,   &_ecuManager,     &ecuManager::setCommDevice);
-    //connect(&cpW._protoManager, &protoManager::logRateChanged,    &controller,     &ecuManager::setLogRate);
+    connect(&cpW._protoManager, &protoManager::protoSelected,   &_ecuManager, &ecuManager::setProto);
+    connect(&cpW._protoManager, &protoManager::logRateChanged,  &_ecuManager, &ecuManager::logRateChanged);
+
+    connect(&cpW.devManager,    &deviceManager::deviceSelected, &_ecuManager, &ecuManager::setCommDevice);
+
+    connect(&cpW.devManager,    &deviceManager::deviceSelected, this,         &MainWindow::deviceEvent);
+    connect(&cpW._wbManager,    &wbManager::logReady,           &wbWgt,       &gaugeWidget::display);
+
     cpW._protoManager.addProtos();   // костыль пока
-
-    connect(&cpW.devManager,    &deviceManager::deviceSelected, this, &MainWindow::deviceEvent);
-    connect(&cpW._wbManager,    &wbManager::logReady,             &wbWgt,          &gaugeWidget::display);
-
     cpW._wbManager.fillSerial();
     cpW._wbManager.fillProto();
 }

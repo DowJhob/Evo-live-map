@@ -1,29 +1,27 @@
 #include "pollhelper.h"
 
-pollHelper::pollHelper() //: QObject(parent)
+pollHelper::pollHelper() : DMA_proto()
 {
-//    QThread *this_thread = new QThread();
-//    QObject::connect(this_thread, &QThread::started, this, [this](){
-//        pollTimer = new QTimer(this);
-//        pollTimer->setInterval(50);
-//        QObject::connect(pollTimer, &QTimer::timeout, this, &pollHelper::poll);
-//    }
-//    );
-//    //    //connect(this_thread, &QThread::started, this, &controller::loop, Qt::QueuedConnection);
-//    QObject::connect(this, &QObject::destroyed, this_thread, &QThread::quit);            // Когда удалим объект остановим поток
-//    QObject::connect(this_thread, &QThread::finished, this_thread, &QThread::deleteLater);  // Когда остановим поток удалим его
-//    moveToThread(this_thread);
-//    this_thread->start();
+
 }
 
-//void pollHelper::startLog()
-//{
-//    //   qDebug()<<"=========== pollHelper::startPoll ================";
-//    int rateHz = 50;
-//    pollTimer->start(rateHz);
-//}
+void pollHelper::init()
+{
+    pollTimer = new QTimer();
+    pollTimer->setInterval(50);
+    QObject::connect(pollTimer, &QTimer::timeout, this, &pollHelper::poll, Qt::DirectConnection); // Тут Qt::DirectConnection важно, что бы это выполнялось в потоке ecu
+}
 
-//void pollHelper::stopLog()
-//{
-//    pollTimer->stop();
-//}
+void pollHelper::startLog(ramMUT *ramMut)
+{
+    qDebug()<<"=========== pollHelper::startLog ================" << QThread::currentThread();
+    DMA_proto::startLog(ramMut);
+    if(pollTimer == nullptr)
+        init();
+    pollTimer->start();
+}
+
+void pollHelper::stopLog()
+{
+    pollTimer->stop();
+}

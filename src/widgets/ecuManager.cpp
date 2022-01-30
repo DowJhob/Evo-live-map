@@ -4,19 +4,22 @@ ecuManager::ecuManager(QWidget *parent) : QToolBar(parent)
 {
     qRegisterMetaType<Map>("Map");
     qRegisterMetaType<mapDefinition>("mapDefinition");
-    qRegisterMetaType<offsetMemory>("abstractMemoryScaled");
+    qRegisterMetaType<offsetMemory>("offsetMemory");
     qRegisterMetaType<QVector<float>>("QVector<float>");
 
     //qRegisterMetaType<char *>("char *");
 
     ECU = new ecu();
-    connect(ECU, &ecu::ecuConnected, this, &ecuManager::ecuConnected,  Qt::QueuedConnection);
-    connect(ECU, &ecu::ecuConnected, this, &ecuManager::_ecuConnected, Qt::QueuedConnection);
-    connect(ECU, &ecu::createMap,    this, &ecuManager::createMap,     Qt::QueuedConnection);
+    connect(ECU, &ecu::ecuConnected,          this, &ecuManager::ecuConnected,  Qt::QueuedConnection);
+    connect(ECU, &ecu::ecuConnected,          this, &ecuManager::_ecuConnected, Qt::QueuedConnection);
+    connect(ECU, &ecu::createMap,             this, &ecuManager::createMap,     Qt::QueuedConnection);
 
-    connect(ECU, &ecu::logReady,     this, &ecuManager::logReady,      Qt::QueuedConnection);
+    //connect(ECU, &ecu::logReady,              this, &ecuManager::logReady//,      //Qt::QueuedConnection
+    //        );
 
-    connect(this, &ecuManager::updateRAM,       ECU, &ecu::updateRAM,  Qt::QueuedConnection);
+    connect(this, &ecuManager::updateRAM,      ECU, &ecu::updateRAM,  Qt::QueuedConnection);
+    connect(this, &ecuManager::logRateChanged, ECU, &ecu::setLogRate, Qt::QueuedConnection);
+    //connect(this, &ecuManager::log,       ECU, &ecu::log,  Qt::QueuedConnection);
 
     //=============================================================================
     a_start_action = addAction( QIcon( ":ico/connect.png" ), "Start", this, &ecuManager::startAction);
@@ -44,17 +47,12 @@ void ecuManager::setCommDevice(comm_device_interface *dev)
     ECU->setComDev(dev);
 }
 
-void ecuManager::setProto(DMA_proto *ECUproto)
+void ecuManager::setProto(DMA_proto *_ECUproto)
 {
     qDebug() << "=========== ecuManager::setProto ================";
-    this->ECUproto = ECUproto;
-    ECU->setDMAproto(ECUproto);
-    connect(ECUproto, &DMA_proto::logReady, this, &ecuManager::logReady, Qt::QueuedConnection);
-}
-
-void ecuManager::setLogRate(uint logRate)
-{
-    //_dataLogger->setLogRate(logRate);
+    ECUproto = _ECUproto;
+    ECU->setDMAproto(_ECUproto);
+    connect(_ECUproto, &DMA_proto::logReady, this, &ecuManager::logReady, Qt::QueuedConnection);
 }
 
 void ecuManager::_ecuConnected()

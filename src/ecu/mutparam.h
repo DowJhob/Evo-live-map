@@ -6,6 +6,7 @@
 class mutParam
 {
 public:
+    //float scaledValue;
     Scaling scaling;
     int number;
     int offset;

@@ -8,6 +8,7 @@
 #include <QtXml/QDomDocument>
 
 #include "mutparam.h"
+#include "rammut.h"
 #include "../map-decl/map.h"
 #include "../abstract-memory.h"
 #include "../DMA-proto/DMA-proto.h"
@@ -16,12 +17,13 @@ class ecuDefinition //: public QObject
 {
     //Q_OBJECT
 public:
-    quint32 DEAD_var;
-    quint32 RAM_MUT_addr;
-    quint16 RAM_MUT_size;
-    QVector<mutParam> RAM_MUT;
-    QHash<QString, mutParam> RAM_MUTh;
+//    quint32 DEAD_var;
+//    quint32 RAM_MUT_addr;
+//    quint16 RAM_MUT_size;
+//    QVector<mutParam> RAM_MUT;
+//    QHash<QString, mutParam> RAM_MUTh;
 
+    ramMUT ramMut;
     QHash<QString, Map*> RAMtables;
 
     QString lastError;

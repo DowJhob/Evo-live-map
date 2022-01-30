@@ -29,8 +29,7 @@ public:
 
 public slots:
     void setCommDevice(comm_device_interface *dev);
-    void setProto(DMA_proto *ECUproto);
-    void setLogRate(uint logRate);
+    void setProto(DMA_proto *_ECUproto);
 
     void lockConnect(bool lockFlag);
     void lockReset(bool lockFlag);
@@ -47,7 +46,6 @@ private:
     char* p_in_buff;
     char* p_out_buff;
 
-
 private slots:
     void startAction();
     void _ecuConnected();
@@ -58,6 +56,8 @@ signals:
     void createMap(mapDefinition*);
 
     void updateRAM(offsetMemory memory);
+
+    void logRateChanged(int);
 
     void Log(QString);
     void logReady(QVector<float>);
