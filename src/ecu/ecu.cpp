@@ -77,7 +77,7 @@ bool ecu::connectECU()
         emit createMap( getMap(tab) );
     }
     qDebug()<<"=========== ecu::connectECU ================" << QThread::currentThread();
-    startLog();
+    ECUproto->startLog(&ecuDef.ramMut);
     return true;
 }
 
@@ -123,30 +123,7 @@ mapDefinition *ecu::getMap(Map *declMap)
     return defMap;
 }
 
-void ecu::startLog()
-{
-    qDebug()<<"=========== ecu::startLog ================" << QThread::currentThread();
-    //scaledRAM_MUTvalue.resize(ecuDef.ramMut.size());
-    //pollTimer->start();
-ECUproto->startLog(&ecuDef.ramMut);
-    //QMetaObject::invokeMethod(ECUproto, "startLog");
-}
-
 void ecu::setLogRate(int freqRate)
 {
     //pollTimer->setInterval(1/freqRate);
 }
-
-//void ecu::poll()
-//{
-//    qDebug() << "ecu::poll" ;
-//    offsetMemory a = ECUproto->indirectDMAread(ecuDef.ramMut.addr, ecuDef.ramMut.byteSize);
-//    //qDebug() << "ecu::poll" << a.toHex(':') << a.size();
-//    //a[0] = abs(QCursor::pos().x())/10;
-//    //a[1] = abs(QCursor::pos().y())/6;
-//    for( int i = 0; i < ecuDef.ramMut.size() ; i++  )
-//    {
-//        scaledRAM_MUTvalue[i] = a.toFloatOffset( &ecuDef.ramMut[i].scaling, ecuDef.ramMut[i].offset );
-//    }
-//    emit logReady(scaledRAM_MUTvalue);
-//}

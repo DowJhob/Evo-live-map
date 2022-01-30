@@ -14,8 +14,6 @@ class pollHelper : public DMA_proto
 public:
     explicit pollHelper();
 
-    QTimer *pollTimer = nullptr;
-
     virtual bool connect() = 0;
 
     virtual QByteArray indirectDMAread(quint32 addr, int lenght) = 0;
@@ -31,6 +29,7 @@ public slots:
     virtual void poll() = 0;
 
 private:
+    QTimer *pollTimer = nullptr;
     void init();
 
 private slots:

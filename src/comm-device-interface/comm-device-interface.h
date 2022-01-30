@@ -10,7 +10,6 @@ class comm_device_interface : public QObject
 {
     Q_OBJECT
 public:
-    //deviceType devType = deviceType::undef;
     QString dllName;
     QString DeviceUniqueID;
     QString DeviceDesc;

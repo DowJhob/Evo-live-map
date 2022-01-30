@@ -91,6 +91,16 @@ void stockDMA::directDMAwrite(quint32 addr, char *buf, int lenght)
     }
 }
 
+void stockDMA::startLog(ramMUT *ramMut)
+{
+
+}
+
+void stockDMA::stopLog()
+{
+
+}
+
 void stockDMA::setHeader(DMAcomand command, uchar count, quint32 addr)
 {
     //uchar packetBodySize = 0x2C;
@@ -121,4 +131,18 @@ void stockDMA::getChckSmm()
 
     // trailer
     (*devComm)->p_out_buff[DS - 1] = 0x0D;
+}
+
+void stockDMA::poll()
+{
+    //qDebug() << "jcsbanksDMA::poll" << QThread::currentThread() << ramMut->byteSize;
+    offsetMemory a = indirectDMAread(ramMut->addr, ramMut->byteSize);
+    //a[0] = abs(QCursor::pos().x())/10;
+    //a[1] = abs(QCursor::pos().y())/6;
+    for(int i = 0; i < ramMut->size(); i++)
+    {
+        ramMut->scaledValue[i] = a.toFloatOffset( &(*ramMut)[i].scaling, ramMut->at(i).offset );
+    }
+
+    emit logReady(ramMut->scaledValue);
 }

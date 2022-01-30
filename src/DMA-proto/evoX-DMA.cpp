@@ -98,6 +98,16 @@ void evoX_DMA::directDMAwrite(quint32 addr, char *buf, int lenght)
     }
 }
 
+void evoX_DMA::startLog(ramMUT *ramMut)
+{
+
+}
+
+void evoX_DMA::stopLog()
+{
+
+}
+
 void evoX_DMA::setHeader(DMAcomand command, uchar count, quint32 addr)
 {
     //uchar packetBodySize = 0x2C;

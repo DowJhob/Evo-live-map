@@ -4,11 +4,12 @@
 #include <QObject>
 #include <QDebug>
 
-#include "DMA-proto.h"
+//#include "DMA-proto.h"
+#include "pollhelper.h"
 
 #define DS 0x33
 
-class stockDMA : public DMA_proto
+class stockDMA : public pollHelper
 {
     Q_OBJECT
 public:
@@ -23,20 +24,11 @@ public:
     void directDMAwrite(quint32 addr, char *buf, int lenght);
 
 public slots:
-    void startLog(ramMUT *ramMut)
-    {
-
-    }
-    void stopLog()
-    {
-
-    }
+    void startLog(ramMUT *ramMut);
+    void stopLog();
 
 private slots:
-    void poll()
-    {
-
-    }
+    void poll();
 
 private:
     void setHeader(DMAcomand command, uchar count, quint32 addr);

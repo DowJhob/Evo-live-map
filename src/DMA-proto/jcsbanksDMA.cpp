@@ -83,8 +83,8 @@ void jcsbanksDMA::poll()
 {
     //qDebug() << "jcsbanksDMA::poll" << QThread::currentThread() << ramMut->byteSize;
     offsetMemory a = indirectDMAread(ramMut->addr, ramMut->byteSize);
-    a[0] = abs(QCursor::pos().x())/10;
-    a[1] = abs(QCursor::pos().y())/6;
+    //a[0] = abs(QCursor::pos().x())/10;
+    //a[1] = abs(QCursor::pos().y())/6;
     for(int i = 0; i < ramMut->size(); i++)
     {
         ramMut->scaledValue[i] = a.toFloatOffset( &(*ramMut)[i].scaling, ramMut->at(i).offset );
