@@ -87,8 +87,7 @@ void jcsbanksDMA::poll()
     a[1] = abs(QCursor::pos().y())/6;
     for(int i = 0; i < ramMut->size(); i++)
     {
-
-        ramMut->scaledValue[i] = a.toFloatOffset( &ramMut->data()[i].scaling, ramMut->at(i).offset );
+        ramMut->scaledValue[i] = a.toFloatOffset( &(*ramMut)[i].scaling, ramMut->at(i).offset );
     }
 
     emit logReady(ramMut->scaledValue);
