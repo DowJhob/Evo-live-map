@@ -36,10 +36,6 @@ private:
 
     void sendDMAcomand(char command, unsigned long addr, unsigned long count, char* buf = nullptr);
 
-    void setHeader(DMAcomand command, uchar count, quint32 addr);
-
-    void getChckSmm();
-
 };
 
 #endif // jcsbanksDMA_H

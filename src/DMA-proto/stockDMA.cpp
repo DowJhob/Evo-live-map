@@ -40,7 +40,7 @@ return QByteArray();
 
 QByteArray stockDMA::directDMAread(quint32 addr, int lenght)
 {
-    //qDebug()<<"=========== directDMAread ================";
+    //qDebug()<<"=========== stockDMA::directDMAread ================";
     QByteArray a;
     uchar packetSize = 0x33;
     uchar packetBodySize = 0x2C;
