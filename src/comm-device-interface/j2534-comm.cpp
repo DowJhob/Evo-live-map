@@ -1,6 +1,6 @@
-#include "j2534-interface.h"
+#include "j2534-comm.h"
 
-j2534_interface::j2534_interface(QObject *parent, QString dllName, QString DeviceDesc, QString DeviceUniqueID) : comm_device_interface(parent, dllName, DeviceDesc, DeviceUniqueID)
+j2534_comm::j2534_comm(QObject *parent, QString dllName, QString DeviceDesc, QString DeviceUniqueID) : comm_device_interface(parent, dllName, DeviceDesc, DeviceUniqueID)
 {
     //devType = deviceType::J2534;
     p_in_buff = rx_msg.m_data;
@@ -12,20 +12,20 @@ j2534_interface::j2534_interface(QObject *parent, QString dllName, QString Devic
     //qDebug() << "j2534_interface" << DeviceUniqueID;
 }
 
-j2534_interface::~j2534_interface()
+j2534_comm::~j2534_comm()
 {
     j2534->deleteLater();
     //qDebug() << "~j2534_interface";
 }
 
-void j2534_interface::setUse()
+void j2534_comm::setUse()
 {
     mu.lock();
     countUSE++;
     mu.unlock();
 }
 
-bool j2534_interface::resetUse()
+bool j2534_comm::resetUse()
 {
     mu.lock();
     bool b = (--countUSE <= 0);
@@ -35,7 +35,7 @@ bool j2534_interface::resetUse()
     return b;
 }
 
-bool j2534_interface::isNotUse()
+bool j2534_comm::isNotUse()
 {
     mu.lock();
     bool b = (countUSE == 0);
@@ -43,7 +43,7 @@ bool j2534_interface::isNotUse()
     return b;
 }
 
-bool j2534_interface::info()
+bool j2534_comm::info()
 {
     if (devID == 0)
         if (j2534->PassThruOpen(nullptr, &devID))         // Get devID
@@ -86,7 +86,7 @@ bool j2534_interface::info()
     return true;
 }
 
-bool j2534_interface::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
+bool j2534_comm::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
 {
     this->protocol = protocol;
     this->baudRate = baudRate;
@@ -113,7 +113,7 @@ bool j2534_interface::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint
     return true;
 }
 
-bool j2534_interface::close()
+bool j2534_comm::close()
 {
     //    if (j2534->PassThruStopMsgFilter(chanID, msgId) != PassThru::Status::NoError )
     //    {
@@ -144,7 +144,7 @@ bool j2534_interface::close()
     return true;
 }
 
-QByteArray j2534_interface::read(uint lenght)
+QByteArray j2534_comm::read(uint lenght)
 {
     QByteArray a;
     //QElapsedTimer tt;
@@ -169,14 +169,14 @@ QByteArray j2534_interface::read(uint lenght)
     return a;
 }
 
-void j2534_interface::write(int lenght)
+void j2534_comm::write(int lenght)
 {
     NumMsgs = 1;
     tx_msg.m_dataSize = lenght;
     j2534->PassThruWriteMsgs(chanID, &tx_msg, &NumMsgs, writeTimeout);
 }
 
-bool j2534_interface::five_baud_init()
+bool j2534_comm::five_baud_init()
 {
     //==========================================   5 baud init  ================================
     uchar EcuAddr[1]; /* ECU target address array */
@@ -202,7 +202,7 @@ bool j2534_interface::five_baud_init()
     return true;
 }
 
-bool j2534_interface::ISO9141()
+bool j2534_comm::ISO9141()
 {
     Config scp[10] = { Config{Config::Parameter::DataRate, baudRate},
                        //  Config{Config::Parameter::W0, 800},
@@ -254,7 +254,7 @@ bool j2534_interface::ISO9141()
     return true;
 }
 
-bool j2534_interface::ISO15765()
+bool j2534_comm::ISO15765()
 {
     j2534->PassThruIoctl(chanID, PassThru::IoctlID::CLEAR_RX_BUFFER, nullptr, nullptr);
     j2534->PassThruIoctl(chanID, PassThru::IoctlID::CLEAR_TX_BUFFER, nullptr, nullptr);
@@ -322,12 +322,12 @@ bool j2534_interface::ISO15765()
     QThread::msleep(100);
 }
 
-bool j2534_interface::ISO14230()
+bool j2534_comm::ISO14230()
 {
     return true;
 }
 
-bool j2534_interface::get_serial_num(unsigned long devID, char *serial)
+bool j2534_comm::get_serial_num(unsigned long devID, char *serial)
 {
     inbuf inbuf;
     outbuf outbuf;

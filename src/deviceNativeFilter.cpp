@@ -26,8 +26,9 @@ void deviceNativeFilter::notifyRegister(HWND hwnd)
         NotificationFilter.dbcc_name[0] = '\0';
         NotificationHandle = RegisterDeviceNotification( hwnd,
                                                          &NotificationFilter,
-                                                         DEVICE_NOTIFY_ALL_INTERFACE_CLASSES
-                                                         //|DEVICE_NOTIFY_WINDOW_HANDLE
+                                                         //DEVICE_NOTIFY_ALL_INTERFACE_CLASSES
+                                                         //|
+                                                         DEVICE_NOTIFY_WINDOW_HANDLE
                                                          );
         if ( NotificationHandle == nullptr )
         {
@@ -79,7 +80,7 @@ void deviceNativeFilter::handleEvent(long wParam, PDEV_BROADCAST_DEVICEINTERFACE
 
 void deviceNativeFilter::getPresentCommDevices()
 {
-    for (auto classGUID: presentInterfaces)
+    for (auto classGUID: subscribeInterfaces)
     {
         //qDebug()<< "enumerator::getPresentCommDevices";
         HDEVINFO hDevInfo;
@@ -156,15 +157,21 @@ device deviceNativeFilter::getDevProp(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
         return device();
     QStringList qDevInf = QString::fromWCharArray((wchar_t*)pDevInf->dbcc_name).split('#');
     qDebug() << "deviceNativeFilter::getDevProp pDevInf->dbcc_name" << qDevInf << "pDevInf->dbcc_classguid" << pDevInf->dbcc_classguid << endl;
-        if (qDevInf.length() >= 3)
+    if (qDevInf.length() >= 3)
+    {
+        QString DevType = qDevInf[0].mid(qDevInf[0].indexOf("?\\") + 2 );
+//        if (qDevInf[0].contains("USB"))
         {
-            QString DevType = qDevInf[0].mid(qDevInf[0].indexOf("?\\") + 2 );
-//            if (DevType != "USB")
-//                return device();
             QString DeviceInstanceId = qDevInf[1];
             QString DeviceUniqueID = qDevInf[2];
             QString reg = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Enum\\" + DevType + "\\" + DeviceInstanceId + "\\" + DeviceUniqueID;
             QSettings regKey(reg, QSettings::NativeFormat);
+
+
+
+            QSettings paramKey(reg + "\\" + "Device Parameters", QSettings::NativeFormat);
+
+
             //qDebug()<< "DeviceInstanceId" << DeviceInstanceId;
             return device
             {
@@ -173,9 +180,11 @@ device deviceNativeFilter::getDevProp(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
                         "",
                         DeviceInstanceId,
                         DeviceUniqueID,
-                        pDevInf->dbcc_classguid
+                        pDevInf->dbcc_classguid,
+                        paramKey.value("PortName", "").toString().split(';').at(1)
             };
         }
+    }
     return device{};
 }
 
@@ -210,14 +219,12 @@ QByteArray deviceNativeFilter::getDeviceDesc(HDEVINFO hDevInfo, SP_DEVINFO_DATA 
 
 void deviceNativeFilter::checkType(device dev)
 {
-   //qDebug() << "enumerator::checkType start dev.classDev" << dev.classDev;
+    //qDebug() << "enumerator::checkType start dev.classDev" << dev.classDev;
     //    if (pDevInf->dbcc_classguid == GUID({ 0x219d0508, 0x57a8, 0x4ff5, {0x97, 0xa1, 0xbd, 0x86, 0x58, 0x7c, 0x6c, 0x7e}})               // FTDI_D2XX_Device Class GUID
     //            || pDevInf->dbcc_classguid == GUID{ 0x6d1781b7, 0xc987, 0x4f6c, {0x8d, 0x4f, 0x1e, 0xfc, 0x09, 0x8b, 0xea, 0x67}} )  // проверим на соответствие тактриксу оп20
     dev.FunctionLibrary.clear();
     dev.FunctionLibrary = getDLLpath( dev.Mfg, reg64);
-    if(!dev.FunctionLibrary.isEmpty()
-            &&dev.classDev != GUID{ 0x6d1781b7, 0xc987, 0x4f6c, {0x8d, 0x4f, 0x1e, 0xfc, 0x09, 0x8b, 0xea, 0x67}}  // exlude tactrix strange interface https://www.evoxforums.com/threads/bricked-my-ecu.236402/
-            )
+    if(!dev.FunctionLibrary.isEmpty())
     {
         if(dev.DeviceInstanceId.contains(tactrixOP20_DeviceInstanceId2) )
         { //
@@ -228,12 +235,14 @@ void deviceNativeFilter::checkType(device dev)
             dev.type =  deviceType::J2534;
         }
     }
-    else if (//(dev.classDev == GUID{0x219d0508, 0x57a8, 0x4ff5, {0x97, 0xa1, 0xbd, 0x86, 0x58, 0x7c, 0x6c, 0x7e}}) //||      // FTDI_D2XX_Device Class GUID
-             //(dev.classDev == GUID{ 0x86e0d1e0, 0x8089, 0x11d0, {0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73}}) ||            // FTDI_VCP_Device Class GUID
-             (dev.classDev == GUID{ 0x4d36e978, 0xe325, 0x11ce, {0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18}})       // Serial and parralel ports standart Windows class (seeng Openport1.3 (as serial port))
-             )
+    else if (dev.classDev == GUID{ 0x4d36e978, 0xe325, 0x11ce, {0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18}})       // Serial and parralel ports standart Windows class (seeng Openport1.3 (as serial port))
     {
-        dev.type =  deviceType::OP13;
+        dev.type =  deviceType::SERIAL;
+    }
+    else if (dev.classDev == GUID{0x219d0508, 0x57a8, 0x4ff5, {0x97, 0xa1, 0xbd, 0x86, 0x58, 0x7c, 0x6c, 0x7e}}) //||      // FTDI_D2XX_Device Class GUID
+        //(dev.classDev == GUID{ 0x86e0d1e0, 0x8089, 0x11d0, {0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73}}) ||            // FTDI_VCP_Device Class GUID
+    {
+        dev.type =  deviceType::FTDI;
     }
     else
         return;

@@ -61,13 +61,14 @@ SOURCES += src/main.cpp\
     src/DMA-proto/proto-manager.cpp \
     src/abstract-memory.cpp \
     src/comm-device-interface/devicemanager.cpp \
-    src/comm-device-interface/op13.cpp \
     src/comm-device-interface/comm-device-interface.cpp \
-    src/comm-device-interface/j2534-interface.cpp \
+    src/comm-device-interface/ftdi-comm.cpp \
     src/DMA-proto/evoX-DMA.cpp \
     src/DMA-proto/jcsbanksDMA.cpp \
     src/DMA-proto/stockDMA.cpp \
+    src/comm-device-interface/j2534-comm.cpp \
     src/comm-device-interface/op20.cpp \
+    src/comm-device-interface/serial-comm.cpp \
     src/ecu/ecu.cpp \
     src/ecu/mutparam.cpp \
     src/ecu/rammut.cpp \
@@ -107,6 +108,9 @@ HEADERS  += src/mainwindow.h \
     src/DMA-proto/proto-manager.h \
     src/abstract-memory.h \
     src/comm-device-interface/devicemanager.h \
+    src/comm-device-interface/ftdi-comm.h \
+    src/comm-device-interface/j2534-comm.h \
+    src/comm-device-interface/serial-comm.h \
     src/ecu/ecu.h \
     src/ecu/mutparam.h \
     src/ecu/rammut.h \
@@ -124,8 +128,6 @@ HEADERS  += src/mainwindow.h \
     src/libs/ftdi.h \
     src/libs/ftdi_types.h \
     src/comm-device-interface/comm-device-interface.h \
-    src/comm-device-interface/j2534-interface.h \
-    src/comm-device-interface/op13.h \
     src/comm-device-interface/op20.h \
     src/libs/j2534passthru.h \
     src/map-decl/map.h \

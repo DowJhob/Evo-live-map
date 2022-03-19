@@ -10,9 +10,10 @@
 
 #include "../deviceNativeFilter.h"
 #include "comm-device-interface.h"
-#include "j2534-interface.h"
+#include "j2534-comm.h"
 #include "op20.h"
-#include "op13.h"
+#include "ftdi-comm.h"
+#include "serial-comm.h"
 
 #include "../wideband/op20wb.h"
 

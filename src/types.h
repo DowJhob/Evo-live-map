@@ -60,7 +60,8 @@ enum class eLogMsgType : quint8
 
 enum class deviceType{
     undef = 0,
-    OP13 = 13,
+    SERIAL,
+    FTDI = 13,
     OP20 = 20,
     J2534 = 2534
 };

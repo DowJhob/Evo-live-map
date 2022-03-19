@@ -33,12 +33,14 @@ void deviceManager::addDevice(device dev)
     comm_device_interface *devComm = nullptr;  // это важно если бы мы пытались добавить не инициализированную, тогда бы при попытке извлечь девайсСелектед она не прошла проверку кУвариант
     switch (dev.type)
     {
-    case deviceType::OP13  : devComm = new OP13(this, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
-    case deviceType::OP20  : devComm = new OP20(this, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID);
+    case deviceType::SERIAL  : devComm = new serial_comm(this, dev.PortName); break;
+    //case deviceType::SERIAL  : devComm = new FTDI_comm(this, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;        // Костыль пока нету  серийного интерфейса
+    case deviceType::FTDI    : devComm = new FTDI_comm(this, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
+    case deviceType::OP20    : devComm = new OP20(this, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID);
         emit tactrixArrived(new op20wb(static_cast<OP20*>(devComm)));
         break;
 
-    case deviceType::J2534 : devComm = new j2534_interface(this, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
+    case deviceType::J2534 : devComm = new j2534_comm(this, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
     default                : return;                                            //  но поскольку тут вылетим без добавления то вроде и не важно
     }
 
@@ -52,7 +54,11 @@ void deviceManager::removeDevice(device dev)
     int index = availCommDev.findText(dev.DeviceDesc + " / " + dev.DeviceUniqueID);
     comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(availCommDev.itemData(index));
     if( devComm != nullptr)
+    {
+        if(dev.type == deviceType::OP20)
+            emit tactrixRemoved(devComm);
         delete devComm;
+    }
         //devComm->deleteLater();
 
     if( index < availCommDev.count())
@@ -60,13 +66,14 @@ void deviceManager::removeDevice(device dev)
     else
         qDebug() << "Error deleting item";
 
-    emit tactrixRemoved(devComm);
 }
 
 void deviceManager::_deviceSelected(int index)
 {
     qDebug()<< "deviceManager::_deviceSelected";
     comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(availCommDev.itemData(index));
+    if(devComm ==nullptr)
+        return;
     baudRate = el_baudRate.text().toUInt();
     devComm->setBaudRate(baudRate);             // вдруг она изменилась с момента генерациии devComm
     emit deviceSelected(devComm);

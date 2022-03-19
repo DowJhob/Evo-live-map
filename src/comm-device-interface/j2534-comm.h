@@ -1,5 +1,5 @@
-#ifndef J2534_INTERFACE_H
-#define J2534_INTERFACE_H
+#ifndef J2534_COMM_H
+#define J2534_COMM_H
 
 #include <QDebug>
 #include <QMutex>
@@ -22,7 +22,7 @@ typedef struct
 } outbuf;
 
 using namespace J2534;
-class j2534_interface : public comm_device_interface//,
+class j2534_comm : public comm_device_interface//,
         //public pollHelper
 {
     friend class OP20;
@@ -32,8 +32,8 @@ public:
     uint countUSE = 0; // if higher zero device in use
     unsigned long devID = 0;   // использую как индикатор открытости, если ноль не опен!
 
-    j2534_interface(QObject *parent, QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
-    virtual ~j2534_interface();
+    j2534_comm(QObject *parent, QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
+    virtual ~j2534_comm();
 
     QMutex mu;
 
@@ -64,4 +64,4 @@ private:
 
 };
 
-#endif // J2534_INTERFACE_H
+#endif // J2534_COMM_H

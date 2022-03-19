@@ -1,7 +1,7 @@
-#include "op13.h"
+#include "ftdi-comm.h"
 #include <QCoreApplication>
 
-OP13::OP13(QObject *parent, QString dllName, QString DeviceDesc, QString DeviceUniqueID) :  comm_device_interface(parent, dllName, DeviceDesc, DeviceUniqueID)
+FTDI_comm::FTDI_comm(QObject *parent, QString dllName, QString DeviceDesc, QString DeviceUniqueID) :  comm_device_interface(parent, dllName, DeviceDesc, DeviceUniqueID)
 {
     _ftdi = new ftdi(QCoreApplication::applicationDirPath() + "\\ftd2xx.dll");
     p_in_buff = in_buf;
@@ -10,12 +10,12 @@ OP13::OP13(QObject *parent, QString dllName, QString DeviceDesc, QString DeviceU
     //info();
 }
 
-OP13::~OP13()
+FTDI_comm::~FTDI_comm()
 {
     delete _ftdi;
 }
 
-bool OP13::info()
+bool FTDI_comm::info()
 {
     DWORD numDevs =  1;
     FT_DEVICE_LIST_INFO_NODE *devInfo;
@@ -50,7 +50,7 @@ bool OP13::info()
     return true;
 }
 
-bool OP13::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
+bool FTDI_comm::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
 {
     this->protocol = protocol;
     //this->baudRate = baudRate;
@@ -81,17 +81,17 @@ bool OP13::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
     return false;
 }
 
-bool OP13::close()
+bool FTDI_comm::close()
 {
     ulong s = _ftdi->FT_Close( _ftdi->ftHandle);
     qDebug() << "OP13::close" << s;
     return true;
 }
 
-bool OP13::five_baud_init()
+bool FTDI_comm::five_baud_init()
 {
     qDebug() << "Five baud init";
-    ftdi_low_baud_sender(5, 0x00);                                 //5 baud, 0x00 ecu addr, 0x05 TCU?
+    low_baud_sender(5, 0x00);                                 //5 baud, 0x00 ecu addr, 0x05 TCU?
 
     //qDebug() << "Five baud init sended";
     //QThread::msleep(300);                             // W1 60 - 300ms
@@ -117,7 +117,7 @@ bool OP13::five_baud_init()
     return true;
 }
 
-QByteArray OP13::read(uint lenght)
+QByteArray FTDI_comm::read(uint lenght)
 {
     //Get bytes waiting to be read
 //    DWORD FT_RxQ_Bytes;
@@ -139,7 +139,7 @@ QByteArray OP13::read(uint lenght)
     return a;
 }
 
-void OP13::write(int lenght)
+void FTDI_comm::write(int lenght)
 {
     ulong Reads;
     _ftdi->FT_Write(_ftdi->ftHandle, p_out_buff, lenght, &Reads );
@@ -148,7 +148,7 @@ void OP13::write(int lenght)
     //qDebug() << "Echo readed bytes " << QByteArray(p_in_buff, lenght).toHex(':') << Reads << endl;
 }
 
-void OP13::ftdi_low_baud_sender(uint baudRate, byte value)
+void FTDI_comm::low_baud_sender(uint baudRate, byte value)
 {
     byte p;
     uint t = 1000/baudRate;
@@ -173,22 +173,22 @@ void OP13::ftdi_low_baud_sender(uint baudRate, byte value)
     _ftdi->ftStatus = _ftdi->FT_SetBreakOff(_ftdi->ftHandle);
 }
 
-bool OP13::ISO9141()
+bool FTDI_comm::ISO9141()
 {
     return true;
 }
 
-bool OP13::ISO15765()
+bool FTDI_comm::ISO15765()
 {
     return true;
 }
 
-bool OP13::ISO14230()
+bool FTDI_comm::ISO14230()
 {
     return true;
 }
 
-void OP13::getDevList()
+void FTDI_comm::getDevList()
 {
 
     FT_DEVICE_LIST_INFO_NODE *devInfo;

@@ -3,10 +3,10 @@
 
 #include <QTimer>
 
-#include "j2534-interface.h"
+#include "j2534-comm.h"
 //#include "src/wideband/commdevicewb-interface.h"
 
-class OP20 : public j2534_interface//, public commDeviceWB
+class OP20 : public j2534_comm//, public commDeviceWB
 {
     //Q_OBJECT
 public:
