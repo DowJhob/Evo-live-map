@@ -191,7 +191,14 @@ device deviceNativeFilter::getDevProp(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
 QString deviceNativeFilter::getDLLpath(QString Mfg, QString reg)
 {
     QString FunctionLibrary;
-    QSettings m(QString(reg), QSettings::NativeFormat);
+    QSettings m(QString("HKEY_LOCAL_MACHINE\\SOFTWARE"), QSettings::NativeFormat);
+
+
+    if(m.contains("WOW6432Node"))
+        m.beginGroup("WOW6432Node\\PassThruSupport.04.04");
+    else
+        m.beginGroup("PassThruSupport.04.04");
+
     const QStringList ak = m.childGroups();
     for(const QString &group: ak)
     {
@@ -200,6 +207,7 @@ QString deviceNativeFilter::getDLLpath(QString Mfg, QString reg)
         if( vendor == Mfg )
         {
             FunctionLibrary = m.value("FunctionLibrary", "").toString();
+            break;
         }
         m.endGroup();
     }

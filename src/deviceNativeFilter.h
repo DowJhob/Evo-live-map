@@ -60,6 +60,7 @@ public:
     bool nativeEventFilter(const QByteArray &eventType, void *message, long *result ) override;
 
 private:
+    QString reg = "HKEY_LOCAL_MACHINE\\SOFTWARE\\PassThruSupport.04.04";
     QString reg64 = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\PassThruSupport.04.04";
 
     /// \brief Получаем производителя и описание при событиях
