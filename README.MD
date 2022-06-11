@@ -1,5 +1,7 @@
 # EVO livemap 
 
+https://discord.gg/MSFSn5ywRv
+
 [en README](enREADME.MD)
 
 Приложение для редактирования таблиц контроллеров митсубиши на лету в ОЗУ. Работает с OpenPort1.3 и OpenPort2.0.
