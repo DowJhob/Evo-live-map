@@ -17,12 +17,12 @@
 
 #include "../wideband/op20wb.h"
 
-class deviceManager : public QGroupBox
+class commDeviceManager : public QGroupBox
 {
     Q_OBJECT
 public:
     uint baudRate;
-    deviceManager(QWidget *parent = nullptr);
+    commDeviceManager(QWidget *parent = nullptr);
 
 public slots:
     void deviceEvent(device dev);

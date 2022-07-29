@@ -18,7 +18,7 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
     commonGrpBxLayout.addWidget(&devManager, 0, 0);
 
 ///    _protoManager.addProtos();
-    connect(&devManager,   &deviceManager::tactrixArrived,   &_wbManager,  &wbManager::addTactrix);
+    connect(&devManager,   &commDeviceManager::tactrixArrived,   &_wbManager,  &wbManager::addTactrix);
 
 
 

@@ -16,7 +16,7 @@ class commParamWidget : public QGroupBox
     Q_OBJECT
 public:
     uint baudRate;
-    deviceManager devManager;
+    commDeviceManager devManager;
     protoManager _protoManager;
     wbManager _wbManager;
 

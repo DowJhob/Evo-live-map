@@ -41,7 +41,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::setUSBfilter(deviceNativeFilter *usbFilter)
 {
-    connect(usbFilter, &deviceNativeFilter::deviceEvent, &cpW.devManager, &deviceManager::deviceEvent);
+    connect(usbFilter, &deviceNativeFilter::deviceEvent, &cpW.devManager, &commDeviceManager::deviceEvent);
     //connect(usbFilter, &deviceNativeFilter::deviceEvent, this, &MainWindow::deviceEvent);
 }
 
@@ -52,9 +52,9 @@ void MainWindow::setCPW()
     connect(&cpW._protoManager, &protoManager::protoSelected,   &_ecuManager, &ecuManager::setProto);
     connect(&cpW._protoManager, &protoManager::logRateChanged,  &_ecuManager, &ecuManager::logRateChanged);
 
-    connect(&cpW.devManager,    &deviceManager::deviceSelected, &_ecuManager, &ecuManager::setCommDevice);
+    connect(&cpW.devManager,    &commDeviceManager::deviceSelected, &_ecuManager, &ecuManager::setCommDevice);
 
-    connect(&cpW.devManager,    &deviceManager::deviceSelected, this,         &MainWindow::deviceEvent);
+    connect(&cpW.devManager,    &commDeviceManager::deviceSelected, this,         &MainWindow::deviceEvent);
     connect(&cpW._wbManager,    &wbManager::logReady,           &wbWgt,       &gaugeWidget::display);
 
     cpW._protoManager.addProtos();   // костыль пока

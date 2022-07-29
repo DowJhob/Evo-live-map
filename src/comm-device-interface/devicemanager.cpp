@@ -1,6 +1,6 @@
 #include "devicemanager.h"
 
-deviceManager::deviceManager(QWidget *parent):QGroupBox(parent)
+commDeviceManager::commDeviceManager(QWidget *parent):QGroupBox(parent)
 {
     setTitle("Communication devices");
     setLayout(&layout);
@@ -14,11 +14,11 @@ deviceManager::deviceManager(QWidget *parent):QGroupBox(parent)
     layout.addWidget(&bd, 0, 1);
     layout.addWidget(&el_baudRate, 0, 2);
 
-    connect(&availCommDev,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &deviceManager::_deviceSelected);
-    connect(&el_baudRate,  &QLineEdit::editingFinished, this, &deviceManager::_baudRateChanged);
+    connect(&availCommDev,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commDeviceManager::_deviceSelected);
+    connect(&el_baudRate,  &QLineEdit::editingFinished, this, &commDeviceManager::_baudRateChanged);
 }
 
-void deviceManager::deviceEvent(device dev)
+void commDeviceManager::deviceEvent(device dev)
 {
     switch (dev.direction)
     {
@@ -27,7 +27,7 @@ void deviceManager::deviceEvent(device dev)
     }
 }
 
-void deviceManager::addDevice(device dev)
+void commDeviceManager::addDevice(device dev)
 {
     //qDebug()<< "deviceManager::addDevice start" << dev.DeviceDesc;
     comm_device_interface *devComm = nullptr;  // это важно если бы мы пытались добавить не инициализированную, тогда бы при попытке извлечь девайсСелектед она не прошла проверку кУвариант
@@ -49,7 +49,7 @@ void deviceManager::addDevice(device dev)
     availCommDev.addItem(dev.DeviceDesc + " / " + dev.DeviceUniqueID, QVariant::fromValue<comm_device_interface*>(devComm));
 }
 
-void deviceManager::removeDevice(device dev)
+void commDeviceManager::removeDevice(device dev)
 {
     int index = availCommDev.findText(dev.DeviceDesc + " / " + dev.DeviceUniqueID);
     comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(availCommDev.itemData(index));
@@ -68,7 +68,7 @@ void deviceManager::removeDevice(device dev)
 
 }
 
-void deviceManager::_deviceSelected(int index)
+void commDeviceManager::_deviceSelected(int index)
 {
     qDebug()<< "deviceManager::_deviceSelected";
     comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(availCommDev.itemData(index));
@@ -79,7 +79,7 @@ void deviceManager::_deviceSelected(int index)
     emit deviceSelected(devComm);
 }
 
-void deviceManager::_baudRateChanged()   // Обновляем скорость обмена
+void commDeviceManager::_baudRateChanged()   // Обновляем скорость обмена
 {
     comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(availCommDev.currentData());
     baudRate = el_baudRate.text().toUInt();
