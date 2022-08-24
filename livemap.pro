@@ -8,6 +8,44 @@ CONFIG += c++11
 #CONFIG += qwt
 QT     += core gui xml serialport
 
+
+
+CONFIG(debug, debug|release) {
+    VARIANT = debug
+} else {
+    VARIANT = release
+}
+
+# копирует заданные файлы в каталог назначения
+defineTest(copyToDestDir) {
+    files = $$1
+    dir = $$2
+    # заменить слеши в пути назначения для Windows
+    win32:dir ~= s,/,\\,g
+
+    for(file, files) {
+        # заменить слеши в исходном пути для Windows
+        win32:file ~= s,/,\\,g
+
+        QMAKE_POST_LINK += $$QMAKE_COPY_DIR $$shell_quote($$file) $$shell_quote($$dir) $$escape_expand(\\n\\t)
+    }
+files = $$files
+
+    message($$QMAKE_POST_LINK)
+
+    export(QMAKE_POST_LINK)
+}
+
+#copyToDestDir($$PWD/settings.ini, $$OUT_PWD/$${VARIANT}/)
+copyToDestDir($$PWD/xdf, $$OUT_PWD/$${VARIANT}/xdf/)
+copyToDestDir($$PWD/xml, $$OUT_PWD/$${VARIANT}/xml/)
+
+
+
+
+
+
+
 GIT_VERSION = $$system(git --git-dir $$PWD/.git --work-tree $$PWD describe --always --tags)
 DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
 VERSION = $$GIT_VERSION
@@ -172,3 +210,22 @@ DEFINES += QHEXEDIT_EXPORTS
 
 RESOURCES += \
     res.qrc
+
+DISTFILES += \
+    xdf/80700010-jcsbanks.xdf \
+    xdf/80700010_DMA-stockDMA-byNanner55.xdf \
+    xdf/88590015-stockDMA-byNanner55.xdf \
+    xdf/90550001-jcsbanks.xdf \
+    xdf/90550001-stockDMA-byNanner55.xdf \
+    xml/80700010_elm.xml \
+    xml/88570008.xml \
+    xml/88570008_elm.xml \
+    xml/88582714_elm.xml \
+    xml/88592714_elm.xml \
+    xml/88592715_elm.xml \
+    xml/90550001.txt \
+    xml/90550001_elm.xml \
+    xml/90552701_elm.xml \
+    xml/96262709-TephraMod-dma.xml \
+    xml/96532706-TephraMod-l2r99gst-dma.xml \
+    xml/96533706-TephraMod-l2r99gst-dma.xml
