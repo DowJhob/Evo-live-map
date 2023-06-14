@@ -25,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     connect(&_ecuManager, &ecuManager::addPatches,    &patcher, &Patcher::addPatches);
     connect(&_ecuManager, &ecuManager::ecuDisconnect, &patcher, &Patcher::clearPatches);
+    connect(&patcher, &Patcher::applyPatch, &_ecuManager, &ecuManager::applyPatch);
+    connect(&patcher, &Patcher::applyOriginal, &_ecuManager, &ecuManager::applyOriginal);
     //=============================================================================
     connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &MainWindow::itemChecks);
     statusBar()->showMessage("No interface", 0);

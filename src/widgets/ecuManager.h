@@ -34,6 +34,9 @@ public slots:
     void lockConnect(bool lockFlag);
     void lockReset(bool lockFlag);
 
+    void applyPatch(bloblistPatch* patch);
+    void applyOriginal(bloblistPatch* patch);
+
 private:
     ecu *ECU;
 

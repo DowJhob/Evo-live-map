@@ -119,3 +119,13 @@ void ecuManager::lockReset(bool lockFlag)
 {
     a_ramReset->setDisabled(lockFlag);
 }
+
+void ecuManager::applyPatch(bloblistPatch *patch)
+{
+// не тут, надоже это все в файле делать!
+}
+
+void ecuManager::applyOriginal(bloblistPatch *patch)
+{
+
+}

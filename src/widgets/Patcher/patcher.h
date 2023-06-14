@@ -30,6 +30,10 @@ private slots:
 private:
     Ui::Patcher *ui;
     void addPatchItem(bloblistPatch* patch);
+
+signals:
+    void applyPatch(bloblistPatch* patch);
+    void applyOriginal(bloblistPatch* patch);
 };
 
 #endif // PATCHER_H
