@@ -2,7 +2,11 @@
 
 Map::Map()
 {
+}
 
+Map::Map(const QDomElement &element)
+{
+    fromXML(element);
 }
 
 void Map::fromXML(const QDomElement &element)

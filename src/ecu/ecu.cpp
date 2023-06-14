@@ -3,11 +3,11 @@
 ecu::ecu()
 {
     QThread *this_thread = new QThread();
-//    QObject::connect(this_thread, &QThread::started, this, [this](){
-//        //pollTimer = new QTimer(this);
-//        //pollTimer->setInterval(50);
-//    }
-//    );
+    //    QObject::connect(this_thread, &QThread::started, this, [this](){
+    //        //pollTimer = new QTimer(this);
+    //        //pollTimer->setInterval(50);
+    //    }
+    //    );
     //    //connect(this_thread, &QThread::started, this, &controller::loop, Qt::QueuedConnection);
     connect(this, &ecu::destroyed, this_thread, &QThread::quit);            // Когда удалим объект остановим поток
     //connect(this, &ecuDefinition::destroyed, pollTimer, &QTimer::deleteLater);            // Когда удалим объект остановим поток
@@ -71,13 +71,13 @@ bool ecu::connectECU()
     }
     //==================================================================================================
     emit ecuConnected();
-    // переберем все описания таблиц
-    for ( Map *tab : qAsConst(ecuDef.RAMtables) )
-    {
-        emit createMap( getMap(tab) );
-    }
-    qDebug()<<"=========== ecu::connectECU ================" << QThread::currentThread();
-    ECUproto->startLog(&ecuDef.ramMut);
+//    // переберем все описания таблиц
+//    for ( Map *tab : qAsConst(ecuDef.RAMtables) )
+//    {
+//        emit createMap( getMap(tab) );
+//    }
+//    qDebug()<<"=========== ecu::connectECU ================" << QThread::currentThread();
+//    ECUproto->startLog(&ecuDef.ramMut);
     return true;
 }
 
@@ -90,6 +90,16 @@ void ecu::disConnectECU()
     devComm->close();
     ecuDef.reset();
     emit ecuDisconnected();
+}
+
+void ecu::startLog()
+{
+    ECUproto->startLog(&ecuDef.ramMut);
+}
+
+void ecu::stopLog()
+{
+    ECUproto->stopLog();
 }
 
 void ecu::RAMreset()

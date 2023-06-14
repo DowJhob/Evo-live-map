@@ -110,6 +110,8 @@ SOURCES += src/main.cpp\
     src/ecu/ecu.cpp \
     src/ecu/mutparam.cpp \
     src/ecu/rammut.cpp \
+    src/map-decl/bloblistpatch.cpp \
+    src/widgets/Patcher/patcher.cpp \
     src/widgets/ecuManager.cpp \
     src/wideband/op20wb.cpp \
     src/DMA-proto/pollhelper.cpp \
@@ -125,6 +127,7 @@ SOURCES += src/main.cpp\
     src/wideband/serialwb.cpp \
     src/wideband/wb-manager.cpp \
     src/wideband/wb-proto.cpp \
+    src/widgets/ecumanager2.cpp \
     src/widgets/hexEditor/qhexedit/chunks.cpp \
     src/widgets/hexEditor/qhexedit/commands.cpp \
     src/widgets/hexEditor/qhexedit/qhexedit.cpp \
@@ -152,6 +155,8 @@ HEADERS  += src/mainwindow.h \
     src/ecu/ecu.h \
     src/ecu/mutparam.h \
     src/ecu/rammut.h \
+    src/map-decl/bloblistpatch.h \
+    src/widgets/Patcher/patcher.h \
     src/widgets/ecuManager.h \
     src/wideband/op20wb.h \
     src/DMA-proto/pollhelper.h \
@@ -181,6 +186,7 @@ HEADERS  += src/mainwindow.h \
     src/wideband/wb-manager.h \
     src/wideband/wb-proto.h \
     src/widgets/commParamWidget.h \
+    src/widgets/ecumanager2.h \
     src/widgets/gauge_widget.h \
     src/widgets/hexEditor/qhexedit/chunks.h \
     src/widgets/hexEditor/qhexedit/commands.h \
@@ -194,7 +200,9 @@ HEADERS  += src/mainwindow.h \
     #libs/libusb/include/libusb.h \
     #graph_logger.h \
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    src/widgets/Patcher/patcher.ui \
+    src/widgets/ecumanager2.ui
 
 #INCLUDEPATH += C:\\Qt\\qwt-6.2.0\\src
 #LIBS += -LC:\\Qt\\qwt-6.2.0\\lib -lqwt

@@ -35,6 +35,9 @@ public slots:
     bool connectECU();
     void disConnectECU();
 
+    void startLog();
+    void stopLog();
+
     void updateRAM(offsetMemory memory);
     void RAMreset();
 

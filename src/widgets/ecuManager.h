@@ -47,7 +47,7 @@ private:
     char* p_out_buff;
 
 private slots:
-    void startAction();
+    void start_stop_Action();
     void _ecuConnected();
 
 signals:

@@ -71,11 +71,13 @@ void ecuDefinition::_parser(QIODevice *device)
     {
         const QDomElement el = node.toElement();
         if (el.tagName() == "scaling")                                                 //сохраним все скалинги
-            getScaling(el);
+                getScaling(el);
         if (el.tagName() == "table")                                                   // находим таблицу
         {
             if (!el.attribute("RAM_addr").isEmpty() )           // Если есть адрес в оперативке - парсим
                 getLivemap(el);
+            else                                                   // остальные считаем блобсами
+                getBloblist(el);
         }
         if (el.tagName() == "live")                                                   // параметры
         {
@@ -95,7 +97,10 @@ void ecuDefinition::_parser(QIODevice *device)
     for(auto c : qAsConst(RAMtables))
     {
         c->setScaling(&scalingsMaps);    // проставим скалинги
-        //c->setMUT_number();
+    }
+    for(auto p : qAsConst(patches))
+    {
+        p->scaling = scalingsMaps.value(p->scaling.name);    // проставим скалинги
     }
 }
 
@@ -139,4 +144,10 @@ void ecuDefinition::getScaling(const QDomElement &el)
 {
     Scaling sc(el);
     scalingsMaps.insert(sc.name, sc);
+}
+
+void ecuDefinition::getBloblist(const QDomElement &el)
+{
+    bloblistPatch* ptc = new bloblistPatch(el);
+    patches.insert(ptc->Name, ptc);
 }

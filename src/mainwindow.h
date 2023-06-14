@@ -14,6 +14,7 @@
 
 
 
+#include "src/widgets/Patcher/patcher.h"
 #include "types.h"
 
 //#include "comm-device-interface/comm-device-interface.h"
@@ -72,6 +73,7 @@ private:
     commParamWidget cpW;
     loggerManager _loggerManager;
     hexEditor hexEdit;
+    Patcher patcher;
     gaugeWidget wbWgt{"           = Wideband =           ", 4};
 
     QVector<QColor> colormap;

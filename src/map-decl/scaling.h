@@ -34,14 +34,16 @@ public:
     int min = 0;
     int max = 0;
     float increment = 0;
-    QString Original;
-    QString Patched;
+    QByteArray Original;
+    QByteArray Patched;
 
     void fromXML(const QDomElement &el);
 
     int getElementSize();
 
     void setFastNotation();
+
+    void getBloblist(const QDomElement &element);
 
 private:
 

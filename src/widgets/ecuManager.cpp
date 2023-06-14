@@ -10,9 +10,9 @@ ecuManager::ecuManager(QWidget *parent) : QToolBar(parent)
     //qRegisterMetaType<char *>("char *");
 
     ECU = new ecu();
-    connect(ECU, &ecu::ecuConnected,          this, &ecuManager::ecuConnected,  Qt::QueuedConnection);
+    connect(ECU, &ecu::ecuConnected,          this, &ecuManager::ecuConnected,  Qt::QueuedConnection);       // Провайдим сигнал наружу
     connect(ECU, &ecu::ecuConnected,          this, &ecuManager::_ecuConnected, Qt::QueuedConnection);
-    connect(ECU, &ecu::createMap,             this, &ecuManager::createMap,     Qt::QueuedConnection);
+//    connect(ECU, &ecu::createMap,             this, &ecuManager::createMap,     Qt::QueuedConnection);
 
     //connect(ECU, &ecu::logReady,              this, &ecuManager::logReady//,      //Qt::QueuedConnection
     //        );
@@ -22,7 +22,7 @@ ecuManager::ecuManager(QWidget *parent) : QToolBar(parent)
     //connect(this, &ecuManager::log,       ECU, &ecu::log,  Qt::QueuedConnection);
 
     //=============================================================================
-    a_start_action = addAction( QIcon( ":ico/connect.png" ), "Start", this, &ecuManager::startAction);
+    a_start_action = addAction( QIcon( ":ico/connect.png" ), "Start", this, &ecuManager::start_stop_Action);
     a_start_action->setDisabled(true);
     addSeparator();
     a_ramReset = addAction(QIcon( ":ico/Memory-Freer-icon.png" ), "RAM refresh", ECU, &ecu::RAMreset);
@@ -60,10 +60,37 @@ void ecuManager::_ecuConnected()
     qDebug() << "=========== ecuManager::connectECU ================" << devComm;
     lockReset( false);
     a_start_action->setText("Stop");
+
+    // переберем все описания таблиц
+    for ( Map *tab : qAsConst(ECU->ecuDef.RAMtables) )
+    {
+        emit createMap( ECU->getMap(tab) );
+    }
+
+
+    // переберем все патчи
+    for ( Map *tab : qAsConst(ECU->ecuDef.RAMtables) )
+    {
+        emit createMap( ECU->getMap(tab) );
+    }
+
+
+
+
+
+
+
+
+
+
+    ECU->startLog();
+
+
+
     //emit ecuConnected_();
 }
 
-void ecuManager::startAction()
+void ecuManager::start_stop_Action()
 {
     if (a_start_action->text() == "Start")
     {

@@ -7,6 +7,7 @@ class Map : public subMap
 {
 public:
     Map();
+    Map(const QDomElement &element);
 
     subMap X_axis;                     //Структура заголовка оси
     subMap Y_axis;                     //Структура заголовка оси

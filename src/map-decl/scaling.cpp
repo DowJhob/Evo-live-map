@@ -28,7 +28,8 @@ void Scaling::fromXML(const QDomElement &el)
         _storagetype = Storagetype::uint32;
     else if (storagetype == "bloblist")
     {
-        //                parseEntry(el);    //пропарсим вложенные тэги патча и оригинала
+        getBloblist(el);    //пропарсим вложенные тэги патча и оригинала
+        return;
     }
     //else
     {
@@ -63,3 +64,20 @@ void Scaling::setFastNotation()
     toexpr2.setFastNotation(toexpr);
 }
 
+void Scaling::getBloblist(const QDomElement &element)
+{
+    _storagetype = Storagetype::bloblist;
+
+    QDomNode node = element.firstChild();
+    while (!node.isNull())
+    {
+        QDomElement el = node.toElement();
+        if (el.tagName() == "data")                                       //находим блобы
+        {
+            if (el.attribute("name") == "Original")
+                Original = QByteArray::fromHex(el.attribute("value").toUtf8());
+            else if (el.attribute("name") == "Patched")
+                Patched = QByteArray::fromHex(el.attribute("value").toUtf8());
+        }
+    }
+}
