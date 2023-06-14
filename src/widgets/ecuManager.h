@@ -54,6 +54,7 @@ signals:
     void ecuConnected();
     void ecuDisconnect();
     void createMap(mapDefinition*);
+    void addPatches(QHash<QString, bloblistPatch*> *);
 
     void updateRAM(offsetMemory memory);
 

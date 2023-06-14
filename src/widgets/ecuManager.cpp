@@ -69,10 +69,8 @@ void ecuManager::_ecuConnected()
 
 
     // переберем все патчи
-    for ( Map *tab : qAsConst(ECU->ecuDef.RAMtables) )
-    {
-        emit createMap( ECU->getMap(tab) );
-    }
+    emit addPatches( &ECU->ecuDef.patches );
+
 
 
 

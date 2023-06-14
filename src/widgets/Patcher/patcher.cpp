@@ -11,6 +11,20 @@ Patcher::~Patcher()
     delete ui;
 }
 
+void Patcher::addPatches(QHash<QString, bloblistPatch *> *patches)
+{
+    this->patches = patches;
+    for ( auto *patch : *qAsConst(patches) )
+    {
+        addPatchItem(patch);
+    }
+}
+
+void Patcher::clearPatches()
+{
+ui->treeWidget->clear();
+}
+
 void Patcher::addPatchItem(bloblistPatch* patch)
 {
     QTreeWidgetItem* patchItem = new QTreeWidgetItem(QStringList() << patch->Name + " | RAM address: " + QString::number(patch->addr, 16));

@@ -19,6 +19,12 @@ void ecuDefinition::reset()
         delete c;
     }
     RAMtables.clear();
+
+    for(auto c : qAsConst(patches))
+    {
+        delete c;
+    }
+    patches.clear();
 }
 
 bool ecuDefinition::fromFile(QString filename)
