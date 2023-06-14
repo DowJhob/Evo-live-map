@@ -1,35 +1,75 @@
 #ifndef PATCHER_H
 #define PATCHER_H
 
-#include "src/map-decl/bloblistpatch.h"
+#include <QFile>
+#include <QFileDialog>
 #include <QGroupBox>
 #include <QTreeWidgetItem>
+#include "src/map-decl/bloblistpatch.h"
+#include "src/widgets/hexEditor/qhexedit/qhexedit.h"
 
 namespace Ui {
 class Patcher;
 }
+
+class bloblist2
+{
+public:
+    bloblist2(){
+//        Original = new QByteArray;
+//        Patched = new QByteArray;
+    }
+    QByteArray Original;
+    QByteArray Patched;
+};
+
+class patch
+{
+public:
+    QString Name;
+    quint32 addr = 0;
+    bloblist2 *blobs;
+};
 
 class Patcher : public QGroupBox
 {
     Q_OBJECT
 
 public:
-    QHash<QString, bloblistPatch *> *patches;
+    QHash<QString, bloblist2*> bloblists;
+    QHash<QString, patch*> patches;
 
     explicit Patcher(QWidget *parent = nullptr);
     ~Patcher();
 
 
 public slots:
-    void addPatches(QHash<QString, bloblistPatch*> *patches);
+    void addPatches(QHash<QString, patch *> *patches);
     void clearPatches();
 
 private slots:
     void itemChecks(QTreeWidgetItem *item, int column);
+    void selectROMfilename();
+
+
+
+    void selectXMLfilename();
+
 
 private:
     Ui::Patcher *ui;
-    void addPatchItem(bloblistPatch* patch);
+    QFile ROMfile_handler;
+    QByteArray ROMfile;
+
+
+    QHexEdit hexEdit;
+    void addPatchItem(patch *pt);
+
+
+    bloblist2* getBloblist(const QDomElement &element);
+
+    void _parser(QIODevice *device);
+
 
 signals:
     void applyPatch(bloblistPatch* patch);

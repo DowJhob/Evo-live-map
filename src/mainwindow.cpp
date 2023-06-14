@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     _ecuManager.addWidget(&wbWgt);
     _ecuManager.addSeparator();
     //=============================================================================
-    setCPW();
+    setConectionParamWidget();
     //=============================================================================
     ui->tabWidget->addTab(&hexEdit, "Hex editor");
     //=============================================================================
@@ -23,8 +23,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     //=============================================================================
     ui->tabWidget->addTab(&patcher, "Patcher");
 
-    connect(&_ecuManager, &ecuManager::addPatches,    &patcher, &Patcher::addPatches);
-    connect(&_ecuManager, &ecuManager::ecuDisconnect, &patcher, &Patcher::clearPatches);
+    //connect(&_ecuManager, &ecuManager::addPatches,    &patcher, &Patcher::addPatches);
+    //connect(&_ecuManager, &ecuManager::ecuDisconnect, &patcher, &Patcher::clearPatches);
     connect(&patcher, &Patcher::applyPatch, &_ecuManager, &ecuManager::applyPatch);
     connect(&patcher, &Patcher::applyOriginal, &_ecuManager, &ecuManager::applyOriginal);
     //=============================================================================
@@ -52,7 +52,7 @@ void MainWindow::setUSBfilter(deviceNativeFilter *usbFilter)
     //connect(usbFilter, &deviceNativeFilter::deviceEvent, this, &MainWindow::deviceEvent);
 }
 
-void MainWindow::setCPW()
+void MainWindow::setConectionParamWidget()
 {
     ui->tabWidget->addTab(&cpW, "Connection parameters");
 

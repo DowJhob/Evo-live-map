@@ -78,7 +78,7 @@ private:
 
     QVector<QColor> colormap;
 
-    void setCPW();
+    void setConectionParamWidget();
     void createMapTree(Map *tab);
     void freeMapTree();
 
