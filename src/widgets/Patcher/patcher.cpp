@@ -144,7 +144,7 @@ void Patcher::itemChecks(QTreeWidgetItem *item, int column)
              << "ptr_patch->blobs->Original" << selectedPatch->blobs->Original << Qt::endl
              << "ptr_patch->blobs->Patched" << selectedPatch->blobs->Patched << Qt::endl;
 
-    if(rom.isEmpty())
+    if(!rom.isEmpty())
     {
         if(rom == selectedPatch->blobs->Patched)
             item->setText(1, "Patched");
@@ -212,7 +212,7 @@ void Patcher::Save()
 void Patcher::Apply()
 {
     auto rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Patched.count());
-    if(rom.isEmpty())
+    if(!rom.isEmpty())
     {
         if(rom == selectedPatch->blobs->Patched)
             QMessageBox::warning(this, tr("Patcher"), tr("Allready patched"));
@@ -224,7 +224,7 @@ void Patcher::Apply()
 void Patcher::Undo_patch()
 {
     auto rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Original.count());
-    if(rom.isEmpty())
+    if(!rom.isEmpty())
     {
         if(rom == selectedPatch->blobs->Original)
             QMessageBox::warning(this, tr("Patcher"), tr("Allready original"));
