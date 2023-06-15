@@ -19,11 +19,9 @@ Patcher::~Patcher()
 
 void Patcher::addPatches(QHash<QString, patch*> *patches)
 {
-    qDebug() << "-----------------------------------------------fjjjjjjjjjj" << patches;
     //    this->patches = patches;
     for ( auto *patch : qAsConst(this->patches) )
     {
-        qDebug() << "-----------------------------------------------ffffffffffffffffffffff" << patch->Name;
         addPatchItem(patch);
     }
 }
@@ -51,6 +49,9 @@ void Patcher::addPatchItem(patch *pt)
         blobItem->setFlags(0);
         patchItem->addChild(blobItem);
     }
+
+    patchItem->setData(2, Qt::UserRole, QVariant::fromValue<patch*>( pt ));
+
     ui->treeWidget->addTopLevelItem(patchItem);
 }
 
@@ -63,7 +64,6 @@ bloblist2 *Patcher::getBloblist(const QDomElement &element)
     while (!node.isNull())
     {
         QDomElement el = node.toElement();
-        qDebug() << "-----------------------------------------------ffffffffffffffffffffff"  << pt;
         if (el.tagName() == "data")                                       //находим блобы
         {
             if (el.attribute("name") == "Original")
@@ -133,6 +133,27 @@ void Patcher::_parser(QIODevice *device)
 
 void Patcher::itemChecks(QTreeWidgetItem *item, int column)
 {
+    auto data = item->data(2, Qt::UserRole);
+    auto ptr_patch = data.value<patch*>();
+    hexEdit.setAddressOffset(ptr_patch->addr);
+
+
+    auto rom = hexEdit.dataAt(ptr_patch->addr, ptr_patch->blobs->Original.count());
+
+
+    qDebug() << "ptr_patch->addr" << ptr_patch->addr << endl
+             << "rom" << rom << endl
+             << "ptr_patch->blobs->Original" << ptr_patch->blobs->Original << endl
+             << "ptr_patch->blobs->Patched" << ptr_patch->blobs->Patched;
+
+
+    if(rom.isEmpty() || rom == ptr_patch->blobs->Original || rom == ptr_patch->blobs->Patched)
+        item->setText(1, "Not patched");
+
+
+
+
+
     //    mapWidget *map = ptrRAMtables.value( item->text(column).split(" RAM").at(0), nullptr );
     //    if (map == nullptr)
     //        return;

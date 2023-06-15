@@ -31,6 +31,8 @@ public:
     bloblist2 *blobs;
 };
 
+Q_DECLARE_METATYPE(patch*);
+
 class Patcher : public QGroupBox
 {
     Q_OBJECT
