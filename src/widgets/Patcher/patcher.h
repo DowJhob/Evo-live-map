@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QGroupBox>
 #include <QTreeWidgetItem>
+#include <QMessageBox>
 #include "src/map-decl/bloblistpatch.h"
 #include "src/widgets/hexEditor/qhexedit/qhexedit.h"
 
@@ -52,17 +53,19 @@ public slots:
 private slots:
     void itemChecks(QTreeWidgetItem *item, int column);
     void selectROMfilename();
-
-
-
     void selectXMLfilename();
+
+    void Undo();
+    void Save();
+    void Apply();
+    void Undo_patch();
 
 
 private:
     Ui::Patcher *ui;
     QFile ROMfile_handler;
     QByteArray ROMfile;
-
+patch* selectedPatch = nullptr;
 
     QHexEdit hexEdit;
     void addPatchItem(patch *pt);

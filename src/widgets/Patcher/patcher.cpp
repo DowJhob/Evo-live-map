@@ -4,7 +4,7 @@
 Patcher::Patcher(QWidget *parent) : QGroupBox(parent), ui(new Ui::Patcher)
 {
     ui->setupUi(this);
-    ui->gridLayout_2->addWidget(&hexEdit, 2, 1, 1, 7);
+    ui->gridLayout_2->addWidget(&hexEdit, 3, 1, 1, 7);
 
     hexEdit.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -134,33 +134,27 @@ void Patcher::_parser(QIODevice *device)
 void Patcher::itemChecks(QTreeWidgetItem *item, int column)
 {
     auto data = item->data(2, Qt::UserRole);
-    auto ptr_patch = data.value<patch*>();
-    hexEdit.setAddressOffset(ptr_patch->addr);
+    selectedPatch = data.value<patch*>();
+    hexEdit.setAddressOffset(selectedPatch->addr);
 
+    auto rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Original.count());
 
-    auto rom = hexEdit.dataAt(ptr_patch->addr, ptr_patch->blobs->Original.count());
+    qDebug() << "ptr_patch->addr" << selectedPatch->addr << Qt::endl
+             << "rom" << rom << Qt::endl
+             << "ptr_patch->blobs->Original" << selectedPatch->blobs->Original << Qt::endl
+             << "ptr_patch->blobs->Patched" << selectedPatch->blobs->Patched << Qt::endl;
 
+    if(rom.isEmpty())
+    {
+        if(rom == selectedPatch->blobs->Patched)
+            item->setText(1, "Patched");
+        else
+            if(rom == selectedPatch->blobs->Original)
+                item->setText(1, "Not patched");
+            else
+                item->setText(1, "Does not match both!");
+    }
 
-    qDebug() << "ptr_patch->addr" << ptr_patch->addr << endl
-             << "rom" << rom << endl
-             << "ptr_patch->blobs->Original" << ptr_patch->blobs->Original << endl
-             << "ptr_patch->blobs->Patched" << ptr_patch->blobs->Patched;
-
-
-    if(rom.isEmpty() || rom == ptr_patch->blobs->Original || rom == ptr_patch->blobs->Patched)
-        item->setText(1, "Not patched");
-
-
-
-
-
-    //    mapWidget *map = ptrRAMtables.value( item->text(column).split(" RAM").at(0), nullptr );
-    //    if (map == nullptr)
-    //        return;
-    //    if ( item->checkState(column) )
-    //        map->show();
-    //    else
-    //        map->hide();
 }
 
 void Patcher::selectROMfilename()
@@ -171,15 +165,10 @@ void Patcher::selectROMfilename()
 
     ROMfile_handler.setFileName( QFileDialog::getOpenFileName(nullptr, tr("Open bin"), QApplication::applicationDirPath(), tr("bin files (*.bin)")));
 
-    //    if (!ROMfile_handler.open(QIODevice::ReadWrite))
-    //    {
-    //        return;       // Тут модальную ошибку, забыл как это делать
-    //    }
-    //    ROMfile = ROMfile_handler.readAll();
-
     if (!hexEdit.setData(ROMfile_handler))
     {
-        return;       // Тут модальную ошибку, забыл как это делать
+        QMessageBox::warning(this, tr("Patcher"), tr("Cannot open file %1.").arg(ROMfile_handler.fileName()));
+        return;
     }
     ;
 }
@@ -190,16 +179,56 @@ void Patcher::selectXMLfilename()
     if (!XMLfile_handler.isOpen())
         XMLfile_handler.close();
     //ROMfile.clear();
-XMLfile_handler.setFileName( "C:\\Program Files (x86)\\OpenECU\\EcuFlash\\rommetadata\\mitsubishi\\evo\\88840017 2006 EDM Lancer Evolution MT.xml");
-//    XMLfile_handler.setFileName( QFileDialog::getOpenFileName(nullptr, tr("Open xml"), QApplication::applicationDirPath(), tr("xml files (*.xml)")));
+    XMLfile_handler.setFileName( "C:\\Program Files (x86)\\OpenECU\\EcuFlash\\rommetadata\\mitsubishi\\evo\\88840017 2006 EDM Lancer Evolution MT.xml");
+    //    XMLfile_handler.setFileName( QFileDialog::getOpenFileName(nullptr, tr("Open xml"), QApplication::applicationDirPath(), tr("xml files (*.xml)")));
 
     if (!XMLfile_handler.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        return;       // Тут модальную ошибку, забыл как это делать
+        QMessageBox::warning(this, tr("Patcher"), tr("Cannot open file %1.").arg(XMLfile_handler.fileName()));
+        return;
     }
     //        ROMfile = ROMfile_handler.readAll();
 
     _parser(&XMLfile_handler);
     XMLfile_handler.close();
     addPatches(&patches);
+}
+
+void Patcher::Undo()
+{
+    hexEdit.undo();
+}
+
+void Patcher::Save()
+{
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    bool ok = hexEdit.write(ROMfile_handler);
+    QApplication::restoreOverrideCursor();
+    if (!ok) {
+        QMessageBox::warning(this, tr("Patcher"), tr("Cannot write file %1.").arg(ROMfile_handler.fileName()));
+    }
+}
+
+void Patcher::Apply()
+{
+    auto rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Patched.count());
+    if(rom.isEmpty())
+    {
+        if(rom == selectedPatch->blobs->Patched)
+            QMessageBox::warning(this, tr("Patcher"), tr("Allready patched"));
+        else
+            hexEdit.replace(selectedPatch->addr, selectedPatch->blobs->Patched.count(), selectedPatch->blobs->Patched);
+    }
+}
+
+void Patcher::Undo_patch()
+{
+    auto rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Original.count());
+    if(rom.isEmpty())
+    {
+        if(rom == selectedPatch->blobs->Original)
+            QMessageBox::warning(this, tr("Patcher"), tr("Allready original"));
+        else
+            hexEdit.replace(selectedPatch->addr, selectedPatch->blobs->Original.count(), selectedPatch->blobs->Original);
+    }
 }

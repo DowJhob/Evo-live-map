@@ -19,47 +19,12 @@
   <property name="windowTitle">
    <string>GroupBox</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0">
+  <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0">
    <property name="horizontalSpacing">
     <number>7</number>
    </property>
-   <item row="0" column="0" colspan="1">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Selected xml definition file:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1" colspan="6">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string></string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="7" colspan="1">
-    <widget class="QPushButton" name="pushButton_2">
-     <property name="text">
-      <string>Select xml filename</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0" colspan="1">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>"Selected ROM file:"</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1" colspan="6">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string></string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="7" colspan="1">
-    <widget class="QPushButton" name="pushButton">
+   <item row="1" column="7">
+    <widget class="QPushButton" name="selROMpushButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -71,7 +36,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="2" column="0" rowspan="2">
     <widget class="QTreeWidget" name="treeWidget">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
@@ -89,6 +54,75 @@
        <string>Status</string>
       </property>
      </column>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="6">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Selected xml definition file:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>&quot;Selected ROM file:&quot;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="6">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="7">
+    <widget class="QPushButton" name="selXMLpushButton">
+     <property name="text">
+      <string>Select xml filename</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QPushButton" name="Undo_pushButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Undo</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QPushButton" name="Save_pushButton">
+     <property name="text">
+      <string>Save</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="QPushButton" name="Apply_pushButton">
+     <property name="text">
+      <string>Apply patch</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
+    <widget class="QPushButton" name="Undo_patch_pushButton">
+     <property name="text">
+      <string>Undo patch</string>
+     </property>
     </widget>
    </item>
   </layout>
@@ -112,7 +146,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton</sender>
+   <sender>selROMpushButton</sender>
    <signal>clicked()</signal>
    <receiver>Patcher</receiver>
    <slot>selectROMfilename()</slot>
@@ -128,7 +162,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_2</sender>
+   <sender>selXMLpushButton</sender>
    <signal>clicked()</signal>
    <receiver>Patcher</receiver>
    <slot>selectXMLfilename()</slot>
@@ -143,6 +177,75 @@
     </hint>
    </hints>
   </connection>
+  
+    <connection>
+   <sender>Undo_pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Patcher</receiver>
+   <slot>Undo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>787</x>
+     <y>25</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>421</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  
+    <connection>
+   <sender>Save_pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Patcher</receiver>
+   <slot>Save()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>787</x>
+     <y>25</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>421</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  
+    <connection>
+   <sender>Apply_pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Patcher</receiver>
+   <slot>Apply()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>787</x>
+     <y>25</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>421</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  
+    <connection>
+   <sender>Undo_patch_pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Patcher</receiver>
+   <slot>Undo_patch()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>787</x>
+     <y>25</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>421</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  
  </connections>
  <slots>
   <slot>itemChecks(QTreeWidgetItem*, int)</slot>
