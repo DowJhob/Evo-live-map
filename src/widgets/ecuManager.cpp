@@ -7,19 +7,12 @@ ecuManager::ecuManager(QWidget *parent) : QToolBar(parent)
     qRegisterMetaType<offsetMemory>("offsetMemory");
     qRegisterMetaType<QVector<float>>("QVector<float>");
 
-    //qRegisterMetaType<char *>("char *");
-
     ECU = new ecu();
     connect(ECU, &ecu::ecuConnected,          this, &ecuManager::ecuConnected,  Qt::QueuedConnection);       // Провайдим сигнал наружу
-    connect(ECU, &ecu::ecuConnected,          this, &ecuManager::_ecuConnected, Qt::QueuedConnection);
-//    connect(ECU, &ecu::createMap,             this, &ecuManager::createMap,     Qt::QueuedConnection);
-
-    //connect(ECU, &ecu::logReady,              this, &ecuManager::logReady//,      //Qt::QueuedConnection
-    //        );
+    connect(ECU, &ecu::ecuConnected,          this, &ecuManager::interfaceLock, Qt::QueuedConnection);
 
     connect(this, &ecuManager::updateRAM,      ECU, &ecu::updateRAM,  Qt::QueuedConnection);
     connect(this, &ecuManager::logRateChanged, ECU, &ecu::setLogRate, Qt::QueuedConnection);
-    //connect(this, &ecuManager::log,       ECU, &ecu::log,  Qt::QueuedConnection);
 
     //=============================================================================
     a_start_action = addAction( QIcon( ":ico/connect.png" ), "Start", this, &ecuManager::start_stop_Action);
@@ -30,13 +23,36 @@ ecuManager::ecuManager(QWidget *parent) : QToolBar(parent)
 
     addSeparator();
 
-    setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
+    addWidget(&cpW);
+
+    setConectionParamWidget();
+
+    addSeparator();
+
+    addWidget(&wbWgt);
+
+    setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Preferred);
     setIconSize(QSize(200, 200));
 }
 
 ecuManager::~ecuManager()
 {
     qDebug() << "~ecuManager";
+}
+
+void ecuManager::setUSBfilter(deviceNativeFilter *usbFilter)
+{
+    connect(usbFilter, &deviceNativeFilter::deviceEvent, &cpW.devManager, &commDeviceManager::deviceEvent);
+}
+
+void ecuManager::startLog()
+{
+    ECU->startLog();
+}
+
+void ecuManager::stopLog()
+{
+    ECU->stopLog();
 }
 
 void ecuManager::setCommDevice(comm_device_interface *dev)
@@ -55,37 +71,25 @@ void ecuManager::setProto(DMA_proto *_ECUproto)
     connect(_ECUproto, &DMA_proto::logReady, this, &ecuManager::logReady, Qt::QueuedConnection);
 }
 
-void ecuManager::_ecuConnected()
+void ecuManager::interfaceLock()
 {
+    cpW.setDisabled(true);
     qDebug() << "=========== ecuManager::connectECU ================" << devComm;
     lockReset( false);
     a_start_action->setText("Stop");
+}
 
-    // переберем все описания таблиц
-    for ( Map *tab : qAsConst(ECU->ecuDef.RAMtables) )
+void ecuManager::deviceEvent(comm_device_interface *devComm)
+{
+    if(devComm == nullptr)
     {
-        emit createMap( ECU->getMap(tab) );
+        lockConnect(true);
+        emit deviceEventLog("No interface", 0);
+        return;
     }
-
-
-    // переберем все патчи
-    emit addPatches( &ECU->ecuDef.patches );
-
-
-
-
-
-
-
-
-
-
-
-    ECU->startLog();
-
-
-
-    //emit ecuConnected_();
+    emit deviceEventLog(devComm->DeviceDesc + " / " + devComm->DeviceUniqueID, 0);
+    if( devComm->info() )
+        lockConnect(false);         // Показываем кнопки старт и сброс памяти
 }
 
 void ecuManager::start_stop_Action()
@@ -102,7 +106,8 @@ void ecuManager::start_stop_Action()
         QMetaObject::invokeMethod(ECU, "disConnectECU");
         a_start_action->setText("Start");
         lockReset( true);
-        emit ecuDisconnect();
+        cpW.setDisabled(false);
+        emit ecuDisconnected();
     }
 }
 
@@ -120,12 +125,17 @@ void ecuManager::lockReset(bool lockFlag)
     a_ramReset->setDisabled(lockFlag);
 }
 
-void ecuManager::applyPatch(bloblistPatch *patch)
+void ecuManager::setConectionParamWidget()
 {
-// не тут, надоже это все в файле делать!
-}
+    connect(&cpW._protoManager, &protoManager::protoSelected,       this,   &ecuManager::setProto);
+    connect(&cpW._protoManager, &protoManager::logRateChanged,      this,   &ecuManager::logRateChanged);
 
-void ecuManager::applyOriginal(bloblistPatch *patch)
-{
+    connect(&cpW.devManager,    &commDeviceManager::deviceSelected, this,   &ecuManager::setCommDevice);
 
+    connect(&cpW.devManager,    &commDeviceManager::deviceSelected, this,   &ecuManager::deviceEvent);
+    connect(&cpW._wbManager,    &wbManager::logReady,               &wbWgt, &gaugeWidget::display);
+
+    cpW._protoManager.addProtos();   // костыль пока
+    cpW._wbManager.fillSerial();
+    cpW._wbManager.fillProto();
 }

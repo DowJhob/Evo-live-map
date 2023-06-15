@@ -19,26 +19,30 @@
 #include "src/abstract-memory.h"
 //#include "read-request.h"
 #include "../deviceNativeFilter.h"
+#include "src/widgets/commParamWidget.h"
+#include "src/widgets/gauge_widget.h"
 
 class ecuManager : public QToolBar
 {
     Q_OBJECT
 public:
+    ecu *ECU;
+    commParamWidget cpW;
+
     explicit ecuManager(QWidget *parent = nullptr);
     ~ecuManager();
 
+    void setUSBfilter(deviceNativeFilter *usbFilter);
+
+
 public slots:
-    void setCommDevice(comm_device_interface *dev);
-    void setProto(DMA_proto *_ECUproto);
 
-    void lockConnect(bool lockFlag);
-    void lockReset(bool lockFlag);
+    void startLog();
 
-    void applyPatch(bloblistPatch* patch);
-    void applyOriginal(bloblistPatch* patch);
+    void stopLog();
+
 
 private:
-    ecu *ECU;
 
     QAction *a_start_action;
     QAction *a_ramReset;
@@ -49,13 +53,27 @@ private:
     char* p_in_buff;
     char* p_out_buff;
 
+
+    gaugeWidget wbWgt{"           = Wideband =           ", 4};
+
+    void setConectionParamWidget();
+
+
 private slots:
+    void lockConnect(bool lockFlag);
+    void lockReset(bool lockFlag);
+    void setCommDevice(comm_device_interface *dev);
+    void setProto(DMA_proto *_ECUproto);
     void start_stop_Action();
-    void _ecuConnected();
+    void interfaceLock();
+
+    void deviceEvent(comm_device_interface *devComm);
+
 
 signals:
-    void ecuConnected();
-    void ecuDisconnect();
+    void deviceEventLog(QString, int);
+    void ecuConnected(QHash<QString, Map*>*);
+    void ecuDisconnected();
     void createMap(mapDefinition*);
     void addPatches(QHash<QString, bloblistPatch*> *);
 

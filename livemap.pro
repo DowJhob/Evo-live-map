@@ -139,6 +139,7 @@ SOURCES += src/main.cpp\
     src/widgets/commParamWidget.cpp \
     src/widgets/gauge_widget.cpp \
     src/widgets/loggermanager.cpp \
+    src/widgets/mapManager/mapmanager.cpp \
     src/widgets/mapWidget/mapmodel.cpp \
     src/widgets/mapWidget/mapview.cpp \
     src/widgets/mapWidget/mapwidget.cpp
@@ -191,6 +192,7 @@ HEADERS  += src/mainwindow.h \
     src/widgets/hexEditor/qhexedit/qhexedit.h \
     src/widgets/hexEditor/hexeditor.h \
     src/widgets/loggermanager.h \
+    src/widgets/mapManager/mapmanager.h \
     src/widgets/mapWidget/mapmodel.h \
     src/widgets/mapWidget/mapview.h \
     src/widgets/mapWidget/mapwidget.h
@@ -199,7 +201,8 @@ HEADERS  += src/mainwindow.h \
     #graph_logger.h \
 
 FORMS    += mainwindow.ui \
-    src/widgets/Patcher/patcher.ui
+    src/widgets/Patcher/patcher.ui \
+    src/widgets/mapManager/mapmanager.ui
 
 #INCLUDEPATH += C:\\Qt\\qwt-6.2.0\\src
 #LIBS += -LC:\\Qt\\qwt-6.2.0\\lib -lqwt

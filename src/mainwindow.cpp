@@ -7,30 +7,24 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     //=============================================================================
     addToolBar(Qt::TopToolBarArea, &_ecuManager);
-    connect(&_ecuManager, &ecuManager::ecuConnected,  this, &MainWindow::ecuConnected);
-    connect(&_ecuManager, &ecuManager::ecuDisconnect, this, &MainWindow::ecuDisconnect);
-    connect(&_ecuManager, &ecuManager::createMap,     this, &MainWindow::createMap);
-    connect(&_ecuManager, &ecuManager::Log,           this, &MainWindow::Log);
-    //========================================================================================
-    _ecuManager.addWidget(&wbWgt);
-    _ecuManager.addSeparator();
+    connect(&_ecuManager, &ecuManager::ecuConnected,    this,         &MainWindow::ecuConnected);
+    connect(&_ecuManager, &ecuManager::ecuDisconnected, this,         &MainWindow::ecuDisconnected);
+    connect(&_ecuManager, &ecuManager::createMap,       &_mapManager, &mapManager::createMap);
+    connect(&_ecuManager, &ecuManager::Log,             this,         &MainWindow::Log);
+    connect(&_ecuManager, &ecuManager::deviceEventLog,  this,         &MainWindow::deviceEventLog);
     //=============================================================================
-    setConectionParamWidget();
+    //=============================================================================
+    ui->tabWidget->addTab(&_mapManager, "Map manager");
     //=============================================================================
     ui->tabWidget->addTab(&hexEdit, "Hex editor");
     //=============================================================================
     ui->tabWidget->addTab(&_loggerManager, "Logger");
     //=============================================================================
     ui->tabWidget->addTab(&patcher, "Patcher");
-
-    //connect(&_ecuManager, &ecuManager::addPatches,    &patcher, &Patcher::addPatches);
-    //connect(&_ecuManager, &ecuManager::ecuDisconnect, &patcher, &Patcher::clearPatches);
-    connect(&patcher, &Patcher::applyPatch, &_ecuManager, &ecuManager::applyPatch);
-    connect(&patcher, &Patcher::applyOriginal, &_ecuManager, &ecuManager::applyOriginal);
     //=============================================================================
-    connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &MainWindow::itemChecks);
+//    connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &MainWindow::itemChecks);
     statusBar()->showMessage("No interface", 0);
-    colorFromFile("C:\\Program Files (x86)\\OpenECU\\EcuFlash\\colormaps\\COLDFIRE.MAP") ;
+//    colorFromFile("C:\\Program Files (x86)\\OpenECU\\EcuFlash\\colormaps\\COLDFIRE.MAP") ;
 }
 
 MainWindow::~MainWindow()
@@ -44,119 +38,30 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     emit _exit();
+    QApplication::closeAllWindows();
 }
 
 void MainWindow::setUSBfilter(deviceNativeFilter *usbFilter)
 {
-    connect(usbFilter, &deviceNativeFilter::deviceEvent, &cpW.devManager, &commDeviceManager::deviceEvent);
-    //connect(usbFilter, &deviceNativeFilter::deviceEvent, this, &MainWindow::deviceEvent);
+    _ecuManager.setUSBfilter(usbFilter);
 }
 
-void MainWindow::setConectionParamWidget()
+void MainWindow::deviceEventLog(QString msg, int pos)
 {
-    ui->tabWidget->addTab(&cpW, "Connection parameters");
-
-    connect(&cpW._protoManager, &protoManager::protoSelected,   &_ecuManager, &ecuManager::setProto);
-    connect(&cpW._protoManager, &protoManager::logRateChanged,  &_ecuManager, &ecuManager::logRateChanged);
-
-    connect(&cpW.devManager,    &commDeviceManager::deviceSelected, &_ecuManager, &ecuManager::setCommDevice);
-
-    connect(&cpW.devManager,    &commDeviceManager::deviceSelected, this,         &MainWindow::deviceEvent);
-    connect(&cpW._wbManager,    &wbManager::logReady,           &wbWgt,       &gaugeWidget::display);
-
-    cpW._protoManager.addProtos();   // костыль пока
-    cpW._wbManager.fillSerial();
-    cpW._wbManager.fillProto();
+    statusBar()->showMessage(msg, pos);
 }
 
-void MainWindow::deviceEvent(comm_device_interface *devComm)
+void MainWindow::ecuDisconnected()
 {
-    if(devComm == nullptr)
-    {
-        _ecuManager.lockConnect(true);
-        statusBar()->showMessage("No interface", 0);
-        return;
-    }
-    statusBar()->showMessage(devComm->DeviceDesc + " / " + devComm->DeviceUniqueID, 0);
-    if( devComm->info() )
-        _ecuManager.lockConnect(false);         // Показываем кнопки старт и сброс памяти
-}
-
-void MainWindow::ecuDisconnect()
-{
-    cpW.setDisabled(false);
-
     gaugeDelete();
 
-    ui->treeWidget->clear();
-
-    for(mapWidget *c: qAsConst(ptrRAMtables))
-    {
-        c->hide();
-        c->deleteLater();
-    }
-    ptrRAMtables.clear();
+    _mapManager.clearMaps();
 }
 
-void MainWindow::ecuConnected()
+void MainWindow::ecuConnected(QHash<QString, Map*> *RAMtables)
 {
-    cpW.setDisabled(true);
-}
-
-void MainWindow::createMap(mapDefinition *dMap)
-{
-    //создаем таблицу с заданной размерностью
-    //qDebug() << "====================== Create table : " << dMap->declMap->Name << " ================================";
-    dMap->declMap->elements = dMap->declMap->X_axis.elements * dMap->declMap->Y_axis.elements;
-
-    mapWidget *table = new mapWidget(nullptr, dMap, &colormap);
-
-    //connect(table->mapModel_, &mapModel::updateRAM, this, &MainWindow::updateRAM);
-    connect(table->mapModel_, &mapModel::updateRAM, &_ecuManager, &ecuManager::updateRAM);
-
-    //connect(this, &MainWindow::dataLog, table->mapTable, &mapView::logReady);
-    connect(&_ecuManager, &ecuManager::logReady, table->mapTable, &mapView::logReady);
-
-    connect(this, &MainWindow::_exit, table, &QWidget::deleteLater);
-
-    ptrRAMtables.insert(dMap->declMap->Name, table );
-
-    createMapTree(dMap->declMap);
-}
-
-void MainWindow::createMapTree(Map *tab)
-{
-    if (tab->addr != 0)                                    // проверим что это таблица карт, а не таблица патчей
-    {
-        QTreeWidgetItem* map_name_item = new QTreeWidgetItem(QStringList() << tab->Name + " RAM address: " + QString::number(tab->addr, 16));
-        map_name_item->setFlags(map_name_item->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable);
-        map_name_item->setCheckState(0, Qt::Unchecked);
-        QTreeWidgetItem* axis_item;
-        if (tab->X_axis.addr > 0)
-        {
-            axis_item = new QTreeWidgetItem(QStringList() << tab->X_axis.Name + "  ROM address: " + QString::number(tab->X_axis.addr, 16) + "  scaling: " + tab->X_axis.rom_scaling.toexpr);
-            axis_item->setFlags(0);
-            map_name_item->addChild(axis_item);
-        }
-        if (tab->Y_axis.addr > 0)
-        {
-            axis_item = new QTreeWidgetItem(QStringList() << tab->Y_axis.Name + "  ROM address: " + QString::number(tab->Y_axis.addr, 16) + "  scaling: " + tab->X_axis.rom_scaling.toexpr);
-            axis_item->setFlags(0);
-            map_name_item->addChild(axis_item);
-        }
-        ui->treeWidget->addTopLevelItem(map_name_item);
-    }
-}
-
-void MainWindow::itemChecks(QTreeWidgetItem *item, int column)
-{
-    mapWidget *map = ptrRAMtables.value( item->text(column).split(" RAM").at(0), nullptr );
-    if (map == nullptr)
-        return;
-    if ( item->checkState(column) )
-        map->show();
-    else
-        map->hide();
+    _mapManager.createMapS( RAMtables);
+    _ecuManager.startLog();
 }
 
 void MainWindow::create_gauge(QString name, mutParam *param)
@@ -185,32 +90,6 @@ void MainWindow::gaugeDelete()
     //        gauge->deleteLater();
     //    gauge_widget_set.clear();
 
-}
-
-void MainWindow::colorFromFile(QString filename)
-{
-    // Открываем конфиг:
-    QFile* file = new QFile(filename);
-    if (!file->open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        qDebug() << "file fail";
-        //return nullptr;
-    }
-
-    QStringList sl;
-
-    //QVector<QColor> *colormap = new QVector<QColor>;
-
-    qDebug() << "file ";
-    while( !file->atEnd())
-    {
-        sl = QString(file->readLine()).simplified()
-                .split(' ');
-        if(sl.count() == 3)
-            colormap.append(QColor(sl[0].toInt(), sl[1].toInt(), sl[2].toInt()));
-        //qDebug() << "colormap" ;
-    }
-    delete file;
 }
 
 void MainWindow::Log(QString str)

@@ -139,10 +139,10 @@ void Patcher::itemChecks(QTreeWidgetItem *item, int column)
 
     auto rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Original.count());
 
-    qDebug() << "ptr_patch->addr" << selectedPatch->addr << Qt::endl
-             << "rom" << rom << Qt::endl
-             << "ptr_patch->blobs->Original" << selectedPatch->blobs->Original << Qt::endl
-             << "ptr_patch->blobs->Patched" << selectedPatch->blobs->Patched << Qt::endl;
+    qDebug() << "ptr_patch->addr" << selectedPatch->addr << endl
+             << "rom" << rom << endl
+             << "ptr_patch->blobs->Original" << selectedPatch->blobs->Original << endl
+             << "ptr_patch->blobs->Patched" << selectedPatch->blobs->Patched << endl;
 
     if(!rom.isEmpty())
     {

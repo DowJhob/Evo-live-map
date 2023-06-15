@@ -15,6 +15,7 @@
 
 
 #include "src/widgets/Patcher/patcher.h"
+#include "src/widgets/mapManager/mapmanager.h"
 #include "types.h"
 
 //#include "comm-device-interface/comm-device-interface.h"
@@ -59,34 +60,32 @@ public slots:
     void Log(QString str);
 
 private slots:
-    void deviceEvent(comm_device_interface *devComm);
-    void ecuConnected();
-    void ecuDisconnect();
-    void createMap(mapDefinition *dMap);
-    void itemChecks(QTreeWidgetItem *item, int column);
+    void deviceEventLog(QString msg, int pos);
+    void ecuConnected(QHash<QString, Map *> *RAMtables);
+    void ecuDisconnected();
+//    void createMap(mapDefinition *dMap);
+//    void itemChecks(QTreeWidgetItem *item, int column);
 
 private:
     Ui::MainWindow *ui;
 
+    //======================== widget lists =================================
+    QSet<gaugeWidget*> gauge_widget_set;
     //======================== widget's =================================
     ecuManager _ecuManager;
-    commParamWidget cpW;
+    mapManager _mapManager;
     loggerManager _loggerManager;
     hexEditor hexEdit;
     Patcher patcher;
-    gaugeWidget wbWgt{"           = Wideband =           ", 4};
-
-    QVector<QColor> colormap;
-
-    void setConectionParamWidget();
-    void createMapTree(Map *tab);
-    void freeMapTree();
-
-    void colorFromFile(QString filename);
-
-    //======================== widget lists =================================
-    QSet<gaugeWidget*> gauge_widget_set;
     QToolBar *loggerWidgetBar = nullptr;
+
+//    QVector<QColor> colormap;
+
+//    void createMapTree(Map *tab);
+//    void freeMapTree();
+
+//    void colorFromFile(QString filename);
+
     void create_gauge(QString name, mutParam *param);
     void gaugeDelete();
 

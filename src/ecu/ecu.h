@@ -50,7 +50,7 @@ private slots:
 private:
 
 signals:
-    void ecuConnected();
+    void ecuConnected(QHash<QString, Map*>*);
     void ecuDisconnected();
 
     void createMap(mapDefinition*);

@@ -70,7 +70,7 @@ bool ecu::connectECU()
         return false;
     }
     //==================================================================================================
-    emit ecuConnected();
+    emit ecuConnected(&ecuDef.RAMtables);
 //    // переберем все описания таблиц
 //    for ( Map *tab : qAsConst(ecuDef.RAMtables) )
 //    {
