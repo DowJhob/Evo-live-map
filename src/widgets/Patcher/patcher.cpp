@@ -211,24 +211,45 @@ void Patcher::Save()
 
 void Patcher::Apply()
 {
+    QMessageBox msgBox;  //www.itmathrepetitor.ru
+    msgBox.setText("Does not match original!");
+    msgBox.setInformativeText("Ок - proceed anyway\nCancel - it cancel");
+    msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+
     auto rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Patched.count());
     if(!rom.isEmpty())
     {
         if(rom == selectedPatch->blobs->Patched)
             QMessageBox::warning(this, tr("Patcher"), tr("Allready patched"));
-        else
-            hexEdit.replace(selectedPatch->addr, selectedPatch->blobs->Patched.count(), selectedPatch->blobs->Patched);
+        else if(rom != selectedPatch->blobs->Original)
+        {
+            if (msgBox.exec() == QMessageBox::Ok)
+                hexEdit.replace(selectedPatch->addr, selectedPatch->blobs->Patched.count(), selectedPatch->blobs->Patched);
+        }
     }
 }
 
 void Patcher::Undo_patch()
 {
+    QMessageBox msgBox;  //www.itmathrepetitor.ru
+    msgBox.setText("Does not match patch!");
+    msgBox.setInformativeText("Ок - proceed anyway\nCancel - it cancel");
+    msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+
     auto rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Original.count());
     if(!rom.isEmpty())
     {
         if(rom == selectedPatch->blobs->Original)
             QMessageBox::warning(this, tr("Patcher"), tr("Allready original"));
-        else
-            hexEdit.replace(selectedPatch->addr, selectedPatch->blobs->Original.count(), selectedPatch->blobs->Original);
+        else if(rom != selectedPatch->blobs->Patched)
+        {
+            if (msgBox.exec() == QMessageBox::Ok)
+                hexEdit.replace(selectedPatch->addr, selectedPatch->blobs->Original.count(), selectedPatch->blobs->Original);
+        }
+
     }
 }
