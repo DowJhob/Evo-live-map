@@ -14,9 +14,9 @@ class Patcher;
 }
 enum patchState
 {
-    dontMatchBoth,
-    NotPatched,
-    Patched
+    dontMatchBoth = 'B',
+    NotPatched = 'N',
+    Patched = 'P'
 };
 
 struct bloblist2
@@ -47,7 +47,7 @@ public:
     ~Patcher();
 
 public slots:
-    void addPatches(QHash<QString, patch *> *patches);
+    void addPatches();
     void clearPatches();
 
 private slots:
@@ -63,13 +63,11 @@ private slots:
 private:
     Ui::Patcher *ui;
     QFile ROMfile_handler;
-    QByteArray ROMfile;
-    patch* selectedPatch = nullptr;
 
     QHexEdit hexEdit;
     QList<QTreeWidgetItem*> currentPatches{};
 
-    void addPatchItem(patch *pt);
+    QTreeWidgetItem* addPatchTreeItem(patch *pt);
 
     bloblist2* getBloblist(const QDomElement &element);
 

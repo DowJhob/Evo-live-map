@@ -17,21 +17,23 @@ Patcher::~Patcher()
     delete ui;
 }
 
-void Patcher::addPatches(QHash<QString, patch*> *patches)
+void Patcher::addPatches()
 {
-    //    this->patches = patches;
     for ( auto *patch : qAsConst(this->patches) )
     {
-        addPatchItem(patch);
+        QTreeWidgetItem *item = addPatchTreeItem(patch);
+        checkPatch(item);
     }
 }
 
 void Patcher::clearPatches()
 {
     ui->treeWidget->clear();
+    bloblists.clear();
+    patches.clear();
 }
 
-void Patcher::addPatchItem(patch *pt)
+QTreeWidgetItem* Patcher::addPatchTreeItem(patch *pt)
 {
     QTreeWidgetItem* patchItem = new QTreeWidgetItem(QStringList() << pt->Name + " | RAM address: " + QString::number(pt->addr, 16));
     patchItem->setFlags(patchItem->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable);
@@ -40,13 +42,13 @@ void Patcher::addPatchItem(patch *pt)
     if (!pt->blobs->Original.isNull())
     {
         blobItem = new QTreeWidgetItem(QStringList() << "Original:");
-        blobItem->setFlags(0);
+        blobItem->setFlags(Qt::NoItemFlags);
         patchItem->addChild(blobItem);
     }
     if (!pt->blobs->Patched.isNull())
     {
         blobItem = new QTreeWidgetItem(QStringList() << "Patched:");
-        blobItem->setFlags(0);
+        blobItem->setFlags(Qt::NoItemFlags);
         patchItem->addChild(blobItem);
     }
 
@@ -59,6 +61,7 @@ void Patcher::addPatchItem(patch *pt)
         ui->treeWidget->addTopLevelItem(patchItem);
 
     patchItem->setData(2, Qt::UserRole, QVariant::fromValue<patch*>( pt ));
+    return patchItem;
 }
 
 bloblist2 *Patcher::getBloblist(const QDomElement &element)
@@ -94,6 +97,7 @@ void Patcher::_parser(QIODevice *device)
     {
         //            lastError = "Line %1, column %2";
         //            lastError = lastError.arg( errorLine).arg(errorColumn);
+        qDebug() << errorStr << errorLine << errorColumn ;
         return;
     }
     QDomElement root = doc.documentElement();
@@ -113,8 +117,8 @@ void Patcher::_parser(QIODevice *device)
         }
         node = node.nextSibling();
     }
-    node = root.firstChild();
 
+    node = root.firstChild();
     while (!node.isNull())
     {
         const QDomElement el = node.toElement();
@@ -161,47 +165,50 @@ QTreeWidgetItem *Patcher::checkCategory(QString cat)
 patchState Patcher::checkPatch(QTreeWidgetItem *item)
 {
     auto data = item->data(2, Qt::UserRole);
-    selectedPatch = data.value<patch*>();
+    auto selectedPatch = data.value<patch*>();
     if(selectedPatch != nullptr)
     {
         hexEdit.setAddressOffset(selectedPatch->addr);
-        auto rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Original.count());
-        if(!rom.isEmpty())
+        auto rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Patched.count());
+
+        if(!rom.isEmpty() && rom == selectedPatch->blobs->Patched)
         {
-            if(rom == selectedPatch->blobs->Patched)
+            item->setText(1, "Patched");
+            item->setData(3, Qt::UserRole, 'P');
+            return Patched;
+        }
+        else
+        {
+            rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Original.count());
+            if(!rom.isEmpty() && rom == selectedPatch->blobs->Original)
             {
-                item->setText(1, "Patched");
-                return Patched;
+                item->setText(1, "Not patched");
+                item->setData(3, Qt::UserRole, 'N');
+                return NotPatched;
             }
             else
-                if(rom == selectedPatch->blobs->Original)
-                {
-                    item->setText(1, "Not patched");
-                    return NotPatched;
-                }
-                else
-                {
-                    item->setText(1, "Does not match both!");
-                    return dontMatchBoth;
-                }
+            {
+                item->setText(1, "Does not match both!");
+                item->setData(3, Qt::UserRole, 'B');
+                return dontMatchBoth;
+            }
         }
     }
 }
 
 void Patcher::itemChecks(QTreeWidgetItem *item, int column)
 {
+    currentPatches.clear();
     if(!item->data(2, Qt::UserRole).isNull())
     {
-        checkPatch(item);
-        currentPatches.clear();
+        //checkPatch(item);
         currentPatches.append(item);
     }
     else
     {
         for(int i = 0; i< item->childCount(); i++)
         {
-            checkPatch(item);
-            currentPatches.clear();
+            //checkPatch(item);
             currentPatches.append(item->child(i));
         }
     }
@@ -211,7 +218,6 @@ void Patcher::selectROMfilename()
 {
     if (ROMfile_handler.isOpen())
         ROMfile_handler.close();
-    ROMfile.clear();
 
     ROMfile_handler.setFileName( QFileDialog::getOpenFileName(nullptr, tr("Open bin"), QApplication::applicationDirPath(), tr("bin files (*.bin)")));
 
@@ -220,17 +226,16 @@ void Patcher::selectROMfilename()
         QMessageBox::warning(this, tr("Patcher"), tr("Cannot open file %1.").arg(ROMfile_handler.fileName()));
         return;
     }
-    ;
 }
 
 void Patcher::selectXMLfilename()
 {
     QFile XMLfile_handler;
-    if (XMLfile_handler.isOpen())
-        XMLfile_handler.close();
-    //ROMfile.clear();
-    XMLfile_handler.setFileName( "C:\\Program Files (x86)\\OpenECU\\EcuFlash\\rommetadata\\mitsubishi\\evo\\88840017 2006 EDM Lancer Evolution MT.xml");
-    //    XMLfile_handler.setFileName( QFileDialog::getOpenFileName(nullptr, tr("Open xml"), QApplication::applicationDirPath(), tr("xml files (*.xml)")));
+
+    clearPatches();
+
+//    XMLfile_handler.setFileName( "C:\\Program Files (x86)\\OpenECU\\EcuFlash\\rommetadata\\mitsubishi\\evo\\88840017 2006 EDM Lancer Evolution MT.xml");
+        XMLfile_handler.setFileName( QFileDialog::getOpenFileName(nullptr, tr("Open xml"), QApplication::applicationDirPath(), tr("xml files (*.xml)")));
 
     if (!XMLfile_handler.open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -241,7 +246,7 @@ void Patcher::selectXMLfilename()
 
     _parser(&XMLfile_handler);
     XMLfile_handler.close();
-    addPatches(&patches);
+    addPatches();
 }
 
 void Patcher::Undo()
@@ -271,20 +276,25 @@ void Patcher::Apply()
     {
         auto data = item->data(2, Qt::UserRole);
         auto selectedPatch = data.value<patch*>();
-        switch (checkPatch(item))
+
+        auto stateData = item->data(3, Qt::UserRole);
+        auto statePatch = data.value<char>();
+
+        switch (statePatch)
         {
         case patchState::dontMatchBoth:
             msgBox.setText("Does not match both!");
             if (msgBox.exec() == QMessageBox::Ok)
         case patchState::NotPatched:
-            hexEdit.replace(selectedPatch->addr, selectedPatch->blobs->Patched.count(), selectedPatch->blobs->Patched);
-            break;
-        case patchState::Patched:
-//            msgBox.setText("Allready patched");
+                hexEdit.replace(selectedPatch->addr, selectedPatch->blobs->Patched.count(), selectedPatch->blobs->Patched);
+                item->setData(3, Qt::UserRole, 'P');
+                break;
+            case patchState::Patched:
+                //            msgBox.setText("Allready patched");
 
-            break;
-        default:
-            break;
+                break;
+            default:
+                break;
         }
     }
 }
@@ -301,20 +311,25 @@ void Patcher::Undo_patch()
     {
         auto data = item->data(2, Qt::UserRole);
         auto selectedPatch = data.value<patch*>();
-        switch (checkPatch(item))
+
+        auto stateData = item->data(3, Qt::UserRole);
+        auto statePatch = data.value<char>();
+
+        switch (statePatch)
         {
         case patchState::dontMatchBoth:
             msgBox.setText("Does not match both!");
             if (msgBox.exec() == QMessageBox::Ok)
         case patchState::Patched:
                 hexEdit.replace(selectedPatch->addr, selectedPatch->blobs->Original.count(), selectedPatch->blobs->Original);
-            break;
-        case patchState::NotPatched:
-//            msgBox.setText("Allready patched");
+                item->setData(3, Qt::UserRole, 'N');
+                break;
+            case patchState::NotPatched:
+                //            msgBox.setText("Allready patched");
 
-            break;
-        default:
-            break;
+                break;
+            default:
+                break;
         }
     }
 }
