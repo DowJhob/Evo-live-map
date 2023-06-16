@@ -50,9 +50,15 @@ void Patcher::addPatchItem(patch *pt)
         patchItem->addChild(blobItem);
     }
 
-    patchItem->setData(2, Qt::UserRole, QVariant::fromValue<patch*>( pt ));
+    QTreeWidgetItem* catItem = checkCategory(pt->Category);
+    if (catItem != nullptr)
+    {
+        catItem->addChild(patchItem);
+    }
+    else
+        ui->treeWidget->addTopLevelItem(patchItem);
 
-    ui->treeWidget->addTopLevelItem(patchItem);
+    patchItem->setData(2, Qt::UserRole, QVariant::fromValue<patch*>( pt ));
 }
 
 bloblist2 *Patcher::getBloblist(const QDomElement &element)
@@ -120,6 +126,8 @@ void Patcher::_parser(QIODevice *device)
             if(blobs != nullptr)
             {
                 patch *pt = new patch();
+
+                pt->Category = el.attribute("category");
                 pt->Name = el.attribute("name");
                 pt->addr = el.attribute("address").toUInt(nullptr, 16);
                 pt->blobs = blobs;
@@ -131,30 +139,79 @@ void Patcher::_parser(QIODevice *device)
     }
 }
 
-void Patcher::itemChecks(QTreeWidgetItem *item, int column)
+QTreeWidgetItem *Patcher::checkCategory(QString cat)
+{
+    QTreeWidgetItem* catItem = nullptr;
+    if (!cat.isEmpty())
+    {
+        QList<QTreeWidgetItem*> all = ui->treeWidget->findItems(cat, Qt::MatchContains | Qt::MatchRecursive, 0);
+        if(!all.isEmpty())
+        {
+            catItem = all.at(0);
+        }
+        else {
+
+            catItem = new QTreeWidgetItem(QStringList() << cat);
+            ui->treeWidget->addTopLevelItem(catItem);
+        }
+    }
+    return catItem;
+}
+
+void Patcher::applyPatch(QTreeWidgetItem *item)
 {
     auto data = item->data(2, Qt::UserRole);
     selectedPatch = data.value<patch*>();
-    hexEdit.setAddressOffset(selectedPatch->addr);
-
-    auto rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Original.count());
-
-    qDebug() << "ptr_patch->addr" << selectedPatch->addr << endl
-             << "rom" << rom << endl
-             << "ptr_patch->blobs->Original" << selectedPatch->blobs->Original << endl
-             << "ptr_patch->blobs->Patched" << selectedPatch->blobs->Patched << endl;
-
-    if(!rom.isEmpty())
+    if(selectedPatch != nullptr)
     {
-        if(rom == selectedPatch->blobs->Patched)
-            item->setText(1, "Patched");
-        else
-            if(rom == selectedPatch->blobs->Original)
-                item->setText(1, "Not patched");
-            else
-                item->setText(1, "Does not match both!");
-    }
+        qDebug() << "ptr_patch->Name" << selectedPatch->Name << endl
+                << "ptr_patch->addr" << selectedPatch->addr << endl
+    //                         << "rom" << rom << endl
+                 << "ptr_patch->blobs->Original" << selectedPatch->blobs->Original << endl
+                 << "ptr_patch->blobs->Patched" << selectedPatch->blobs->Patched << endl;
 
+
+        hexEdit.setAddressOffset(selectedPatch->addr);
+
+        auto rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Original.count());
+
+        qDebug() << "rom" << rom << endl;
+        if(!rom.isEmpty())
+        {
+            if(rom == selectedPatch->blobs->Patched)
+                item->setText(1, "Patched");
+            else
+                if(rom == selectedPatch->blobs->Original)
+                    item->setText(1, "Not patched");
+                else
+                    item->setText(1, "Does not match both!");
+        }
+    }
+}
+
+void Patcher::itemChecks(QTreeWidgetItem *item, int column)
+{
+    if(!item->data(2, Qt::UserRole).isNull())
+    {
+        applyPatch(item);
+    }
+    else {
+
+        QMessageBox msgBox;
+        msgBox.setText("Apply all patches?");
+        msgBox.setInformativeText("Ок - patch\nCancel - it cancel");
+        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setDefaultButton(QMessageBox::Ok);
+
+        if (msgBox.exec() == QMessageBox::Ok)
+        {
+            for(int i = 0; i< item->childCount(); i++)
+            {
+                applyPatch(item->child(i));
+        }
+        }
+    }
 }
 
 void Patcher::selectROMfilename()
@@ -211,7 +268,7 @@ void Patcher::Save()
 
 void Patcher::Apply()
 {
-    QMessageBox msgBox;  //www.itmathrepetitor.ru
+    QMessageBox msgBox;
     msgBox.setText("Does not match original!");
     msgBox.setInformativeText("Ок - proceed anyway\nCancel - it cancel");
     msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
@@ -233,7 +290,7 @@ void Patcher::Apply()
 
 void Patcher::Undo_patch()
 {
-    QMessageBox msgBox;  //www.itmathrepetitor.ru
+    QMessageBox msgBox;
     msgBox.setText("Does not match patch!");
     msgBox.setInformativeText("Ок - proceed anyway\nCancel - it cancel");
     msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);

@@ -21,15 +21,10 @@ public:
     explicit mapManager(QWidget *parent = nullptr, ecuManager *_ecuManager = nullptr);
     ~mapManager();
 
-
-    void createMapTree(Map *tab);
-//    void freeMapTree();
-
     void colorFromFile(QString filename);
 
 public slots:
     void createMapS(QHash<QString, Map *> *RAMtables);
-    void createMap(mapDefinition *dMap);
     void clearMaps();
 
 
@@ -37,6 +32,10 @@ private:
     Ui::mapManager *ui;
     ecuManager *_ecuManager = nullptr;
     QVector<QColor> colormap;
+
+    void createMap(mapDefinition *dMap);
+    void createMapTree(Map *tab);
+    QTreeWidgetItem *checkCategory(QString cat);
 
 private slots:
     void itemChecks(QTreeWidgetItem *item, int column);

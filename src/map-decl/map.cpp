@@ -11,6 +11,7 @@ Map::Map(const QDomElement &element)
 
 void Map::fromXML(const QDomElement &element)
 {
+    Category = element.attribute("category");			        			        // сохраним категорию таблицы
     getSubMapDeclaration(element, this);                              // сохраняем заголовок таблицы
 
     QDomNode node = element.firstChild();

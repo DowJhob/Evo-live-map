@@ -61,8 +61,33 @@ void mapManager::createMapTree(Map *tab)
             axis_item->setFlags(0);
             map_name_item->addChild(axis_item);
         }
-        ui->treeWidget->addTopLevelItem(map_name_item);
+        QTreeWidgetItem* catItem = checkCategory(tab->Category);
+        if (catItem != nullptr)
+        {
+            catItem->addChild(map_name_item);
+        }
+        else
+            ui->treeWidget->addTopLevelItem(map_name_item);
     }
+}
+
+QTreeWidgetItem* mapManager::checkCategory(QString cat)
+{
+    QTreeWidgetItem* catItem = nullptr;
+    if (!cat.isEmpty())
+    {
+        QList<QTreeWidgetItem*> all = ui->treeWidget->findItems(cat, Qt::MatchContains | Qt::MatchRecursive, 0);
+        if(!all.isEmpty())
+        {
+            catItem = all.at(0);
+        }
+        else {
+
+            catItem = new QTreeWidgetItem(QStringList() << cat);
+            ui->treeWidget->addTopLevelItem(catItem);
+        }
+    }
+    return catItem;
 }
 
 void mapManager::colorFromFile(QString filename)

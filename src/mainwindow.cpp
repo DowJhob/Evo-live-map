@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     addToolBar(Qt::TopToolBarArea, &_ecuManager);
     connect(&_ecuManager, &ecuManager::ecuConnected,    this,         &MainWindow::ecuConnected);
     connect(&_ecuManager, &ecuManager::ecuDisconnected, this,         &MainWindow::ecuDisconnected);
-    connect(&_ecuManager, &ecuManager::createMap,       &_mapManager, &mapManager::createMap);
+//    connect(&_ecuManager, &ecuManager::createMap,       &_mapManager, &mapManager::createMap);
     connect(&_ecuManager, &ecuManager::Log,             this,         &MainWindow::Log);
     connect(&_ecuManager, &ecuManager::deviceEventLog,  this,         &MainWindow::deviceEventLog);
     //=============================================================================

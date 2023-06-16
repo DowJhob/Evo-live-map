@@ -34,8 +34,6 @@ public:
     int min = 0;
     int max = 0;
     float increment = 0;
-    QByteArray Original;
-    QByteArray Patched;
 
     void fromXML(const QDomElement &el);
 
@@ -43,10 +41,7 @@ public:
 
     void setFastNotation();
 
-    void getBloblist(const QDomElement &element);
-
 private:
-
 
 };
 

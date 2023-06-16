@@ -27,6 +27,7 @@ public:
 class patch
 {
 public:
+    QString Category;
     QString Name;
     quint32 addr = 0;
     bloblist2 *blobs;
@@ -65,7 +66,7 @@ private:
     Ui::Patcher *ui;
     QFile ROMfile_handler;
     QByteArray ROMfile;
-patch* selectedPatch = nullptr;
+    patch* selectedPatch = nullptr;
 
     QHexEdit hexEdit;
     void addPatchItem(patch *pt);
@@ -74,6 +75,11 @@ patch* selectedPatch = nullptr;
     bloblist2* getBloblist(const QDomElement &element);
 
     void _parser(QIODevice *device);
+    QTreeWidgetItem* checkCategory(QString cat);
+
+    void applyPatch(QTreeWidgetItem *item);
+
+
 
 
 signals:

@@ -9,6 +9,8 @@ public:
     Map();
     Map(const QDomElement &element);
 
+    QString Category;
+
     subMap X_axis;                     //Структура заголовка оси
     subMap Y_axis;                     //Структура заголовка оси
 
