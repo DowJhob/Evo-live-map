@@ -231,19 +231,15 @@ void Patcher::selectROMfilename()
 void Patcher::selectXMLfilename()
 {
     QFile XMLfile_handler;
-
     clearPatches();
-
-//    XMLfile_handler.setFileName( "C:\\Program Files (x86)\\OpenECU\\EcuFlash\\rommetadata\\mitsubishi\\evo\\88840017 2006 EDM Lancer Evolution MT.xml");
-        XMLfile_handler.setFileName( QFileDialog::getOpenFileName(nullptr, tr("Open xml"), QApplication::applicationDirPath(), tr("xml files (*.xml)")));
+    //    XMLfile_handler.setFileName( "C:\\Program Files (x86)\\OpenECU\\EcuFlash\\rommetadata\\mitsubishi\\evo\\88840017 2006 EDM Lancer Evolution MT.xml");
+    XMLfile_handler.setFileName( QFileDialog::getOpenFileName(nullptr, tr("Open xml"), QApplication::applicationDirPath(), tr("xml files (*.xml)")));
 
     if (!XMLfile_handler.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         QMessageBox::warning(this, tr("Patcher"), tr("Cannot open file %1.").arg(XMLfile_handler.fileName()));
         return;
     }
-    //        ROMfile = ROMfile_handler.readAll();
-
     _parser(&XMLfile_handler);
     XMLfile_handler.close();
     addPatches();
