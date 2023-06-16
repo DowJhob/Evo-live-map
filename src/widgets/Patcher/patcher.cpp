@@ -158,33 +158,32 @@ QTreeWidgetItem *Patcher::checkCategory(QString cat)
     return catItem;
 }
 
-void Patcher::applyPatch(QTreeWidgetItem *item)
+patchState Patcher::checkPatch(QTreeWidgetItem *item)
 {
     auto data = item->data(2, Qt::UserRole);
     selectedPatch = data.value<patch*>();
     if(selectedPatch != nullptr)
     {
-        qDebug() << "ptr_patch->Name" << selectedPatch->Name << endl
-                << "ptr_patch->addr" << selectedPatch->addr << endl
-    //                         << "rom" << rom << endl
-                 << "ptr_patch->blobs->Original" << selectedPatch->blobs->Original << endl
-                 << "ptr_patch->blobs->Patched" << selectedPatch->blobs->Patched << endl;
-
-
         hexEdit.setAddressOffset(selectedPatch->addr);
-
         auto rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Original.count());
-
-        qDebug() << "rom" << rom << endl;
         if(!rom.isEmpty())
         {
             if(rom == selectedPatch->blobs->Patched)
+            {
                 item->setText(1, "Patched");
+                return Patched;
+            }
             else
                 if(rom == selectedPatch->blobs->Original)
+                {
                     item->setText(1, "Not patched");
+                    return NotPatched;
+                }
                 else
+                {
                     item->setText(1, "Does not match both!");
+                    return dontMatchBoth;
+                }
         }
     }
 }
@@ -193,30 +192,24 @@ void Patcher::itemChecks(QTreeWidgetItem *item, int column)
 {
     if(!item->data(2, Qt::UserRole).isNull())
     {
-        applyPatch(item);
+        checkPatch(item);
+        currentPatches.clear();
+        currentPatches.append(item);
     }
-    else {
-
-        QMessageBox msgBox;
-        msgBox.setText("Apply all patches?");
-        msgBox.setInformativeText("Ок - patch\nCancel - it cancel");
-        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-        msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setDefaultButton(QMessageBox::Ok);
-
-        if (msgBox.exec() == QMessageBox::Ok)
+    else
+    {
+        for(int i = 0; i< item->childCount(); i++)
         {
-            for(int i = 0; i< item->childCount(); i++)
-            {
-                applyPatch(item->child(i));
-        }
+            checkPatch(item);
+            currentPatches.clear();
+            currentPatches.append(item->child(i));
         }
     }
 }
 
 void Patcher::selectROMfilename()
 {
-    if (!ROMfile_handler.isOpen())
+    if (ROMfile_handler.isOpen())
         ROMfile_handler.close();
     ROMfile.clear();
 
@@ -233,7 +226,7 @@ void Patcher::selectROMfilename()
 void Patcher::selectXMLfilename()
 {
     QFile XMLfile_handler;
-    if (!XMLfile_handler.isOpen())
+    if (XMLfile_handler.isOpen())
         XMLfile_handler.close();
     //ROMfile.clear();
     XMLfile_handler.setFileName( "C:\\Program Files (x86)\\OpenECU\\EcuFlash\\rommetadata\\mitsubishi\\evo\\88840017 2006 EDM Lancer Evolution MT.xml");
@@ -269,21 +262,29 @@ void Patcher::Save()
 void Patcher::Apply()
 {
     QMessageBox msgBox;
-    msgBox.setText("Does not match original!");
     msgBox.setInformativeText("Ок - proceed anyway\nCancel - it cancel");
-    msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::No | QMessageBox::Cancel);
     msgBox.setIcon(QMessageBox::Warning);
     msgBox.setDefaultButton(QMessageBox::Ok);
 
-    auto rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Patched.count());
-    if(!rom.isEmpty())
+    for( auto item : qAsConst(currentPatches))
     {
-        if(rom == selectedPatch->blobs->Patched)
-            QMessageBox::warning(this, tr("Patcher"), tr("Allready patched"));
-        else if(rom != selectedPatch->blobs->Original)
+        auto data = item->data(2, Qt::UserRole);
+        auto selectedPatch = data.value<patch*>();
+        switch (checkPatch(item))
         {
+        case patchState::dontMatchBoth:
+            msgBox.setText("Does not match both!");
             if (msgBox.exec() == QMessageBox::Ok)
-                hexEdit.replace(selectedPatch->addr, selectedPatch->blobs->Patched.count(), selectedPatch->blobs->Patched);
+        case patchState::NotPatched:
+            hexEdit.replace(selectedPatch->addr, selectedPatch->blobs->Patched.count(), selectedPatch->blobs->Patched);
+            break;
+        case patchState::Patched:
+//            msgBox.setText("Allready patched");
+
+            break;
+        default:
+            break;
         }
     }
 }
@@ -291,22 +292,29 @@ void Patcher::Apply()
 void Patcher::Undo_patch()
 {
     QMessageBox msgBox;
-    msgBox.setText("Does not match patch!");
     msgBox.setInformativeText("Ок - proceed anyway\nCancel - it cancel");
-    msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::No | QMessageBox::Cancel);
     msgBox.setIcon(QMessageBox::Warning);
     msgBox.setDefaultButton(QMessageBox::Ok);
 
-    auto rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Original.count());
-    if(!rom.isEmpty())
+    for( auto item : qAsConst(currentPatches))
     {
-        if(rom == selectedPatch->blobs->Original)
-            QMessageBox::warning(this, tr("Patcher"), tr("Allready original"));
-        else if(rom != selectedPatch->blobs->Patched)
+        auto data = item->data(2, Qt::UserRole);
+        auto selectedPatch = data.value<patch*>();
+        switch (checkPatch(item))
         {
+        case patchState::dontMatchBoth:
+            msgBox.setText("Does not match both!");
             if (msgBox.exec() == QMessageBox::Ok)
+        case patchState::Patched:
                 hexEdit.replace(selectedPatch->addr, selectedPatch->blobs->Original.count(), selectedPatch->blobs->Original);
-        }
+            break;
+        case patchState::NotPatched:
+//            msgBox.setText("Allready patched");
 
+            break;
+        default:
+            break;
+        }
     }
 }

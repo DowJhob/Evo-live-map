@@ -25,49 +25,83 @@ void mapManager::createMap(mapDefinition *dMap)
 
     connect(_ecuManager, &ecuManager::logReady, table->mapTable, &mapView::logReady);
 
-    ptrRAMtables.insert(dMap->declMap->Name, table );
-
-    createMapTree(dMap->declMap);
+    addMapToTree(table);
 }
 
 void mapManager::clearMaps()
 {
-    ui->treeWidget->clear();
-    for(mapWidget *c: qAsConst(ptrRAMtables))
+    for(int i = 0; i<  ui->treeWidget->topLevelItemCount(); i++)
     {
-        c->hide();
-        c->deleteLater();
+        auto item = ui->treeWidget->takeTopLevelItem(i);
+        if(item != nullptr)
+        {
+            auto data = item->data(2, Qt::UserRole);
+            if(!data.isNull())
+            {
+                mapWidget *map = data.value<mapWidget*>();
+                map->hide();
+                map->deleteLater();
+            }
+            else
+            {
+                for(auto child_item : item->takeChildren())
+                {
+                    if(child_item != nullptr)
+                    {
+                        auto data = child_item->data(2, Qt::UserRole);
+                        if(!data.isNull())
+                        {
+                            mapWidget *map = data.value<mapWidget*>();
+                            map->hide();
+                            map->deleteLater();
+                        }
+                    }
+                }
+            }
+        }
     }
-    ptrRAMtables.clear();
+    //    ui->treeWidget->clear();
+    //    ptrRAMtables.clear();
 }
 
-void mapManager::createMapTree(Map *tab)
+void mapManager::s_test(QHash<QString, Map *> *tables)
 {
-    if (tab->addr != 0)                                    // проверим что это таблица карт, а не таблица патчей
+    for ( Map *tab : *qAsConst(tables) )
     {
-        QTreeWidgetItem* map_name_item = new QTreeWidgetItem(QStringList() << tab->Name + " RAM address: " + QString::number(tab->addr, 16));
+        mapWidget *table = new mapWidget(nullptr, tab);
+        addMapToTree(table);
+    }
+}
+
+void mapManager::addMapToTree(mapWidget *tab)
+{
+    if (tab->decl->addr != 0)                                    // проверим что это таблица карт, а не таблица патчей
+    {
+        QTreeWidgetItem* map_name_item = new QTreeWidgetItem(QStringList() << tab->decl->Name + " RAM address: " + QString::number(tab->decl->addr, 16));
         map_name_item->setFlags(map_name_item->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable);
         map_name_item->setCheckState(0, Qt::Unchecked);
         QTreeWidgetItem* axis_item;
-        if (tab->X_axis.addr > 0)
+        if (tab->decl->X_axis.addr > 0)
         {
-            axis_item = new QTreeWidgetItem(QStringList() << tab->X_axis.Name + "  ROM address: " + QString::number(tab->X_axis.addr, 16) + "  scaling: " + tab->X_axis.rom_scaling.toexpr);
+            axis_item = new QTreeWidgetItem(QStringList() << tab->decl->X_axis.Name + "  ROM address: " + QString::number(tab->decl->X_axis.addr, 16) + "  scaling: " + tab->decl->X_axis.rom_scaling.toexpr);
             axis_item->setFlags(0);
             map_name_item->addChild(axis_item);
         }
-        if (tab->Y_axis.addr > 0)
+        if (tab->decl->Y_axis.addr > 0)
         {
-            axis_item = new QTreeWidgetItem(QStringList() << tab->Y_axis.Name + "  ROM address: " + QString::number(tab->Y_axis.addr, 16) + "  scaling: " + tab->X_axis.rom_scaling.toexpr);
+            axis_item = new QTreeWidgetItem(QStringList() << tab->decl->Y_axis.Name + "  ROM address: " + QString::number(tab->decl->Y_axis.addr, 16) + "  scaling: " + tab->decl->X_axis.rom_scaling.toexpr);
             axis_item->setFlags(0);
             map_name_item->addChild(axis_item);
         }
-        QTreeWidgetItem* catItem = checkCategory(tab->Category);
+        QTreeWidgetItem* catItem = checkCategory(tab->decl->Category);
         if (catItem != nullptr)
         {
             catItem->addChild(map_name_item);
         }
         else
             ui->treeWidget->addTopLevelItem(map_name_item);
+
+        map_name_item->setData(2, Qt::UserRole, QVariant::fromValue<mapWidget*>( tab ));
     }
 }
 
@@ -116,6 +150,11 @@ void mapManager::colorFromFile(QString filename)
     delete file;
 }
 
+void mapManager::setECUmanager(ecuManager *_ecuManager)
+{
+    this->_ecuManager = _ecuManager;
+}
+
 void mapManager::createMapS(QHash<QString, Map*> *RAMtables)
 {
     // переберем все описания таблиц
@@ -127,7 +166,9 @@ void mapManager::createMapS(QHash<QString, Map*> *RAMtables)
 
 void mapManager::itemChecks(QTreeWidgetItem *item, int column)
 {
-    mapWidget *map = ptrRAMtables.value( item->text(column).split(" RAM").at(0), nullptr );
+    auto data = item->data(2, Qt::UserRole);
+    mapWidget *map = data.value<mapWidget*>();
+
     if (map == nullptr)
         return;
     if ( item->checkState(column) )

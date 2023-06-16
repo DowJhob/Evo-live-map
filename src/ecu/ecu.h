@@ -45,6 +45,8 @@ public slots:
 
     void setLogRate(int freqRate);
 
+    void test();
+
 private slots:
 
 private:
@@ -58,6 +60,8 @@ signals:
     void Log(QString);
 
     void logReady(QVector<float>);
+
+    void s_test(QHash<QString, Map*>*);
 
 };
 

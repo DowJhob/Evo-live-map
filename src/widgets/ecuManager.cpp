@@ -14,6 +14,8 @@ ecuManager::ecuManager(QWidget *parent) : QToolBar(parent)
     connect(this, &ecuManager::updateRAM,      ECU, &ecu::updateRAM,  Qt::QueuedConnection);
     connect(this, &ecuManager::logRateChanged, ECU, &ecu::setLogRate, Qt::QueuedConnection);
 
+    connect(ECU, &ecu::s_test, this, &ecuManager::s_test, Qt::QueuedConnection);
+    ECU->test();
     //=============================================================================
     a_start_action = addAction( QIcon( ":ico/connect.png" ), "Start", this, &ecuManager::start_stop_Action);
     a_start_action->setDisabled(true);

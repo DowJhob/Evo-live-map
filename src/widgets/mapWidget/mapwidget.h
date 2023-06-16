@@ -15,14 +15,17 @@ class mapWidget : public QWidget
 public:
     mapView *mapTable;
     mapModel *mapModel_;
+    Map *decl = nullptr;
 
-    explicit mapWidget(QWidget *parent = nullptr, mapDefinition *def = nullptr, QVector<QColor> *colormap = nullptr);
+    mapWidget(QWidget *parent = nullptr, mapDefinition *def = nullptr, QVector<QColor> *colormap = nullptr);
+
+    explicit mapWidget(QWidget *parent = nullptr, Map *decl = nullptr);
+
     ~mapWidget();
 
     void setColorMap(QVector<QColor> *colormap);
 
 private:
-    Map *decl = nullptr;
 
 private slots:
 

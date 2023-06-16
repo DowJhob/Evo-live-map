@@ -16,16 +16,18 @@ class mapManager : public QGroupBox
     Q_OBJECT
 
 public:
-    QHash<QString, mapWidget*> ptrRAMtables;
-
     explicit mapManager(QWidget *parent = nullptr, ecuManager *_ecuManager = nullptr);
     ~mapManager();
 
     void colorFromFile(QString filename);
+    void setECUmanager(ecuManager *_ecuManager = nullptr);
 
 public slots:
     void createMapS(QHash<QString, Map *> *RAMtables);
     void clearMaps();
+
+
+    void s_test(QHash<QString, Map*>* tables);
 
 
 private:
@@ -34,7 +36,7 @@ private:
     QVector<QColor> colormap;
 
     void createMap(mapDefinition *dMap);
-    void createMapTree(Map *tab);
+    void addMapToTree(mapWidget *tab);
     QTreeWidgetItem *checkCategory(QString cat);
 
 private slots:

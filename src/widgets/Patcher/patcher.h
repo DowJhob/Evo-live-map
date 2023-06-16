@@ -12,21 +12,21 @@
 namespace Ui {
 class Patcher;
 }
-
-class bloblist2
+enum patchState
 {
-public:
-    bloblist2(){
-//        Original = new QByteArray;
-//        Patched = new QByteArray;
-    }
+    dontMatchBoth,
+    NotPatched,
+    Patched
+};
+
+struct bloblist2
+{
     QByteArray Original;
     QByteArray Patched;
 };
 
-class patch
+struct patch
 {
-public:
     QString Category;
     QString Name;
     quint32 addr = 0;
@@ -46,7 +46,6 @@ public:
     explicit Patcher(QWidget *parent = nullptr);
     ~Patcher();
 
-
 public slots:
     void addPatches(QHash<QString, patch *> *patches);
     void clearPatches();
@@ -61,7 +60,6 @@ private slots:
     void Apply();
     void Undo_patch();
 
-
 private:
     Ui::Patcher *ui;
     QFile ROMfile_handler;
@@ -69,22 +67,21 @@ private:
     patch* selectedPatch = nullptr;
 
     QHexEdit hexEdit;
-    void addPatchItem(patch *pt);
+    QList<QTreeWidgetItem*> currentPatches{};
 
+    void addPatchItem(patch *pt);
 
     bloblist2* getBloblist(const QDomElement &element);
 
     void _parser(QIODevice *device);
     QTreeWidgetItem* checkCategory(QString cat);
 
-    void applyPatch(QTreeWidgetItem *item);
-
-
-
+    patchState checkPatch(QTreeWidgetItem *item);
 
 signals:
     void applyPatch(bloblistPatch* patch);
     void applyOriginal(bloblistPatch* patch);
+
 };
 
 #endif // PATCHER_H

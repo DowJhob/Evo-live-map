@@ -15,6 +15,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     //=============================================================================
     //=============================================================================
     ui->tabWidget->addTab(&_mapManager, "Map manager");
+    _mapManager.setECUmanager(&_ecuManager);
+
+    connect(&_ecuManager, &ecuManager::s_test, &_mapManager, &mapManager::s_test, Qt::QueuedConnection);
+
+
+
+
+
+
     //=============================================================================
     ui->tabWidget->addTab(&hexEdit, "Hex editor");
     //=============================================================================

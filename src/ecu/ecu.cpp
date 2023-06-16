@@ -137,3 +137,16 @@ void ecu::setLogRate(int freqRate)
 {
     //pollTimer->setInterval(1/freqRate);
 }
+
+void ecu::test()
+{
+    //===================================================================================================
+    if (!ecuDef.fromROMID("90550001"))
+    {
+        (*ECUproto->devComm)->close();
+        qDebug() << "XML NOT FOUND!!!!!!!!!!!!!!!!!!!!!!!!!";
+        emit Log("xml not found");
+    }
+    //==================================================================================================
+    emit s_test(&ecuDef.RAMtables);
+}

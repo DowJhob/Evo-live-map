@@ -84,6 +84,8 @@ signals:
     void Log(QString);
     void logReady(QVector<float>);
 
+    void s_test(QHash<QString, Map*>*);
+
 };
 
 #endif // ECUMANAGER_H

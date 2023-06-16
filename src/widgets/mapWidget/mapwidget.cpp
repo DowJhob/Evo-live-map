@@ -1,5 +1,10 @@
 #include "mapwidget.h"
 
+mapWidget::mapWidget(QWidget *parent, Map *decl):QWidget(nullptr), decl(decl)
+{
+;
+}
+
 mapWidget::mapWidget(QWidget *parent, mapDefinition *def, QVector<QColor> *colormap) : QWidget(nullptr, Qt::Window | Qt::WindowCloseButtonHint ), decl(def->declMap)
 {
     setWindowTitle(def->declMap->Name);
