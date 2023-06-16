@@ -4,12 +4,13 @@
 Patcher::Patcher(QWidget *parent) : QGroupBox(parent), ui(new Ui::Patcher)
 {
     ui->setupUi(this);
-    ui->gridLayout_2->addWidget(&hexEdit, 3, 1, 1, 7);
+    ui->gridLayout_2->addWidget(&hexEdit, 3, 3, 1, 5);
 
     hexEdit.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     hexEdit.setAddressWidth(8);
     hexEdit.setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+    hexEdit.setDynamicBytesPerLine(true);
 }
 
 Patcher::~Patcher()
@@ -168,8 +169,9 @@ patchState Patcher::checkPatch(QTreeWidgetItem *item)
     auto selectedPatch = data.value<patch*>();
     if(selectedPatch != nullptr)
     {
-        hexEdit.setAddressOffset(selectedPatch->addr);
+        hexEdit.setCursorPosition(selectedPatch->addr);
         auto rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Patched.count());
+        qDebug() << selectedPatch->Name << selectedPatch->addr << rom.count() << rom ;
 
         if(!rom.isEmpty() && rom == selectedPatch->blobs->Patched)
         {
@@ -179,8 +181,9 @@ patchState Patcher::checkPatch(QTreeWidgetItem *item)
         }
         else
         {
-            rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Original.count());
-            if(!rom.isEmpty() && rom == selectedPatch->blobs->Original)
+            auto rom2 = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Original.count());
+            qDebug() << selectedPatch->Name << selectedPatch->addr << rom2.count() << rom2;
+            if(!rom2.isEmpty() && rom2 == selectedPatch->blobs->Original)
             {
                 item->setText(1, "Not patched");
                 item->setData(3, Qt::UserRole, 'N');
@@ -198,17 +201,24 @@ patchState Patcher::checkPatch(QTreeWidgetItem *item)
 
 void Patcher::itemChecks(QTreeWidgetItem *item, int column)
 {
+//    auto data = item->data(2, Qt::UserRole);
+//     auto Patch = data.value<patch*>();
+//     if(Patch != nullptr)
+//     {
+
+//         hexEdit.scroll(0, 20000);
+//     }
+
+
     currentPatches.clear();
     if(!item->data(2, Qt::UserRole).isNull())
     {
-        //checkPatch(item);
         currentPatches.append(item);
     }
     else
     {
         for(int i = 0; i< item->childCount(); i++)
         {
-            //checkPatch(item);
             currentPatches.append(item->child(i));
         }
     }

@@ -16,7 +16,8 @@ enum patchState
 {
     dontMatchBoth = 'B',
     NotPatched = 'N',
-    Patched = 'P'
+    Patched = 'P',
+    OutsideROM = 'O'
 };
 
 struct bloblist2

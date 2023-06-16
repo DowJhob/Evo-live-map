@@ -34,6 +34,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 //    connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &MainWindow::itemChecks);
     statusBar()->showMessage("No interface", 0);
 //    colorFromFile("C:\\Program Files (x86)\\OpenECU\\EcuFlash\\colormaps\\COLDFIRE.MAP") ;
+
+
+
+
+
+
+
+
+
+
+
+//    QByteArray src("dsssssssssssssssssssssssssssssssssssssssssssssssssssssss");
+//    qDebug() << src.count();
+//    QByteArray dst = src.d
 }
 
 MainWindow::~MainWindow()
