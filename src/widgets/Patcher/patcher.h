@@ -1,6 +1,7 @@
 #ifndef PATCHER_H
 #define PATCHER_H
 
+#include <QApplication>
 #include <QFile>
 #include <QFileDialog>
 #include <QGroupBox>
@@ -9,6 +10,7 @@
 #include <QDomElement>
 
 #include "src/widgets/hexEditor/qhexedit/qhexedit.h"
+#include "src/xmlmanager.h"
 
 namespace Ui {
 class Patcher;
@@ -38,7 +40,7 @@ struct patch
 
 Q_DECLARE_METATYPE(patch*);
 
-class Patcher : public QGroupBox
+class Patcher : public QGroupBox, xmlManager
 {
     Q_OBJECT
 
@@ -62,7 +64,7 @@ private slots:
     void Save();
     void Apply();
     void Undo_patch();
-    QDomElement getXMLDom(QIODevice *device);
+ //   QDomElement getXMLDom(QIODevice *device);
 
 private:
     Ui::Patcher *ui;
@@ -75,10 +77,15 @@ private:
 
     bloblist2* getBloblist(const QDomElement &element);
 
-    void _parser(QIODevice *device, QString includeID);
+ //   void _parser(QIODevice *device, QString includeID);
     QTreeWidgetItem* checkCategory(QString cat);
 
     patchState checkPatch(QTreeWidgetItem *item);
+
+
+    void serialize(QDomElement el);
+
+    void subSerialize(QDomNode node);
 
 signals:
     void applyPatch(bloblist2* patch);

@@ -12,8 +12,9 @@
 #include "mutparam.h"
 #include "rammut.h"
 #include "../map-decl/map.h"
+#include "src/xmlmanager.h"
 
-class ecuDefinition
+class ecuDefinition : public xmlManager
 {
 public:
     ramMUT ramMut;
@@ -33,13 +34,18 @@ public:
 private:
     QHash<QString, Scaling> scalingsMaps;                     //контейнер скалингов
 
-    void _parser(QIODevice *device, QString includeID);
+//    void _parser(QIODevice *device, QString includeID);
     void getMUTparam(const QDomElement &element);
 
     void getLivemap(const QDomElement &element);
     void getScaling(const QDomElement &el);
 
-    QDomElement getXMLDom(QIODevice *device);
+//    QDomElement getXMLDom(QIODevice *device);
+
+
+    void serialize(QDomElement el);
+
+    void subSerialize(QDomNode node);
 
 
 };

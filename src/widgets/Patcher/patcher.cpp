@@ -93,107 +93,105 @@ bloblist2 *Patcher::getBloblist(const QDomElement &element)
     return pt;
 }
 
-void Patcher::_parser(QIODevice *device, QString includeID)
-{
-    QDomElement root = getXMLDom(device);
+//void Patcher::_parser(QIODevice *device, QString includeID)
+//{
+//    QDomElement root = getXMLDom(device);
 
-    QDomNode romid = root.firstChildElement("romid");
-    QDomNode xmlid_node = romid.firstChildElement("xmlid");
-    if(!includeID.isEmpty() && xmlid_node.toElement().text() != includeID)
-        return;
-    QDomNode node = root.firstChild();
+//    QDomNode romid = root.firstChildElement("romid");
+//    QDomNode xmlid_node = romid.firstChildElement("xmlid");
+//    if(!includeID.isEmpty() && xmlid_node.toElement().text() != includeID)
+//        return;
+//    QDomNode node = root.firstChild();
 
-    qDebug() << "T============================================== includeID =============================================================" << includeID << endl;
+//    qDebug() << "T============================================== includeID =============================================================" << includeID << endl;
 
-    while (!node.isNull())
-    {
-        const QDomElement el = node.toElement();
-        if(el.tagName() == "include")
-        {
-            QString includeID2 = el.text();
-            //            qDebug() << "T==================================================== includeID =======================================================" << includeID;
-            if(!includeID2.isEmpty())
-            {
-                QDir dir(QApplication::applicationDirPath() + "/xml");
-                for (const QFileInfo &file : dir.entryInfoList(QDir::Files))
-                {
-                    qDebug() << "T======================================= file.fileName() ======================================" << includeID << xmlid_node.toElement().text() << file.fileName();
-                    QFile iod(file.absoluteFilePath());
-                    if (!iod.open(QIODevice::ReadOnly | QIODevice::Text))
-                    {
-                        QMessageBox::warning(this, tr("Patcher"), tr("Cannot open file %1.").arg(iod.fileName()));
-                        return;
-                    }
-//                    qDebug() << "T============================================== xmlid_node =============================================================";
-                    _parser(&iod, includeID2);
-                }
-            }
-            else
-                return;
-        }
-        else
-        {
-            if ((el.tagName() == "scaling") && (el.attribute("storagetype") == "bloblist"))                                                 //сохраним все блобсы
-            {
-                auto blb = getBloblist(el);
-                bloblists.insert(el.attribute("name"), blb);
-            }
-        }
+//    while (!node.isNull())
+//    {
+//        const QDomElement el = node.toElement();
+//        if(el.tagName() == "include")
+//        {
+//            QString includeID2 = el.text();
+//            //            qDebug() << "T==================================================== includeID =======================================================" << includeID;
+//            if(!includeID2.isEmpty())
+//            {
+//                QDir dir(QApplication::applicationDirPath() + "/xml");
+//                for (const QFileInfo &file : dir.entryInfoList(QDir::Files))
+//                {
+//                    qDebug() << "T======================================= file.fileName() ======================================" << includeID << xmlid_node.toElement().text() << file.fileName();
+//                    QFile iod(file.absoluteFilePath());
+//                    if (!iod.open(QIODevice::ReadOnly | QIODevice::Text))
+//                    {
+//                        QMessageBox::warning(this, tr("Patcher"), tr("Cannot open file %1.").arg(iod.fileName()));
+//                        return;
+//                    }
+////                    qDebug() << "T============================================== xmlid_node =============================================================";
+//                    _parser(&iod, includeID2);
+//                }
+//            }
+//        }
+//        else
+//        {
+//            if ((el.tagName() == "scaling") && (el.attribute("storagetype") == "bloblist"))                                                 //сохраним все блобсы
+//            {
+//                auto blb = getBloblist(el);
+//                bloblists.insert(el.attribute("name"), blb);
+//            }
+//        }
 
-        node = node.nextSibling();
-    }
+//        node = node.nextSibling();
+//    }
 
-    node = root.firstChild();
-    while (!node.isNull())
-    {
-        const QDomElement el = node.toElement();
+//    node = root.firstChild();
+//    while (!node.isNull())
+//    {
+//        const QDomElement el = node.toElement();
 
-        if (el.tagName() == "table")                                                   // находим таблицу
-        {
-            QString scalingName = el.attribute("scaling");
-            auto blobs = bloblists.value(scalingName, nullptr);
-            if(blobs != nullptr)
-            {
-                patch *pt = new patch();
+//        if (el.tagName() == "table")                                                   // находим таблицу
+//        {
+//            QString scalingName = el.attribute("scaling");
+//            auto blobs = bloblists.value(scalingName, nullptr);
+//            if(blobs != nullptr)
+//            {
+//                patch *pt = new patch();
 
-                pt->Category = el.attribute("category");
-                pt->Name = el.attribute("name");
-                pt->addr = el.attribute("address").toUInt(nullptr, 16);
-                pt->blobs = blobs;
-                patches.insert(pt->Name, pt);
-            }
-        }
-        node = node.nextSibling();
-    }
-}
+//                pt->Category = el.attribute("category");
+//                pt->Name = el.attribute("name");
+//                pt->addr = el.attribute("address").toUInt(nullptr, 16);
+//                pt->blobs = blobs;
+//                patches.insert(pt->Name, pt);
+//            }
+//        }
+//        node = node.nextSibling();
+//    }
+//}
 
-QDomElement Patcher::getXMLDom(QIODevice *device)
-{
-    QString errorStr;
-    int errorLine;
-    int errorColumn;
-    QDomDocument doc;
-    //открываем документ
-    if (doc.setContent(device, true, &errorStr, &errorLine, &errorColumn))
-    {
-        QDomElement root = doc.documentElement();
-        if (root.tagName() == "rom")
-        {
-            return root;
-        }
-        else
-        {
-            qDebug() << "The file is not a rom xml";
-        }
-    }
-    else
-    {
-        //            lastError = "Line %1, column %2";
-        //            lastError = lastError.arg( errorLine).arg(errorColumn);
-        qDebug() << errorStr << errorLine << errorColumn ;
-    }
-    return QDomElement();
-}
+//QDomElement Patcher::getXMLDom(QIODevice *device)
+//{
+//    QString errorStr;
+//    int errorLine;
+//    int errorColumn;
+//    QDomDocument doc;
+//    //открываем документ
+//    if (doc.setContent(device, true, &errorStr, &errorLine, &errorColumn))
+//    {
+//        QDomElement root = doc.documentElement();
+//        if (root.tagName() == "rom")
+//        {
+//            return root;
+//        }
+//        else
+//        {
+//            qDebug() << "The file is not a rom xml";
+//        }
+//    }
+//    else
+//    {
+//        //            lastError = "Line %1, column %2";
+//        //            lastError = lastError.arg( errorLine).arg(errorColumn);
+//        qDebug() << errorStr << errorLine << errorColumn ;
+//    }
+//    return QDomElement();
+//}
 
 QTreeWidgetItem *Patcher::checkCategory(QString cat)
 {
@@ -254,6 +252,64 @@ patchState Patcher::checkPatch(QTreeWidgetItem *item)
     }
 }
 
+void Patcher::serialize(QDomElement el)
+{
+    if(el.tagName() == "include")
+    {
+        QString includeID2 = el.text();
+        //            qDebug() << "T==================================================== includeID =======================================================" << includeID;
+        if(!includeID2.isEmpty())
+        {
+            QDir dir(QApplication::applicationDirPath() + "/xml");
+            for (const QFileInfo &file : dir.entryInfoList(QDir::Files))
+            {
+                //               qDebug() << "T======================================= file.fileName() ======================================" << includeID << xmlid_node.toElement().text() << file.fileName();
+                QFile iod(file.absoluteFilePath());
+                if (!iod.open(QIODevice::ReadOnly | QIODevice::Text))
+                {
+                    QMessageBox::warning(this, tr("Patcher"), tr("Cannot open file %1.").arg(iod.fileName()));
+                    return;
+                }
+                //                    qDebug() << "T============================================== xmlid_node =============================================================";
+                _parser(&iod, includeID2);
+            }
+        }
+    }
+    else
+    {
+        if ((el.tagName() == "scaling") && (el.attribute("storagetype") == "bloblist"))                                                 //сохраним все блобсы
+        {
+            auto blb = getBloblist(el);
+            bloblists.insert(el.attribute("name"), blb);
+        }
+    }
+}
+
+void Patcher::subSerialize(QDomNode node)
+{
+    while (!node.isNull())
+    {
+        const QDomElement el = node.toElement();
+
+        if (el.tagName() == "table")                                                   // находим таблицу
+        {
+            QString scalingName = el.attribute("scaling");
+            auto blobs = bloblists.value(scalingName, nullptr);
+            if(blobs != nullptr)
+            {
+                patch *pt = new patch();
+
+                pt->Category = el.attribute("category");
+                pt->Name = el.attribute("name");
+                pt->addr = el.attribute("address").toUInt(nullptr, 16);
+                pt->blobs = blobs;
+                patches.insert(pt->Name, pt);
+            }
+        }
+        node = node.nextSibling();
+    }
+}
+
 void Patcher::itemChecks(QTreeWidgetItem *item, int column)
 {
     currentPatches.clear();
@@ -297,9 +353,9 @@ void Patcher::selectXMLfilename()
     QFile XMLfile_handler;
     clearPatches();
     //    XMLfile_handler.setFileName( "C:\\Program Files (x86)\\OpenECU\\EcuFlash\\rommetadata\\mitsubishi\\evo\\88840017 2006 EDM Lancer Evolution MT.xml");
-    XMLfile_handler.setFileName( QApplication::applicationDirPath() + "/xml/90550001 fuel pump patch.xml");
+    //    XMLfile_handler.setFileName( QApplication::applicationDirPath() + "/xml/90550001 fuel pump patch.xml");
 
-    //    XMLfile_handler.setFileName( QFileDialog::getOpenFileName(nullptr, tr("Open xml"), QApplication::applicationDirPath() + "/xml", tr("xml files (*.xml)")));
+    XMLfile_handler.setFileName( QFileDialog::getOpenFileName(nullptr, tr("Open xml"), QApplication::applicationDirPath() + "/xml", tr("xml files (*.xml)")));
 
     if (!XMLfile_handler.open(QIODevice::ReadOnly | QIODevice::Text))
     {
