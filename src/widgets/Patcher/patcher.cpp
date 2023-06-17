@@ -93,35 +93,53 @@ bloblist2 *Patcher::getBloblist(const QDomElement &element)
     return pt;
 }
 
-void Patcher::_parser(QIODevice *device)
+void Patcher::_parser(QIODevice *device, QString includeID)
 {
-    QString errorStr;
-    int errorLine;
-    int errorColumn;
-    QDomDocument doc;
-    //открываем документ
-    if (!doc.setContent(device, true, &errorStr, &errorLine, &errorColumn))
-    {
-        //            lastError = "Line %1, column %2";
-        //            lastError = lastError.arg( errorLine).arg(errorColumn);
-        qDebug() << errorStr << errorLine << errorColumn ;
+    QDomElement root = getXMLDom(device);
+
+    QDomNode romid = root.firstChildElement("romid");
+    QDomNode xmlid_node = romid.firstChildElement("xmlid");
+    if(!includeID.isEmpty() && xmlid_node.toElement().text() != includeID)
         return;
-    }
-    QDomElement root = doc.documentElement();
-    if (root.tagName() != "rom") {
-        //            lastError = "The file is not a rom xml";
-        return;
-    }
     QDomNode node = root.firstChild();
+
+    qDebug() << "T============================================== includeID =============================================================" << includeID << endl;
+
     while (!node.isNull())
     {
         const QDomElement el = node.toElement();
-
-        if ((el.tagName() == "scaling") && (el.attribute("storagetype") == "bloblist"))                                                 //сохраним все блобсы
+        if(el.tagName() == "include")
         {
-            auto blb = getBloblist(el);
-            bloblists.insert(el.attribute("name"), blb);
+            QString includeID2 = el.text();
+            //            qDebug() << "T==================================================== includeID =======================================================" << includeID;
+            if(!includeID2.isEmpty())
+            {
+                QDir dir(QApplication::applicationDirPath() + "/xml");
+                for (const QFileInfo &file : dir.entryInfoList(QDir::Files))
+                {
+                    qDebug() << "T======================================= file.fileName() ======================================" << includeID << xmlid_node.toElement().text() << file.fileName();
+                    QFile iod(file.absoluteFilePath());
+                    if (!iod.open(QIODevice::ReadOnly | QIODevice::Text))
+                    {
+                        QMessageBox::warning(this, tr("Patcher"), tr("Cannot open file %1.").arg(iod.fileName()));
+                        return;
+                    }
+//                    qDebug() << "T============================================== xmlid_node =============================================================";
+                    _parser(&iod, includeID2);
+                }
+            }
+            else
+                return;
         }
+        else
+        {
+            if ((el.tagName() == "scaling") && (el.attribute("storagetype") == "bloblist"))                                                 //сохраним все блобсы
+            {
+                auto blb = getBloblist(el);
+                bloblists.insert(el.attribute("name"), blb);
+            }
+        }
+
         node = node.nextSibling();
     }
 
@@ -147,6 +165,34 @@ void Patcher::_parser(QIODevice *device)
         }
         node = node.nextSibling();
     }
+}
+
+QDomElement Patcher::getXMLDom(QIODevice *device)
+{
+    QString errorStr;
+    int errorLine;
+    int errorColumn;
+    QDomDocument doc;
+    //открываем документ
+    if (doc.setContent(device, true, &errorStr, &errorLine, &errorColumn))
+    {
+        QDomElement root = doc.documentElement();
+        if (root.tagName() == "rom")
+        {
+            return root;
+        }
+        else
+        {
+            qDebug() << "The file is not a rom xml";
+        }
+    }
+    else
+    {
+        //            lastError = "Line %1, column %2";
+        //            lastError = lastError.arg( errorLine).arg(errorColumn);
+        qDebug() << errorStr << errorLine << errorColumn ;
+    }
+    return QDomElement();
 }
 
 QTreeWidgetItem *Patcher::checkCategory(QString cat)
@@ -251,14 +297,16 @@ void Patcher::selectXMLfilename()
     QFile XMLfile_handler;
     clearPatches();
     //    XMLfile_handler.setFileName( "C:\\Program Files (x86)\\OpenECU\\EcuFlash\\rommetadata\\mitsubishi\\evo\\88840017 2006 EDM Lancer Evolution MT.xml");
-    XMLfile_handler.setFileName( QFileDialog::getOpenFileName(nullptr, tr("Open xml"), QApplication::applicationDirPath(), tr("xml files (*.xml)")));
+    XMLfile_handler.setFileName( QApplication::applicationDirPath() + "/xml/90550001 fuel pump patch.xml");
+
+    //    XMLfile_handler.setFileName( QFileDialog::getOpenFileName(nullptr, tr("Open xml"), QApplication::applicationDirPath() + "/xml", tr("xml files (*.xml)")));
 
     if (!XMLfile_handler.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         QMessageBox::warning(this, tr("Patcher"), tr("Cannot open file %1.").arg(XMLfile_handler.fileName()));
         return;
     }
-    _parser(&XMLfile_handler);
+    _parser(&XMLfile_handler, "");
     XMLfile_handler.close();
     addPatches();
 }

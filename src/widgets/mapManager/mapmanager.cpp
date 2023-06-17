@@ -66,7 +66,7 @@ void mapManager::clearMaps()
 
 void mapManager::s_test(QHash<QString, Map *> *tables)
 {
-    for ( Map *tab : *qAsConst(tables) )
+    for ( Map *tab : *tables)
     {
         mapWidget *table = new mapWidget(nullptr, tab);
         addMapToTree(table);

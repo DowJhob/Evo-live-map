@@ -6,12 +6,14 @@
 #include <QGroupBox>
 #include <QTreeWidgetItem>
 #include <QMessageBox>
-#include "src/map-decl/bloblistpatch.h"
+#include <QDomElement>
+
 #include "src/widgets/hexEditor/qhexedit/qhexedit.h"
 
 namespace Ui {
 class Patcher;
 }
+
 enum patchState
 {
     dontMatchBoth = 'B',
@@ -60,6 +62,7 @@ private slots:
     void Save();
     void Apply();
     void Undo_patch();
+    QDomElement getXMLDom(QIODevice *device);
 
 private:
     Ui::Patcher *ui;
@@ -72,14 +75,14 @@ private:
 
     bloblist2* getBloblist(const QDomElement &element);
 
-    void _parser(QIODevice *device);
+    void _parser(QIODevice *device, QString includeID);
     QTreeWidgetItem* checkCategory(QString cat);
 
     patchState checkPatch(QTreeWidgetItem *item);
 
 signals:
-    void applyPatch(bloblistPatch* patch);
-    void applyOriginal(bloblistPatch* patch);
+    void applyPatch(bloblist2* patch);
+    void applyOriginal(bloblist2* patch);
 
 };
 

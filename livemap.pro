@@ -45,13 +45,17 @@ copyToDestDir($$PWD/xml, $$OUT_PWD/$${VARIANT}/xml/)
 
 
 
-
-GIT_VERSION = $$system(git --git-dir $$PWD/.git --work-tree $$PWD describe --always --tags)
+BASE_GIT_COMMAND = git --git-dir $$PWD/.git --work-tree $$PWD
+GIT_VERSION = $$system($$BASE_GIT_COMMAND describe --always --tags)
+message("GIT_===============================================================!" $$BASE_GIT_COMMAND)
+message("GIT_===============================================================!" $$GIT_VERSION)
 DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
 VERSION = $$GIT_VERSION
+
 win32 {
     VERSION ~= s/-\d+-g[a-f0-9]{6,}//
 }
+message($$VERSION)
 
 CONFIG(release, release|debug){
             win32-g++ {
@@ -110,7 +114,6 @@ SOURCES += src/main.cpp\
     src/ecu/ecu.cpp \
     src/ecu/mutparam.cpp \
     src/ecu/rammut.cpp \
-    src/map-decl/bloblistpatch.cpp \
     src/widgets/Patcher/patcher.cpp \
     src/widgets/ecuManager.cpp \
     src/wideband/op20wb.cpp \
@@ -142,7 +145,8 @@ SOURCES += src/main.cpp\
     src/widgets/mapManager/mapmanager.cpp \
     src/widgets/mapWidget/mapmodel.cpp \
     src/widgets/mapWidget/mapview.cpp \
-    src/widgets/mapWidget/mapwidget.cpp
+    src/widgets/mapWidget/mapwidget.cpp \
+    src/xmlmanager.cpp
 
 HEADERS  += src/mainwindow.h \
     src/DMA-proto/DMA-proto.h \
@@ -155,7 +159,6 @@ HEADERS  += src/mainwindow.h \
     src/ecu/ecu.h \
     src/ecu/mutparam.h \
     src/ecu/rammut.h \
-    src/map-decl/bloblistpatch.h \
     src/widgets/Patcher/patcher.h \
     src/widgets/ecuManager.h \
     src/wideband/op20wb.h \
@@ -195,7 +198,8 @@ HEADERS  += src/mainwindow.h \
     src/widgets/mapManager/mapmanager.h \
     src/widgets/mapWidget/mapmodel.h \
     src/widgets/mapWidget/mapview.h \
-    src/widgets/mapWidget/mapwidget.h
+    src/widgets/mapWidget/mapwidget.h \
+    src/xmlmanager.h
     #ecu/ecu_x_comm.h \
     #libs/libusb/include/libusb.h \
     #graph_logger.h \

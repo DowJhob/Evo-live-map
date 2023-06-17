@@ -5,19 +5,19 @@
 #include <QApplication>
 #include <QFile>
 #include <QFileDialog>
-#include <QtXml/QDomDocument>
+#include <QMessageBox>
+#include <QDomDocument>
+#include <QTranslator>
 
 #include "mutparam.h"
 #include "rammut.h"
 #include "../map-decl/map.h"
-#include "src/map-decl/bloblistpatch.h"
 
 class ecuDefinition
 {
 public:
     ramMUT ramMut;
     QHash<QString, Map*> RAMtables;
-    QHash<QString, bloblistPatch*> patches;
 
     QString lastError;
 
@@ -33,13 +33,14 @@ public:
 private:
     QHash<QString, Scaling> scalingsMaps;                     //контейнер скалингов
 
-    void _parser(QIODevice *device);
+    void _parser(QIODevice *device, QString includeID);
     void getMUTparam(const QDomElement &element);
 
     void getLivemap(const QDomElement &element);
     void getScaling(const QDomElement &el);
 
-    void getBloblist(const QDomElement &el);
+    QDomElement getXMLDom(QIODevice *device);
+
 
 };
 

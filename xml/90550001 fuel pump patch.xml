@@ -13,6 +13,8 @@
 		<memmodel>SH7055</memmodel>
 	</romid>
 
+  <include>evo7base</include>
+  
 	<scaling name="New fuel pump control _scaling" storagetype="bloblist">
 	<data name="Original" value="4F222FE66EF3B0120009600D88008905DA1060A1CB802A01A0050009DA0D60A1DB0B20B92A016EF64F26000B00092FE66EF3D0096001C8108903D0086001C8028902E001A0010009"/>
 	<data name="Patched"  value="D10D6011C8108909D10C6011C8028B05D10B6211910D622D32168904D1096011CB80000B2101D107920463112239000B212100C7FF7F0009FFFF88E4FFFF8C58FFFF852CFFFF87A2"/>
@@ -22,5 +24,65 @@
 	
 	<table name="test" category="Patches" address="3FFF0" type="1D" scaling="New fuel pump control _scaling"/>
 	
+
+	<live name="varDEAD" category="EvoLiveMap" address="FFFF9C0E" />
+
+	<live name="RAM_MUT" category="EvoLiveMap" address="FFFF9C10">
+		<ram_mut name="Load"          scaling="Load"       number="0x00"/>
+		<ram_mut name="RPM"           scaling="RPM"        number="0x01"/>
+		<ram_mut name="Air Volume"    scaling="AirFlow Hz" number="0x02"/>
+		<ram_mut name="knock"         scaling="uint8"      number="0x03"/>
+		<ram_mut name="timing scaled" scaling="uint8"      number="0x04"/>
+		<ram_mut name="TPS"           scaling="TPS"        number="0x05"/>
+		<ram_mut name="IPW"           scaling="uint16"     number="0x06"/>
+		<ram_mut name="IAT"           scaling="Temp8"      number="0x07"/>
+		<ram_mut name="coolant"       scaling="Temp8"      number="0x08"/>
+		<ram_mut name="trim low"      scaling="uint8"      number="0x09"/>
+		<ram_mut name="VSS"           scaling="uint8"      number="0x0A"/>
+	</live>
+	
+	<table name="High Octane Fuel Map" category="LiveMap" address="37B8F" type="3D" swapxy="true" scaling="AFR" RAM_addr="FFFF9C9F">
+		<table name="Load" address="4fdc" type="X Axis" elements="18" scaling="Load" RAM_mut_number="0x00" ram_mut_scaling="Load"/>
+		<table name="RPM" address="4fb4" type="Y Axis" elements="15" scaling="RPM" RAM_mut_number="0x02" ram_mut_scaling="RPM"/>
+	</table> 
+	<table name="High Octane Ignition Map" category="LiveMap" address="37CAF" type="3D" swapxy="true" scaling="Timing" RAM_addr="FFFF9DBF">
+		<table name="Load" address="503a" type="X Axis" elements="19" scaling="Load" RAM_mut_number="0x00" ram_mut_scaling="Load"/>
+		<table name="RPM" address="500a" type="Y Axis" elements="19" scaling="RPM" RAM_mut_number="0x02" ram_mut_scaling="RPM"/>
+	</table>
+
+	<table name="MAF Scaling" category="LiveMap" address="37E1E" type="2D" scaling="AirFlow8" RAM_addr="FFFF9F2E">
+		<table name="MAF Hz" address="4ecc" type="Y Axis" elements="21" scaling="MAFHz"/>
+	</table>
+	<table name="MAF Smoothing Table" category="LiveMap" address="37E3A" type="2D" scaling="Percent255" RAM_addr="FFFF9F4A">
+		<table name="MAF Hz" address="4ecc" type="Y Axis" elements="21" scaling="MAFHz"/>
+	</table>
+	
+	<table name="Injector Battery Voltage Latency Compensation" category="LiveMap" address="37E56" type="2D" scaling="InjectorLatency" RAM_addr="FFFF9F66">
+		<table name="Battery Voltage" type="Y Axis" address="4f1c" elements="7" scaling="BatteryVoltage"/>
+	</table>
+
+	<table name="Turbo Boost Error Correction" category="LiveMap" address="37E64" type="2D" scaling="DynamicBoost" RAM_addr="FFFF9F74">
+		<table name="Boost Error" type="Y Axis" elements="17" address="52a2" scaling="LoadError"/>
+	</table>
+	<table name="Boost Desired Engine Load #1" category="LiveMap" address="37E7C" type="2D" scaling="Load8" RAM_addr="FFFF9F8C">
+		<table name="RPM" type="Y Axis" elements="16" scaling="RPM" address="4d22"/>
+	</table>
+	<table name="Boost Desired Engine Load #2" category="LiveMap" address="37E92" type="2D" scaling="Load8" RAM_addr="FFFF9FA2">
+		<table name="RPM" type="Y Axis" elements="16" scaling="RPM" address="4d22"/>
+	</table>
+	<table name="Boost Desired Engine Load #3" category="LiveMap" address="37EA8" type="2D" scaling="Load8" RAM_addr="FFFF9FB8">
+		<table name="RPM" type="Y Axis" elements="16" scaling="RPM" address="4d22"/>
+	</table>
+	
+	<table name="Max Wastegate Duty #1" category="LiveMap" address="37EBE" type="2D" scaling="WGDuty" RAM_addr="FFFF9FCE">
+		<table name="RPM" type="Y Axis" elements="16" scaling="RPM" address="5278"/>
+	</table>
+	<table name="Max Wastegate Duty #2" category="LiveMap" address="37ED4" type="2D" scaling="WGDuty" RAM_addr="FFFF9FE4">
+		<table name="RPM" type="Y Axis" elements="16" scaling="RPM" address="5278"/>
+	</table>
+	<table name="Max Wastegate Duty #3" category="LiveMap" address="37EEA" type="2D" scaling="WGDuty" RAM_addr="FFFF9FFA">
+		<table name="RPM" type="Y Axis" elements="16" scaling="RPM" address="5278"/>
+	</table>
+
 
 </rom>
