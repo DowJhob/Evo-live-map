@@ -5,10 +5,10 @@ commDeviceManager::commDeviceManager(QWidget *parent):QGroupBox(parent)
     setTitle("Communication devices");
     setLayout(&layout);
     //setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    /*
-    availCommDev.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    /**/
+    availCommDev.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     bd.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    el_baudRate.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);*/
+    el_baudRate.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
     layout.addWidget(&availCommDev, 0, 0);
     layout.addWidget(&bd, 0, 1);

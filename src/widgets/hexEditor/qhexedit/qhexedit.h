@@ -188,6 +188,17 @@ public:
     bool write(QIODevice &iODevice, qint64 pos=0, qint64 count=-1);
 
 
+
+    void setAddrpos(qint64 pos, char ch);
+
+
+
+
+
+
+
+
+
     // Char handling
 
     /*! Inserts a char.

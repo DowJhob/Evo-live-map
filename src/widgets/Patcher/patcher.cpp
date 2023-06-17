@@ -10,17 +10,18 @@ Patcher::Patcher(QWidget *parent) : QGroupBox(parent), ui(new Ui::Patcher)
 
     hexEdit.setAddressWidth(8);
     hexEdit.setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
-    hexEdit.setDynamicBytesPerLine(true);
+    //hexEdit.setDynamicBytesPerLine(true);
 }
 
 Patcher::~Patcher()
 {
     delete ui;
+    clearPatches();
 }
 
 void Patcher::addPatches()
 {
-    for ( auto *patch : qAsConst(this->patches) )
+    for ( auto *patch : qAsConst(patches) )
     {
         QTreeWidgetItem *item = addPatchTreeItem(patch);
         checkPatch(item);
@@ -30,6 +31,11 @@ void Patcher::addPatches()
 void Patcher::clearPatches()
 {
     ui->treeWidget->clear();
+    for ( auto *patch : qAsConst(patches) )
+    {
+        delete(patch->blobs);
+        delete(patch);
+    }
     bloblists.clear();
     patches.clear();
 }
@@ -139,7 +145,6 @@ void Patcher::_parser(QIODevice *device)
                 patches.insert(pt->Name, pt);
             }
         }
-
         node = node.nextSibling();
     }
 }
@@ -169,7 +174,11 @@ patchState Patcher::checkPatch(QTreeWidgetItem *item)
     auto selectedPatch = data.value<patch*>();
     if(selectedPatch != nullptr)
     {
-        hexEdit.setCursorPosition(selectedPatch->addr);
+        hexEdit.setAddrpos(selectedPatch->addr, 0);
+        hexEdit.setCursorPosition(selectedPatch->addr * 2);
+
+
+
         auto rom = hexEdit.dataAt(selectedPatch->addr, selectedPatch->blobs->Patched.count());
         qDebug() << selectedPatch->Name << selectedPatch->addr << rom.count() << rom ;
 
@@ -201,15 +210,6 @@ patchState Patcher::checkPatch(QTreeWidgetItem *item)
 
 void Patcher::itemChecks(QTreeWidgetItem *item, int column)
 {
-//    auto data = item->data(2, Qt::UserRole);
-//     auto Patch = data.value<patch*>();
-//     if(Patch != nullptr)
-//     {
-
-//         hexEdit.scroll(0, 20000);
-//     }
-
-
     currentPatches.clear();
     if(!item->data(2, Qt::UserRole).isNull())
     {
@@ -221,6 +221,14 @@ void Patcher::itemChecks(QTreeWidgetItem *item, int column)
         {
             currentPatches.append(item->child(i));
         }
+    }
+    auto firstItem = currentPatches[0];
+    auto data = firstItem->data(2, Qt::UserRole);
+    auto Patch = data.value<patch*>();
+    if(!data.isNull())
+    {
+        hexEdit.setAddrpos(Patch->addr, 0);
+        hexEdit.setCursorPosition(Patch->addr * 2);
     }
 }
 

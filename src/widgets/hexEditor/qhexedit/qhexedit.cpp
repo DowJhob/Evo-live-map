@@ -1117,6 +1117,12 @@ void QHexEdit::init()
     _modified = false;
 }
 
+void QHexEdit::setAddrpos(qint64 pos, char ch)
+{
+    verticalScrollBar()->setSliderPosition(pos/16);
+//    adjust();
+}
+
 void QHexEdit::adjust()
 {
     // recalc Graphics
