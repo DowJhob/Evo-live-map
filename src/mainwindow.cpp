@@ -39,8 +39,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 
 
-
-
+//        ui->tabWidget->addTab(&plot, "Surface");
+//ui->tabWidget->addTab(&scat, "Surface");
 
 
 

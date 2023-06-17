@@ -6,7 +6,9 @@
 
 CONFIG += c++11
 #CONFIG += qwt
-QT     += core gui xml serialport
+QT     += core gui xml serialport datavisualization
+#widgets
+#requires(qtConfig(combobox))
 
 
 
@@ -114,6 +116,10 @@ SOURCES += src/main.cpp\
     src/ecu/ecu.cpp \
     src/ecu/mutparam.cpp \
     src/ecu/rammut.cpp \
+    src/widgets/3D/SurfaceGraph.cpp \
+    src/widgets/3D/s3dplot.cpp \
+    src/widgets/3D/s3dscatter.cpp \
+    src/widgets/3D/scatterdatamodifier.cpp \
     src/widgets/Patcher/patcher.cpp \
     src/widgets/ecuManager.cpp \
     src/wideband/op20wb.cpp \
@@ -159,6 +165,10 @@ HEADERS  += src/mainwindow.h \
     src/ecu/ecu.h \
     src/ecu/mutparam.h \
     src/ecu/rammut.h \
+    src/widgets/3D/SurfaceGraph.h \
+    src/widgets/3D/s3dplot.h \
+    src/widgets/3D/s3dscatter.h \
+    src/widgets/3D/scatterdatamodifier.h \
     src/widgets/Patcher/patcher.h \
     src/widgets/ecuManager.h \
     src/wideband/op20wb.h \

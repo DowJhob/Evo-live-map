@@ -4,5 +4,6 @@
         <file>ico/screwdriver.png</file>
         <file>ico/reload.png</file>
         <file>ico/Memory-Freer-icon.png</file>
+        <file>ico/mountain.png</file>
     </qresource>
 </RCC>
