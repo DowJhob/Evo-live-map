@@ -1,9 +1,5 @@
 #include "xmlmanager.h"
 
-xmlManager::xmlManager()
-{
-
-}
 
 void xmlManager::_parser(QIODevice *device, QString includeID)
 {

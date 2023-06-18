@@ -133,7 +133,7 @@
    <sender>treeWidget</sender>
    <signal>itemClicked(QTreeWidgetItem*,int)</signal>
    <receiver>Patcher</receiver>
-   <slot>itemChecks(QTreeWidgetItem*, int)</slot>
+   <slot>itemClicked(QTreeWidgetItem*, int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>174</x>

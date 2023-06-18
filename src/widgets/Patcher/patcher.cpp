@@ -28,6 +28,40 @@ void Patcher::addPatches()
     }
 }
 
+void Patcher::checkPatches()
+{
+
+        for(int i =0; i < ui->treeWidget->topLevelItemCount(); i++)
+        {
+        QTreeWidgetItem *item = ui->treeWidget->topLevelItem(i);
+
+
+
+        auto data = item->data(2, Qt::UserRole);
+        if(!data.isNull())
+        {
+//            auto Patch = data.value<patch*>();
+            checkPatch(item);
+        }
+        else
+        {
+            for(int j =0; j < item->childCount(); j++)
+            {
+                QTreeWidgetItem *subItem = item->child(j);
+                auto subData = subItem->data(2, Qt::UserRole);
+                if(!subData.isNull())
+                {
+
+                    checkPatch(subItem);
+                }
+            }
+        }
+
+
+
+    }
+}
+
 void Patcher::clearPatches()
 {
     ui->treeWidget->clear();
@@ -43,8 +77,8 @@ void Patcher::clearPatches()
 QTreeWidgetItem* Patcher::addPatchTreeItem(patch *pt)
 {
     QTreeWidgetItem* patchItem = new QTreeWidgetItem(QStringList() << pt->Name + " | RAM address: " + QString::number(pt->addr, 16));
-    patchItem->setFlags(patchItem->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable);
-    patchItem->setCheckState(0, Qt::Unchecked);
+    patchItem->setFlags(patchItem->flags() | Qt::ItemIsUserCheckable /*| Qt::ItemIsSelectable*/);
+//    patchItem->setCheckState(0, Qt::Unchecked);
     QTreeWidgetItem* blobItem;
     if (!pt->blobs->Original.isNull())
     {
@@ -92,106 +126,6 @@ bloblist2 *Patcher::getBloblist(const QDomElement &element)
     }
     return pt;
 }
-
-//void Patcher::_parser(QIODevice *device, QString includeID)
-//{
-//    QDomElement root = getXMLDom(device);
-
-//    QDomNode romid = root.firstChildElement("romid");
-//    QDomNode xmlid_node = romid.firstChildElement("xmlid");
-//    if(!includeID.isEmpty() && xmlid_node.toElement().text() != includeID)
-//        return;
-//    QDomNode node = root.firstChild();
-
-//    qDebug() << "T============================================== includeID =============================================================" << includeID << endl;
-
-//    while (!node.isNull())
-//    {
-//        const QDomElement el = node.toElement();
-//        if(el.tagName() == "include")
-//        {
-//            QString includeID2 = el.text();
-//            //            qDebug() << "T==================================================== includeID =======================================================" << includeID;
-//            if(!includeID2.isEmpty())
-//            {
-//                QDir dir(QApplication::applicationDirPath() + "/xml");
-//                for (const QFileInfo &file : dir.entryInfoList(QDir::Files))
-//                {
-//                    qDebug() << "T======================================= file.fileName() ======================================" << includeID << xmlid_node.toElement().text() << file.fileName();
-//                    QFile iod(file.absoluteFilePath());
-//                    if (!iod.open(QIODevice::ReadOnly | QIODevice::Text))
-//                    {
-//                        QMessageBox::warning(this, tr("Patcher"), tr("Cannot open file %1.").arg(iod.fileName()));
-//                        return;
-//                    }
-////                    qDebug() << "T============================================== xmlid_node =============================================================";
-//                    _parser(&iod, includeID2);
-//                }
-//            }
-//        }
-//        else
-//        {
-//            if ((el.tagName() == "scaling") && (el.attribute("storagetype") == "bloblist"))                                                 //сохраним все блобсы
-//            {
-//                auto blb = getBloblist(el);
-//                bloblists.insert(el.attribute("name"), blb);
-//            }
-//        }
-
-//        node = node.nextSibling();
-//    }
-
-//    node = root.firstChild();
-//    while (!node.isNull())
-//    {
-//        const QDomElement el = node.toElement();
-
-//        if (el.tagName() == "table")                                                   // находим таблицу
-//        {
-//            QString scalingName = el.attribute("scaling");
-//            auto blobs = bloblists.value(scalingName, nullptr);
-//            if(blobs != nullptr)
-//            {
-//                patch *pt = new patch();
-
-//                pt->Category = el.attribute("category");
-//                pt->Name = el.attribute("name");
-//                pt->addr = el.attribute("address").toUInt(nullptr, 16);
-//                pt->blobs = blobs;
-//                patches.insert(pt->Name, pt);
-//            }
-//        }
-//        node = node.nextSibling();
-//    }
-//}
-
-//QDomElement Patcher::getXMLDom(QIODevice *device)
-//{
-//    QString errorStr;
-//    int errorLine;
-//    int errorColumn;
-//    QDomDocument doc;
-//    //открываем документ
-//    if (doc.setContent(device, true, &errorStr, &errorLine, &errorColumn))
-//    {
-//        QDomElement root = doc.documentElement();
-//        if (root.tagName() == "rom")
-//        {
-//            return root;
-//        }
-//        else
-//        {
-//            qDebug() << "The file is not a rom xml";
-//        }
-//    }
-//    else
-//    {
-//        //            lastError = "Line %1, column %2";
-//        //            lastError = lastError.arg( errorLine).arg(errorColumn);
-//        qDebug() << errorStr << errorLine << errorColumn ;
-//    }
-//    return QDomElement();
-//}
 
 QTreeWidgetItem *Patcher::checkCategory(QString cat)
 {
@@ -310,7 +244,7 @@ void Patcher::subSerialize(QDomNode node)
     }
 }
 
-void Patcher::itemChecks(QTreeWidgetItem *item, int column)
+void Patcher::itemClicked(QTreeWidgetItem *item, int column)
 {
     currentPatches.clear();
     if(!item->data(2, Qt::UserRole).isNull())
@@ -346,6 +280,7 @@ void Patcher::selectROMfilename()
         QMessageBox::warning(this, tr("Patcher"), tr("Cannot open file %1.").arg(ROMfile_handler.fileName()));
         return;
     }
+    checkPatches();
 }
 
 void Patcher::selectXMLfilename()
@@ -396,7 +331,7 @@ void Patcher::Apply()
         auto selectedPatch = data.value<patch*>();
 
         auto stateData = item->data(3, Qt::UserRole);
-        auto statePatch = data.value<char>();
+        auto statePatch = stateData.value<char>();
 
         switch (statePatch)
         {
@@ -405,11 +340,11 @@ void Patcher::Apply()
             if (msgBox.exec() == QMessageBox::Ok)
         case patchState::NotPatched:
                 hexEdit.replace(selectedPatch->addr, selectedPatch->blobs->Patched.count(), selectedPatch->blobs->Patched);
+                item->setText(1, "Patched:");
                 item->setData(3, Qt::UserRole, 'P');
                 break;
             case patchState::Patched:
                 //            msgBox.setText("Allready patched");
-
                 break;
             default:
                 break;
@@ -431,7 +366,7 @@ void Patcher::Undo_patch()
         auto selectedPatch = data.value<patch*>();
 
         auto stateData = item->data(3, Qt::UserRole);
-        auto statePatch = data.value<char>();
+        auto statePatch = stateData.value<char>();
 
         switch (statePatch)
         {
@@ -441,10 +376,10 @@ void Patcher::Undo_patch()
         case patchState::Patched:
                 hexEdit.replace(selectedPatch->addr, selectedPatch->blobs->Original.count(), selectedPatch->blobs->Original);
                 item->setData(3, Qt::UserRole, 'N');
+        item->setText(1, "Original:");
                 break;
             case patchState::NotPatched:
                 //            msgBox.setText("Allready patched");
-
                 break;
             default:
                 break;

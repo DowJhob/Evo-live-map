@@ -12,31 +12,19 @@
 //#include <QMessageBox>
 #include <QStatusBar>
 
-
-
-#include "src/widgets/3D/s3dplot.h"
-#include "src/widgets/3D/s3dscatter.h"
+//#include "src/widgets/3D/s3dplot.h"
+//#include "src/widgets/3D/s3dscatter.h"
 #include "src/widgets/Patcher/patcher.h"
 #include "src/widgets/mapManager/mapmanager.h"
 #include "types.h"
 
-//#include "comm-device-interface/comm-device-interface.h"
-//#include "comm-device-interface/op13.h"
-//#include "comm-device-interface/op20.h"
-
 #include "deviceNativeFilter.h"
 
-#include "widgets/commParamWidget.h"
 #include "widgets/mapWidget/mapwidget.h"
-#include "widgets/hexEditor/qhexedit/qhexedit.h"
 #include "widgets/hexEditor/hexeditor.h"
 #include "widgets/gauge_widget.h"
 
-
 #include "widgets/ecuManager.h"
-#include "comm-device-interface/devicemanager.h"
-#include "DMA-proto/proto-manager.h"
-#include "wideband/wb-manager.h"
 
 #include "widgets/loggermanager.h"
 
@@ -71,7 +59,7 @@ private slots:
 private:
 
 //    s3Dplot plot;
-    s3Dscatter scat;
+//s3Dscatter scat;
 
     Ui::MainWindow *ui;
 

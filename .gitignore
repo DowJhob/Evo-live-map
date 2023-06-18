@@ -11,3 +11,4 @@ Makefile*
 *.TMP
 *.Debug
 *.Release
+.qtc_clangd

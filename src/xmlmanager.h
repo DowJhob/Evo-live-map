@@ -1,7 +1,7 @@
 #ifndef XMLMANAGER_H
 #define XMLMANAGER_H
 
-#include <QObject>
+//#include <QObject>
 #include <QFile>
 #include <QFileDialog>
 #include <QApplication>
@@ -13,7 +13,7 @@ class xmlManager// : public QObject
 {
 //    Q_OBJECT
 public:
-    xmlManager();
+
     void _parser(QIODevice *device, QString includeID);
 
 private:

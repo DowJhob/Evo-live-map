@@ -53,10 +53,11 @@ public:
 
 public slots:
     void addPatches();
+    void checkPatches();
     void clearPatches();
 
 private slots:
-    void itemChecks(QTreeWidgetItem *item, int column);
+    void itemClicked(QTreeWidgetItem *item, int column);
     void selectROMfilename();
     void selectXMLfilename();
 
