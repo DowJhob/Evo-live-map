@@ -31,23 +31,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     //=============================================================================
     ui->tabWidget->addTab(&patcher, "Patcher");
     //=============================================================================
-//    connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &MainWindow::itemChecks);
     statusBar()->showMessage("No interface", 0);
-//    colorFromFile("C:\\Program Files (x86)\\OpenECU\\EcuFlash\\colormaps\\COLDFIRE.MAP") ;
 
 
+     pw = new SurfacePlot();
 
-
+    pw->resize(800,600);
+pw->show();
 
 //        ui->tabWidget->addTab(&plot, "Surface");
-//ui->tabWidget->addTab(&scat, "Surface");
+//        ui->tabWidget->addTab(&scat, "Surface");
 
 
-
-
-//    QByteArray src("dsssssssssssssssssssssssssssssssssssssssssssssssssssssss");
-//    qDebug() << src.count();
-//    QByteArray dst = src.d
 }
 
 MainWindow::~MainWindow()

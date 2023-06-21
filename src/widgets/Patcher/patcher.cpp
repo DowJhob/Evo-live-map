@@ -30,12 +30,9 @@ void Patcher::addPatches()
 
 void Patcher::checkPatches()
 {
-
         for(int i =0; i < ui->treeWidget->topLevelItemCount(); i++)
         {
         QTreeWidgetItem *item = ui->treeWidget->topLevelItem(i);
-
-
 
         auto data = item->data(2, Qt::UserRole);
         if(!data.isNull())
@@ -56,9 +53,6 @@ void Patcher::checkPatches()
                 }
             }
         }
-
-
-
     }
 }
 

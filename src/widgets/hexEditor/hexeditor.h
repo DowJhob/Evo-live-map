@@ -1,6 +1,7 @@
 #ifndef HEXEDITOR_H
 #define HEXEDITOR_H
 
+#include "3rdparty/qhexedit2/src/qhexedit.h"
 #include <QObject>
 #include <QGroupBox>
 
@@ -8,9 +9,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
-
-#include "qhexedit/qhexedit.h"
-
 
 class hexEditor : public QGroupBox
 {

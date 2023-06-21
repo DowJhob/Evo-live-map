@@ -1,0 +1,132 @@
+
+	<scaling name="33 scaling" storagetype="bloblist">
+		<data name="Original" value="00"/>
+		<data name="Patched" value="03"/>
+	</scaling>
+	<table name="33" category="DMA Programming" address="0xF30" type="1D" scaling="33"/>
+
+	<scaling name="handle mode 87 scaling" storagetype="bloblist">
+		<data name="Original" value="600C6A0D60A381F88482690C4918699D85F86A0D29AB85E8C840893D699D609388018B398485600C6A0D60A381F88484600C40186A0385F86B0D2ABB"/>
+		<data name="Patched"  value="690385E8C84089476093C8018944A0130009890FDAA184A388058B0B84A2401080A2890785E8EB084B1820BA81E850A1702C1A01A216000985826A0D"/>
+	</scaling>
+	<table name="handle mode 87" category="DMA Programming" address="0x8152" type="1D" scaling="handle mode 87 scaling"/>
+
+	<scaling name="Reads scaling" storagetype="bloblist">
+		<data name="Original" value="E92C85E64019C880892185EC680D688D6483E52CDA9D4A0B0009600DDAA16AA16AAD30A68B29D49E6441644D6583A020"/>
+		<data name="Patched"  value="DA8C85A18121608D80254019802485EA660D65237506D480348C84A3C804894885A3640D6449248B6449A042E62C0009"/>
+	</scaling>
+	<table name="Reads" category="DMA Programming" address="0x8214" type="1D" scaling="handle mode 87 scaling"/>
+
+	<scaling name="44 (need change addrr!) scaling" storagetype="bloblist">
+		<data name="Original" value="000000000000000000000000"/>
+		<data name="Patched"  value="C8048B5B88028B2E81210009"/>
+	</scaling>
+	<table name="44 (need change addrr!)" category="DMA Programming" address="0x91D2" type="1D" scaling="44 (need change addrr!) scaling"/>
+
+	<scaling name="4 scaling" storagetype="bloblist">
+		<data name="Original" value="00000000"/>
+		<data name="Patched"  value="AF52C840"/>
+	</scaling>
+	<table name="4" category="DMA Programming" address="0x829A" type="1D" scaling="4 scaling"/>
+
+	<scaling name="5 scaling" storagetype="bloblist">
+		<data name="Original" value="00000000"/>
+		<data name="Patched"  value="0CC803"/>
+	</scaling>
+	<table name="5" category="DMA Programming" address="0x8465" type="1D" scaling="5 scaling"/>
+
+	<scaling name="6 scaling" storagetype="bloblist">
+		<data name="Original" value="00"/>
+		<data name="Patched"  value="E6"/>
+	</scaling>
+	<table name="6" category="DMA Programming" address="0x8486" type="1D" scaling="6 scaling"/>
+
+	<scaling name="Writes scaling" storagetype="bloblist">
+		<data name="Original" value="00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"/>
+		<data name="Patched"  value="30A68B0464A3DA754A0B6583660D85EA690DD575359C64238521C8048904E5FF4528259B66034619DA6F4A0B7406"/>
+	</scaling>
+	<table name="Writes" category="DMA Programming" address="0x849A" type="1D" scaling="Writes scaling"/>
+
+	<scaling name="DMA entry-point scaling" storagetype="bloblist">
+		<data name="Original" value="00AD0E"/>
+		<data name="Patched" value="03EEB0"/>
+	</scaling>
+	<table name="DMA entry-point" category="DMA Programming" address="0xF2E1" type="1D" scaling="DMA entry-point scaling"/>
+
+	<scaling name="DMA Code(main) scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="4F222F062F162F262FA62FB69042D11761113010890A0009DA1BDB1CD11CE00002AE0B26700430128BFA0009DA134A0B0009DA1160A1C8808B090009E0FCDA0C6AA220A9DA0A2A02E000DA0A2A02DA0C4A0B0009901ED10521016BF66AF662F661F660F64F26DA074A2B0009FFFF8AAEFFFFECFCFFFF8AA0FFFF6DA8000004000000041E0000AD0E00037B00FFFFA00000000800DEAD"/>
+	</scaling>
+	<table name="DMA Code(main)" category="DMA Programming" address="3eeb0" type="1D" scaling="DMA Code(main) scaling"/>
+
+	<scaling name="FuelHighMapVector scaling" storagetype="bloblist">
+		<data name="Original" value="0000000000000000000000000000000000000000000000000000000000000000"/>
+		<data name="Patched"  value="FFFF9C94FFFF9C94FFFF9C94FFFF9C94FFFF9C94FFFF9C94FFFF9C94FFFF9C94"/>
+	</scaling>
+	<table name="FuelHighMapVector" category="DMA Programming" address="0x58F4" type="1D" scaling="FuelHighMapVector scaling"/>
+
+	<scaling name="IgnitionHighMapVector scaling" storagetype="bloblist">
+		<data name="Original" value="0000000000000000000000000000000000000000000000000000000000000000"/>
+		<data name="Patched"  value="FFFF9DB4FFFF9DB4FFFF9DB4FFFF9DB4FFFF9DB4FFFF9DB4FFFF9DB4FFFF9DB4"/>
+	</scaling>
+	<table name="IgnitionHighMapVector" category="DMA Programming" address="0x5A74" type="1D" scaling="IgnitionHighMapVector scaling"/>
+
+	<scaling name="MAFScalingVector scaling" storagetype="bloblist">
+		<data name="Original" value="00003500"/>
+		<data name="Patched"  value="FFFF9F28"/>
+	</scaling>
+	<table name="MAFScalingVector" category="DMA Programming" address="0x13444" type="1D" scaling="MAFScalingVector scaling"/>
+
+	<scaling name="MAFSmoothingVector scaling" storagetype="bloblist">
+		<data name="Original" value="0000351C"/>
+		<data name="Patched"  value="FFFF9F44"/>
+	</scaling>
+	<table name="MAF Smoothing Vector" category="DMA Programming" address="0x13454" type="1D" scaling="MAFSmoothingVector scaling"/>
+
+	<scaling name="TBECVector scaling" storagetype="bloblist">
+		<data name="Original" value="000042E6"/>
+		<data name="Patched"  value="FFFF9F6E"/>
+	</scaling>
+	<table name="Turbo Boost Error Correction Vector" category="DMA Programming" address="0x1C690" type="1D" scaling="TBECVector scaling"/>
+
+	<scaling name="BDELVector1 scaling" storagetype="bloblist">
+		<data name="Original" value="00004340"/>
+		<data name="Patched"  value="FFFF9F86"/>
+	</scaling>
+	<table name="Boost Desired Engine Load #1 Vector" category="DMA Programming" address="0x1C6BC" type="1D" scaling="BDELVector1 scaling"/>
+
+	<scaling name="BDELVector2 scaling" storagetype="bloblist">
+		<data name="Original" value="00004356"/>
+		<data name="Patched"  value="FFFF9F9C"/>
+	</scaling>
+	<table name="Boost Desired Engine Load #2 Vector" category="DMA Programming" address="0x1C6C0" type="1D" scaling="BDELVector2 scaling"/>
+
+	<scaling name="BDELVector3 scaling" storagetype="bloblist">
+		<data name="Original" value="0000436C"/>
+		<data name="Patched"  value="FFFF9FB2"/>
+	</scaling>
+	<table name="Boost Desired Engine Load #3 Vector" category="DMA Programming" address="0x1C6D0" type="1D" scaling="BDELVector3 scaling"/>
+
+	<scaling name="WGDCVector1 scaling" storagetype="bloblist">
+		<data name="Original" value="000042FE"/>
+		<data name="Patched"  value="FFFF9FC8"/>
+	</scaling>
+	<table name="Max Wastegate Duty #1 Vector" category="DMA Programming" address="0x1C3CC" type="1D" scaling="WGDCVector1 scaling"/>
+
+	<scaling name="WGDCVector2 scaling" storagetype="bloblist">
+		<data name="Original" value="00004314"/>
+		<data name="Patched"  value="FFFF9FC8"/>
+	</scaling>
+	<table name="Max Wastegate Duty #2 Vector" category="DMA Programming" address="0x1C3D0" type="1D" scaling="WGDCVector2 scaling"/>
+
+	<scaling name="WGDCVector3 scaling" storagetype="bloblist">
+		<data name="Original" value="0000432A"/>
+		<data name="Patched"  value="FFFF9FF4"/>
+	</scaling>
+	<table name="Max Wastegate Duty #3 Vector" category="DMA Programming" address="0x1C3EC" type="1D" scaling="WGDCVector3 scaling"/>
+
+	<scaling name="InjectorLatencyVector scaling" storagetype="bloblist">
+		<data name="Original" value="00003970"/>
+		<data name="Patched"  value="FFFF9F60"/>
+	</scaling>
+	<table name="Injector Latency Vector" category="DMA Programming" address="0x12C8C" type="1D" scaling="InjectorLatencyVector scaling"/>

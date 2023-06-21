@@ -9,7 +9,7 @@
 #include <QMessageBox>
 #include <QDomElement>
 
-#include "src/widgets/hexEditor/qhexedit/qhexedit.h"
+#include "3rdparty/qhexedit2/src/qhexedit.h"
 #include "src/xmlmanager.h"
 
 namespace Ui {

@@ -1,0 +1,56 @@
+<rom>
+	<romid>
+		<xmlid>88592714</xmlid>
+		<internalidaddress>f52</internalidaddress>
+		<internalidhex>88592714</internalidhex>
+		<make>Mitsubishi</make>
+		<market>JDM</market>
+		<model>Lancer</model>
+		<submodel>EVO 9</submodel>
+		<transmission>Manual</transmission>
+		<year>2002</year>
+		<flashmethod>mitsukernel</flashmethod>
+		<memmodel>SH7055</memmodel>
+	</romid>
+
+	<include>evo7base</include>
+
+	<live name="varDEAD" category="EvoLiveMap" address="FFFFAA30" />
+
+	<live name="RAM_MUT" category="EvoLiveMap" address="FFFFA230">
+		<ram_mut name="Load"			scaling="Tephra1byteLoad"	number="0x00"/>
+		<ram_mut name="RPM"				scaling="RPMStatLimit8"		number="0x01"/>
+		<ram_mut name="Knock"			scaling="uint8"				number="0x02"/>
+		<ram_mut name="Timing Scaled"	scaling="TimingScaled"		number="0x03"/>
+		<ram_mut name="Air Temp Scaled"	scaling="Temp8"				number="0x04"/>
+		<ram_mut name="WGDC"			scaling="WGDuty"			number="0x05"/>
+		<ram_mut name="O2Sensor2"		scaling="O2Voltage"			number="0x06"/>
+		<ram_mut name="MAP_Bar"			scaling="MAP_BoostBar"		number="0x07"/>
+		<ram_mut name="TPS"				scaling="Percent255"		number="0x08"/>
+		<ram_mut name="Inj Pulse Width"	scaling="InjLatency"		number="0x09"/>
+		<ram_mut name="Gear"			scaling="uint8"				number="0x0A"/>
+		<ram_mut name="Gear"			scaling="uint8"				number="0x0B"/>
+		<ram_mut name="Gear"			scaling="uint8"				number="0x0C"/>
+		<ram_mut name="Gear"			scaling="uint8"				number="0x0D"/>
+	</live>
+	
+	<table name="High Octane Fuel Map" category="Fuel" address="4a74d" type="3D" swapxy="true" scaling="AFR" RAM_addr="FFFFA27D">
+		<table name="Load" address="4bb5a" type="X Axis" elements="30" scaling="Load" RAM_mut_number="0x00"  ram_mut_scaling="TephraLogLoad"/>
+		<table name="RPM" address="4bb0a" type="Y Axis" elements="25" scaling="RPM" RAM_mut_number="0x01" ram_mut_scaling="RPMStatLimit8"/>
+	</table>
+
+	<table name="High Octane Ignition Map" category="Timing" address="4ad4d" type="3D" swapxy="true" scaling="Timing" RAM_addr="FFFFA57D">
+		<table name="Load" address="4bb5a" type="X Axis" elements="30" scaling="Load" RAM_mut_number="0x00"  ram_mut_scaling="TephraLogLoad"/>
+		<table name="RPM" address="4bb0a" type="Y Axis" elements="25" scaling="RPM" RAM_mut_number="0x01" ram_mut_scaling="RPMStatLimit8"/>
+	</table>
+
+	<table name="Base Wastegate Duty" category="TephraMod-V7" address="4b94d" type="3D" swapxy="true" scaling="WGDuty" RAM_addr="FFFFA87D">
+		<table name="Gear" address="511c2" type="X Axis" elements="7" scaling="uint16" />
+		<table name="RPM" address="722e" type="Y Axis" elements="16" scaling="RPM" />
+	</table>
+	<table name="Boost Desired Engine Load" category="TephraMod-V7" address="4b9cd" type="3D" swapxy="true" scaling="Load8" RAM_addr="FFFFA8FD">
+		<table name="Gear" address="511c2" type="X Axis" elements="7" scaling="uint16" />
+		<table name="RPM" address="722e" type="Y Axis" elements="16" scaling="RPM" />
+	</table>
+
+</rom>

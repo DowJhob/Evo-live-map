@@ -8,9 +8,6 @@ CONFIG += c++11
 #CONFIG += qwt
 QT     += core gui xml serialport #datavisualization
 #widgets
-#requires(qtConfig(combobox))
-
-
 
 CONFIG(debug, debug|release) {
     VARIANT = debug
@@ -18,75 +15,13 @@ CONFIG(debug, debug|release) {
     VARIANT = release
 }
 
+include(qwtplot3d.pri)
+include(versionCtrl.pri)
 # копирует заданные файлы в каталог назначения
-defineTest(copyToDestDir) {
-    files = $$1
-    dir = $$2
-    # заменить слеши в пути назначения для Windows
-    win32:dir ~= s,/,\\,g
-
-    for(file, files) {
-        # заменить слеши в исходном пути для Windows
-        win32:file ~= s,/,\\,g
-
-        QMAKE_POST_LINK += $$QMAKE_COPY_DIR $$shell_quote($$file) $$shell_quote($$dir) $$escape_expand(\\n\\t)
-    }
-files = $$files
-
-    message($$QMAKE_POST_LINK)
-
-    export(QMAKE_POST_LINK)
-}
-
-#copyToDestDir($$PWD/settings.ini, $$OUT_PWD/$${VARIANT}/)
-copyToDestDir($$PWD/xdf, $$OUT_PWD/$${VARIANT}/xdf/)
-copyToDestDir($$PWD/xml, $$OUT_PWD/$${VARIANT}/xml/)
-
-
-
-
-
-
-BASE_GIT_COMMAND = git --git-dir $$PWD/.git --work-tree $$PWD
-GIT_VERSION = $$system($$BASE_GIT_COMMAND describe --always --tags)
-message("GIT_===============================================================!" $$BASE_GIT_COMMAND)
-message("GIT_===============================================================!" $$GIT_VERSION)
-DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
-VERSION = $$GIT_VERSION
-
-win32 {
-    VERSION ~= s/-\d+-g[a-f0-9]{6,}//
-}
-message($$VERSION)
-
-CONFIG(release, release|debug){
-            win32-g++ {
-                            QMAKE_CXXFLAGS  += -flto -funroll-loops
-                            CONFIG += -static
-                            message("release mode")
-                        }
-                    }
-win32-g++ {
-
-                QMAKE_CXXFLAGS  += -fforce-addr
-                QMAKE_CXXFLAGS  += -m32 -Ofast -march=core2 -mtune=core2
-                QMAKE_CXXFLAGS  += -mfpmath=sse
-                QMAKE_CXXFLAGS  += -msse4
-##                LIBS += -L$$PWD/mingw-dll -lqwt
-##                CONFIG(release, debug|release):QMAKE_LFLAGS_RELEASE += -static -static-libgcc
-            }
-win32-msvc {
-#                QMAKE_LFLAGS_RELEASE += /LTCG
-                QMAKE_CXXFLAGS  += /O2
-#                QMAKE_CXXFLAGS  += /arch:AVX
-#                QMAKE_CXXFLAGS  += /Arch: SSE2
-                QMAKE_CFLAGS  += /O2
-#                QMAKE_CFLAGS  += /arch:AVX
-#                QMAKE_CFLAGS  += /Arch: SSE2
-
-#                LIBS += -L$$PWD/msvc-dll -lqwt
-            }
-
+include(copyXML.pri)
+include(optimizer.pri)
+#include(qwtplot3d.pri)
+#include(qwtplot3d.pri)
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 DEFINES += QT_DEPRECATED_WARNINGS
@@ -99,8 +34,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 TARGET = livemap
 TEMPLATE = app
 
-
 SOURCES += src/main.cpp\
+    3rdparty/qhexedit2/src/chunks.cpp \
+    3rdparty/qhexedit2/src/commands.cpp \
+    3rdparty/qhexedit2/src/qhexedit.cpp \
     src/DMA-proto/DMA-proto.cpp \
     src/DMA-proto/proto-manager.cpp \
     src/abstract-memory.cpp \
@@ -136,9 +73,6 @@ SOURCES += src/main.cpp\
     src/wideband/serialwb.cpp \
     src/wideband/wb-manager.cpp \
     src/wideband/wb-proto.cpp \
-    src/widgets/hexEditor/qhexedit/chunks.cpp \
-    src/widgets/hexEditor/qhexedit/commands.cpp \
-    src/widgets/hexEditor/qhexedit/qhexedit.cpp \
     src/widgets/hexEditor/hexeditor.cpp \
     src/mainwindow.cpp \
 #    src/libs/J2534.cpp \
@@ -155,6 +89,9 @@ SOURCES += src/main.cpp\
     src/xmlmanager.cpp
 
 HEADERS  += src/mainwindow.h \
+    3rdparty/qhexedit2/src/chunks.h \
+    3rdparty/qhexedit2/src/commands.h \
+    3rdparty/qhexedit2/src/qhexedit.h \
     src/DMA-proto/DMA-proto.h \
     src/DMA-proto/proto-manager.h \
     src/abstract-memory.h \
@@ -200,9 +137,6 @@ HEADERS  += src/mainwindow.h \
     src/wideband/wb-proto.h \
     src/widgets/commParamWidget.h \
     src/widgets/gauge_widget.h \
-    src/widgets/hexEditor/qhexedit/chunks.h \
-    src/widgets/hexEditor/qhexedit/commands.h \
-    src/widgets/hexEditor/qhexedit/qhexedit.h \
     src/widgets/hexEditor/hexeditor.h \
     src/widgets/loggermanager.h \
     src/widgets/mapManager/mapmanager.h \
@@ -211,21 +145,14 @@ HEADERS  += src/mainwindow.h \
     src/widgets/mapWidget/mapwidget.h \
     src/xmlmanager.h
     #ecu/ecu_x_comm.h \
-    #libs/libusb/include/libusb.h \
-    #graph_logger.h \
 
 FORMS    += mainwindow.ui \
     src/widgets/Patcher/patcher.ui \
     src/widgets/mapManager/mapmanager.ui
 
-#INCLUDEPATH += C:\\Qt\\qwt-6.2.0\\src
-#LIBS += -LC:\\Qt\\qwt-6.2.0\\lib -lqwt
-
 LIBS += -lSetupapi
 LIBS += -ladvapi32
 LIBS += -luser32
-
-
 
 DEFINES += QHEXEDIT_EXPORTS
 #DEFINES += QHEXEDIT_IMPORTS

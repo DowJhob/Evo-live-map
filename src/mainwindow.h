@@ -27,10 +27,13 @@
 #include "widgets/ecuManager.h"
 
 #include "widgets/loggermanager.h"
+#include <qwt3d_surfaceplot.h>
 
 namespace Ui {
 class MainWindow;
 }
+
+using namespace Qwt3D;
 
 class MainWindow : public QMainWindow
 {
@@ -60,6 +63,7 @@ private:
 
 //    s3Dplot plot;
 //s3Dscatter scat;
+    SurfacePlot *pw;
 
     Ui::MainWindow *ui;
 

@@ -1,0 +1,42 @@
+<rom>
+	<romid>
+		<xmlid>90552701</xmlid>
+		<internalidaddress>f52</internalidaddress>
+		<internalidhex>90552701</internalidhex>
+		<make>Mitsubishi</make>
+		<market>JDM</market>
+		<model>Lancer</model>
+		<submodel>EVO VII</submodel>
+		<transmission>Manual</transmission>
+		<year>2002</year>
+		<flashmethod>mitsukernel</flashmethod>
+		<memmodel>SH7055</memmodel>
+	</romid>
+
+	<include>evo7base</include>
+
+	<live name="varDEAD" category="EvoLiveMap" address="FFFFA800" />
+
+	<live name="RAM_MUT" category="EvoLiveMap" address="FFFFA000">
+		<ram_mut name="Load"			scaling="Tephra1byteLoad"	number="0x00"/>
+		<ram_mut name="RPM"				scaling="RPMStatLimit8"		number="0x01"/>
+		<ram_mut name="Knock"			scaling="uint8"				number="0x02"/>
+		<ram_mut name="Timing Scaled"	scaling="TimingScaled"		number="0x03"/>
+		<ram_mut name="Air Temp Scaled"	scaling="Temp8"				number="0x04"/>
+		<ram_mut name="WGDC"			scaling="WGDuty"			number="0x05"/>
+		<ram_mut name="O2Sensor2"		scaling="O2Voltage"			number="0x06"/>
+		<ram_mut name="MAP_Bar"			scaling="MAP_BoostBar"		number="0x07"/>
+		<ram_mut name="TPS"				scaling="Percent255"		number="0x08"/>
+		<ram_mut name="Inj Pulse Width"	scaling="InjLatency"		number="0x09"/>
+	</live>
+	
+
+	<table name="Alternate High Octane Fuel Map" category="EvoLiveMap" address="37b4d" type="3D" swapxy="true" scaling="AFR" RAM_addr="FFFFA04D">
+		<table name="Load" address="3795a" type="X Axis" elements="30" scaling="Load" RAM_mut_number="0x00"/>
+		<table name="RPM" address="3790a" type="Y Axis" elements="25" scaling="RPM" RAM_mut_number="0x01"/>
+	</table> 
+	<table name="Alternate High Octane Ignition Map" category="EvoLiveMap" address="37CA9" type="3D" swapxy="true" scaling="Timing" RAM_addr="FFFFA34D">
+		<table name="Load" address="3795a" type="X Axis" elements="30" scaling="Load" RAM_mut_number="0x00"/>
+		<table name="RPM" address="3790a" type="Y Axis" elements="25" scaling="RPM" RAM_mut_number="0x01"/>
+	</table>
+</rom>

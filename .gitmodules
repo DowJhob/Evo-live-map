@@ -1,0 +1,6 @@
+[submodule "3rdparty/qhexedit2"]
+	path = 3rdparty/qhexedit2
+	url = https://github.com/DowJhob/qhexedit2
+[submodule "3rdparty/qwtplot3d"]
+	path = 3rdparty/qwtplot3d
+	url = https://github.com/DowJhob/qwtplot3d
