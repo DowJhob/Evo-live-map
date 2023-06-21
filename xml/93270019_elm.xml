@@ -13,7 +13,8 @@
 		<memmodel>SH7055</memmodel>
 	</romid>
 
-	<include>evo7base</include>
+	<include>lancer9base</include>
+	<scaling name="myVE" units="units" toexpr="x/2.56" frexpr="x*2.56" format="%.01f" min="0" max="255" inc="1" storagetype="uint8" endian="big"/>
 
 	<live name="varDEAD" category="EvoLiveMap" address="FFFF9C0E" />
 
@@ -32,9 +33,24 @@
 	</live>
 	
 
-	<table name="High Octane Ignition Map" category="LiveMap" address="37E4E" type="3D" swapxy="true" scaling="Timing" RAM_addr="FFFF9DBF">
-		<table name="Load" address="3795A" type="X Axis" elements="19" scaling="Load" RAM_mut_number="0x00" ram_mut_scaling="Load"/>
-		<table name="RPM" address="3790A" type="Y Axis" elements="19" scaling="RPM" RAM_mut_number="0x02" ram_mut_scaling="RPM"/>
+	<table name="VE 16bit Map" category="AltMode" address="382a2" type="3D" swapxy="true" scaling="VE16" RAM_addr="FFFFa2a2">
+		<table name="Load" address="6d28" type="X Axis" elements="11" scaling="Load"/>
+		<table name="RPM" address="6cf8" type="Y Axis" elements="19" scaling="RPM"/>
+	</table>
+
+	<table name="High Octane Ignition Map 16bit" category="AltMode" address="3809a" type="3D" swapxy="true" scaling="Timing16" RAM_addr="FFFFa09a">
+		<table name="Load" address="67c6" type="X Axis" elements="12" scaling="Load"/>
+		<table name="RPM" address="6792" type="Y Axis" elements="21" scaling="RPM"/>
+	</table>
+
+	<table name="High Octane Fuel Map" category="AltMode" address="3800d" type="3D" swapxy="true" scaling="AFR" RAM_addr="FFFFa00d">
+		<table name="Load" address="6776" type="X Axis" elements="9" scaling="Load"/>
+		<table name="RPM" address="6750" type="Y Axis" elements="14" scaling="RPM"/>
+	</table>
+
+	<table name="?????????????" category="AltMode" address="3847D" type="3D" swapxy="true" scaling="???" RAM_addr="FFFFa47d">
+		<table name="???" address="6776" type="X Axis" elements="9" scaling="Load"/>
+		<table name="???" address="6750" type="Y Axis" elements="7" scaling="RPM"/>
 	</table>
 
 
