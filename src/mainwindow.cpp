@@ -34,10 +34,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     statusBar()->showMessage("No interface", 0);
 
 
-     pw = new SurfacePlot();
-
-    pw->resize(800,600);
-pw->show();
+    //=============================================================================
+//    ui->tabWidget->addTab(&an, "Ana");
 
 //        ui->tabWidget->addTab(&plot, "Surface");
 //        ui->tabWidget->addTab(&scat, "Surface");

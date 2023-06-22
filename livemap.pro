@@ -58,6 +58,7 @@ SOURCES += src/main.cpp\
 #    src/widgets/3D/s3dscatter.cpp \
 #    src/widgets/3D/scatterdatamodifier.cpp \
     src/widgets/Patcher/patcher.cpp \
+    src/widgets/analizer.cpp \
     src/widgets/ecuManager.cpp \
     src/wideband/op20wb.cpp \
     src/DMA-proto/pollhelper.cpp \
@@ -107,6 +108,7 @@ HEADERS  += src/mainwindow.h \
 #    src/widgets/3D/s3dscatter.h \
 #    src/widgets/3D/scatterdatamodifier.h \
     src/widgets/Patcher/patcher.h \
+    src/widgets/analizer.h \
     src/widgets/ecuManager.h \
     src/wideband/op20wb.h \
     src/DMA-proto/pollhelper.h \

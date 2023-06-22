@@ -15,6 +15,7 @@
 //#include "src/widgets/3D/s3dplot.h"
 //#include "src/widgets/3D/s3dscatter.h"
 #include "src/widgets/Patcher/patcher.h"
+#include "src/widgets/analizer.h"
 #include "src/widgets/mapManager/mapmanager.h"
 #include "types.h"
 
@@ -27,7 +28,7 @@
 #include "widgets/ecuManager.h"
 
 #include "widgets/loggermanager.h"
-#include <qwt3d_surfaceplot.h>
+
 
 namespace Ui {
 class MainWindow;
@@ -63,7 +64,7 @@ private:
 
 //    s3Dplot plot;
 //s3Dscatter scat;
-    SurfacePlot *pw;
+    Analizer an;
 
     Ui::MainWindow *ui;
 
