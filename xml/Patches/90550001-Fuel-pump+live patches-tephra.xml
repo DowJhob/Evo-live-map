@@ -53,7 +53,7 @@
 
 	<scaling name="RXI0 code change #2 (DMAOPFLAG) scaling" storagetype="bloblist">
 		<data name="Original" value="FFFFECCC"/>
-		<data name="Patched" value="FFFF9C00"/>
+		<data name="Patched" value="FFFF8480"/>
 	</scaling>
 	<table name="RXI0 code change #2 (DMAOPFLAG)" category="DMA Programming" address="d104" type="1D" scaling="RXI0 code change #2 (DMAOPFLAG) scaling"/>
 
