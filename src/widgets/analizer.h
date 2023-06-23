@@ -4,7 +4,8 @@
 #include <QFrame>
 #include <QWidget>
 
-#include <qwt3d_surfaceplot.h>
+//#include <qwt3d_surfaceplot.h>
+#include <qwt3d_meshplot.h>
 
 using namespace Qwt3D;
 
@@ -14,7 +15,7 @@ class Analizer : public QWidget
 public:
     Analizer();
 
-    SurfacePlot *pw;
+    Qwt3D::MeshPlot *pw;
 
     bool openColorMap(ColorVector &cv, QString fname);
 

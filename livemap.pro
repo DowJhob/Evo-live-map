@@ -15,7 +15,7 @@ CONFIG(debug, debug|release) {
     VARIANT = release
 }
 
-include(qwtplot3d.pri)
+#include(qwtplot3d.pri)
 include(versionCtrl.pri)
 # копирует заданные файлы в каталог назначения
 include(copyXML.pri)
@@ -180,3 +180,13 @@ DISTFILES += \
     xml/96262709-TephraMod-dma.xml \
     xml/96532706-TephraMod-l2r99gst-dma.xml \
     xml/96533706-TephraMod-l2r99gst-dma.xml
+
+#CONFIG(release, debug|release): LIBS += -L$$PWD/3rdparty/qwtplot3d/lib/x86/release/libqwtplot3d.a
+#CONFIG(debug, debug|release): LIBS += -L$$PWD/3rdparty/qwtplot3d/lib/x86/debug/libqwtplot3d.a
+
+CONFIG(release, debug|release): LIBS += -L$$PWD/3rdparty/qwtplot3d/lib/x86/release/qwtplot3d.lib
+CONFIG(debug, debug|release): LIBS += -L$$PWD/3rdparty/qwtplot3d/lib/x86/debug/qwtplot3d.lib
+
+INCLUDEPATH += $$PWD/3rdparty/qwtplot3d/include
+#DEPENDPATH += $$PWD/3rdparty/qwtplot3d/include
+

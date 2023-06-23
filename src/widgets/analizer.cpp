@@ -11,7 +11,7 @@ Analizer::Analizer()
     qgrl->addWidget(frame);
 setLayout(qgrl);
 
-    pw = new SurfacePlot(frame);
+    pw = new Qwt3D::MeshPlot(frame);
 
     pw->makeCurrent();
 
@@ -35,14 +35,14 @@ setLayout(qgrl);
     Triple	i(9, 43, 9);
 
 
-    TripleField	ii {
+    TripleVector	ii {
     Triple{0.0, 0.0,0.0},Triple{0.7,0.0,2.0},Triple{0.652730560583,0.252869166331,2.0}
     };
 
 
 
 
-    TripleField vtf{a, b, c, d, e, f, g, h, i};
+    TripleVector vtf{a, b, c, d, e, f, g, h, i};
 
 
     //! Holds indices in a TripleField interpreted as counterclockwise node numbering for a convex polygon
@@ -52,7 +52,7 @@ setLayout(qgrl);
     Cell cell4{3, 0, 1};
     Cell cell5{0, 1, 2, 3, 4, 5, 6, 7, 8};
     //! Vector of convex polygons. You need a TripleField as base for the node data
-    CellField cf{cell/*, cell2, cell3, cell4, cell5*/};
+    CellVector cf{cell/*, cell2, cell3, cell4, cell5*/};
 
 
 pw->setPlotStyle(Qwt3D::FILLED);
@@ -75,7 +75,7 @@ pw->setPlotStyle(Qwt3D::FILLED);
 
     pw->setUpdatesEnabled(true);
 //    pw->loadFromData(vtf, cf);
-    pw->loadFromData(ii, cf);
+    pw->createDataset(ii, cf);
 
 //    pw->createDataRepresentation(vtf, cf);
 
@@ -113,13 +113,16 @@ pw->setPlotStyle(Qwt3D::FILLED);
 
 //        pw->setResolution(300);
 
-    pw->setMeshColor(RGBA(200, 0, 0));
+    pw->setMeshColor(RGBA(200, 0, 0,200));
     pw->setMeshLineWidth(10);
 //    pw->updateData();
 //         pw->updateGL();
 
 //pw->update();
-pw->resize(1200, 1600);
+//frame->
+    resize(1200, 1200);
+    frame->
+            resize(1200, 1200);
 
     pw->show();
 
@@ -138,7 +141,7 @@ bool Analizer::openColorMap(ColorVector &cv, QString fname)
 //        return false;
 
 //    RGBA rgb;
-    RGBA rgb(200,0,0,0);
+    RGBA rgb(200,0,0,200);
     cv.clear();
 
 //    while (file) {

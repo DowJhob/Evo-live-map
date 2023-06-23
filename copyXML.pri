@@ -21,7 +21,7 @@ files = $$files
 }
 
 #copyToDestDir($$PWD/settings.ini, $$OUT_PWD/$${VARIANT}/)
-copyToDestDir($$PWD/xdf, $$OUT_PWD/$${VARIANT}/xdf/)
+#copyToDestDir($$PWD/xdf, $$OUT_PWD/$${VARIANT}/xdf/)
 copyToDestDir($$PWD/xml, $$OUT_PWD/$${VARIANT}/xml/)
 
 

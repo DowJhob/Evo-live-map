@@ -1,0 +1,277 @@
+<rom>
+	<romid>
+		<xmlid>Custom fuel pump patch</xmlid>
+		<internalidaddress>f52</internalidaddress>
+		<internalidhex>90550001</internalidhex>
+		<caseid>RA560649R1</caseid>
+		<make>Mitsubishi</make>
+		<market>EDM</market>
+		<model>Lancer</model>
+		<submodel>EVO7</submodel>
+		<transmission>5MT</transmission>
+		<year>2001</year>
+		<flashmethod>mitsukernel</flashmethod>
+		<memmodel>SH7052</memmodel>
+	</romid>
+		
+	<notes>
+	Custom fuel pump patch and jcsbanks livemap patch	
+	</notes>
+
+	<scaling name="New fuel pump control _scaling" storagetype="bloblist">
+		<data name="Original" value="4F222FE66EF3B0120009600D88008905DA1060A1CB802A01A0050009DA0D60A1DB0B20B92A016EF64F26000B00092FE66EF3D0096001C8108903D0086001C8028902E001A0010009"/>
+		<data name="Patched"  value="D10D6011C8108909D10C6011C8028B05D10B6211910D622D32168904D1096011CB80000B2101D107920463112239000B212100C7FF7F0009FFFF88E4FFFF8C58FFFF852CFFFF87A2"/>
+	</scaling>
+	<table name="New fuel pump control" category="Patches" address="19b70" type="1D" scaling="New fuel pump control _scaling"/>
+	
+	<scaling name="FuelPump" units="Seconds" toexpr="x/40" frexpr="x*40" format="%.3f" min="0" max="255" inc="0.05" storagetype="uint16" endian="big"/>
+	<table name="Fuel pump activation" category="Patches" address="19ba2" type="1D" scaling="FuelPump"/>
+	
+	<scaling name="DMAC3 DEI3 Interrupt (DMA End) scaling" storagetype="bloblist">
+		<data name="Original" value="00009C84"/>
+		<data name="Patched" value="0003ED10"/>
+	</scaling>
+	<table name="DMAC3 DEI3 Interrupt (DMA End)" category="DMA Programming" address="138" type="1D" scaling="DMAC3 DEI3 Interrupt (DMA End) scaling"/>
+
+	<scaling name="SCI0 RXI0 Interrupt scaling" storagetype="bloblist">
+		<data name="Original" value="0000CFFC"/>
+		<data name="Patched" value="0003EC00"/>
+	</scaling>
+	<table name="SCI0 RXI0 Interrupt" category="DMA Programming" address="324" type="1D" scaling="SCI0 RXI0 Interrupt scaling"/>
+	
+	<scaling name="SCI0 TEI0 Interrupt scaling" storagetype="bloblist">
+		<data name="Original" value="000098CC"/>
+		<data name="Patched" value="0003EE30"/>
+	</scaling>
+	<table name="SCI0 TEI0 Interrupt" category="DMA Programming" address="32c" type="1D" scaling="SCI0 TEI0 Interrupt scaling"/>
+
+	<scaling name="RXI0 code change #1 (cmp/eq #0x37, r0) scaling" storagetype="bloblist">
+		<data name="Original" value="C8018B"/>
+		<data name="Patched" value="883789"/>
+	</scaling>
+	<table name="RXI0 code change #1 (cmp/eq #0x37, r0)" category="DMA Programming" address="ce96" type="1D" scaling="RXI0 code change #1 (cmp/eq #0x37, r0) scaling"/>
+
+	<scaling name="RXI0 code change #2 (DMAOPFLAG) scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFECCC"/>
+		<data name="Patched" value="FFFF9C00"/>
+	</scaling>
+	<table name="RXI0 code change #2 (DMAOPFLAG)" category="DMA Programming" address="d104" type="1D" scaling="RXI0 code change #2 (DMAOPFLAG) scaling"/>
+
+	<scaling name="RXI0 code change #3 (nop) scaling" storagetype="bloblist">
+		<data name="Original" value="2A00"/>
+		<data name="Patched" value="0009"/>
+	</scaling>
+	<table name="RXI0 code change #3 (nop)" category="DMA Programming" address="d64e" type="1D" scaling="RXI0 code change #3 (nop) scaling"/>
+
+	<scaling name="RXI0 code change #4 (nop) scaling" storagetype="bloblist">
+		<data name="Original" value="2BA2"/>
+		<data name="Patched" value="0009"/>
+	</scaling>
+	<table name="RXI0 code change #4 (nop)" category="DMA Programming" address="e40e" type="1D" scaling="RXI0 code change #4 (nop) scaling"/>
+
+	<scaling name="RXI0 DMA entry-point (Tephra hook) scaling" storagetype="bloblist">
+		<data name="Original" value="00A5C6"/>
+		<data name="Patched" value="03EEB0"/>
+	</scaling>
+	<table name="RXI0 DMA entry-point (Tephra hook)" category="DMA Programming" address="e971" type="1D" scaling="RXI0 DMA entry-point (Tephra hook) scaling"/>
+
+	<scaling name="DMA Code(v_sci0_rxi0) scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFfFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="7FFC4F222FE66EF34F124F022FA62FB62FC62FD62F362F462F562F662F762F06DA284A0B0009DA346AA06AAC936C3A328B31936A3A36892ED0256001C880892AD0246001C8808926D0236001C8808B22DB2B2BA2E000DA212A01E0FCDA236AA22A09DB222BA2D024DB1D2B02D025DB1D2B02E006DB1C2B02E037DA202A02DA1D60A0C9872A00D01ADA182A02DA0E4A0B0009A0060009DA0C4A0B0009DA0B4A0B000960F667F666F665F664F663F66DF66CF66BF66AF64F064F166EF64F267F04002B0009000004000000041E0000D082FFFF8C70FFFF8C6AFFFF8C6CFFFF8CDAFFFFECF0FFFFECF4FFFFECF8FFFFECFC00020105FFFFF004FFFFF005FFFF9C00FFFF9C04FFFF9C0800E000E200090009"/>
+	</scaling>
+	<table name="DMA Code(v_sci0_rxi0)" category="DMA Programming" address="3ec00" type="1D" scaling="DMA Code(v_sci0_rxi0) scaling"/>
+
+	<scaling name="DMA Code(v_dmac3_dei3) scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFfFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="4F222F062FA6DA614A0B0009E0FCDA536AA220A9DA512A02D0596002EA0130A0890E00099AB630A0891A00099AB330A0893500099AB030A089500009A0760009DA4960A0C8048B71000990A6DA442A00DA4F4A0B00096AF660F64F26002B0009E001DA472A02D0476002DA392A02D03DDA382A02D0446001DA372A02E037DA3F2A02908CDA362A00D039DA342A02DA404A0B00096AF660F64F26002B0009E001DA372A02D0376002DA292A02D02DDA292A02D0356001DA282A02E037DA2F2A02906DDA272A00D02BDA242A02DA304A0B00096AF660F64F26002B0009E002DA28 2A02D022DA1A2A02D0266002DA192A02D0256001DA182A02E037DA202A02DA1A60A0C9872A00D01CDA142A020009DA204A0B00096AF660F64F26002B00090009"/>
+	</scaling>
+	<table name="DMA Code(v_dmac3_dei3)" category="DMA Programming" address="3ed10" type="1D" scaling="DMA Code(v_dmac3_dei3) scaling"/>
+
+	<scaling name="DMA Code(v_sci0_tei0) scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="4F222F062FA6DA194A0B0009E000DA132A029033DA0A2A00DA0B60A0C9872A00DA134A0B00096AF660F64F26002B0009FFFFECF0FFFFECF4FFFFECF8FFFFECFCFFFFF002FFFFF003FFFFF004FFFFF005100110050001100500020105FFFF9C00FFFF9C04FFFF9C08FFFF9C0C000004000000041E00E000E100E20024007000A0"/>
+	</scaling>
+	<table name="DMA Code(v_sci0_tei0)" category="DMA Programming" address="3ee30" type="1D" scaling="DMA Code(v_sci0_tei0) scaling"/>
+
+	<scaling name="DMA Code(main) scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="4F222F062F162F262FA62FB69042D11761113010890D0009DA1BDB1CD11CE00002AE0B26700430128BFA00099032D10F2101DA124A0B0009DA0F60A1C8808B090009E0FCDA0A6AA220A9DA092A02E000DA082A02DA0A4A0B00096BF66AF662F661F660F64F26DA074A2B0009FFFF9C0EFFFFECFCFFFF9C00FFFF8C70000004000000041E0000A5C600037B00FFFF9C1000000400DEAD"/>
+	</scaling>                       
+	<table name="DMA Code(main)" category="DMA Programming" address="3eeb0" type="1D" scaling="DMA Code(main) scaling"/>
+
+	<scaling name="RAM MUT Table @ FFFFA000 scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="FFFF885CFFFF885DFFFF883AFFFF883BFFFF9104FFFF9105FFFF8AC5FFFF8A79FFFF8801FFFF9102FFFF9103FFFF87DDFFFF87D3FFFF8823FFFF803BFFFF88BF"/>
+	</scaling>
+	<table name="RAM MUT Table @ FFFFA000" category="DMA Mapping" address="37b00" type="1D" scaling="RAM MUT Table @ FFFFA000 scaling"/>
+
+	<scaling name="HighFuel scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="0300FFFF877CFFFF877E0F8D80808080808080808080888C90908D80808080808080808080888C90908D80808080808080808080888C90908D80808080808080808080888C90908D808080808080808080838A8E92928D808080808080808080868C9094948D8080868686868686868C92959B9C9D9092908E8C8C8D8D909496999FA5A19494918F8D8E909193979CA5A8A8A59896949290919395979DA4AEAFAFA99C989694929496999FA3ABB4B5B7ADA09C9896989EA0A2A4A7AFB7B9B9B1A4A09C9AA2A5A9AAB0B6B8BABCBCB5A8A4A09EA6B0B4B6BABDBFBFBFBFB9ACA8A4A2AABABEBFBFC1C1C1C1C1BDB0ACA8A6AEC1C1C1C1C3C3C3C3C3C1B4B0ACAAB2C3C3C3C3C5C5C5C5C5C5B8B4B0AEB6C6C6C6C6C7C7C7C7C7"/>
+	</scaling>
+	<table name="HighFuel" category="DMA Mapping" address="0x37B84" type="1D" scaling="HighFuel scaling"/>
+
+	<scaling name="HighIgnition scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="0314FFFF877CFFFF877E13050505050C1320222626262626262626262626050505050C1320222626262626262626262626050505050C1320222626262626262626262626050505050C132022262626262626262626262605050509101A1D2023232323232323262626260B08080D14181A1E20202020202022252525250F0D0D1213171A1D1E1F1F1F1F202023242424030303080F14181B1C1C1C1C1C1D1E22232323000000060D1115161718191A1B1C1D1F222222FDFDFD030A0D121415161718191A1B1D212121FAFAFA0006090D10111213141516171B1E1E1EF7F7F7FD0206080E0F101112131415181B1B1BF6F6F6FAFF03050A0B0C0D0E0F101115161616F6F6F6F7FC00020708090A0B0C0D0E12131313F6F6F6F6F9FDFF0405060708090A0B0E101010F6F6F6F6F6FAFC02030405060708090B0D0D0DF6F6F6F6F6F7F9FEFF000102030405080A0A0AF6F6F6F6F6F6F6FBFCFDFEFF00010205070707F6F6F6F6F6F6F6F8F9FAFBFCFDFEFF01040404"/>
+	</scaling>
+	<table name="HighIgnition" category="DMA Mapping" address="0x37CA4" type="1D" scaling="HighIgnition scaling"/>
+
+	<scaling name="MAF Scaling scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="0200FFFF877C9198A5AFB6BBBFC3C6C8CBCED0D9DEE2E9ECEDEBE8"/>
+	</scaling>
+	<table name="MAF Scaling" category="DMA Mapping" address="0x37E18" type="1D" scaling="MAF Scaling scaling"/>
+
+	<scaling name="MAF Smoothing scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="0200FFFF877C808085868584868686878787878987878585858585"/>
+	</scaling>
+	<table name="MAF Smoothing" category="DMA Mapping" address="0x37E34" type="1D" scaling="MAF Smoothing scaling"/>
+
+	<scaling name="Injector Latency scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="0200FFFF877C8A462B1E140F0A"/>
+	</scaling>
+	<table name="Injector Latency" category="DMA Mapping" address="0x37E50" type="1D" scaling="Injector Latency scaling"/>
+
+	<scaling name="Turbo Boost Error Correction scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="0200FFFF877C909090908D898784807D79767366666666"/>
+	</scaling>
+	<table name="Turbo Boost Error Correction" category="DMA Mapping" address="0x37E5E" type="1D" scaling="Turbo Boost Error Correction scaling"/>
+
+	<scaling name="Boost Desired Engine Load #1 scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="0200FFFF877CFFFFFFFFFFFFFFFFFFFFFFFFFFD5C8B1"/>
+	</scaling>
+	<table name="Boost Desired Engine Load #1" category="DMA Mapping" address="0x37E76" type="1D" scaling="Boost Desired Engine Load #1 scaling"/>
+
+	<scaling name="Boost Desired Engine Load #2 scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="0200FFFF877CFFFFFFFFFFFFFFFFFFFFFFFFFFD5C8B1"/>
+	</scaling>
+	<table name="Boost Desired Engine Load #2" category="DMA Mapping" address="0x37E8C" type="1D" scaling="Boost Desired Engine Load #2 scaling"/>
+
+	<scaling name="Boost Desired Engine Load #3 scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="0200FFFF877CFFFFFFFFFFFFFFFFFFFFFFFFFFD5C8B1"/>
+	</scaling>
+	<table name="Boost Desired Engine Load #3" category="DMA Mapping" address="0x37EA2" type="1D" scaling="Boost Desired Engine Load #3 scaling"/>
+
+	<scaling name="Max Wastegate Duty #1 scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="0200FFFF877CC8C8C8C8C8C8C8C8C8C8C8C8C8C8C8C8"/>
+	</scaling>
+	<table name="Max Wastegate Duty #1" category="DMA Mapping" address="0x37EB8" type="1D" scaling="Max Wastegate Duty #1 scaling"/>
+
+	<scaling name="Max Wastegate Duty #2 scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="0200FFFF877CC8C8C8C8C8C8C8C8C8C8C8C8C8C8C8C8"/>
+	</scaling>
+	<table name="Max Wastegate Duty #2" category="DMA Mapping" address="0x37ECE" type="1D" scaling="Max Wastegate Duty #2 scaling"/>
+
+	<scaling name="Max Wastegate Duty #3 scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="0200FFFF877CC8C8C8C8C8C8C8C8C8C8C8C8C8C8C8C8"/>
+	</scaling>
+	<table name="Max Wastegate Duty #3" category="DMA Mapping" address="0x37EE4" type="1D" scaling="Max Wastegate Duty #3 scaling"/>
+
+	<scaling name="Vector FuelHighMap scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="FFFF9C94FFFF9C94FFFF9C94FFFF9C94FFFF9C94FFFF9C94FFFF9C94FFFF9C94"/>
+	</scaling>
+	<table name="Vector FuelHighMap" category="DMA Mapping" address="0x58F4" type="1D" scaling="Vector FuelHighMap scaling"/>
+
+	<scaling name="Vector IgnitionHighMap scaling" storagetype="bloblist">
+		<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+		<data name="Patched"  value="FFFF9DB4FFFF9DB4FFFF9DB4FFFF9DB4FFFF9DB4FFFF9DB4FFFF9DB4FFFF9DB4"/>
+	</scaling>
+	<table name="Vector IgnitionHighMap" category="DMA Mapping" address="0x5A74" type="1D" scaling="Vector IgnitionHighMap scaling"/>
+
+	<scaling name="Vector MAF Scaling scaling" storagetype="bloblist">
+		<data name="Original" value="00003500"/>
+		<data name="Patched"  value="FFFF9F28"/>
+	</scaling>
+	<table name="Vector MAF Scaling" category="DMA Mapping" address="0x13444" type="1D" scaling="Vector MAF Scaling scaling"/>
+
+	<scaling name="Vector MAF Smoothing scaling" storagetype="bloblist">
+		<data name="Original" value="0000351C"/>
+		<data name="Patched"  value="FFFF9F44"/>
+	</scaling>
+	<table name="Vector MAF Smoothing" category="DMA Mapping" address="0x13454" type="1D" scaling="Vector MAF Smoothing scaling"/>
+
+	<scaling name="Vector Turbo Boost Error Correction scaling" storagetype="bloblist">
+		<data name="Original" value="000042E6"/>
+		<data name="Patched"  value="FFFF9F6E"/>
+	</scaling>
+	<table name="Vector Turbo Boost Error Correction" category="DMA Mapping" address="0x1C690" type="1D" scaling="Vector Turbo Boost Error Correction scaling"/>
+
+	<scaling name="Vector Boost Desired Engine Load #1 scaling" storagetype="bloblist">
+		<data name="Original" value="00004340"/>
+		<data name="Patched"  value="FFFF9F86"/>
+	</scaling>
+	<table name="Vector Boost Desired Engine Load #1" category="DMA Mapping" address="0x1C6BC" type="1D" scaling="Vector Boost Desired Engine Load #1 scaling"/>
+
+	<scaling name="Vector Boost Desired Engine Load #2 scaling" storagetype="bloblist">
+		<data name="Original" value="00004356"/>
+		<data name="Patched"  value="FFFF9F9C"/>
+	</scaling>
+	<table name="Vector Boost Desired Engine Load #2" category="DMA Mapping" address="0x1C6C0" type="1D" scaling="Vector Boost Desired Engine Load #2 scaling"/>
+
+	<scaling name="Vector Boost Desired Engine Load #3 scaling" storagetype="bloblist">
+		<data name="Original" value="0000436C"/>
+		<data name="Patched"  value="FFFF9FB2"/>
+	</scaling>
+	<table name="Vector Boost Desired Engine Load #3" category="DMA Mapping" address="0x1C6D0" type="1D" scaling="Vector Boost Desired Engine Load #3 scaling"/>
+
+	<scaling name="Vector Max Wastegate Duty #1 scaling" storagetype="bloblist">
+		<data name="Original" value="000042FE"/>
+		<data name="Patched"  value="FFFF9FC8"/>
+	</scaling>
+	<table name="Vector Max Wastegate Duty #1" category="DMA Mapping" address="0x1C3CC" type="1D" scaling="Vector Max Wastegate Duty #1 scaling"/>
+
+	<scaling name="Vector Max Wastegate Duty #2 scaling" storagetype="bloblist">
+		<data name="Original" value="00004314"/>
+		<data name="Patched"  value="FFFF9FDE"/>
+	</scaling>
+	<table name="Vector Max Wastegate Duty #2" category="DMA Mapping" address="0x1C3D0" type="1D" scaling="Vector Max Wastegate Duty #2 scaling"/>
+
+	<scaling name="Vector Max Wastegate Duty #3 scaling" storagetype="bloblist">
+		<data name="Original" value="0000432A"/>
+		<data name="Patched"  value="FFFF9FF4"/>
+	</scaling>
+	<table name="Vector Max Wastegate Duty #3" category="DMA Mapping" address="0x1C3EC" type="1D" scaling="Vector Max Wastegate Duty #3 scaling"/>
+
+	<scaling name="Vector Injector Latency scaling" storagetype="bloblist">
+		<data name="Original" value="00003970"/>
+		<data name="Patched"  value="FFFF9F60"/>
+	</scaling>
+	<table name="Vector Injector Latency" category="DMA Mapping" address="0x12C8C" type="1D" scaling="Vector Injector Latency scaling"/>
+
+	<table name="RAM MUT Table @ FFFFA000" category="DMA Mapping" address="37b00" type="3D" level="1" scaling="Hex16">
+		<table name="X" type="Static X Axis" elements="16">
+			<data>-</data>
+			<data>0</data>
+			<data>-</data>
+			<data>1</data>
+			<data>-</data>
+			<data>2</data>
+			<data>-</data>
+			<data>3</data>
+			<data>-</data>
+			<data>4</data>
+			<data>-</data>
+			<data>5</data>
+			<data>-</data>
+			<data>6</data>
+			<data>-</data>
+			<data>7</data>
+		</table>
+		<table name="Y" type="Static Y Axis" elements="2">
+			<data>0</data>
+			<data>1</data>
+		</table>
+	</table>
+
+</rom>
