@@ -117,6 +117,12 @@ bool FTDI_comm::five_baud_init()
     return true;
 }
 
+bool FTDI_comm::setProgLine()
+{
+
+    return true;
+}
+
 QByteArray FTDI_comm::read(uint lenght)
 {
     //Get bytes waiting to be read

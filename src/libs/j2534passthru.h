@@ -51,6 +51,36 @@
 # define J2534_API
 #endif
 
+/////////////////
+// Pin numbering
+/////////////////
+
+#define AUX_PIN			0 	// aux jack	OP2.0: Supports GND and adj. voltage
+#define J1962_PIN_1		1	//			OP2.0: Supports GND and adj. voltage
+#define J1962_PIN_2		2	// J1850P	OP2.0: Supports 5V and 8V
+#define J1962_PIN_3		3	//			OP2.0: Supports GND and adj. voltage
+#define J1962_PIN_4		4	// GND
+#define J1962_PIN_5		5	// GND
+#define J1962_PIN_6		6	// CAN
+#define J1962_PIN_7		7	// K		OP2.0: Supports GND
+#define J1962_PIN_8		8	//			OP2.0: Supports reading voltage
+#define J1962_PIN_9		9	//			OP2.0: Supports GND and adj. voltage
+#define J1962_PIN_10	10	// J1850M	OP2.0: Supports GND
+#define J1962_PIN_11	11	//			OP2.0: Supports GND and adj. voltage
+#define J1962_PIN_12	12	//			OP2.0: Supports GND and adj. voltage
+#define J1962_PIN_13	13 	//			OP2.0: Supports GND and adj. voltage
+#define J1962_PIN_14	14	// CAN
+#define J1962_PIN_15	15	// L		OP2.0: Supports GND
+#define J1962_PIN_16	16	// VBAT		OP2.0: Supports reading voltage
+#define PIN_VADJ		17	// internal	OP2.0: Supports reading voltage
+
+////////////////////////////////
+// Special pin voltage settings
+////////////////////////////////
+
+#define SHORT_TO_GROUND						0xFFFFFFFE
+#define VOLTAGE_OFF							0xFFFFFFFF
+
 Q_DECLARE_LOGGING_CATEGORY(QT_CANBUS_PLUGINS_PASSTHRU)
 
 namespace J2534 {
@@ -68,9 +98,12 @@ typedef long (J2534_API *PassThruWriteMsgsFunc)(ulong channelId, const Message *
 typedef long (J2534_API *PassThruStartMsgFilterFunc)(ulong channelID, ulong filterType, const Message *pMaskMsg, const Message *pPatternMsg, const Message *pFlowControlMsg, ulong *pFilterId);
 typedef long (J2534_API *PassThruStopMsgFilterFunc)(ulong channelID, ulong MsgID);
 
+typedef long (J2534_API *PassThruSetProgrammingVoltageFunc)(unsigned long DeviceID, unsigned long Pin, unsigned long Voltage);
 
 typedef long (J2534_API *PassThruGetLastErrorFunc)(char *pErrorDescription);
 typedef long (J2534_API *PassThruIoctlFunc)(ulong channelId, ulong ioctlId, const void *pInput, void *pOutput);
+
+
 } // extern "C"
 
 #define QFLAGS_H
@@ -324,7 +357,7 @@ public:
 
 // не забудь реализовать для полноты обертки
 //
-//    long PassThruSetProgrammingVoltage(unsigned long DeviceID, unsigned long Pin, unsigned long Voltage);
+    Status PassThruSetProgrammingVoltage(unsigned long DeviceID, unsigned long Pin, unsigned long Voltage);
 //    long PassThruReadVersion(char *pApiVersion,char *pDllVersion,char *pFirmwareVersion,unsigned long DeviceID);
 //    long PassThruGetLastError(char *pErrorDescription);
 
@@ -356,6 +389,10 @@ private:
     PassThruStopMsgFilterFunc   m_ptStopMsgFilter   = nullptr;
     PassThruGetLastErrorFunc    m_ptGetLastError    = nullptr;
     PassThruIoctlFunc           m_ptIoctl           = nullptr;
+
+    PassThruSetProgrammingVoltageFunc m_ptSetProgVolt     = nullptr;
+
+
     QString                     m_lastErrorString;
     Status                      m_lastError         = NoError;
 };

@@ -19,18 +19,39 @@ QThread::currentThread()->setPriority(QThread::TimeCriticalPriority);
     app.setApplicationDisplayName(QString("livemap by eulle@ya.ru ver %1").arg(GIT_VERSION));
     qDebug() << QString("Version: %1").arg(GIT_VERSION);
     //========================================================================================
-    deviceNativeFilter usbFilter;
-    //========================================================================================
+
     MainWindow mainWindow;
+
+    deviceNativeFilter usbFilter;
+
+    qRegisterMetaType<Map>("Map");
+    qRegisterMetaType<mapDefinition>("mapDefinition");
+    qRegisterMetaType<offsetMemory>("offsetMemory");
+    qRegisterMetaType<QVector<float>>("QVector<float>");
+
+    ecu *ECU = new ecu();
+
     //========================================================================================
-    //========================= logger ===============================================================
+    ecuManager *_ecuManager = new ecuManager(&mainWindow, ECU);
+    _ecuManager->setUSBfilter(&usbFilter);
+    QObject::connect(_ecuManager, &ecuManager::deviceEventLog, &mainWindow, &MainWindow::deviceEventLog);
+    QObject::connect(_ecuManager, &ecuManager::Log,            &mainWindow, &MainWindow::Log);
+
     //========================================================================================
-    mainWindow.setUSBfilter(&usbFilter);
+    mapManager *_mapManager = new mapManager(&mainWindow, ECU);
+
     //========================================================================================
-    //Подписываемся на события
+
+
+    //========================================================================================
+    mainWindow.setECUmanager(_ecuManager);
+    mainWindow.setMAPmanager(_mapManager);
+
+    //========================================================================================
     usbFilter.notifyRegister((HWND)mainWindow.winId());
     usbFilter.getPresentCommDevices();
-    //=============================================================================
+
+    //========================= Подписываемся на события ====================================================
     app.installNativeEventFilter(&usbFilter);
 
     mainWindow.show();

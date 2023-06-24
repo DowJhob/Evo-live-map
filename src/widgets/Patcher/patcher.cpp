@@ -380,3 +380,8 @@ void Patcher::Undo_patch()
         }
     }
 }
+
+void Patcher::_writeECU(QByteArray data)
+{
+    emit writeECU(hexEdit.data());
+}

@@ -1,22 +1,10 @@
 #include "ecuManager.h"
 
-ecuManager::ecuManager(QWidget *parent) : QToolBar(parent)
+ecuManager::ecuManager(QWidget *parent, ecu *ECU) : QToolBar(parent), ECU(ECU)
 {
-    qRegisterMetaType<Map>("Map");
-    qRegisterMetaType<mapDefinition>("mapDefinition");
-    qRegisterMetaType<offsetMemory>("offsetMemory");
-    qRegisterMetaType<QVector<float>>("QVector<float>");
-
-    ECU = new ecu();
-    connect(ECU, &ecu::ecuConnected,          this, &ecuManager::ecuConnected,  Qt::QueuedConnection);       // Провайдим сигнал наружу
-    connect(ECU, &ecu::ecuConnected,          this, &ecuManager::interfaceLock, Qt::QueuedConnection);
-
-    connect(this, &ecuManager::updateRAM,      ECU, &ecu::updateRAM,  Qt::QueuedConnection);
-    connect(this, &ecuManager::logRateChanged, ECU, &ecu::setLogRate, Qt::QueuedConnection);
-
-    connect(ECU, &ecu::s_test, this, &ecuManager::s_test, Qt::QueuedConnection);
-
 //    ECU->test();
+    connect(this, &ecuManager::ecuConnect,     ECU,  &ecu::_connect,             Qt::QueuedConnection);
+    connect(ECU,  &ecu::ecuConnected,          this, &ecuManager::interfaceLock, Qt::QueuedConnection);
 
     //=============================================================================
     a_start_action = addAction( QIcon( ":ico/connect.png" ), "Start", this, &ecuManager::start_stop_Action);
@@ -59,26 +47,10 @@ void ecuManager::stopLog()
     ECU->stopLog();
 }
 
-void ecuManager::setCommDevice(comm_device_interface *dev)
-{
-    qDebug() << "=========== ecuManager::setCommDevice ================" << dev << ECUproto;
-    devComm = dev;
-    ECUproto->setCommDev(&dev);
-    ECU->setComDev(dev);
-}
-
-void ecuManager::setProto(DMA_proto *_ECUproto)
-{
-    qDebug() << "=========== ecuManager::setProto ================";
-    ECUproto = _ECUproto;
-    ECU->setDMAproto(_ECUproto);
-    connect(_ECUproto, &DMA_proto::logReady, this, &ecuManager::logReady, Qt::QueuedConnection);
-}
-
-void ecuManager::interfaceLock()
+void ecuManager::interfaceLock(bool state)
 {
     cpW.setDisabled(true);
-    qDebug() << "=========== ecuManager::connectECU ================" << devComm;
+    qDebug() << "=========== ecuManager::interfaceLock ================ state:" << state;
     lockReset( false);
     a_start_action->setText("Stop");
 }
@@ -101,17 +73,18 @@ void ecuManager::start_stop_Action()
     if (a_start_action->text() == "Start")
     {
         qDebug() << "=========== ecuManager::startAction Start";
-        QMetaObject::invokeMethod(ECU, "connectECU");
+//        QMetaObject::invokeMethod(ECU, "connectECU");
+        emit ecuConnect(true);
         qDebug() << "=========== ecuManager::startAction2 Start";
     }
     else
     {
         qDebug() << "=========== ecuManager::startAction Stop ================";
-        QMetaObject::invokeMethod(ECU, "disConnectECU");
+//        QMetaObject::invokeMethod(ECU, "disConnectECU");
+        emit ecuConnect(false);
         a_start_action->setText("Start");
         lockReset( true);
         cpW.setDisabled(false);
-        emit ecuDisconnected();
     }
 }
 
@@ -131,10 +104,10 @@ void ecuManager::lockReset(bool lockFlag)
 
 void ecuManager::setConectionParamWidget()
 {
-    connect(&cpW._protoManager, &protoManager::protoSelected,       this,   &ecuManager::setProto);
-    connect(&cpW._protoManager, &protoManager::logRateChanged,      this,   &ecuManager::logRateChanged);
+    connect(&cpW.devManager,    &commDeviceManager::deviceSelected, ECU,   &ecu::setComDev);
+    connect(&cpW._protoManager, &protoManager::protoSelected,       ECU,   &ecu::setDMAproto);
+    connect(&cpW._protoManager, &protoManager::logRateChanged,      ECU,   &ecu::setLogRate);
 
-    connect(&cpW.devManager,    &commDeviceManager::deviceSelected, this,   &ecuManager::setCommDevice);
 
     connect(&cpW.devManager,    &commDeviceManager::deviceSelected, this,   &ecuManager::deviceEvent);
     connect(&cpW._wbManager,    &wbManager::logReady,               &wbWgt, &gaugeWidget::display);

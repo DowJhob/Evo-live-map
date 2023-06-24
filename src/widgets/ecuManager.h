@@ -29,7 +29,7 @@ public:
     ecu *ECU;
     commParamWidget cpW;
 
-    explicit ecuManager(QWidget *parent = nullptr);
+    explicit ecuManager(QWidget *parent = nullptr, ecu *ECU = nullptr);
     ~ecuManager();
 
     void setUSBfilter(deviceNativeFilter *usbFilter);
@@ -41,14 +41,15 @@ public slots:
 
     void stopLog();
 
+    void interfaceLock(bool state);
 
 private:
 
     QAction *a_start_action;
     QAction *a_ramReset;
 
-    comm_device_interface *devComm = nullptr;
-    DMA_proto *ECUproto = nullptr;
+//    comm_device_interface *devComm = nullptr;
+//    DMA_proto *ECUproto = nullptr;
 
     char* p_in_buff;
     char* p_out_buff;
@@ -62,21 +63,20 @@ private:
 private slots:
     void lockConnect(bool lockFlag);
     void lockReset(bool lockFlag);
-    void setCommDevice(comm_device_interface *dev);
-    void setProto(DMA_proto *_ECUproto);
+//    void setCommDevice(comm_device_interface *dev);
+//    void setProto(DMA_proto *_ECUproto);
     void start_stop_Action();
-    void interfaceLock();
 
     void deviceEvent(comm_device_interface *devComm);
 
 
 signals:
+    void ecuConnect(bool);
+
     void deviceEventLog(QString, int);
-    void ecuConnected(QHash<QString, Map*>*);
-    void ecuDisconnected();
     void createMap(mapDefinition*);
 
-    void updateRAM(offsetMemory memory);
+//    void updateRAM(offsetMemory memory);
 
     void logRateChanged(int);
 

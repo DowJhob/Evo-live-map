@@ -45,7 +45,10 @@ public:
     bool open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate);
     bool close();
     bool five_baud_init();
-    QByteArray read(uint lenght = 0);
+
+    bool setProgLine();
+
+    QByteArray read(uint readTimeout = 0);
     void write(int lenght);
 
     PassThru *j2534;

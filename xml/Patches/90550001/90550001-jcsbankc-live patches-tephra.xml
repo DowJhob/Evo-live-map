@@ -18,15 +18,6 @@
 	Custom fuel pump patch and jcsbanks livemap patch	
 	</notes>
 
-	<scaling name="New fuel pump control _scaling" storagetype="bloblist">
-		<data name="Original" value="4F222FE66EF3B0120009600D88008905DA1060A1CB802A01A0050009DA0D60A1DB0B20B92A016EF64F26000B00092FE66EF3D0096001C8108903D0086001C8028902E001A0010009"/>
-		<data name="Patched"  value="D10D6011C8108909D10C6011C8028B05D10B6211910D622D32168904D1096011CB80000B2101D107920463112239000B212100C7FF7F0009FFFF88E4FFFF8C58FFFF852CFFFF87A2"/>
-	</scaling>
-	<table name="New fuel pump control" category="Patches" address="19b70" type="1D" scaling="New fuel pump control _scaling"/>
-	
-	<scaling name="FuelPump" units="Seconds" toexpr="x/40" frexpr="x*40" format="%.3f" min="0" max="255" inc="0.05" storagetype="uint16" endian="big"/>
-	<table name="Fuel pump activation" category="Patches" address="19ba2" type="1D" scaling="FuelPump"/>
-	
 	<scaling name="DMAC3 DEI3 Interrupt (DMA End) scaling" storagetype="bloblist">
 		<data name="Original" value="00009C84"/>
 		<data name="Patched" value="0003ED10"/>

@@ -19,6 +19,7 @@ public:
     bool close();
     bool info();
     bool five_baud_init();
+    bool setProgLine();
     QByteArray read(uint lenght);
     void write( int lenght );
 

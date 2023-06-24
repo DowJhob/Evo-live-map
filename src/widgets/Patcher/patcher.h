@@ -67,6 +67,9 @@ private slots:
     void Undo_patch();
  //   QDomElement getXMLDom(QIODevice *device);
 
+
+    void _writeECU(QByteArray data);
+
 private:
     Ui::Patcher *ui;
     QFile ROMfile_handler;
@@ -91,6 +94,8 @@ private:
 signals:
     void applyPatch(bloblist2* patch);
     void applyOriginal(bloblist2* patch);
+    void writeECU(QByteArray);
+    void readECU();
 
 };
 

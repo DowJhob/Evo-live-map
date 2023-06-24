@@ -1,0 +1,75 @@
+<rom>
+	<romid>
+		<xmlid>88590015</xmlid>
+		<internalidaddress>f52</internalidaddress>
+		<internalidhex>88590015</internalidhex>
+		<make>Mitsubishi</make>
+		<market>JDM</market>
+		<model>Lancer</model>
+		<submodel></submodel>
+		<transmission></transmission>
+		<year></year>
+		<flashmethod></flashmethod>
+		<memmodel></memmodel>
+	</romid>
+	
+	<notes>
+		https://www.evolutionm.net/forums/ecu-flash/370522-how-control-closed-loop-afr-your-wideband-o2-system-33.html?ispreloading=1
+	</notes>
+	
+	<table name="Closed Loop Wideband On/Off" category="Front/Rear_02" address="8734" type="1D" level="1" scaling="uint8"/>
+	<scaling name="AFR16" units="AFR" toexpr="14.7*128/x" frexpr="14.7*128/x" format="%.1f" min="8" max="20" inc="0.1" storagetype="uint16" endian="big"/>
+	<table name="Cold Engine Closed Loop AFR" category="Front/Rear_02" address="8736" type="1D" level="1" scaling="AFR16"/>
+	<table name="Min Coolant Temp To Use AFR Table" category="Front/Rear_02" address="8738" type="1D" level="1" scaling="Temp"/>
+	<scaling name="mLinverse" units="1/mL" toexpr="x/8" frexpr="x*8" format="%.1f" min="0" max="100" inc="0.1" storagetype="uint16" endian="big"/>
+	<table name="Wideband AFR Correlation 1/mL Value" category="Front/Rear_02" address="873A" type="1D" level="1" scaling="mLinverse"/>
+	<table name="Wideband AFR Correlation bL/mL Value" category="Front/Rear_02" address="873C" type="1D" level="1" scaling="uint16"/>
+	<scaling name="AFR MAP multiplier" units="x" toexpr="x/240845" frexpr="x*240845" format="%.000001f" min="0" max="20" inc="0.05" storagetype="uint32" endian="big"/>
+	<table name="modern AFR Table Multiplier" category="Front/Rear_02" address="8740" type="1D" level="1" scaling="AFR MAP multiplier"/>
+	<table name="Front O2 (ADC 04) RAM variable" category="Front/Rear_02" address="c2ba" type="1D" level="1" scaling="Hex16"/>
+	<table name="Rear O2 (ADC 0A) RAM variable" category="Front/Rear_02" address="c2be" type="1D" level="1" scaling="Hex16"/>
+	<table name="MUT12 Value (To Read Wideband)" category="Front/Rear_02" address="3eece" type="1D" level="1" scaling="Hex16"/>
+	<table name="MUT19 Value (To Read Front O2 ADC)" category="Front/Rear_02" address="3eeea" type="1D" level="1" scaling="Hex16"/>
+
+<scaling name="MUT12 Patch" storagetype="bloblist">
+	<data name="Original" value="6A4F"/>
+	<data name="Patched"  value="6A6D"/>
+</scaling>
+
+<scaling name="const Patch" storagetype="bloblist">
+	<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+	<data name="Patched"  value="01ff0080006e00ff0121ffff0003accd"/>
+</scaling>
+
+<scaling name="var Patch" storagetype="bloblist">
+	<data name="Original" value="6a64ffff6a68"/>
+	<data name="Patched"  value="6A6Effff6A6C"/>
+</scaling>
+
+<scaling name="ADC Value Mod Hook Patch" storagetype="bloblist">
+	<data name="Original" value="E408D5256613D002400B0009A00200090000D6A2"/>
+	<data name="Patched"  value="000900090009D002400B0009A002000900047F00"/>
+</scaling>
+
+<scaling name="Hook For Closed Loop Pulse Control Hex Patch" storagetype="bloblist">
+	<data name="Original" value="5A1160A14019C8088902926CA1340009"/>
+	<data name="Patched"  value="DA024A0B00098903A136000900047FC4"/>
+</scaling>
+
+<scaling name="Front/Rear 02 Sim Subroutine Patch" storagetype="bloblist">
+	<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+	<data name="Patched"  value="4F222FE66EF3DD21DA216AA02AA8892DD6236661DA206AA1DB206BB13BA28901D61C6661D41F6442D51F6551DA1F4A0B000940194009D41E64413048DA1D6AA1E4056B0D3B483BA28B02EC29A0112DC16B0D3B4C3AB28B02EC05A00A2DC140084A08EC193C0C3CA8A0032DC1DC126CC12DC16DD14D09DB116BB14B094B013DBCDB0F2BD16EF64F26000B0009FFFF6A64000087340000873600008738FFFF6A4CFFFF6C8E000087400000873A000005E80000873CFFFF6A6CFFFF6A6EFFFF6B36FFFF6A68"/>
+</scaling>
+
+<scaling name="Closed Loop Fuel Pulse Control Subroutine Patch" storagetype="bloblist">
+	<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+	<data name="Patched"  value="DA0660A0CA01200889055A1160A14019C80889009201000B0009008000008734"/>
+</scaling>	
+
+<table name="lazy MUT12" category="Closed Loop O2 Sim" address="3eece" type="1D" scaling="MUT12 Patch"/>
+<table name="lazy const" category="Closed Loop O2 Sim" address="8734" type="1D" scaling="const Patch"/>
+<table name="lazy var" category="Closed Loop O2 Sim" address="c2ba" type="1D" scaling="var Patch"/>
+<table name="ADC Value Mod Hook" category="Closed Loop O2 Sim" address="c250" type="1D" scaling="ADC Value Mod Hook Patch"/>
+<table name="Hook For Closed Loop Pulse Control Hex" category="Closed Loop O2 Sim" address="182e4" type="1D" scaling="Hook For Closed Loop Pulse Control Hex Patch"/>
+<table name="Front/Rear 02 Sim Subroutine" category="Closed Loop O2 Sim" address="47f00" type="1D" scaling="Front/Rear 02 Sim Subroutine Patch"/>
+<table name="Closed Loop Fuel Pulse Control Subroutine" category="Closed Loop O2 Sim" address="47fc4" type="1D" scaling="Closed Loop Fuel Pulse Control Subroutine Patch"/>

@@ -40,6 +40,7 @@ SOURCES += src/main.cpp\
     3rdparty/qhexedit2/src/qhexedit.cpp \
     src/DMA-proto/DMA-proto.cpp \
     src/DMA-proto/proto-manager.cpp \
+#    src/Flasher.cpp \
     src/abstract-memory.cpp \
     src/comm-device-interface/devicemanager.cpp \
     src/comm-device-interface/comm-device-interface.cpp \
@@ -58,7 +59,7 @@ SOURCES += src/main.cpp\
 #    src/widgets/3D/s3dscatter.cpp \
 #    src/widgets/3D/scatterdatamodifier.cpp \
     src/widgets/Patcher/patcher.cpp \
-    src/widgets/analizer.cpp \
+#    src/widgets/analizer.cpp \
     src/widgets/ecuManager.cpp \
     src/wideband/op20wb.cpp \
     src/DMA-proto/pollhelper.cpp \
@@ -95,12 +96,14 @@ HEADERS  += src/mainwindow.h \
     3rdparty/qhexedit2/src/qhexedit.h \
     src/DMA-proto/DMA-proto.h \
     src/DMA-proto/proto-manager.h \
+#    src/Flasher.h \
     src/abstract-memory.h \
     src/comm-device-interface/devicemanager.h \
     src/comm-device-interface/ftdi-comm.h \
     src/comm-device-interface/j2534-comm.h \
     src/comm-device-interface/serial-comm.h \
     src/ecu/ecu.h \
+    src/ecu/mapDefinition.h \
     src/ecu/mutparam.h \
     src/ecu/rammut.h \
 #    src/widgets/3D/SurfaceGraph.h \
@@ -108,7 +111,7 @@ HEADERS  += src/mainwindow.h \
 #    src/widgets/3D/s3dscatter.h \
 #    src/widgets/3D/scatterdatamodifier.h \
     src/widgets/Patcher/patcher.h \
-    src/widgets/analizer.h \
+#    src/widgets/analizer.h \
     src/widgets/ecuManager.h \
     src/wideband/op20wb.h \
     src/DMA-proto/pollhelper.h \
@@ -184,9 +187,9 @@ DISTFILES += \
 #CONFIG(release, debug|release): LIBS += -L$$PWD/3rdparty/qwtplot3d/lib/x86/release/libqwtplot3d.a
 #CONFIG(debug, debug|release): LIBS += -L$$PWD/3rdparty/qwtplot3d/lib/x86/debug/libqwtplot3d.a
 
-CONFIG(release, debug|release): LIBS += -L$$PWD/3rdparty/qwtplot3d/lib/x86/release/qwtplot3d.lib
-CONFIG(debug, debug|release): LIBS += -L$$PWD/3rdparty/qwtplot3d/lib/x86/debug/qwtplot3d.lib
+#CONFIG(release, debug|release): LIBS += -L$$PWD/3rdparty/qwtplot3d/lib/x86/release/qwtplot3d.lib
+#CONFIG(debug, debug|release): LIBS += -L$$PWD/3rdparty/qwtplot3d/lib/x86/debug/qwtplot3d.lib
 
-INCLUDEPATH += $$PWD/3rdparty/qwtplot3d/include
-#DEPENDPATH += $$PWD/3rdparty/qwtplot3d/include
+#INCLUDEPATH += $$PWD/3rdparty/qwtplot3d/include
+##DEPENDPATH += $$PWD/3rdparty/qwtplot3d/include
 

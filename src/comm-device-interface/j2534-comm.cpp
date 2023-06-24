@@ -144,7 +144,7 @@ bool j2534_comm::close()
     return true;
 }
 
-QByteArray j2534_comm::read(uint lenght)
+QByteArray j2534_comm::read(uint readTimeout)
 {
     QByteArray a;
     //QElapsedTimer tt;
@@ -199,6 +199,12 @@ bool j2534_comm::five_baud_init()
     }
 
     //emit Log( "PassThruIoctl - FIVE_BAUD_INIT : OK  |  " + QByteArray((char*)KeyWord, 3).toHex(':'));
+    return true;
+}
+
+bool j2534_comm::setProgLine()
+{
+    j2534->PassThruSetProgrammingVoltage(devID, AUX_PIN, 16);
     return true;
 }
 

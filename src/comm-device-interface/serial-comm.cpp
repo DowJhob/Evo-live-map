@@ -87,6 +87,11 @@ bool serial_comm::five_baud_init()
     return true;
 }
 
+bool serial_comm::setProgLine()
+{
+return true;
+}
+
 QByteArray serial_comm::read(uint lenght)
 {
     _s_port.read(in_buf, lenght);

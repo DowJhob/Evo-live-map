@@ -32,6 +32,8 @@ public:
 
     virtual bool five_baud_init() = 0;
 
+    virtual bool setProgLine() = 0;
+
 //public slots:
     virtual QByteArray read(uint lenght = 0) = 0;
     virtual void write(int lenght ) = 0;

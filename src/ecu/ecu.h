@@ -7,16 +7,10 @@
 #include "ecu-definition.h"
 #include "../abstract-memory.h"
 #include "../DMA-proto/DMA-proto.h"
+#include "src/ecu/mapDefinition.h"
+//#include "src/ecu/IDMA.h"
 
-typedef struct                                       // Содержимое таблицы
-{
-    Map *declMap;
-    offsetMemory Map;
-    offsetMemory X_axis;
-    offsetMemory Y_axis;
-} mapDefinition;
-
-class ecu : public QObject
+class ecu : public QObject//, IDMA
 {
     Q_OBJECT
 public:
@@ -32,8 +26,7 @@ public slots:
     void setComDev(comm_device_interface *_devComm);
     void setDMAproto(DMA_proto *_ECUproto);
 
-    bool connectECU();
-    void disConnectECU();
+    void _connect(bool state);
 
     void startLog();
     void stopLog();
@@ -50,18 +43,20 @@ public slots:
 private slots:
 
 private:
+    bool connectECU();
+    void disConnectECU();
 
 signals:
-    void ecuConnected(QHash<QString, Map*>*);
+    void ecuConnected(bool);
     void ecuDisconnected();
 
-    void createMap(mapDefinition*);
+//    void createMap(mapDefinition*);
 
     void Log(QString);
 
     void logReady(QVector<float>);
 
-    void s_test(QHash<QString, Map*>*);
+    void s_test();
 
 };
 

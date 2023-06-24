@@ -15,7 +15,7 @@
 //#include "src/widgets/3D/s3dplot.h"
 //#include "src/widgets/3D/s3dscatter.h"
 #include "src/widgets/Patcher/patcher.h"
-#include "src/widgets/analizer.h"
+//#include "src/widgets/analizer.h"
 #include "src/widgets/mapManager/mapmanager.h"
 #include "types.h"
 
@@ -34,7 +34,7 @@ namespace Ui {
 class MainWindow;
 }
 
-using namespace Qwt3D;
+//using namespace Qwt3D;
 
 class MainWindow : public QMainWindow
 {
@@ -46,17 +46,20 @@ public:
     ~MainWindow();
     explicit MainWindow(QWidget *parent = nullptr);
 
+    void setECUmanager(QToolBar *_ecuManager);
+    void setMAPmanager(mapManager *_mapManager);
+
 protected:
     void closeEvent(QCloseEvent *event);
 
 public slots:
-    void setUSBfilter(deviceNativeFilter *usbFilter);
+//    void setUSBfilter(deviceNativeFilter *usbFilter);
     void Log(QString str);
+    void deviceEventLog(QString msg, int pos);
 
 private slots:
-    void deviceEventLog(QString msg, int pos);
-    void ecuConnected(QHash<QString, Map *> *RAMtables);
-    void ecuDisconnected();
+//    void ecuConnected(QHash<QString, Map *> *RAMtables);
+//    void ecuDisconnected();
 //    void createMap(mapDefinition *dMap);
 //    void itemChecks(QTreeWidgetItem *item, int column);
 
@@ -64,15 +67,15 @@ private:
 
 //    s3Dplot plot;
 //s3Dscatter scat;
-    Analizer an;
+//    Analizer an;
 
     Ui::MainWindow *ui;
 
     //======================== widget lists =================================
     QSet<gaugeWidget*> gauge_widget_set;
     //======================== widget's =================================
-    ecuManager _ecuManager;
-    mapManager _mapManager;
+    ecuManager *_ecuManager = nullptr;
+    mapManager *_mapManager = nullptr;
     loggerManager _loggerManager;
     hexEditor hexEdit;
     Patcher patcher;

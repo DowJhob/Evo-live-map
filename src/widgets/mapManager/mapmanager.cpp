@@ -1,11 +1,16 @@
 #include "mapmanager.h"
 #include "ui_mapmanager.h"
 
-mapManager::mapManager(QWidget *parent, ecuManager* _ecuManager) : QGroupBox(parent), ui(new Ui::mapManager), _ecuManager(_ecuManager)
+mapManager::mapManager(QWidget *parent, ecu* _ecu) : QGroupBox(parent), ui(new Ui::mapManager), _ecu(_ecu)
 {
     ui->setupUi(this);
     connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &mapManager::itemChecks);
     colorFromFile("C:\\Program Files (x86)\\OpenECU\\EcuFlash\\colormaps\\COLDFIRE.MAP") ;
+
+    QObject::connect(_ecu,         &ecu::ecuConnected,          this, &mapManager::_connect);
+    QObject::connect(this, &mapManager::mapCreated,     _ecu,         &ecu::startLog);
+
+    QObject::connect(_ecu,         &ecu::s_test,                this, &mapManager::s_test, Qt::QueuedConnection);
 }
 
 mapManager::~mapManager()
@@ -21,9 +26,9 @@ void mapManager::createMap(mapDefinition *dMap)
 
     mapWidget *table = new mapWidget(nullptr, dMap, &colormap);
 
-    connect(table->mapModel_, &mapModel::updateRAM, _ecuManager, &ecuManager::updateRAM);
+    connect(table->mapModel_, &mapModel::updateRAM, _ecu, &ecu::updateRAM);
 
-    connect(_ecuManager, &ecuManager::logReady, table->mapTable, &mapView::logReady);
+    connect(_ecu->ECUproto, &DMA_proto::logReady, table->mapTable, &mapView::logReady);
 
     addMapToTree(table);
 }
@@ -64,9 +69,9 @@ void mapManager::clearMaps()
     //    ptrRAMtables.clear();
 }
 
-void mapManager::s_test(QHash<QString, Map *> *tables)
+void mapManager::s_test()
 {
-    for ( Map *tab : *tables)
+    for ( Map *tab : _ecu->ecuDef.RAMtables)
     {
         mapWidget *table = new mapWidget(nullptr, tab);
         addMapToTree(table);
@@ -150,18 +155,27 @@ void mapManager::colorFromFile(QString filename)
     delete file;
 }
 
-void mapManager::setECUmanager(ecuManager *_ecuManager)
+void mapManager::setECU(ecu *_ecu)
 {
-    this->_ecuManager = _ecuManager;
+    this->_ecu = _ecu;
 }
 
-void mapManager::createMapS(QHash<QString, Map*> *RAMtables)
+void mapManager::_connect(bool state)
+{
+if(state)
+    createMapS();
+else
+    clearMaps();
+}
+
+void mapManager::createMapS()
 {
     // переберем все описания таблиц
-    for ( Map *tab : *qAsConst(RAMtables) )
+    for ( Map *tab : qAsConst(_ecu->ecuDef.RAMtables) )
     {
-        createMap( _ecuManager->ECU->getMap(tab) );
+        createMap( _ecu->getMap(tab) );
     }
+    emit mapCreated();
 }
 
 void mapManager::itemChecks(QTreeWidgetItem *item, int column)

@@ -4,26 +4,6 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-    //=============================================================================
-    addToolBar(Qt::TopToolBarArea, &_ecuManager);
-    connect(&_ecuManager, &ecuManager::ecuConnected,    this,         &MainWindow::ecuConnected);
-    connect(&_ecuManager, &ecuManager::ecuDisconnected, this,         &MainWindow::ecuDisconnected);
-//    connect(&_ecuManager, &ecuManager::createMap,       &_mapManager, &mapManager::createMap);
-    connect(&_ecuManager, &ecuManager::Log,             this,         &MainWindow::Log);
-    connect(&_ecuManager, &ecuManager::deviceEventLog,  this,         &MainWindow::deviceEventLog);
-    //=============================================================================
-    //=============================================================================
-    ui->tabWidget->addTab(&_mapManager, "Map manager");
-    _mapManager.setECUmanager(&_ecuManager);
-
-    connect(&_ecuManager, &ecuManager::s_test, &_mapManager, &mapManager::s_test, Qt::QueuedConnection);
-
-
-
-
-
-
     //=============================================================================
     ui->tabWidget->addTab(&hexEdit, "Hex editor");
     //=============================================================================
@@ -43,6 +23,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 }
 
+void MainWindow::setECUmanager(QToolBar *_ecuManager)
+{
+    addToolBar(Qt::TopToolBarArea, _ecuManager);
+}
+
+void MainWindow::setMAPmanager(mapManager *_mapManager)
+{
+    this->_mapManager = _mapManager;
+    ui->tabWidget->addTab(_mapManager, "Map manager");
+}
+
 MainWindow::~MainWindow()
 {
     qDebug() << "~MainWindow";
@@ -57,27 +48,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
     QApplication::closeAllWindows();
 }
 
-void MainWindow::setUSBfilter(deviceNativeFilter *usbFilter)
-{
-    _ecuManager.setUSBfilter(usbFilter);
-}
-
 void MainWindow::deviceEventLog(QString msg, int pos)
 {
     statusBar()->showMessage(msg, pos);
-}
-
-void MainWindow::ecuDisconnected()
-{
-    gaugeDelete();
-
-    _mapManager.clearMaps();
-}
-
-void MainWindow::ecuConnected(QHash<QString, Map*> *RAMtables)
-{
-    _mapManager.createMapS( RAMtables);
-    _ecuManager.startLog();
 }
 
 void MainWindow::create_gauge(QString name, mutParam *param)

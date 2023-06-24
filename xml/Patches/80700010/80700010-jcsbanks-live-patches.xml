@@ -2,14 +2,14 @@
 	<romid>
 		<xmlid>Custom fuel pump patch</xmlid>
 		<internalidaddress>f52</internalidaddress>
-		<internalidhex>90550001</internalidhex>
-		<caseid>RA560649R1</caseid>
+		<internalidhex>80700010</internalidhex>
+		<caseid>80700010</caseid>
 		<make>Mitsubishi</make>
-		<market>EDM</market>
-		<model>Lancer</model>
-		<submodel>EVO7</submodel>
-		<transmission>5MT</transmission>
-		<year>2001</year>
+		<market></market>
+		<model></model>
+		<submodel></submodel>
+		<transmission></transmission>
+		<year></year>
 		<flashmethod>mitsukernel</flashmethod>
 		<memmodel>SH7052</memmodel>
 	</romid>

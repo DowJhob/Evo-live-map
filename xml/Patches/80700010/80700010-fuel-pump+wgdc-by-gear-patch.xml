@@ -1,0 +1,63 @@
+<rom>
+	<romid>
+		<xmlid>Custom fuel pump patch</xmlid>
+		<internalidaddress>f52</internalidaddress>
+		<internalidhex>80700010</internalidhex>
+		<caseid>80700010</caseid>
+		<make>Mitsubishi</make>
+		<market></market>
+		<model></model>
+		<submodel></submodel>
+		<transmission></transmission>
+		<year></year>
+		<flashmethod>mitsukernel</flashmethod>
+		<memmodel>SH7052</memmodel>
+	</romid>
+		
+	<scaling name="fuel pump control scaling" storagetype="bloblist">
+		<data name="Original" value=""/>
+		<data name="Patched"  value="D10D6011C8108909D10C6011C8028B05D10B6211910D622D32168904D1096011CB80000B2101D107920463112239000B212100C7FF7F0009FFFF88E4FFFF8C58FFFF852CFFFF87A2"/>
+	</scaling>
+	<table name="fuel pump control" category="Fuel pump patch" address="0x19b70" type="1D" scaling="fuel pump control scaling"/>
+
+	<scaling name="WGDC lookup data scaling" storagetype="bloblist">
+		<data name="Original" value="FFFF68C000000CC600005DDE00004CD200000B16FFFF6A4C00004CFE"/>
+		<data name="Patched"  value="00000CC600005DDE00004CD200004CE800004CFE00004D140001D4D8"/>
+	</scaling>
+	<table name="WGDC lookup data" category="WGDC gear based with boost desire patch" address="0x1D55C" type="1D" scaling="WGDC lookup data scaling"/>
+
+	<scaling name="WGDC lookup scaling" storagetype="bloblist">
+		<data name="Original" value="D42FDA2D4A0B0009D02B6001C8208906D42CDA2F4A0B00096D0DA0140009D487DA2C4A0B00096103D429DA294A0B0009DA266AA16AAD611D640D651366A3DA214A0B00096D0DD07E6001C8028959A0420009"/>
+		<data name="Patched"  value="D42EDA2C4A0B0009D0086001600D4008DA0704AEDA2F4A0B00096D0DD0896001C802896EA05700090009FFFF82F00001D5640200FFFF6888C8C8C8C8C8C8C8C4BAB8C6C8C8C8C8C8FFFFFFFFFFFFFFFFFFFF"/>
+	</scaling>
+	<table name="WGDC lookup" category="WGDC gear based with boost desire patch" address="0x1D4A6" type="1D" scaling="WGDC lookup scaling"/>
+
+	<scaling name="BoostDesireloockup scaling" storagetype="bloblist">
+		<data name="Original" value="D452DA514A0B0009D04E6001C8208906D44FDA534A0B00096D0DA0140009D451DA4F4A0B00096103D44CDA4D4A0B0009DA496AA16AAD611D640D651366A3DA454A0B00096D0D"/>
+		<data name="Patched"  value="D451DA504A0B0009D0056001600D4008DA0404AEDA524A0B00096D0DA0130009FFFF82F00001D8580200FFFF6888FFFFFFFFFFFFFFFFFFF8F0F0F0E0D8C802FFFFFFFFFFFFFF"/>
+	</scaling>
+	<table name="BoostDesire lookup" category="WGDC gear based with boost desire patch" address="0x1D70C" type="1D" scaling="BoostDesireloockup scaling"/>
+
+	<scaling name="axisloockup#2 scaling" storagetype="bloblist">
+		<data name="Original" value="DA75"/>
+		<data name="Patched"  value="DA74"/>
+	</scaling>
+	<table name="axisloockup#2" category="WGDC gear based with boost desire patch" address="0x1D67C" type="1D" scaling="axisloockup#2 scaling"/>
+
+	<scaling name="axisloockup#1 scaling" storagetype="bloblist">
+		<data name="Original" value="DA7E"/>
+		<data name="Patched"  value="DA7D"/>
+	</scaling>
+	<table name="axisloockup#1" category="WGDC gear based with boost desire patch" address="0x1D65A" type="1D" scaling="axisloockup#1 scaling"/>
+
+	<scaling name="boost desire data scaling" storagetype="bloblist">
+		<data name="Original" value="FFFF68C000000CC600005DDE00004D2A00000B16FFFF6A4C00004D56"/>
+		<data name="Patched"  value="00000CC600005DDE00004D2A00004D4000004D5600004D6C0001D734"/>
+	</scaling>
+	<table name="boost desire data" category="WGDC gear based with boost desire patch" address="0x1D850" type="1D" scaling="boost desire data scaling"/>
+
+
+
+
+
+

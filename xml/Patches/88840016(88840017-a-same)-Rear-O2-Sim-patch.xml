@@ -1,0 +1,45 @@
+<rom>
+	<romid>
+		<xmlid>88590016</xmlid>
+		<internalidaddress>f52</internalidaddress>
+		<internalidhex>88590016</internalidhex>
+		<make>Mitsubishi</make>
+		<market></market>
+		<model>Lancer</model>
+		<submodel></submodel>
+		<transmission></transmission>
+		<year></year>
+		<flashmethod></flashmethod>
+		<memmodel></memmodel>
+	</romid>
+	
+	<notes>
+		https://www.evolutionm.net/forums/ecu-flash/601689-o2-sim-patch-88840016-88840017-a.html
+		original source https://www.evolutionm.net/forums/5353216-post148.html , i modifed mrfred O2 Sim patch.
+	</notes>
+	
+	<scaling name="Rear02simHookPatch" storagetype="bloblist">
+	<data name="Original" value="e408d5266613d002400b0009a00200090000cefa"/>
+	<data name="Patched"  value="000900090009D002400B0009A00200090004A000"/>
+</scaling>
+
+<scaling name="Rear02simSubroutinePatch" storagetype="bloblist">
+	<data name="Original" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+	<data name="Patched"  value="DA066AA16AAD4A09DB056BB16BBD4B094B013ABCDB032BA1000B0009FFFF6A44FFFF6B16FFFF6A48"/>
+</scaling>	
+
+<table name="Rear 02 sim hook" category="Patches" address="c1e4" type="1D" scaling="Rear02simHookPatch"/>
+<table name="Rear 02 sim subroutine" category="Patches" address="4a000" type="1D" scaling="Rear02simSubroutinePatch"/>
+
+<table name="Heater CEL" category="Patches" address="2EF6B" type="2D" level="2" scaling="blobbits">
+<table name="Bit values" type="Static Y Axis" flipy="true" elements="8">
+<data>N/A</data>
+<data>N/A</data>
+<data>N/A</data>
+<data>N/A</data>
+<data>Rear O2 Heater CEL Enable</data>
+<data>N/A</data>
+<data>N/A</data>
+<data>N/A</data>
+</table>
+</table>

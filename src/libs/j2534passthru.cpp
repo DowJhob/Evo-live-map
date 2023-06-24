@@ -164,6 +164,14 @@ PassThru::Status PassThru::PassThruIoctl(Handle channelId, IoctlID IoctlID, cons
     return handleResult(status);
 }
 
+PassThru::Status PassThru::PassThruSetProgrammingVoltage(unsigned long DeviceID, unsigned long Pin, unsigned long Voltage)
+{
+    Q_ASSERT(m_ptSetProgVolt);
+
+    const long status = (*m_ptSetProgVolt)(DeviceID, Pin, Voltage);
+    return handleResult(status);
+}
+
 //PassThru::Status PassThru::clear(Handle channelId, ClearTarget target)
 //{
 //    Q_ASSERT(m_ptIoctl);

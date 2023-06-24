@@ -44,6 +44,14 @@ void ecu::setDMAproto(DMA_proto *_ECUproto)
     //connect(_ECUproto, &DMA_proto::logReady, this, &ecu::logReady);
 }
 
+void ecu::_connect(bool state)
+{
+    if (state)
+        connectECU();
+    else
+        disConnectECU();
+}
+
 bool ecu::connectECU()
 {
     qDebug() << "=========== ecuDefinition::connectECU ================" << devComm;
@@ -70,14 +78,14 @@ bool ecu::connectECU()
         return false;
     }
     //==================================================================================================
-    emit ecuConnected(&ecuDef.RAMtables);
-//    // переберем все описания таблиц
-//    for ( Map *tab : qAsConst(ecuDef.RAMtables) )
-//    {
-//        emit createMap( getMap(tab) );
-//    }
-//    qDebug()<<"=========== ecu::connectECU ================" << QThread::currentThread();
-//    ECUproto->startLog(&ecuDef.ramMut);
+    emit ecuConnected(true);
+    //    // переберем все описания таблиц
+    //    for ( Map *tab : qAsConst(ecuDef.RAMtables) )
+    //    {
+    //        emit createMap( getMap(tab) );
+    //    }
+    //    qDebug()<<"=========== ecu::connectECU ================" << QThread::currentThread();
+    //    ECUproto->startLog(&ecuDef.ramMut);
     return true;
 }
 
@@ -89,7 +97,9 @@ void ecu::disConnectECU()
     QThread::msleep(1000);               // костыль
     devComm->close();
     ecuDef.reset();
-    emit ecuDisconnected();
+//    emit ecuDisconnected();
+
+    emit ecuConnected(false);
 }
 
 void ecu::startLog()
@@ -136,6 +146,7 @@ mapDefinition *ecu::getMap(Map *declMap)
 void ecu::setLogRate(int freqRate)
 {
     //pollTimer->setInterval(1/freqRate);
+//    ECUproto.set
 }
 
 void ecu::test()
@@ -148,5 +159,5 @@ void ecu::test()
         emit Log("xml not found");
     }
     //==================================================================================================
-    emit s_test(&ecuDef.RAMtables);
+    emit s_test();
 }
