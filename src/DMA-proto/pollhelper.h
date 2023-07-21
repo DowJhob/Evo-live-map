@@ -23,6 +23,7 @@ public slots:
     virtual void directDMAwrite(quint32 addr, char *buf, int lenght) = 0;
 
 public slots:
+    void setLogRate(int rate);
     virtual void startLog(ramMUT *ramMut);
     virtual void stopLog();
 

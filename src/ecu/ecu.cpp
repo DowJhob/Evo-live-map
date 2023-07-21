@@ -1,4 +1,5 @@
 #include "ecu.h"
+#include "src/DMA-proto/pollhelper.h"
 
 ecu::ecu()
 {
@@ -146,7 +147,7 @@ mapDefinition *ecu::getMap(Map *declMap)
 void ecu::setLogRate(int freqRate)
 {
     //pollTimer->setInterval(1/freqRate);
-//    ECUproto.set
+    ((pollHelper*)ECUproto)->setLogRate(1/freqRate);
 }
 
 void ecu::test()

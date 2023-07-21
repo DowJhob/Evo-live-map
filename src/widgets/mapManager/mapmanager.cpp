@@ -7,10 +7,10 @@ mapManager::mapManager(QWidget *parent, ecu* _ecu) : QGroupBox(parent), ui(new U
     connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &mapManager::itemChecks);
     colorFromFile("C:\\Program Files (x86)\\OpenECU\\EcuFlash\\colormaps\\COLDFIRE.MAP") ;
 
-    QObject::connect(_ecu,         &ecu::ecuConnected,          this, &mapManager::_connect);
-    QObject::connect(this, &mapManager::mapCreated,     _ecu,         &ecu::startLog);
+    QObject::connect(_ecu,  &ecu::ecuConnected,        this, &mapManager::_connect);
+    QObject::connect(this,  &mapManager::mapCreated,   _ecu, &ecu::startLog);
 
-    QObject::connect(_ecu,         &ecu::s_test,                this, &mapManager::s_test, Qt::QueuedConnection);
+    QObject::connect(_ecu,  &ecu::s_test,              this, &mapManager::s_test, Qt::QueuedConnection);
 }
 
 mapManager::~mapManager()

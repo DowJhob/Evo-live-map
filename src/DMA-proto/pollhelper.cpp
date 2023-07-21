@@ -5,6 +5,11 @@ pollHelper::pollHelper() : DMA_proto()
 
 }
 
+void pollHelper::setLogRate(int rate)
+{
+pollTimer->setInterval(rate);
+}
+
 void pollHelper::init()
 {
     pollTimer = new QTimer();
