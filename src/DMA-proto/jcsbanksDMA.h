@@ -8,7 +8,7 @@
 //#include "DMA-proto.h"
 #include "pollhelper.h"
 
-class jcsbanksDMA : public pollHelper
+class jcsbanksDMA : public DMA_proto
 {
     Q_OBJECT
 public:
@@ -27,9 +27,10 @@ public slots:
     void stopLog();
 
 private slots:
-    void poll();
+//    void poll();
 
 private:
+    pollHelper *poller;
     int delay_after_command = 5;
     bool OP13_connect();
     bool j2534_connect();

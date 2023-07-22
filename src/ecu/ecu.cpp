@@ -124,7 +124,8 @@ void ecu::RAMreset()
 void ecu::updateRAM(offsetMemory memory)
 {
     qDebug()<< "ecuDefinition::updateRAM" << memory.toHex(':');
-    ECUproto->updateRAM(memory);
+//    ECUproto->updateRAM(memory);
+    ECUproto->directDMAwrite(memory.addr, memory.data(), memory.size());
     //QMetaObject::invokeMethod(ECUproto, "updateRAM", Q_ARG(offsetMemory, memory));
 }
 

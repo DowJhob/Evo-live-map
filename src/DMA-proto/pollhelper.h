@@ -8,28 +8,29 @@
 
 #include "DMA-proto.h"
 
-class pollHelper : public DMA_proto
+class pollHelper : public QObject
 {
     Q_OBJECT
 public:
-    explicit pollHelper();
+    explicit pollHelper(DMA_proto *parent_proto);
 
-    virtual bool connect() = 0;
+//    virtual bool connect() = 0;
 
-    virtual QByteArray indirectDMAread(quint32 addr, int lenght) = 0;
-    virtual QByteArray directDMAread(quint32 addr, int len) = 0;
+//    virtual QByteArray indirectDMAread(quint32 addr, int lenght) = 0;
+//    virtual QByteArray directDMAread(quint32 addr, int len) = 0;
 
-public slots:
-    virtual void directDMAwrite(quint32 addr, char *buf, int lenght) = 0;
+//    virtual void directDMAwrite(quint32 addr, char *buf, int lenght) = 0;
 
 public slots:
     void setLogRate(int rate);
-    virtual void startLog(ramMUT *ramMut);
+    virtual void startLog();
     virtual void stopLog();
 
-    virtual void poll() = 0;
+private slots:
+    void poll();
 
 private:
+    DMA_proto *parent_proto = nullptr;
     QTimer *pollTimer = nullptr;
     void init();
 

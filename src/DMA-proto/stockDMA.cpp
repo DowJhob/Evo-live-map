@@ -2,11 +2,13 @@
 
 stockDMA::stockDMA()
 {
+    poller = new pollHelper(this);
     qDebug() << "stockDMA";
 }
 
 stockDMA::stockDMA(comm_device_interface **devComm)
 {
+    poller = new pollHelper(this);
     this->devComm = devComm;
 
     qDebug() << "stockDMA";
@@ -20,22 +22,22 @@ stockDMA::~stockDMA()
 bool stockDMA::connect()
 {
     qDebug() << "=========== stockDMA::connect ================ baudRate" << (*devComm)->getBaudRate();
-     (*devComm)->open(Protocol::ISO9141, //ConnectFlag((uint)
-                      ConnectFlag::ISO9141NoChecksum //| (uint)ConnectFlag::ISO9141KLineOnly
-                      //     )
-                      , (*devComm)->getBaudRate());
-
-     if (!(*devComm)->connect())
-     {
-         (*devComm)->close();
-         return false;
-     }
-     return true;
+    if((*devComm)->open(Protocol::ISO9141, ConnectFlag::ISO9141NoChecksum , (*devComm)->getBaudRate()))
+    {
+        qDebug() << "=========== stockDMA::connect ================ open" << (*devComm)->getBaudRate();
+        if ((*devComm)->connect())
+        {
+            qDebug() << "=========== stockDMA::connect ================ connect" << (*devComm)->getBaudRate();
+            return true;
+        }
+    }
+    (*devComm)->close();
+    return false;
 }
 
 QByteArray stockDMA::indirectDMAread(quint32 addr, int lenght)
 {
-return QByteArray();
+    return QByteArray();
 }
 
 QByteArray stockDMA::directDMAread(quint32 addr, int lenght)
@@ -131,18 +133,4 @@ void stockDMA::getChckSmm()
 
     // trailer
     (*devComm)->p_out_buff[DS - 1] = 0x0D;
-}
-
-void stockDMA::poll()
-{
-    //qDebug() << "jcsbanksDMA::poll" << QThread::currentThread() << ramMut->byteSize;
-    offsetMemory a = indirectDMAread(ramMut->addr, ramMut->byteSize);
-    //a[0] = abs(QCursor::pos().x())/10;
-    //a[1] = abs(QCursor::pos().y())/6;
-    for(int i = 0; i < ramMut->size(); i++)
-    {
-        ramMut->scaledValue[i] = a.toFloatOffset( &(*ramMut)[i].scaling, ramMut->at(i).offset );
-    }
-
-    emit logReady(ramMut->scaledValue);
 }

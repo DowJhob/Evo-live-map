@@ -39,7 +39,7 @@ public:
 
 public slots:
     virtual void directDMAwrite(quint32 addr, char *buf, int lenght) = 0;
-    void updateRAM(offsetMemory memory);
+//    void updateRAM(offsetMemory memory);
 
     virtual void startLog(ramMUT *_ramMut);
     virtual void stopLog() = 0;

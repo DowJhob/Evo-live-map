@@ -9,7 +9,7 @@
 
 #define DS 0x33
 
-class stockDMA : public pollHelper
+class stockDMA : public DMA_proto
 {
     Q_OBJECT
 public:
@@ -28,9 +28,9 @@ public slots:
     void stopLog();
 
 private slots:
-    void poll();
 
 private:
+    pollHelper *poller;
     void setHeader(DMAcomand command, uchar count, quint32 addr);
 
     void getChckSmm();
