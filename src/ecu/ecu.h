@@ -7,16 +7,18 @@
 #include "ecu-definition.h"
 #include "../abstract-memory.h"
 #include "../DMA-proto/DMA-proto.h"
+#include "src/ECU-model/ecumodel.h"
 #include "src/ecu/mapDefinition.h"
-//#include "src/ecu/IDMA.h"
 
-class ecu : public QObject//, IDMA
+
+class ecu : public QObject
 {
     Q_OBJECT
 public:
     ecuDefinition ecuDef;
 
     comm_device_interface *devComm = nullptr;
+    ECUmodel *_ECUmodel = nullptr;
     DMA_proto *ECUproto = nullptr;
 
     ecu();
@@ -24,6 +26,7 @@ public:
 
 public slots:
     void setComDev(comm_device_interface *_devComm);
+    void setECUmodel(ECUmodel *ECUmodel);
     void setDMAproto(DMA_proto *_ECUproto);
 
     void _connect(bool state);

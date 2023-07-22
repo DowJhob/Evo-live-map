@@ -41,6 +41,8 @@ SOURCES += src/main.cpp\
     src/DMA-proto/DMA-proto.cpp \
     src/DMA-proto/proto-manager.cpp \
 #    src/Flasher.cpp \
+    src/ECU-model/ecumodel.cpp \
+    src/ECU-model/evo7-ecumodel.cpp \
     src/abstract-memory.cpp \
     src/comm-device-interface/devicemanager.cpp \
     src/comm-device-interface/comm-device-interface.cpp \
@@ -97,6 +99,8 @@ HEADERS  += src/mainwindow.h \
     src/DMA-proto/DMA-proto.h \
     src/DMA-proto/proto-manager.h \
 #    src/Flasher.h \
+    src/ECU-model/ecumodel.h \
+    src/ECU-model/evo7-ecumodel.h \
     src/abstract-memory.h \
     src/comm-device-interface/devicemanager.h \
     src/comm-device-interface/ftdi-comm.h \

@@ -37,6 +37,11 @@ void ecu::setComDev(comm_device_interface *_devComm)
         ECUproto->setCommDev(&devComm);
 }
 
+void ecu::setECUmodel(ECUmodel *ECUmodel)
+{
+    _ECUmodel = ECUmodel;
+}
+
 void ecu::setDMAproto(DMA_proto *_ECUproto)
 {
     ECUproto = _ECUproto;
@@ -56,38 +61,31 @@ void ecu::_connect(bool state)
 bool ecu::connectECU()
 {
     qDebug() << "=========== ecuDefinition::connectECU ================" << devComm;
-    if (!ECUproto->connect())
+    if (ECUproto->connect())
     {
+        QByteArray a = ECUproto->directDMAread( 0xF52, 4);                        //читаем номер калибровки
+        if ( !a.isEmpty() )
+        {
+            QString romID = QString::number( qFromBigEndian<quint32>(a.data()), 16 );
+            emit Log("romID: " + romID);
+            if (!ecuDef.fromROMID(romID))
+            {
+                emit ecuConnected(true);
+                return true;
+            }
+            else
+            {
+                qDebug() << "XML NOT FOUND!!!!!!!!!!!!!!!!!!!!!!!!!";
+                emit Log("xml not found");
+            }
+        }
+        else
+            emit Log("failure get ECU rom id");
+    }
+    else
         emit Log("failure get ECU connect " + QString::number( devComm->getBaudRate()));
-        return false;
-    }
-    QByteArray a = ECUproto->directDMAread( 0xF52, 4);                        //читаем номер калибровки
-    if ( a.isEmpty() )
-    {
-        emit Log("failure get ECU rom id");
-        return false;
-    }
-    QString romID = QString::number( qFromBigEndian<quint32>(a.data()), 16 );
-    emit Log("romID: " + romID);
-    //emit Log("CurrDir: " + QApplication::applicationDirPath());
-    //===================================================================================================
-    if (!ecuDef.fromROMID(romID))
-    {
-        (*ECUproto->devComm)->close();
-        qDebug() << "XML NOT FOUND!!!!!!!!!!!!!!!!!!!!!!!!!";
-        emit Log("xml not found");
-        return false;
-    }
-    //==================================================================================================
-    emit ecuConnected(true);
-    //    // переберем все описания таблиц
-    //    for ( Map *tab : qAsConst(ecuDef.RAMtables) )
-    //    {
-    //        emit createMap( getMap(tab) );
-    //    }
-    //    qDebug()<<"=========== ecu::connectECU ================" << QThread::currentThread();
-    //    ECUproto->startLog(&ecuDef.ramMut);
-    return true;
+    (*ECUproto->devComm)->close();
+    return false;
 }
 
 void ecu::disConnectECU()
