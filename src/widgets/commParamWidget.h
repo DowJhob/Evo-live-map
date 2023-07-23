@@ -1,15 +1,11 @@
 #ifndef COMMPARAMWIDGET_H
 #define COMMPARAMWIDGET_H
 
-#include <QObject>
-#include <QWidget>
-#include <QComboBox>
-#include <QLayout>
-#include <QLineEdit>
+#include <QGroupBox>
 
-#include "../comm-device-interface/devicemanager.h"
-#include "../DMA-proto/proto-manager.h"
-#include "../wideband/wb-manager.h"
+#include "DMA-ProtoManager/proto-manager.h"
+#include "src/widgets/wb-manager/wb-manager.h"
+#include "src/widgets/commDeviceManager/devicemanager.h"
 
 class commParamWidget : public QGroupBox
 {

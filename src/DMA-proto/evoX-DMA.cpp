@@ -108,6 +108,11 @@ void evoX_DMA::stopLog()
 
 }
 
+void evoX_DMA::setLogRate(int freqRate)
+{
+
+}
+
 void evoX_DMA::setHeader(DMAcomand command, uchar count, quint32 addr)
 {
     //uchar packetBodySize = 0x2C;

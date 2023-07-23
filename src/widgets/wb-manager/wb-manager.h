@@ -14,16 +14,20 @@
 
 //#include "../deviceNativeFilter.h"
 //#include "../comm-device-interface/comm-device-interface.h"
-#include "wb-proto.h"
-#include "innoProto.h"
-#include "aemProto.h"
-#include "plxProto.h"
+#include "../../wideband/wb-proto.h"
+#include "../../wideband/innoProto.h"
+#include "../../wideband/aemProto.h"
+#include "../../wideband/plxProto.h"
 
-#include "../comm-device-interface/op20.h"
-#include "commdevicewb-interface.h"
-#include "serialwb.h"
+#include "../../comm-device-interface/op20.h"
+#include "../../wideband/commdevicewb-interface.h"
+#include "../../wideband/serialwb.h"
 
 Q_DECLARE_METATYPE( wbProto* )
+
+namespace Ui {
+class wbManager;
+}
 
 class wbManager : public QGroupBox
 {
@@ -38,16 +42,10 @@ public slots:
     void fillProto();
 
 private:
-    QGridLayout layout;
-    QComboBox availWB;
-    QComboBox protoWB;
-    QPushButton startBtn{"Start", this};
+    Ui::wbManager *ui;
 
     QMetaObject::Connection wbToProto;
     QMetaObject::Connection ProtoToLog;
-
-    //QLabel lgrt{"Logging rate, Hz:"};
-    //QLineEdit el_lograte{"20"};
 
     void addDevice();
     void removeDevice();

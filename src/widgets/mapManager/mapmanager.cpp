@@ -28,7 +28,7 @@ void mapManager::createMap(mapDefinition *dMap)
 
     connect(table->mapModel_, &mapModel::updateRAM, _ecu, &ecu::updateRAM);
 
-    connect(_ecu->ECUproto, &DMA_proto::logReady, table->mapTable, &mapView::logReady);
+    connect(_ecu->DMAproto, &DMA_proto::logReady, table->mapTable, &mapView::logReady);
 
     addMapToTree(table);
 }

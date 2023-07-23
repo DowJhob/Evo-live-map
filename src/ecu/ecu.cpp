@@ -25,45 +25,42 @@ ecu::~ecu()
 
 void ecu::setComDev(comm_device_interface *_devComm)
 {
-    devComm = _devComm;
-
     if (devComm == nullptr  )
     {
         // все интерфесы отключены, сделай что нибудь!!!!
-        ECUproto->stopLog();
-        //pollTimer->stop();
+        DMAproto->stopLog();
     }
     else
-        ECUproto->setCommDev(&devComm);
+        devComm = _devComm;
 }
 
-void ecu::setECUmodel(ECUmodel *ECUmodel)
+void ecu::setECUmodel(ECUmodel *_ECUmodel)
 {
-    _ECUmodel = ECUmodel;
+    this->_ECUmodel = _ECUmodel;
+    _ECUmodel->setCommDev(&devComm);
 }
 
-void ecu::setDMAproto(DMA_proto *_ECUproto)
+void ecu::setDMAproto(DMA_proto *_DMAproto)
 {
-    ECUproto = _ECUproto;
-    _ECUproto->setCommDev(&devComm);
-    //connect(pollTimer, &QTimer::timeout, this, &ecu::poll, Qt::QueuedConnection);
-    //connect(_ECUproto, &DMA_proto::logReady, this, &ecu::logReady);
+    DMAproto = _DMAproto;
+    _DMAproto->setCommDev(&devComm);
+
 }
 
-void ecu::_connect(bool state)
+void ecu::connectDMA(bool state)
 {
     if (state)
-        connectECU();
+        _connectDMA();
     else
-        disConnectECU();
+        disconnectDMA();
 }
 
-bool ecu::connectECU()
+bool ecu::_connectDMA()
 {
     qDebug() << "=========== ecuDefinition::connectECU ================" << devComm;
-    if (ECUproto->connect())
+    if (DMAproto->connect())
     {
-        QByteArray a = ECUproto->directDMAread( 0xF52, 4);                        //читаем номер калибровки
+        QByteArray a = DMAproto->directDMAread( 0xF52, 4);                        //читаем номер калибровки
         if ( !a.isEmpty() )
         {
             QString romID = QString::number( qFromBigEndian<quint32>(a.data()), 16 );
@@ -84,15 +81,15 @@ bool ecu::connectECU()
     }
     else
         emit Log("failure get ECU connect " + QString::number( devComm->getBaudRate()));
-    (*ECUproto->devComm)->close();
+    (*DMAproto->devComm)->close();
     return false;
 }
 
-void ecu::disConnectECU()
+void ecu::disconnectDMA()
 {
     qDebug() << "=========== ecuDefinition::disConnectECU ================";
     //pollTimer->stop();
-    ECUproto->stopLog();
+    DMAproto->stopLog();
     QThread::msleep(1000);               // костыль
     devComm->close();
     ecuDef.reset();
@@ -103,19 +100,19 @@ void ecu::disConnectECU()
 
 void ecu::startLog()
 {
-    ECUproto->startLog(&ecuDef.ramMut);
+    DMAproto->startLog(&ecuDef.ramMut);
 }
 
 void ecu::stopLog()
 {
-    ECUproto->stopLog();
+    DMAproto->stopLog();
 }
 
 void ecu::RAMreset()
 {
     qDebug() << "ecuDefinition::RAMreset(addr::" << ecuDef.ramMut.DEAD_var << ");";
     quint16 r = 0x0000;
-    ECUproto->directDMAwrite(ecuDef.ramMut.DEAD_var, (char*)&r, 2);
+    DMAproto->directDMAwrite(ecuDef.ramMut.DEAD_var, (char*)&r, 2);
     //QMetaObject::invokeMethod(ECUproto, "directDMAwrite", Q_ARG(quint32, ecuDef.ramMut.DEAD_var), Q_ARG(char*, (char*)&r), Q_ARG(int, 2));
 }
 
@@ -123,7 +120,7 @@ void ecu::updateRAM(offsetMemory memory)
 {
     qDebug()<< "ecuDefinition::updateRAM" << memory.toHex(':');
 //    ECUproto->updateRAM(memory);
-    ECUproto->directDMAwrite(memory.addr, memory.data(), memory.size());
+    DMAproto->directDMAwrite(memory.addr, memory.data(), memory.size());
     //QMetaObject::invokeMethod(ECUproto, "updateRAM", Q_ARG(offsetMemory, memory));
 }
 
@@ -135,10 +132,10 @@ mapDefinition *ecu::getMap(Map *declMap)
     mapDefinition *defMap = new mapDefinition;
     defMap->declMap = declMap;
     if(declMap->X_axis.addr != 0)
-        defMap->X_axis = ECUproto->directDMAread(declMap->X_axis.addr, declMap->X_axis.byteSize());   // читаем оси
+        defMap->X_axis = DMAproto->directDMAread(declMap->X_axis.addr, declMap->X_axis.byteSize());   // читаем оси
     if(declMap->Y_axis.addr != 0)
-        defMap->Y_axis = ECUproto->directDMAread(declMap->Y_axis.addr, declMap->Y_axis.byteSize());
-    defMap->Map = ECUproto->directDMAread(declMap->addr, declMap->byteSize());
+        defMap->Y_axis = DMAproto->directDMAread(declMap->Y_axis.addr, declMap->Y_axis.byteSize());
+    defMap->Map = DMAproto->directDMAread(declMap->addr, declMap->byteSize());
     //emit gettedMap(defMap);
     return defMap;
 }
@@ -146,7 +143,7 @@ mapDefinition *ecu::getMap(Map *declMap)
 void ecu::setLogRate(int freqRate)
 {
     //pollTimer->setInterval(1/freqRate);
-    ((pollHelper*)ECUproto)->setLogRate(1/freqRate);
+    ((pollHelper*)DMAproto)->setLogRate(1/freqRate);
 }
 
 void ecu::test()
@@ -154,7 +151,7 @@ void ecu::test()
     //===================================================================================================
     if (!ecuDef.fromROMID("90550001"))
     {
-        (*ECUproto->devComm)->close();
+        (*DMAproto->devComm)->close();
         qDebug() << "XML NOT FOUND!!!!!!!!!!!!!!!!!!!!!!!!!";
         emit Log("xml not found");
     }

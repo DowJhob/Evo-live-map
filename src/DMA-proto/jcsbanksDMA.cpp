@@ -78,17 +78,10 @@ void jcsbanksDMA::stopLog()
     //pollTimer->stop();
 }
 
-//void jcsbanksDMA::poll()
-//{
-//    //qDebug() << "jcsbanksDMA::poll" << QThread::currentThread() << ramMut->byteSize;
-//    offsetMemory a = indirectDMAread(ramMut->addr, ramMut->byteSize);
-//    for(int i = 0; i < ramMut->size(); i++)
-//    {
-//        ramMut->scaledValue[i] = a.toFloatOffset( &(*ramMut)[i].scaling, ramMut->at(i).offset );
-//    }
-
-//    emit logReady(ramMut->scaledValue);
-//}
+void jcsbanksDMA::setLogRate(int freqRate)
+{
+    poller->setLogRate(1/freqRate);
+}
 
 void jcsbanksDMA::sendDMAcomand(char command, unsigned long addr, unsigned long count, char *buf)
 {

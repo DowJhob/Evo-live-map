@@ -19,17 +19,17 @@ public:
 
     comm_device_interface *devComm = nullptr;
     ECUmodel *_ECUmodel = nullptr;
-    DMA_proto *ECUproto = nullptr;
+    DMA_proto *DMAproto = nullptr;
 
     ecu();
     ~ecu();
 
 public slots:
     void setComDev(comm_device_interface *_devComm);
-    void setECUmodel(ECUmodel *ECUmodel);
+    void setECUmodel(ECUmodel *_ECUmodel);
     void setDMAproto(DMA_proto *_ECUproto);
 
-    void _connect(bool state);
+    void connectDMA(bool state);
 
     void startLog();
     void stopLog();
@@ -46,8 +46,8 @@ public slots:
 private slots:
 
 private:
-    bool connectECU();
-    void disConnectECU();
+    bool _connectDMA();
+    void disconnectDMA();
 
 signals:
     void ecuConnected(bool);

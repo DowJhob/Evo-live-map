@@ -103,6 +103,11 @@ void stockDMA::stopLog()
 
 }
 
+void stockDMA::setLogRate(int freqRate)
+{
+    poller->setLogRate(1/freqRate);
+}
+
 void stockDMA::setHeader(DMAcomand command, uchar count, quint32 addr)
 {
     //uchar packetBodySize = 0x2C;

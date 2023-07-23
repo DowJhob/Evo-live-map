@@ -1,38 +1,36 @@
 #ifndef DEVICEMANAGER_H
 #define DEVICEMANAGER_H
 
-#include <QObject>
 #include <QGroupBox>
-#include <QGridLayout>
-#include <QComboBox>
-#include <QLineEdit>
-#include <QLabel>
 
-#include "../deviceNativeFilter.h"
-#include "comm-device-interface.h"
-#include "j2534-comm.h"
-#include "op20.h"
-#include "ftdi-comm.h"
-#include "serial-comm.h"
 
-#include "../wideband/op20wb.h"
+#include "../../deviceNativeFilter.h"
+#include "../../comm-device-interface/comm-device-interface.h"
+#include "../../comm-device-interface/j2534-comm.h"
+#include "../../comm-device-interface/op20.h"
+#include "../../comm-device-interface/ftdi-comm.h"
+#include "../../comm-device-interface/serial-comm.h"
+
+#include "../../wideband/op20wb.h"
+
+namespace Ui {
+class commDeviceManager;
+}
 
 class commDeviceManager : public QGroupBox
 {
     Q_OBJECT
+
 public:
     uint baudRate;
     commDeviceManager(QWidget *parent = nullptr);
+    ~commDeviceManager();
 
 public slots:
     void deviceEvent(device dev);
 
 private:
-    QGridLayout layout;
-
-    QComboBox availCommDev;
-    QLabel bd{"Baud rate, Baud:"};
-    QLineEdit el_baudRate{"15625"};
+    Ui::commDeviceManager *ui;
 
     void addDevice(device dev);
     void removeDevice(device dev);

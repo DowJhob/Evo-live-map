@@ -13,7 +13,7 @@ public:
     evo7_ECUmodel();
 
 public slots:
-    bool connectECU();
+    bool connectDMA();
     virtual void disConnectECU() = 0;
 
 private:

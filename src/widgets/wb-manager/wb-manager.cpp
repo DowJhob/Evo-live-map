@@ -1,43 +1,29 @@
 #include "wb-manager.h"
+#include "ui_wb-manager.h"
 
-wbManager::wbManager(QWidget *parent):QGroupBox(parent)
+wbManager::wbManager(QWidget *parent):QGroupBox(parent), ui(new Ui::wbManager)
 {
-    setTitle("Available wideband");
-    setLayout(&layout);
-
-    availWB.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    //lgrt.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-    //el_lograte.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-
-    layout.addWidget(&availWB, 0, 0);
-    layout.addWidget(&protoWB, 0, 1);
-    layout.addWidget(&startBtn, 0, 2);
-
-    connect(&availWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::_wbSelected);
-    connect(&protoWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::_protoSelected);
-    connect(&startBtn, &QPushButton::clicked, this, &wbManager::startStop);
-
-    //fillSerial();
-
-    //fillProto();
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    ui->setupUi(this);
+    connect(ui->availWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::_wbSelected);
+    connect(ui->protoWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::_protoSelected);
+    connect(ui->startBtn, &QPushButton::clicked, this, &wbManager::startStop);
 }
 
 void wbManager::fillProto()
 {
-    protoWB.addItem("Innovate", QVariant::fromValue<wbProto*>(new innoProto()));
-    protoWB.addItem("AEM", QVariant::fromValue<wbProto*>(new aemProto()));
-    protoWB.addItem("PLX", QVariant::fromValue<wbProto*>(new plxProto()));
+    ui->protoWB->addItem("Innovate", QVariant::fromValue<wbProto*>(new innoProto()));
+    ui->protoWB->addItem("AEM", QVariant::fromValue<wbProto*>(new aemProto()));
+    ui->protoWB->addItem("PLX", QVariant::fromValue<wbProto*>(new plxProto()));
 }
 
 void wbManager::addTactrix(commDeviceWB *cdWB)
 {
     qDebug()<< "wbManager::addTactrix";
-    availWB.addItem(cdWB->DeviceDesc, QVariant::fromValue<commDeviceWB*>(cdWB));
+    ui->availWB->addItem(cdWB->DeviceDesc, QVariant::fromValue<commDeviceWB*>(cdWB));
     connect(cdWB, &commDeviceWB::destroyed, this, [this](QObject *o){
         qDebug()<< "commDeviceWB::destroyed::Tactrix";
-        int index = availWB.findData(QVariant::fromValue<commDeviceWB*>(static_cast<commDeviceWB*>(o)));
-        availWB.removeItem(index);
+        int index = ui->availWB->findData(QVariant::fromValue<commDeviceWB*>(static_cast<commDeviceWB*>(o)));
+        ui->availWB->removeItem(index);
     });
 }
 
@@ -55,7 +41,7 @@ void wbManager::fillSerial()
 {
     for( const auto &portInfo : QSerialPortInfo::availablePorts())
     {
-        availWB.addItem(portInfo.description() + " / " + portInfo.serialNumber(), QVariant::fromValue<commDeviceWB*>(new serialWB(portInfo, this)));
+        ui->availWB->addItem(portInfo.description() + " / " + portInfo.serialNumber(), QVariant::fromValue<commDeviceWB*>(new serialWB(portInfo, this)));
     }
 }
 
@@ -100,10 +86,10 @@ void wbManager::removeDevice()
 void wbManager::_wbSelected(int index)
 {
     qDebug()<< "wbManager::_wbSelected" ;
-    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(availWB.itemData(index));
+    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(ui->availWB->itemData(index));
     if(cdWB == nullptr)
         return;
-    wbProto *_protoWB = qvariant_cast<wbProto*>(protoWB.currentData());
+    wbProto *_protoWB = qvariant_cast<wbProto*>(ui->protoWB->currentData());
     if(_protoWB == nullptr)
         return;
     //emit wbSelected(cdWB);
@@ -119,10 +105,10 @@ void wbManager::_wbSelected(int index)
 
 void wbManager::_protoSelected(int index)
 {
-    wbProto *_protoWB = qvariant_cast<wbProto*>(protoWB.itemData(index));
+    wbProto *_protoWB = qvariant_cast<wbProto*>(ui->protoWB->itemData(index));
     if(_protoWB == nullptr)
         return;
-    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(availWB.currentData());
+    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(ui->availWB->currentData());
     if(cdWB == nullptr)
         return;
     disconnect(wbToProto);
@@ -136,17 +122,17 @@ void wbManager::_protoSelected(int index)
 
 void wbManager::startStop()
 {
-    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(availWB.currentData());
-    wbProto *_protoWB = qvariant_cast<wbProto*>(protoWB.currentData());
+    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(ui->availWB->currentData());
+    wbProto *_protoWB = qvariant_cast<wbProto*>(ui->protoWB->currentData());
     qDebug() << "=========== wbManager::startBtn clicked ================" << cdWB << _protoWB;
 
-    if(startBtn.text() == "Start")
+    if(ui->startBtn->text() == "Start")
     {
         if(cdWB->isClosed())
             if(cdWB->openWB(_protoWB->baudRate))
             {
                 emit wbStart(true);
-                startBtn.setText("Stop");
+                ui->startBtn->setText("Stop");
             }
     }
     else
@@ -155,7 +141,7 @@ void wbManager::startStop()
             if(cdWB->closeWB())
             {
                 emit wbStart(false);
-                startBtn.setText("Start");
+                ui->startBtn->setText("Start");
             }
     }
 }

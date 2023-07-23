@@ -39,12 +39,12 @@ SOURCES += src/main.cpp\
     3rdparty/qhexedit2/src/commands.cpp \
     3rdparty/qhexedit2/src/qhexedit.cpp \
     src/DMA-proto/DMA-proto.cpp \
-    src/DMA-proto/proto-manager.cpp \
 #    src/Flasher.cpp \
+    src/widgets/DMA-ProtoManager/proto-manager.cpp \
     src/ECU-model/ecumodel.cpp \
     src/ECU-model/evo7-ecumodel.cpp \
     src/abstract-memory.cpp \
-    src/comm-device-interface/devicemanager.cpp \
+    src/widgets/commDeviceManager/devicemanager.cpp \
     src/comm-device-interface/comm-device-interface.cpp \
     src/comm-device-interface/ftdi-comm.cpp \
     src/DMA-proto/evoX-DMA.cpp \
@@ -75,7 +75,7 @@ SOURCES += src/main.cpp\
     src/wideband/innoProto.cpp \
     src/wideband/plxProto.cpp \
     src/wideband/serialwb.cpp \
-    src/wideband/wb-manager.cpp \
+    src/widgets/wb-manager/wb-manager.cpp \
     src/wideband/wb-proto.cpp \
     src/widgets/hexEditor/hexeditor.cpp \
     src/mainwindow.cpp \
@@ -97,12 +97,12 @@ HEADERS  += src/mainwindow.h \
     3rdparty/qhexedit2/src/commands.h \
     3rdparty/qhexedit2/src/qhexedit.h \
     src/DMA-proto/DMA-proto.h \
-    src/DMA-proto/proto-manager.h \
 #    src/Flasher.h \
+    src/widgets/DMA-ProtoManager/proto-manager.h \
     src/ECU-model/ecumodel.h \
     src/ECU-model/evo7-ecumodel.h \
     src/abstract-memory.h \
-    src/comm-device-interface/devicemanager.h \
+    src/widgets/commDeviceManager/devicemanager.h \
     src/comm-device-interface/ftdi-comm.h \
     src/comm-device-interface/j2534-comm.h \
     src/comm-device-interface/serial-comm.h \
@@ -142,7 +142,7 @@ HEADERS  += src/mainwindow.h \
     src/wideband/innoProto.h \
     src/wideband/plxProto.h \
     src/wideband/serialwb.h \
-    src/wideband/wb-manager.h \
+    src/widgets/wb-manager/wb-manager.h \
     src/wideband/wb-proto.h \
     src/widgets/commParamWidget.h \
     src/widgets/gauge_widget.h \
@@ -156,6 +156,9 @@ HEADERS  += src/mainwindow.h \
     #ecu/ecu_x_comm.h \
 
 FORMS    += mainwindow.ui \
+    src/widgets/wb-manager/wb-manager.ui \
+    src/widgets/DMA-ProtoManager/proto-manager.ui \
+    src/widgets/commDeviceManager/devicemanager.ui \
     src/widgets/Patcher/patcher.ui \
     src/widgets/mapManager/mapmanager.ui
 

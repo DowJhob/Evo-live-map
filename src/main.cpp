@@ -3,12 +3,13 @@
 #include <QElapsedTimer>
 
 #include "deviceNativeFilter.h"
-#include "comm-device-interface/devicemanager.h"
+//#include "comm-device-interface/devicemanager.h"
 #include "mainwindow.h"
 
-#include "widgets/commParamWidget.h"
-#include "DMA-proto/proto-manager.h"
-
+//#include "widgets/commParamWidget.h"
+//#include "DMA-proto/proto-manager.h"
+#include "widgets/ecuManager.h"
+#include "widgets/mapManager/mapmanager.h"
 
 QElapsedTimer t;
 

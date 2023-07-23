@@ -1,11 +1,11 @@
 #ifndef MAPMANAGER_H
 #define MAPMANAGER_H
 
+#include <QGroupBox>
 #include "qtreewidget.h"
 #include "src/map-decl/map.h"
 #include "src/widgets/ecuManager.h"
 #include "src/widgets/mapWidget/mapwidget.h"
-#include <QGroupBox>
 
 namespace Ui {
 class mapManager;

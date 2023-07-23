@@ -3,7 +3,7 @@
 ecuManager::ecuManager(QWidget *parent, ecu *ECU) : QToolBar(parent), ECU(ECU)
 {
 //    ECU->test();
-    connect(this, &ecuManager::ecuConnect,     ECU,  &ecu::_connect,             Qt::QueuedConnection);
+    connect(this, &ecuManager::ecuConnect,     ECU,  &ecu::connectDMA,             Qt::QueuedConnection);
     connect(ECU,  &ecu::ecuConnected,          this, &ecuManager::interfaceLock, Qt::QueuedConnection);
 
     //=============================================================================

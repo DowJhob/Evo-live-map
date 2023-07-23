@@ -26,6 +26,9 @@ public slots:
     void startLog(ramMUT *_ramMut);
     void stopLog();
 
+    void setLogRate(int freqRate);
+
+
 private slots:
 //    void poll();
 
