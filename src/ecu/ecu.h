@@ -7,7 +7,7 @@
 #include "ecu-definition.h"
 #include "../abstract-memory.h"
 #include "../DMA-proto/DMA-proto.h"
-#include "src/ECU-model/ecumodel.h"
+#include "src/ECU-flash-model/ecu-flash-model.h"
 #include "src/ecu/mapDefinition.h"
 
 
@@ -18,7 +18,7 @@ public:
     ecuDefinition ecuDef;
 
     comm_device_interface *devComm = nullptr;
-    ECUmodel *_ECUmodel = nullptr;
+    ECU_FLASH_model *_ECU_FLASH_model = nullptr;
     DMA_proto *DMAproto = nullptr;
 
     ecu();
@@ -26,7 +26,7 @@ public:
 
 public slots:
     void setComDev(comm_device_interface *_devComm);
-    void setECUmodel(ECUmodel *_ECUmodel);
+    void setECUmodel(ECU_FLASH_model *_ECUmodel);
     void setDMAproto(DMA_proto *_ECUproto);
 
     void connectDMA(bool state);

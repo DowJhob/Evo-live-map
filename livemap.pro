@@ -40,9 +40,9 @@ SOURCES += src/main.cpp\
     3rdparty/qhexedit2/src/qhexedit.cpp \
     src/DMA-proto/DMA-proto.cpp \
 #    src/Flasher.cpp \
+    src/ECU-flash-model/ecu-flash-model.cpp \
+    src/ECU-flash-model/evo7-ecu-flash-model.cpp \
     src/widgets/DMA-ProtoManager/proto-manager.cpp \
-    src/ECU-model/ecumodel.cpp \
-    src/ECU-model/evo7-ecumodel.cpp \
     src/abstract-memory.cpp \
     src/widgets/commDeviceManager/devicemanager.cpp \
     src/comm-device-interface/comm-device-interface.cpp \
@@ -98,9 +98,9 @@ HEADERS  += src/mainwindow.h \
     3rdparty/qhexedit2/src/qhexedit.h \
     src/DMA-proto/DMA-proto.h \
 #    src/Flasher.h \
+    src/ECU-flash-model/ecu-flash-model.h \
+    src/ECU-flash-model/evo7-ecu-flash-model.h \
     src/widgets/DMA-ProtoManager/proto-manager.h \
-    src/ECU-model/ecumodel.h \
-    src/ECU-model/evo7-ecumodel.h \
     src/abstract-memory.h \
     src/widgets/commDeviceManager/devicemanager.h \
     src/comm-device-interface/ftdi-comm.h \

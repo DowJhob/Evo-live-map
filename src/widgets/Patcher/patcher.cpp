@@ -381,7 +381,12 @@ void Patcher::Undo_patch()
     }
 }
 
-void Patcher::_writeECU(QByteArray data)
+void Patcher::_readECU()
+{
+
+}
+
+void Patcher::_writeECU()
 {
     emit writeECU(hexEdit.data());
 }

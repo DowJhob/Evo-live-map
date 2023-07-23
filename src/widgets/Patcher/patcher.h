@@ -65,10 +65,9 @@ private slots:
     void Save();
     void Apply();
     void Undo_patch();
- //   QDomElement getXMLDom(QIODevice *device);
 
-
-    void _writeECU(QByteArray data);
+    void _readECU();
+    void _writeECU();
 
 private:
     Ui::Patcher *ui;

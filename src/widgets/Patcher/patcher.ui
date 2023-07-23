@@ -103,7 +103,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0" rowspan="2" colspan="4">
+   <item row="2" column="0" rowspan="2" colspan="3">
     <widget class="QTreeWidget" name="treeWidget">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
@@ -273,7 +273,7 @@
    <sender>readECUpushButton</sender>
    <signal>clicked()</signal>
    <receiver>Patcher</receiver>
-   <slot>readECU()</slot>
+   <slot>_readECU()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>787</x>

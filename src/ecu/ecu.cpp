@@ -34,9 +34,9 @@ void ecu::setComDev(comm_device_interface *_devComm)
         devComm = _devComm;
 }
 
-void ecu::setECUmodel(ECUmodel *_ECUmodel)
+void ecu::setECUmodel(ECU_FLASH_model *_ECUmodel)
 {
-    this->_ECUmodel = _ECUmodel;
+    this->_ECU_FLASH_model = _ECUmodel;
     _ECUmodel->setCommDev(&devComm);
 }
 

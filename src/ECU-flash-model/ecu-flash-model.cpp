@@ -1,11 +1,11 @@
-#include "ecumodel.h"
+#include "ecu-flash-model.h"
 
-ECUmodel::ECUmodel()
+ECU_FLASH_model::ECU_FLASH_model()
 {
 
 }
 
-bool ECUmodel::connectDMA(quint32 romIDaddr, int length)
+bool ECU_FLASH_model::connect(quint32 romIDaddr, int length)
 {
     qDebug() << "=========== ecuDefinition::connectECU ================" << devComm;
     if (ECUproto->connect())
@@ -34,7 +34,7 @@ bool ECUmodel::connectDMA(quint32 romIDaddr, int length)
     return false;
 }
 
-void ECUmodel::setCommDev(comm_device_interface **devComm)
+void ECU_FLASH_model::setCommDev(comm_device_interface **devComm)
 {
     qDebug() << "=========== ECUmodel::setCommDev ================" << devComm;
 
