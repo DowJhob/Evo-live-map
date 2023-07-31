@@ -26,7 +26,7 @@ bool comm_device_interface::connect()
     case Protocol::ISO9141_CH3 :  status = ISO9141(); break;
     case Protocol::ISO15765 :  status = ISO15765(); break;
     case Protocol::ISO14230 :
-    default : qDebug() << "comm_device_interface::connect :: not realize protocol" << (ulong)protocol; break;
+    default : qDebug() << "comm_device_interface::connect - not realize protocol" << (ulong)protocol; break;
     }
 
     return status;

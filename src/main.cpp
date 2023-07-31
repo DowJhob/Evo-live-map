@@ -3,11 +3,9 @@
 #include <QElapsedTimer>
 
 #include "deviceNativeFilter.h"
-//#include "comm-device-interface/devicemanager.h"
 #include "mainwindow.h"
 
-//#include "widgets/commParamWidget.h"
-//#include "DMA-proto/proto-manager.h"
+#include "src/wideband/wb.h"
 #include "widgets/ecuManager.h"
 #include "widgets/mapManager/mapmanager.h"
 
@@ -16,7 +14,11 @@ QElapsedTimer t;
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-QThread::currentThread()->setPriority(QThread::TimeCriticalPriority);
+    QThread::currentThread()->setPriority(QThread::TimeCriticalPriority);
+
+
+    qDebug() << "=========== main:: ================ QThread:" << QThread::currentThread();
+
     app.setApplicationDisplayName(QString("livemap by eulle@ya.ru ver %1").arg(GIT_VERSION));
     qDebug() << QString("Version: %1").arg(GIT_VERSION);
     //========================================================================================
@@ -33,15 +35,24 @@ QThread::currentThread()->setPriority(QThread::TimeCriticalPriority);
     ecu *ECU = new ecu();
 
     //========================================================================================
-    ecuManager *_ecuManager = new ecuManager(&mainWindow, ECU);
+    ecuManagerWidget *_ecuManager = new ecuManagerWidget(&mainWindow, ECU);
+
+
     _ecuManager->setUSBfilter(&usbFilter);
-    QObject::connect(_ecuManager, &ecuManager::deviceEventLog, &mainWindow, &MainWindow::deviceEventLog);
-    QObject::connect(_ecuManager, &ecuManager::Log,            &mainWindow, &MainWindow::Log);
+    QObject::connect(_ecuManager, &ecuManagerWidget::deviceEventLog, &mainWindow, &MainWindow::deviceEventLog);
+    QObject::connect(_ecuManager, &ecuManagerWidget::Log,            &mainWindow, &MainWindow::Log);
 
     //========================================================================================
     mapManager *_mapManager = new mapManager(&mainWindow, ECU);
 
     //========================================================================================
+
+WB *wb = new WB;
+wbManager *_wbManager = &_ecuManager->cpW._wbManager;
+
+QObject::connect(_wbManager, &wbManager::wbSelected, wb, &WB::setWBDev);
+QObject::connect(_wbManager, &wbManager::protoSelected, wb, &WB::setWBproto);
+QObject::connect(_wbManager, &wbManager::wbStart, wb, &WB::start);
 
 
     //========================================================================================

@@ -20,11 +20,20 @@ void protoManager::addProtos()
     //qDebug()<< "deviceManager::addDevice start" << dev.DeviceDesc;
 
     DMA_proto *proto = new jcsbanksDMA();
+    proto->moveToThread(ecu_thread);
+
     ui->availProto->addItem("Custom DMA proto by jcsbanks", QVariant::fromValue<DMA_proto*>(proto));
     proto = new stockDMA();
+    proto->moveToThread(ecu_thread);
+
     ui->availProto->addItem("Stock DMA proto by nanner55", QVariant::fromValue<DMA_proto*>(proto));
     proto = new evoX_DMA();
+    proto->moveToThread(ecu_thread);
+
     ui->availProto->addItem("evoX_DMA by tephra", QVariant::fromValue<DMA_proto*>(proto));
+
+
+    qDebug() << "=========== deviceManager::addDevice ================ ecu_thread" << ecu_thread << "devComm->thread()" << proto->thread();
 
 
     //connect(this,  &protoManager::_logRateChanged, proto, &DMA_proto::setLogRate);   // я хз зачм так, потом исправлю

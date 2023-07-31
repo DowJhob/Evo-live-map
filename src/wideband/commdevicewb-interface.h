@@ -13,7 +13,6 @@ public:
     explicit commDeviceWB(QString DeviceDesc);
     virtual ~commDeviceWB();
 
-    virtual bool isClosed() = 0;
     virtual bool openWB(uint baudRate) = 0;
 
     virtual bool connectWB(unsigned int baudRate) = 0;

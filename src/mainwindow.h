@@ -74,7 +74,7 @@ private:
     //======================== widget lists =================================
     QSet<gaugeWidget*> gauge_widget_set;
     //======================== widget's =================================
-    ecuManager *_ecuManager = nullptr;
+    ecuManagerWidget *_ecuManager = nullptr;
     mapManager *_mapManager = nullptr;
     loggerManager _loggerManager;
     hexEditor hexEdit;

@@ -25,9 +25,7 @@ public:
 public slots:
     void _connect(bool state);
 
-
     void s_test();
-
 
 private:
     Ui::mapManager *ui;
@@ -37,8 +35,6 @@ private:
     void createMap(mapDefinition *dMap);
     void addMapToTree(mapWidget *tab);
     QTreeWidgetItem *checkCategory(QString cat);
-    void createMapS();
-    void clearMaps();
 
 private slots:
     void itemChecks(QTreeWidgetItem *item, int column);

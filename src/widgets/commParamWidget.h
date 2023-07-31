@@ -4,6 +4,7 @@
 #include <QGroupBox>
 
 #include "DMA-ProtoManager/proto-manager.h"
+#include "src/widgets/ecuModelManager/ecumodelmanager.h"
 #include "src/widgets/wb-manager/wb-manager.h"
 #include "src/widgets/commDeviceManager/devicemanager.h"
 
@@ -13,8 +14,9 @@ class commParamWidget : public QGroupBox
 public:
     uint baudRate;
     commDeviceManager devManager;
-    protoManager _protoManager;
     wbManager _wbManager;
+    ecuModelManager _ecuModelManager;
+    protoManager _protoManager;
 
     explicit commParamWidget(QWidget *parent = nullptr, uint defaultBaudRate = 62500, uint defaultLogRate = 10);
     virtual ~commParamWidget();
@@ -22,7 +24,6 @@ public:
 public slots:
 
 private:
-    QGroupBox commonGrpBx{"Communication parameters"};
     QGridLayout commonGrpBxLayout;
 
 

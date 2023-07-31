@@ -1,32 +1,35 @@
 #include "pollhelper.h"
 
-pollHelper::pollHelper(DMA_proto *parent_proto) : QObject(), parent_proto(parent_proto)
+pollHelper::pollHelper(DMA_proto *parent_proto) : QObject(parent_proto), parent_proto(parent_proto)
 {
-    pollTimer = new QTimer();
-    pollTimer->setInterval(50);
-    connect(pollTimer, &QTimer::timeout, this, &pollHelper::poll, Qt::DirectConnection); // Тут Qt::DirectConnection важно, что бы это выполнялось в потоке ecu
-
-
+//        pollTimer = new QTimer();
+//        pollTimer->setInterval(50);
+//        connect(pollTimer, &QTimer::timeout, this, &pollHelper::poll/*, Qt::DirectConnection*/); // Тут Qt::DirectConnection важно, что бы это выполнялось в потоке ecu
 }
 
 void pollHelper::setLogRate(int rate)
 {
-pollTimer->setInterval(rate);
+    pollTimer->setInterval(rate);
 }
 
 void pollHelper::init()
 {
+    qDebug()<<"=========== pollHelper::init ================ QThread::currentThread()" << thread();
     pollTimer = new QTimer();
     pollTimer->setInterval(50);
-    QObject::connect(pollTimer, &QTimer::timeout, this, &pollHelper::poll, Qt::DirectConnection); // Тут Qt::DirectConnection важно, что бы это выполнялось в потоке ecu
+    connect(pollTimer, &QTimer::timeout, this, &pollHelper::poll/*, Qt::DirectConnection*/); // Тут Qt::DirectConnection важно, что бы это выполнялось в потоке ecu
 }
 
-void pollHelper::startLog()
+void pollHelper::startLog(int minPollTime)
 {
-    qDebug()<<"=========== pollHelper::startLog ================" << QThread::currentThread();
+    qDebug()<<"=========== pollHelper::startLog ================" << thread();
 
     if(pollTimer == nullptr)
         init();
+
+    if(minPollTime > pollTimer->interval())
+        pollTimer->setInterval(minPollTime);            // тут ограничиваем  максимальную частоту поллинга
+
     pollTimer->start();
 }
 
@@ -37,7 +40,7 @@ void pollHelper::stopLog()
 
 void pollHelper::poll()
 {
-    //qDebug() << "jcsbanksDMA::poll" << QThread::currentThread() << ramMut->byteSize;
+    qDebug() << "pollHelper::poll" << parent_proto->ramMut->byteSize << parent_proto->ramMut->addr;
     offsetMemory a = parent_proto->indirectDMAread(parent_proto->ramMut->addr, parent_proto->ramMut->byteSize);
     for(int i = 0; i < parent_proto->ramMut->size(); i++)
     {

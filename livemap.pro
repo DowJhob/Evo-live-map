@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-CONFIG += c++11
+CONFIG += c++17
 #CONFIG += qwt
 QT     += core gui xml serialport #datavisualization
 #widgets
@@ -42,6 +42,7 @@ SOURCES += src/main.cpp\
 #    src/Flasher.cpp \
     src/ECU-flash-model/ecu-flash-model.cpp \
     src/ECU-flash-model/evo7-ecu-flash-model.cpp \
+    src/wideband/wb.cpp \
     src/widgets/DMA-ProtoManager/proto-manager.cpp \
     src/abstract-memory.cpp \
     src/widgets/commDeviceManager/devicemanager.cpp \
@@ -75,6 +76,8 @@ SOURCES += src/main.cpp\
     src/wideband/innoProto.cpp \
     src/wideband/plxProto.cpp \
     src/wideband/serialwb.cpp \
+    src/widgets/ecuModelManager/ecumodelmanager.cpp \
+    src/widgets/flasher/flashwidget.cpp \
     src/widgets/wb-manager/wb-manager.cpp \
     src/wideband/wb-proto.cpp \
     src/widgets/hexEditor/hexeditor.cpp \
@@ -100,6 +103,7 @@ HEADERS  += src/mainwindow.h \
 #    src/Flasher.h \
     src/ECU-flash-model/ecu-flash-model.h \
     src/ECU-flash-model/evo7-ecu-flash-model.h \
+    src/wideband/wb.h \
     src/widgets/DMA-ProtoManager/proto-manager.h \
     src/abstract-memory.h \
     src/widgets/commDeviceManager/devicemanager.h \
@@ -142,6 +146,8 @@ HEADERS  += src/mainwindow.h \
     src/wideband/innoProto.h \
     src/wideband/plxProto.h \
     src/wideband/serialwb.h \
+    src/widgets/ecuModelManager/ecumodelmanager.h \
+    src/widgets/flasher/flashwidget.h \
     src/widgets/wb-manager/wb-manager.h \
     src/wideband/wb-proto.h \
     src/widgets/commParamWidget.h \
@@ -156,6 +162,8 @@ HEADERS  += src/mainwindow.h \
     #ecu/ecu_x_comm.h \
 
 FORMS    += mainwindow.ui \
+    src/widgets/ecuModelManager/ecumodelmanager.ui \
+    src/widgets/flasher/flashwidget.ui \
     src/widgets/wb-manager/wb-manager.ui \
     src/widgets/DMA-ProtoManager/proto-manager.ui \
     src/widgets/commDeviceManager/devicemanager.ui \

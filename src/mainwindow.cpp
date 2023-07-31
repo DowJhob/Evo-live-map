@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 //        ui->tabWidget->addTab(&scat, "Surface");
 
 
+    qDebug() << "=========== MainWindow:: ================ QThread:" << thread();
 }
 
 void MainWindow::setECUmanager(QToolBar *_ecuManager)

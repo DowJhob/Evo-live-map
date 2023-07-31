@@ -7,7 +7,7 @@ ecuDefinition::ecuDefinition()
 
 ecuDefinition::~ecuDefinition()
 {
-    qDebug() << "=========== ~ecuDefinition ================";
+    // qDebug() << "=========== ~ecuDefinition ================";
     reset();
 }
 
@@ -47,102 +47,6 @@ QString ecuDefinition::getFile(QString path, QString CalID)       // Для по
     else
         return path + listFiles.at(0);
 }
-
-//void ecuDefinition::_parser(QIODevice *device, QString includeID)
-//{
-//    QDomElement root = getXMLDom(device);
-
-//    QDomNode romid = root.firstChildElement("romid");
-//    QDomNode xmlid_node = romid.firstChildElement("xmlid");
-//    if(!includeID.isEmpty() && xmlid_node.toElement().text() != includeID)
-//        return;
-//    QDomNode node = root.firstChild();
-
-//    qDebug() << "T============================================== includeID =============================================================" << includeID << endl;
-
-//    while (!node.isNull())
-//    {
-//        const QDomElement el = node.toElement();
-//        if(el.tagName() == "include")
-//        {
-//            QString includeID2 = el.text();
-//            //            qDebug() << "T==================================================== includeID =======================================================" << includeID;
-//            if(!includeID2.isEmpty())
-//            {
-//                QDir dir(QApplication::applicationDirPath() + "/xml");
-//                for (const QFileInfo &file : dir.entryInfoList(QDir::Files))
-//                {
-//                    qDebug() << "T======================================= file.fileName() ======================================" << includeID << xmlid_node.toElement().text() << file.fileName();
-//                    QFile iod(file.absoluteFilePath());
-//                    if (!iod.open(QIODevice::ReadOnly | QIODevice::Text))
-//                    {
-//                       // QMessageBox::warning(this, tr("Patcher"), tr("Cannot open file %1.").arg(iod.fileName()));
-//                        return;
-//                    }
-////                    qDebug() << "T============================================== xmlid_node =============================================================";
-//                    _parser(&iod, includeID2);
-//                }
-//            }
-//        }
-//        else
-//        {
-//            if (el.tagName() == "scaling")                                                 //сохраним все скалинги
-//                    getScaling(el);
-//            if (el.tagName() == "table")                                                   // находим таблицу
-//            {
-//                if (!el.attribute("RAM_addr").isEmpty() )           // Если есть адрес в оперативке - парсим
-//                    getLivemap(el);
-//            }
-//            if (el.tagName() == "live")                                                   // параметры
-//            {
-//                QString nodeName = el.attribute("name");
-//                if (nodeName == "varDEAD")
-//                    ramMut.DEAD_var = el.attribute("address").toUInt(nullptr, 16);
-//                if (nodeName == "RAM_MUT")
-//                {
-//                    ramMut.addr = el.attribute("address").toUInt(nullptr, 16);
-//                    getMUTparam(el);
-//                }
-//                qDebug() << " live " << ramMut.addr;
-//            }
-//        }
-
-//        node = node.nextSibling();
-//    }
-
-//    for(auto c : qAsConst(RAMtables))
-//    {
-//        c->setScaling(&scalingsMaps);    // проставим скалинги
-//    }
-//}
-
-//QDomElement ecuDefinition::getXMLDom(QIODevice *device)
-//{
-//    QString errorStr;
-//    int errorLine;
-//    int errorColumn;
-//    QDomDocument doc;
-//    //открываем документ
-//    if (doc.setContent(device, true, &errorStr, &errorLine, &errorColumn))
-//    {
-//        QDomElement root = doc.documentElement();
-//        if (root.tagName() == "rom")
-//        {
-//            return root;
-//        }
-//        else
-//        {
-//            qDebug() << "The file is not a rom xml";
-//        }
-//    }
-//    else
-//    {
-//        //            lastError = "Line %1, column %2";
-//        //            lastError = lastError.arg( errorLine).arg(errorColumn);
-//        qDebug() << errorStr << errorLine << errorColumn ;
-//    }
-//    return QDomElement();
-//}
 
 void ecuDefinition::getMUTparam(const QDomElement &element)
 {
@@ -205,7 +109,6 @@ void ecuDefinition::serialize(QDomElement el)
             ramMut.addr = el.attribute("address").toUInt(nullptr, 16);
             getMUTparam(el);
         }
-        qDebug() << " live " << ramMut.addr;
     }
 }
 

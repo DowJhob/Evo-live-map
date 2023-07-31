@@ -91,7 +91,7 @@ void mapView::actionIncrease()
         auto value =  model()->index(index.row(),index.column()).data(Qt::UserRole).toFloat()
                 + declaration->rom_scaling.increment
                 ;
-        qDebug()<< "value"<<value;
+        //qDebug()<< "value"<<value;
         model()->setData( index, value , Qt::EditRole );
         //update(index);
     }
@@ -105,7 +105,7 @@ void mapView::actionDecrease()
         auto value =  model()->index(index.row(),index.column()).data(Qt::UserRole).toFloat()
                 - declaration->rom_scaling.increment
                 ;
-        qDebug()<< "value"<<value;
+        //qDebug()<< "value"<<value;
         model()->setData( index, value , Qt::EditRole );
         //update(index);
     }

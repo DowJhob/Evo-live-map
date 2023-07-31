@@ -7,53 +7,32 @@
 
 #include <QFileDialog>
 
-//#include "comm-device-interface/op13.h"
-//#include "comm-device-interface/op20.h"
-
-#include "../DMA-proto/jcsbanksDMA.h"
-#include "../DMA-proto/stockDMA.h"
-#include "../DMA-proto/evoX-DMA.h"
-
 #include "../ecu/ecu.h"
 
-#include "src/abstract-memory.h"
-//#include "read-request.h"
 #include "../deviceNativeFilter.h"
 #include "src/widgets/commParamWidget.h"
 #include "src/widgets/gauge_widget.h"
 
-class ecuManager : public QToolBar
+class ecuManagerWidget : public QToolBar
 {
     Q_OBJECT
 public:
     ecu *ECU;
     commParamWidget cpW;
 
-    explicit ecuManager(QWidget *parent = nullptr, ecu *ECU = nullptr);
-    ~ecuManager();
+    explicit ecuManagerWidget(QWidget *parent = nullptr, ecu *ECU = nullptr);
+    ~ecuManagerWidget();
 
     void setUSBfilter(deviceNativeFilter *usbFilter);
 
 
 public slots:
 
-    void startLog();
-
-    void stopLog();
-
     void interfaceLock(bool state);
 
 private:
-
     QAction *a_start_action;
     QAction *a_ramReset;
-
-//    comm_device_interface *devComm = nullptr;
-//    DMA_proto *ECUproto = nullptr;
-
-    char* p_in_buff;
-    char* p_out_buff;
-
 
     gaugeWidget wbWgt{"           = Wideband =           ", 4};
 

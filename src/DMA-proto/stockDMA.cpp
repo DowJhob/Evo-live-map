@@ -2,13 +2,13 @@
 
 stockDMA::stockDMA()
 {
-    poller = new pollHelper(this);
+//    poller = new pollHelper(this);
     qDebug() << "stockDMA";
 }
 
 stockDMA::stockDMA(comm_device_interface **devComm)
 {
-    poller = new pollHelper(this);
+//    poller = new pollHelper(this);
     this->devComm = devComm;
 
     qDebug() << "stockDMA";
@@ -19,10 +19,10 @@ stockDMA::~stockDMA()
     qDebug() << "~stockDMA";
 }
 
-bool stockDMA::connect()
+bool stockDMA::connect_()
 {
     qDebug() << "=========== stockDMA::connect ================ baudRate" << (*devComm)->getBaudRate();
-    if((*devComm)->open(Protocol::ISO9141, ConnectFlag::ISO9141NoChecksum , (*devComm)->getBaudRate()))
+    if((*devComm)->open())
     {
         qDebug() << "=========== stockDMA::connect ================ open" << (*devComm)->getBaudRate();
         if ((*devComm)->connect())

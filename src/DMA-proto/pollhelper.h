@@ -23,7 +23,7 @@ public:
 
 public slots:
     void setLogRate(int rate);
-    virtual void startLog();
+    virtual void startLog(int minPollTime);
     virtual void stopLog();
 
 private slots:

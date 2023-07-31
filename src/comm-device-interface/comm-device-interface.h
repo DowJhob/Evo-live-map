@@ -21,12 +21,12 @@ public:
     unsigned int  baudRate = 0;
 
     unsigned long _readTimeout = 2000;
-    unsigned long writeTimeout = 0;
+    unsigned long writeTimeout = 2000;
 
     explicit comm_device_interface(QObject *parent, QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
     virtual ~comm_device_interface();
 
-    virtual bool open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate) = 0;
+    virtual bool open() = 0;
     virtual bool close() = 0;
     virtual bool info() = 0;
 
@@ -35,7 +35,7 @@ public:
     virtual bool setProgLine() = 0;
 
 //public slots:
-    virtual QByteArray read(uint lenght = 0) = 0;
+    virtual QByteArray read(uint readTimeout = 0) = 0;
     virtual void write(int lenght ) = 0;
 
     bool connect();
@@ -43,12 +43,13 @@ public:
 
     uint getBaudRate();
 
-//private slots:
-
-private:
     virtual bool ISO9141() = 0;
     virtual bool ISO15765() = 0;
     virtual bool ISO14230() = 0;
+
+//private slots:
+
+private:
 
 //signals:
     //void readyInterface(bool);

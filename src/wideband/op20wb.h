@@ -9,10 +9,8 @@ class op20wb : public commDeviceWB
 {
     Q_OBJECT
 public:
-    explicit op20wb(OP20 *j2534);
+    explicit op20wb(OP20 *op20);
     virtual ~op20wb();
-
-    bool isClosed();
 
     bool openWB(uint baudRate);
 
@@ -27,9 +25,8 @@ private slots:
 
 private:
     OP20 *op20;
-    QTimer *pollTimer;
-
-    void pollHelper();
+    //unsigned long devID = 0;
+    unsigned long chanID_INNO = 0;
 
     Message rxmsg;
     Message msgMask, msgPattern;
@@ -37,6 +34,7 @@ private:
     unsigned long numRxMsg = 1;
 
 signals:
+    void _poll();
 
 };
 

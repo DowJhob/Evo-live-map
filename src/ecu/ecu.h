@@ -18,18 +18,20 @@ public:
     ecuDefinition ecuDef;
 
     comm_device_interface *devComm = nullptr;
-    ECU_FLASH_model *_ECU_FLASH_model = nullptr;
+    ECU_model *ecu_model = nullptr;
     DMA_proto *DMAproto = nullptr;
+
+    QThread *this_thread;
 
     ecu();
     ~ecu();
 
 public slots:
     void setComDev(comm_device_interface *_devComm);
-    void setECUmodel(ECU_FLASH_model *_ECUmodel);
+    void setECUmodel(ECU_model *_ECUmodel);
     void setDMAproto(DMA_proto *_ECUproto);
 
-    void connectDMA(bool state);
+    bool connectDMA(bool state);
 
     void startLog();
     void stopLog();
@@ -46,8 +48,6 @@ public slots:
 private slots:
 
 private:
-    bool _connectDMA();
-    void disconnectDMA();
 
 signals:
     void ecuConnected(bool);

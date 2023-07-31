@@ -43,6 +43,8 @@ void xmlManager::_parser(QIODevice *device, QString includeID)
         }
         node = node.nextSibling();
     }
+
+    //qDebug() << " live " << ramMut.addr;
     node = root.firstChild();
     subSerialize(node);
 }

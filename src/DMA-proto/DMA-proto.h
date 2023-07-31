@@ -9,6 +9,7 @@
 #include "../ecu/rammut.h"
 #include "../abstract-memory.h"
 #include "../comm-device-interface/comm-device-interface.h"
+#include "src/ECU-flash-model/ecu-flash-model.h"
 
 enum class DMAcomand
 {
@@ -24,6 +25,7 @@ class DMA_proto : public QObject
     Q_OBJECT
 public:
     comm_device_interface **devComm = nullptr;
+    ECU_model **ecu_model = nullptr;
     ramMUT *ramMut;
 
     DMA_proto();
@@ -32,7 +34,7 @@ public:
 
     void setCommDev(comm_device_interface **devComm = nullptr);
 
-    virtual bool connect() = 0;
+    virtual bool connect_() = 0;
 
     virtual QByteArray indirectDMAread(quint32 addr, int lenght) = 0;
     virtual QByteArray directDMAread(quint32 addr, int len) = 0;

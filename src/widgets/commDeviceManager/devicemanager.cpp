@@ -26,17 +26,19 @@ void commDeviceManager::deviceEvent(device dev)
 void commDeviceManager::addDevice(device dev)
 {
     //qDebug()<< "deviceManager::addDevice start" << dev.DeviceDesc;
-    comm_device_interface *devComm = nullptr;  // это важно если бы мы пытались добавить не инициализированную, тогда бы при попытке извлечь девайсСелектед она не прошла проверку кУвариант
+
+    // это важно если бы мы пытались добавить не инициализированную,
+    // тогда бы при попытке извлечь девайсСелектед она не прошла проверку кУвариант
+    comm_device_interface *devComm = nullptr;
     switch (dev.type)
     {
     case deviceType::SERIAL  : devComm = new serial_comm(this, dev.PortName); break;
-    //case deviceType::SERIAL  : devComm = new FTDI_comm(this, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;        // Костыль пока нету  серийного интерфейса
     case deviceType::FTDI    : devComm = new FTDI_comm(this, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
-    case deviceType::OP20    : devComm = new OP20(this, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID);
+    case deviceType::J2534 : devComm = new j2534_comm(this, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
+    case deviceType::OP20    : devComm = new OP20(nullptr, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID);
         emit tactrixArrived(new op20wb(static_cast<OP20*>(devComm)));
         break;
 
-    case deviceType::J2534 : devComm = new j2534_comm(this, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
     default                : return;                                            //  но поскольку тут вылетим без добавления то вроде и не важно
     }
 
@@ -71,7 +73,7 @@ void commDeviceManager::_deviceSelected(int index)
     if(devComm ==nullptr)
         return;
     baudRate = ui->el_baudRate->text().toUInt();
-    devComm->setBaudRate(baudRate);             // вдруг она изменилась с момента генерациии devComm
+    devComm->setBaudRate(baudRate);
     emit deviceSelected(devComm);
 }
 

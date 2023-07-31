@@ -12,9 +12,9 @@ DMA_proto::~DMA_proto()
 
 void DMA_proto::startLog(ramMUT *_ramMut)
 {
-    qDebug()<<"=========== DMA_proto::startLog ================" << QThread::currentThread();
-    ramMut->scaledValue.resize(_ramMut->size());
+    qDebug()<<"=========== DMA_proto::startLog ================ _ramMut->size()" << _ramMut->size();
     ramMut = _ramMut;
+    ramMut->scaledValue.resize(_ramMut->size());
 }
 
 void DMA_proto::setCommDev(comm_device_interface **devComm)

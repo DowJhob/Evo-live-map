@@ -7,25 +7,20 @@
 
 commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint defaultLogRate) : QGroupBox(parent)
 {
+    setTitle("Communication devices");
     baudRate = defaultBaudRate;
     setLayout(&commonGrpBxLayout);
-//setStyleSheet("border-style: sunken; border: 1px solid black;") ;
-
-
-    commonGrpBxLayout.addWidget(&_protoManager, 1, 0);
-    commonGrpBxLayout.addWidget(&_wbManager, 2, 0);
 
     commonGrpBxLayout.addWidget(&devManager, 0, 0);
+    commonGrpBxLayout.addWidget(&_wbManager, 1, 0);
+    commonGrpBxLayout.addWidget(&_ecuModelManager, 2, 0);
+    commonGrpBxLayout.addWidget(&_protoManager, 3, 0);
 
-///    _protoManager.addProtos();
     connect(&devManager,   &commDeviceManager::tactrixArrived,   &_wbManager,  &wbManager::addTactrix);
 
-
-
-
-    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     QSpacerItem *si = new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    commonGrpBxLayout.addItem(si, 3, 0);
+    commonGrpBxLayout.addItem(si, 4, 0);
 }
 
 commParamWidget::~commParamWidget(){}

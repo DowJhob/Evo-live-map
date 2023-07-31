@@ -16,6 +16,56 @@ void wbManager::fillProto()
     ui->protoWB->addItem("PLX", QVariant::fromValue<wbProto*>(new plxProto()));
 }
 
+void wbManager::_wbSelected(int index)
+{
+    qDebug()<< "wbManager::_wbSelected" ;
+    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(ui->availWB->itemData(index));
+    wbProto *_protoWB = qvariant_cast<wbProto*>(ui->protoWB->currentData());
+    if(cdWB == nullptr)
+    {
+        ui->startBtn->setDisabled(true);
+        return;
+    }
+
+    ui->startBtn->setDisabled(false);
+
+    //emit wbSelected(cdWB);
+
+    disconnect(wbToProto);
+    disconnect(ProtoToLog);
+    wbToProto = connect(cdWB, &commDeviceWB::readyRead, _protoWB, &wbProto::handleWB);
+    ProtoToLog = connect(_protoWB, &wbProto::logReady, this, &wbManager::logReady);
+
+    //qDebug() << "=========== wbLogger::readyRead ================";
+    qDebug()<< "deviceManager::_deviceSelected";
+    commDeviceWB *devComm = qvariant_cast<commDeviceWB*>(ui->availWB->itemData(index));
+    if(devComm ==nullptr)
+        return;
+
+    emit wbSelected(devComm);
+}
+
+void wbManager::_protoSelected(int index)
+{
+    wbProto *_protoWB = qvariant_cast<wbProto*>(ui->protoWB->itemData(index));
+
+    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(ui->availWB->currentData());
+    if(cdWB == nullptr)
+        return;
+    disconnect(wbToProto);
+    disconnect(ProtoToLog);
+    wbToProto = connect(cdWB, &commDeviceWB::readyRead, _protoWB, &wbProto::handleWB);
+    ProtoToLog = connect(_protoWB, &wbProto::logReady, this, &wbManager::logReady);
+
+
+    qDebug()<< "deviceManager::_deviceSelected";
+    wbProto *proto = qvariant_cast<wbProto*>(ui->protoWB->itemData(index));
+    if(proto ==nullptr)
+        return;
+
+    emit protoSelected(proto);
+}
+
 void wbManager::addTactrix(commDeviceWB *cdWB)
 {
     qDebug()<< "wbManager::addTactrix";
@@ -47,77 +97,12 @@ void wbManager::fillSerial()
 
 void wbManager::addDevice()
 {
-    //    //qDebug()<< "deviceManager::addDevice start" << dev.DeviceDesc;
-    //    comm_device_interface *devComm = nullptr;                                  // это важно если бы мы пытались добавить не инициализированную, тогда бы при попытке извлечь девайсСелектед она не прошла проверку кУвариант
-    //    switch (dev.type)
-    //    {
-    //    case deviceType::OP13  : devComm = new OP13(dev.FunctionLibrary, dev.DeviceUniqueID); break;
-    //    case deviceType::OP20  : devComm = new OP20(dev.FunctionLibrary, dev.DeviceUniqueID); break;
-    //    case deviceType::J2534 : devComm = new j2534_interface(dev.FunctionLibrary, dev.DeviceUniqueID); break;
-    //    default                : return;                                           //  но поскольку тут вылетим без добавления то вроде и не важно
-    //    }
-    //    //commDeviceStore.insert(dev.DeviceDesc+dev.DeviceUniqueID, devComm);
 
-    //    addItem(dev.DeviceDesc + " / " + dev.DeviceUniqueID, QVariant::fromValue<comm_device_interface*>(devComm));
 }
 
 void wbManager::removeDevice()
 {
-    //devComm->deleteLater();
-    //qDebug()<< "deviceManager::removeDevice count" << count();
-    //qDebug()<< "deviceManager::removeDevice start" << dev.DeviceDesc + " / " + dev.DeviceUniqueID;
-    ////    int index = findText("");
-    //qDebug()<< "deviceManager::removeDevice start" << index;
-    ////    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(itemData(index));
-    ////    if( cdWB != nullptr)
-    {
-        ////        delete cdWB;
-        //cdWB->deleteLater();
-    }
 
-    ////    if( index < count())
-    ////        removeItem(index);
-    ////    else
-    ///        qDebug() << "Error deleting item";
-
-    //emit deviceSelected(nullptr);  // не нужен потому что будет селект с нулем
-}
-
-void wbManager::_wbSelected(int index)
-{
-    qDebug()<< "wbManager::_wbSelected" ;
-    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(ui->availWB->itemData(index));
-    if(cdWB == nullptr)
-        return;
-    wbProto *_protoWB = qvariant_cast<wbProto*>(ui->protoWB->currentData());
-    if(_protoWB == nullptr)
-        return;
-    //emit wbSelected(cdWB);
-
-    disconnect(wbToProto);
-    disconnect(ProtoToLog);
-    wbToProto = connect(cdWB, &commDeviceWB::readyRead, _protoWB, &wbProto::handleWB);
-    ProtoToLog = connect(_protoWB, &wbProto::logReady, this, &wbManager::logReady);
-
-    //qDebug() << "=========== wbLogger::readyRead ================";
-
-}
-
-void wbManager::_protoSelected(int index)
-{
-    wbProto *_protoWB = qvariant_cast<wbProto*>(ui->protoWB->itemData(index));
-    if(_protoWB == nullptr)
-        return;
-    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(ui->availWB->currentData());
-    if(cdWB == nullptr)
-        return;
-    disconnect(wbToProto);
-    disconnect(ProtoToLog);
-    wbToProto = connect(cdWB, &commDeviceWB::readyRead, _protoWB, &wbProto::handleWB);
-    ProtoToLog = connect(_protoWB, &wbProto::logReady, this, &wbManager::logReady);
-
-
-    //emit protoSelected(_protoWB);
 }
 
 void wbManager::startStop()
@@ -128,20 +113,18 @@ void wbManager::startStop()
 
     if(ui->startBtn->text() == "Start")
     {
-        if(cdWB->isClosed())
-            if(cdWB->openWB(_protoWB->baudRate))
-            {
-                emit wbStart(true);
-                ui->startBtn->setText("Stop");
-            }
+        //if(cdWB->openWB(_protoWB->baudRate))
+        {
+            emit wbStart(true);
+            ui->startBtn->setText("Stop");
+        }
     }
     else
     {
-        if(!cdWB->isClosed())
-            if(cdWB->closeWB())
-            {
-                emit wbStart(false);
-                ui->startBtn->setText("Start");
-            }
+        //if(cdWB->closeWB())
+        {
+            emit wbStart(false);
+            ui->startBtn->setText("Start");
+        }
     }
 }

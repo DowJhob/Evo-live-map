@@ -2,28 +2,25 @@
 
 evoX_DMA::evoX_DMA()
 {
-    qDebug() << "stockDMA";
+    qDebug() << "evoX_DMA";
 }
 
 evoX_DMA::evoX_DMA(comm_device_interface **devComm)
 {
     this->devComm = devComm;
 
-    qDebug() << "stockDMA";
+    qDebug() << "evoX_DMA";
 }
 
 evoX_DMA::~evoX_DMA()
 {
-    qDebug() << "~stockDMA";
+    qDebug() << "~evoX_DMA";
 }
 
-bool evoX_DMA::connect()
+bool evoX_DMA::connect_()
 {
     qDebug() << "=========== evoX_DMA::connect ================ baudRate" << (*devComm)->getBaudRate();
-    (*devComm)->open(Protocol::ISO15765, //ConnectFlag((uint)
-                     ConnectFlag::ISO9141NoChecksum //| (uint)ConnectFlag::ISO9141KLineOnly
-                     //     )
-                     , (*devComm)->getBaudRate());
+    (*devComm)->open();
 
     if (!(*devComm)->connect())
     {

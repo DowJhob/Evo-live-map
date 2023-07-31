@@ -6,19 +6,20 @@
 #include "src/ECU-flash-model/ecu-flash-model.h"
 
 
-class evo7_ECUmodel : public ECU_FLASH_model
+class evo7_ECUmodel : public ECU_model
 {
     Q_OBJECT
 public:
     evo7_ECUmodel();
 
 public slots:
-    bool connectFLASH();
-    void disconnect() = 0;
+    bool connect();
+    bool MUTconnect();
+    //void disconnect();
 
 
-    int writeFLASH(quint32 addr, int lenght);
-    QByteArray readFLASH(quint32 addr, int len);
+    //int writeFLASH(quint32 addr, int lenght);
+    //QByteArray readFLASH(quint32 addr, int len);
 
 private:
 

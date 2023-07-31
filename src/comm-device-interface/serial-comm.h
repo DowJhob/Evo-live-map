@@ -15,7 +15,7 @@ class serial_comm: public comm_device_interface
 public:
     serial_comm(QObject *parent, QString portName);
     virtual ~serial_comm();
-    bool open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate);
+    bool open();
     bool close();
     bool info();
     bool five_baud_init();

@@ -17,7 +17,7 @@ public:
     ~jcsbanksDMA();
 
     //public slots:
-    bool connect();
+    bool connect_();
     QByteArray indirectDMAread(quint32 addr, int lenght);
     QByteArray directDMAread(quint32 addr, int lenght);
     void directDMAwrite(quint32 addr, char *buf, int lenght);
@@ -28,6 +28,8 @@ public slots:
 
     void setLogRate(int freqRate);
 
+    void poll();
+
 
 private slots:
 //    void poll();
@@ -35,10 +37,13 @@ private slots:
 private:
     pollHelper *poller;
     int delay_after_command = 5;
-    bool OP13_connect();
-    bool j2534_connect();
+    int mcuResponseTime = 5;
+    int bitsInLineByte = 10;
 
     void sendDMAcomand(char command, unsigned long addr, unsigned long count, char* buf = nullptr);
+
+signals:
+    void _poll();
 
 };
 

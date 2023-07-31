@@ -18,7 +18,7 @@ public:
     ~stockDMA();
 
 //public slots:
-    bool connect();
+    bool connect_();
     QByteArray indirectDMAread(quint32 addr, int lenght);
     QByteArray directDMAread(quint32 addr, int lenght);
     void directDMAwrite(quint32 addr, char *buf, int lenght);

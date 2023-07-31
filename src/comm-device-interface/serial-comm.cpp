@@ -30,7 +30,7 @@ bool serial_comm::info()
     return true;
 }
 
-bool serial_comm::open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate)
+bool serial_comm::open()
 {
     this->protocol = protocol;
     //this->baudRate = baudRate;

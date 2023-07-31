@@ -58,7 +58,7 @@ private:
     float *horizontalHeaderData = nullptr;
     float *verticalHeaderData = nullptr;
 
-
+QVector<int> xxx{Qt::BackgroundRole};
 
     //============== tracer ====================
     Tracer_marker2 current_marker = {};

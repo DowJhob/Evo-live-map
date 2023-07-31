@@ -305,6 +305,7 @@ void Patcher::Save()
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
     bool ok = hexEdit.write(ROMfile_handler);
+    //QApplication::setOverrideCursor(Qt::CursorMoveStyle);
     QApplication::restoreOverrideCursor();
     if (!ok) {
         QMessageBox::warning(this, tr("Patcher"), tr("Cannot write file %1.").arg(ROMfile_handler.fileName()));

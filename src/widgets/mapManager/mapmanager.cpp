@@ -7,10 +7,10 @@ mapManager::mapManager(QWidget *parent, ecu* _ecu) : QGroupBox(parent), ui(new U
     connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &mapManager::itemChecks);
     colorFromFile("C:\\Program Files (x86)\\OpenECU\\EcuFlash\\colormaps\\COLDFIRE.MAP") ;
 
-    QObject::connect(_ecu,  &ecu::ecuConnected,        this, &mapManager::_connect);
-    QObject::connect(this,  &mapManager::mapCreated,   _ecu, &ecu::startLog);
+    connect(_ecu,  &ecu::ecuConnected,        this, &mapManager::_connect);
+    connect(this,  &mapManager::mapCreated,   _ecu, &ecu::startLog, Qt::QueuedConnection);
 
-    QObject::connect(_ecu,  &ecu::s_test,              this, &mapManager::s_test, Qt::QueuedConnection);
+    connect(_ecu,  &ecu::s_test,              this, &mapManager::s_test, Qt::QueuedConnection);
 }
 
 mapManager::~mapManager()
@@ -26,47 +26,11 @@ void mapManager::createMap(mapDefinition *dMap)
 
     mapWidget *table = new mapWidget(nullptr, dMap, &colormap);
 
-    connect(table->mapModel_, &mapModel::updateRAM, _ecu, &ecu::updateRAM);
+    connect(table->mapModel_, &mapModel::updateRAM, _ecu, &ecu::updateRAM, Qt::QueuedConnection);
 
-    connect(_ecu->DMAproto, &DMA_proto::logReady, table->mapTable, &mapView::logReady);
+    connect(_ecu->DMAproto, &DMA_proto::logReady, table->mapTable, &mapView::logReady, Qt::QueuedConnection);
 
     addMapToTree(table);
-}
-
-void mapManager::clearMaps()
-{
-    for(int i = 0; i<  ui->treeWidget->topLevelItemCount(); i++)
-    {
-        auto item = ui->treeWidget->takeTopLevelItem(i);
-        if(item != nullptr)
-        {
-            auto data = item->data(2, Qt::UserRole);
-            if(!data.isNull())
-            {
-                mapWidget *map = data.value<mapWidget*>();
-                map->hide();
-                map->deleteLater();
-            }
-            else
-            {
-                for(auto child_item : item->takeChildren())
-                {
-                    if(child_item != nullptr)
-                    {
-                        auto data = child_item->data(2, Qt::UserRole);
-                        if(!data.isNull())
-                        {
-                            mapWidget *map = data.value<mapWidget*>();
-                            map->hide();
-                            map->deleteLater();
-                        }
-                    }
-                }
-            }
-        }
-    }
-    //    ui->treeWidget->clear();
-    //    ptrRAMtables.clear();
 }
 
 void mapManager::s_test()
@@ -162,20 +126,48 @@ void mapManager::setECU(ecu *_ecu)
 
 void mapManager::_connect(bool state)
 {
-if(state)
-    createMapS();
-else
-    clearMaps();
-}
-
-void mapManager::createMapS()
-{
-    // переберем все описания таблиц
-    for ( Map *tab : qAsConst(_ecu->ecuDef.RAMtables) )
+    if(state)
     {
-        createMap( _ecu->getMap(tab) );
+        // переберем все описания таблиц
+        for ( Map *tab : qAsConst(_ecu->ecuDef.RAMtables) )
+        {
+            createMap( _ecu->getMap(tab) );
+        }
+        emit mapCreated();
     }
-    emit mapCreated();
+    else
+    {
+        for(int i = 0; i<  ui->treeWidget->topLevelItemCount(); i++)
+        {
+            auto item = ui->treeWidget->takeTopLevelItem(i);
+            if(item != nullptr)
+            {
+                auto data = item->data(2, Qt::UserRole);
+                if(!data.isNull())
+                {
+                    mapWidget *map = data.value<mapWidget*>();
+                    map->hide();
+                    map->deleteLater();
+                }
+                else
+                {
+                    for(auto child_item : item->takeChildren())
+                    {
+                        if(child_item != nullptr)
+                        {
+                            auto data = child_item->data(2, Qt::UserRole);
+                            if(!data.isNull())
+                            {
+                                mapWidget *map = data.value<mapWidget*>();
+                                map->hide();
+                                map->deleteLater();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 void mapManager::itemChecks(QTreeWidgetItem *item, int column)

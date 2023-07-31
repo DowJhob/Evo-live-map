@@ -14,7 +14,7 @@ class FTDI_comm: public comm_device_interface
 public:
     FTDI_comm(QObject *parent, QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
     virtual ~FTDI_comm();
-    bool open(Protocol protocol, enum ConnectFlag ConnectFlag, uint baudRate);
+    bool open();
     bool close();
     bool info();
     bool five_baud_init();

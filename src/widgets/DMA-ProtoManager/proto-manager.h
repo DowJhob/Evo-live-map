@@ -20,6 +20,9 @@ class protoManager : public QGroupBox
     Q_OBJECT
 
 public:
+
+    QThread *ecu_thread;
+
     explicit protoManager(QWidget *parent = nullptr);
     ~protoManager();
 

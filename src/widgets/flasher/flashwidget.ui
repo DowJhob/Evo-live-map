@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>flashWidget</class>
+ <widget class="QGroupBox" name="flashWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>190</width>
+    <height>106</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>GroupBox</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="1">
+    <widget class="QPushButton" name="writeECUpushButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Write ECU</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QPushButton" name="readECUpushButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Read ECU</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QComboBox" name="availFlashModel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>writeECUpushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>flashWidget</receiver>
+   <slot>_writeECU()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>787</x>
+     <y>25</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>421</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>readECUpushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>flashWidget</receiver>
+   <slot>_readECU()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>787</x>
+     <y>25</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>421</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>_writeECU()</slot>
+  <slot>_readECU()</slot>
+ </slots>
+</ui>

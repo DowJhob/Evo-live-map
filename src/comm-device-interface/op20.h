@@ -13,22 +13,12 @@ public:
     OP20(QObject *parent, QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
     ~OP20();
 
-//    bool isClosed();
-
-//    bool openWB(uint baudRate);
-
-//    bool connectWB(uint baudRate);
-
-//    bool closeWB();
-
-//    QByteArray readWB();
-
-//public slots:
-
-//private slots:
-
+    bool inUse = false;
+    bool WBinUse = false;
     unsigned long chanID_INNO = 0;
 
+    bool open();
+    bool close();
 
 private:
 
