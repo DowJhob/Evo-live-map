@@ -98,6 +98,11 @@ void stockDMA::startLog(ramMUT *ramMut)
 
 }
 
+void stockDMA::startLog()
+{
+
+}
+
 void stockDMA::stopLog()
 {
 

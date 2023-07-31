@@ -45,6 +45,7 @@ public slots:
 //    void updateRAM(offsetMemory memory);
 
     virtual void startLog(ramMUT *_ramMut);
+    virtual void startLog() = 0;
     virtual void stopLog() = 0;
 
 private slots:

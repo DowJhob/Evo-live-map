@@ -33,6 +33,11 @@ void pollHelper::startLog(int minPollTime)
     pollTimer->start();
 }
 
+void pollHelper::startLog()
+{
+    pollTimer->start();
+}
+
 void pollHelper::stopLog()
 {
     pollTimer->stop();

@@ -75,6 +75,11 @@ void jcsbanksDMA::startLog(ramMUT *_ramMut)
     poller->startLog(minPollTime);
 }
 
+void jcsbanksDMA::startLog()
+{
+    poller->startLog();
+}
+
 void jcsbanksDMA::stopLog()
 {
     //qDebug()<<"=========== jcsbanksDMA::stopLog ================";

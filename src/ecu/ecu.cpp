@@ -104,7 +104,7 @@ void ecu::RAMreset()
     DMAproto->directDMAwrite(ecuDef.ramMut.DEAD_var, (char*)&r, 2);
     //QMetaObject::invokeMethod(ECUproto, "directDMAwrite", Q_ARG(quint32, ecuDef.ramMut.DEAD_var), Q_ARG(char*, (char*)&r), Q_ARG(int, 2));
 
-    DMAproto->startLog(&ecuDef.ramMut);
+    DMAproto->startLog();
 }
 
 void ecu::updateRAM(offsetMemory memory)

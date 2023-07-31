@@ -100,6 +100,11 @@ void evoX_DMA::startLog(ramMUT *ramMut)
 
 }
 
+void evoX_DMA::startLog()
+{
+
+}
+
 void evoX_DMA::stopLog()
 {
 
