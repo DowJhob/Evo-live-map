@@ -54,6 +54,7 @@ void ecuManagerWidget::deviceEvent(comm_device_interface *devComm)
 {
     if(devComm == nullptr)
     {
+        cpW.setEnabledECUcomm(false);
         a_start_action->setDisabled(true);
         a_ramReset->setDisabled(true);
         emit deviceEventLog("No interface", 0);
@@ -61,8 +62,9 @@ void ecuManagerWidget::deviceEvent(comm_device_interface *devComm)
     }
     emit deviceEventLog(devComm->DeviceDesc + " / " + devComm->DeviceUniqueID, 0);
 
+    cpW.setEnabledECUcomm(true);
     a_start_action->setDisabled(false);
-    a_ramReset->setDisabled(false);
+//    a_ramReset->setDisabled(false);
 }
 
 void ecuManagerWidget::start_stop_Action()
@@ -79,6 +81,9 @@ void ecuManagerWidget::start_stop_Action()
 
 void ecuManagerWidget::setConectionParamWidget()
 {
+    connect(ECU, &ecu::removeDevice, &cpW.devManager, &commDeviceManager::_removeDevice);
+
+
     connect(&cpW.devManager,       &commDeviceManager::deviceSelected, ECU,   &ecu::setComDev);
     connect(&cpW._ecuModelManager, &ecuModelManager::modelSelected,    ECU,   &ecu::setECUmodel);
 

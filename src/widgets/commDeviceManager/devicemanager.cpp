@@ -5,7 +5,7 @@ commDeviceManager::commDeviceManager(QWidget *parent):QGroupBox(parent), ui(new 
 {
     ui->setupUi(this);
 
-    connect(ui->availCommDev,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commDeviceManager::_deviceSelected);
+    connect(ui->availCommDev, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commDeviceManager::_deviceSelected);
     connect(ui->el_baudRate,  &QLineEdit::editingFinished, this, &commDeviceManager::_baudRateChanged);
 }
 
@@ -55,9 +55,9 @@ void commDeviceManager::removeDevice(device dev)
     {
         if(dev.type == deviceType::OP20)
             emit tactrixRemoved(devComm);
-        delete devComm;
+        //        delete devComm;
     }
-        //devComm->deleteLater();
+    //devComm->deleteLater();
 
     if( index < ui->availCommDev->count())
         ui->availCommDev->removeItem(index);
@@ -66,12 +66,20 @@ void commDeviceManager::removeDevice(device dev)
 
 }
 
+void commDeviceManager::_removeDevice(comm_device_interface *devComm)
+{
+    if( devComm != nullptr)
+    {
+        delete devComm;
+    }
+}
+
 void commDeviceManager::_deviceSelected(int index)
 {
     qDebug()<< "deviceManager::_deviceSelected";
     comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(ui->availCommDev->itemData(index));
     emit deviceSelected(devComm);
-    if(devComm ==nullptr)
+    if(devComm == nullptr)
         return;
     baudRate = ui->el_baudRate->text().toUInt();
     devComm->setBaudRate(baudRate);

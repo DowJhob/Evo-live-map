@@ -51,9 +51,8 @@ private:
 
 signals:
     void ecuConnected(bool);
-    void ecuDisconnected();
 
-//    void createMap(mapDefinition*);
+    void removeDevice(comm_device_interface*);
 
     void Log(QString);
 

@@ -28,6 +28,7 @@ public:
 
 public slots:
     void deviceEvent(device dev);
+    void _removeDevice(comm_device_interface*devComm);
 
 private:
     Ui::commDeviceManager *ui;

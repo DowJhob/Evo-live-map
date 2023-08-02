@@ -20,16 +20,21 @@ ecu::~ecu()
 
 void ecu::setComDev(comm_device_interface *_devComm)
 {
-    devComm = _devComm;
     //    devComm->setParent(nullptr);
     //    devComm->moveToThread(thread());
-    if (devComm == nullptr  )
+    if (_devComm == nullptr  )
     {
         // все интерфесы отключены, сделай что нибудь!!!!
         if(DMAproto != nullptr)
+        {
             DMAproto->stopLog();
+        }
+        QThread::msleep(devComm->_readTimeout + 200);   // это что бы вывалиться из цикла ожидания стартового сообщения
+        emit removeDevice(devComm);
 
+        emit ecuConnected(false);
     }
+    devComm = _devComm;
 }
 
 void ecu::setECUmodel(ECU_model *_ECUmodel)
@@ -77,7 +82,7 @@ bool ecu::connectDMA(bool state)
     }
     else
     {
-        qDebug() << "=========== ecuDefinition::disconnectECU ================";
+        qDebug() << "=========== ecu::disconnectDMA ================";
         DMAproto->stopLog();
         QThread::msleep(1000);               // костыль
         ecuDef.reset();
