@@ -24,3 +24,15 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
 }
 
 commParamWidget::~commParamWidget(){}
+
+void commParamWidget::setEnabledECUcomm(bool state)
+{
+    devManager.setEnabled(state);
+    _ecuModelManager.setEnabled(state);
+    _protoManager.setEnabled(state);
+}
+
+void commParamWidget::setEnabledWBcomm(bool state)
+{
+    _wbManager.setEnabled(state);
+}

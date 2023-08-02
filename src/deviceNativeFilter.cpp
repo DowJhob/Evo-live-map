@@ -25,11 +25,11 @@ void deviceNativeFilter::notifyRegister(HWND hwnd)
         NotificationFilter.dbcc_classguid = classGUID;
         NotificationFilter.dbcc_name[0] = '\0';
         NotificationHandle = RegisterDeviceNotification( hwnd,
-                                                         &NotificationFilter,
-                                                         //DEVICE_NOTIFY_ALL_INTERFACE_CLASSES
-                                                         //|
-                                                         DEVICE_NOTIFY_WINDOW_HANDLE
-                                                         );
+                                                        &NotificationFilter,
+                                                        //DEVICE_NOTIFY_ALL_INTERFACE_CLASSES
+                                                        //|
+                                                        DEVICE_NOTIFY_WINDOW_HANDLE
+                                                        );
         if ( NotificationHandle == nullptr )
         {
             qDebug() << QString::fromWCharArray( NotificationFilter.dbcc_name) << "event not register!!";
@@ -66,12 +66,12 @@ void deviceNativeFilter::handleEvent(long wParam, PDEV_BROADCAST_DEVICEINTERFACE
     switch(wParam)
     {
     case DBT_DEVICEREMOVECOMPLETE:{
-        device dev = getDevProp(pDevInf);
+        device dev( getDevProp(pDevInf));
         dev.direction = dir::remove;
         emit deviceEvent(dev);
     }break;
     case DBT_DEVICEARRIVAL:{
-        device dev = getDevProp(pDevInf);
+        device dev ( getDevProp(pDevInf));
         dev.direction = dir::arrive;
         checkType(dev);
     }break;
@@ -88,7 +88,7 @@ void deviceNativeFilter::getPresentCommDevices()
         // Получаем указатель на множество устройств, присутствующих в системе
         hDevInfo = SetupDiGetClassDevs(&classGUID, nullptr, nullptr,
                                        DIGCF_PRESENT
-                                       |DIGCF_DEVICEINTERFACE
+                                           |DIGCF_DEVICEINTERFACE
                                        //|DIGCF_ALLCLASSES
                                        //|DIGCF_PROFILE
                                        );
@@ -156,32 +156,29 @@ device deviceNativeFilter::getDevProp(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
     if(pDevInf == NULL)
         return device();
     QStringList qDevInf = QString::fromWCharArray((wchar_t*)pDevInf->dbcc_name).split('#');
-    qDebug() << "deviceNativeFilter::getDevProp pDevInf->dbcc_name" << qDevInf << "pDevInf->dbcc_classguid" << pDevInf->dbcc_classguid << endl;
+    qDebug() << "deviceNativeFilter::getDevProp pDevInf->dbcc_name" << qDevInf << "pDevInf->dbcc_classguid" << pDevInf->dbcc_classguid << Qt::endl;
     if (qDevInf.length() >= 3)
     {
         QString DevType = qDevInf[0].mid(qDevInf[0].indexOf("?\\") + 2 );
-//        if (qDevInf[0].contains("USB"))
+        //        if (qDevInf[0].contains("USB"))
         {
             QString DeviceInstanceId = qDevInf[1];
             QString DeviceUniqueID = qDevInf[2];
             QString reg = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Enum\\" + DevType + "\\" + DeviceInstanceId + "\\" + DeviceUniqueID;
             QSettings regKey(reg, QSettings::NativeFormat);
 
-
-
             QSettings paramKey(reg + "\\" + "Device Parameters", QSettings::NativeFormat);
 
-
             //qDebug()<< "DeviceInstanceId" << DeviceInstanceId;
-            return device
-            {
-                regKey.value("Mfg", "").toString().split(';').at(1),
-                        regKey.value("DeviceDesc", "").toString().split(';').at(1),
-                        "",
-                        DeviceInstanceId,
-                        DeviceUniqueID,
-                        pDevInf->dbcc_classguid,
-                        paramKey.value("PortName", "").toString().split(';').at(1)
+
+            return device{
+                regKey.value("Mfg", ";").toString().split(';').at(1),
+                regKey.value("DeviceDesc", ";").toString().split(';').at(1),
+                "",
+                DeviceInstanceId,
+                DeviceUniqueID,
+                pDevInf->dbcc_classguid,
+                paramKey.value("PortName", ";").toString().split(';').at(1)
             };
         }
     }
@@ -248,7 +245,7 @@ void deviceNativeFilter::checkType(device dev)
         dev.type =  deviceType::SERIAL;
     }
     else if (dev.classDev == GUID{0x219d0508, 0x57a8, 0x4ff5, {0x97, 0xa1, 0xbd, 0x86, 0x58, 0x7c, 0x6c, 0x7e}}) //||      // FTDI_D2XX_Device Class GUID
-        //(dev.classDev == GUID{ 0x86e0d1e0, 0x8089, 0x11d0, {0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73}}) ||            // FTDI_VCP_Device Class GUID
+    //(dev.classDev == GUID{ 0x86e0d1e0, 0x8089, 0x11d0, {0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73}}) ||            // FTDI_VCP_Device Class GUID
     {
         dev.type =  deviceType::FTDI;
     }

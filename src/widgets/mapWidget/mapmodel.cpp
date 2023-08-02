@@ -13,7 +13,7 @@ mapModel::mapModel(QObject *parent, Map *decl, QVector<QColor> *colormap) : QAbs
 
 mapModel::~mapModel()
 {
-    qDebug() << declaration->Name << "mapModel::~mapModel";
+//    qDebug() << declaration->Name << "mapModel::~mapModel";
     delete[] horizontalHeaderData;
     delete[] verticalHeaderData;
     delete[] mapData2;
@@ -145,17 +145,16 @@ QBrush mapModel::getColor(float value, int min, float ColorDiscret) const
     QBrush Background(coloringMap->at(colorIndex));
     return Background;
 }
-//говнокод, подумай об этом
+
 void mapModel::fillMap(QVector<float> *map)
 {
     int count = declaration->X_axis.elements * declaration->Y_axis.elements;
     uint c = 0;
-    //qDebug() << "fillMap map.size" << map->size();
+
     if ( declaration->swapxy )
         for (int y = 0; y < declaration->Y_axis.elements; y++)
             for (int x = 0; x < declaration->X_axis.elements; x++)
             {
-                // qDebug() << "fillMap c" << (y * declaration->X_axis.elements + x);
                 float value = (*map)[ (x * declaration->Y_axis.elements + y)];
                 mapData2[c] = value;
                 backgroundColorMap[c] = getColor(value, declaration->rom_scaling.min, mapColorDiscret);
@@ -167,9 +166,8 @@ void mapModel::fillMap(QVector<float> *map)
         {
             backgroundColorMap[c] = getColor(mapData2[i], declaration->rom_scaling.min, mapColorDiscret);
         }
-        //qDebug() << "fillMap memcpy";
-    }
 
+    }
 
     ////------------------- сохраняем текущее положение для след расчета -------------------------------------------
     saveTracer();

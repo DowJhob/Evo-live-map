@@ -70,11 +70,11 @@ void commDeviceManager::_deviceSelected(int index)
 {
     qDebug()<< "deviceManager::_deviceSelected";
     comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(ui->availCommDev->itemData(index));
+    emit deviceSelected(devComm);
     if(devComm ==nullptr)
         return;
     baudRate = ui->el_baudRate->text().toUInt();
     devComm->setBaudRate(baudRate);
-    emit deviceSelected(devComm);
 }
 
 void commDeviceManager::_baudRateChanged()   // Обновляем скорость обмена

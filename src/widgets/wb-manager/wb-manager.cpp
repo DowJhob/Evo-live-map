@@ -113,7 +113,7 @@ void wbManager::startStop()
 
     if(ui->startBtn->text() == "Start")
     {
-        //if(cdWB->openWB(_protoWB->baudRate))
+        ui->availWB->setDisabled(true);
         {
             emit wbStart(true);
             ui->startBtn->setText("Stop");
@@ -121,7 +121,7 @@ void wbManager::startStop()
     }
     else
     {
-        //if(cdWB->closeWB())
+        ui->availWB->setDisabled(false);
         {
             emit wbStart(false);
             ui->startBtn->setText("Start");

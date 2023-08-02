@@ -25,44 +25,27 @@ public:
 
     void setUSBfilter(deviceNativeFilter *usbFilter);
 
-
 public slots:
-
-    void interfaceLock(bool state);
+    
+    void ECUconnected(bool state);
 
 private:
     QAction *a_start_action;
     QAction *a_ramReset;
+    void setConectionParamWidget();
 
     gaugeWidget wbWgt{"           = Wideband =           ", 4};
 
-    void setConectionParamWidget();
-
-
 private slots:
-    void lockConnect(bool lockFlag);
-    void lockReset(bool lockFlag);
-//    void setCommDevice(comm_device_interface *dev);
-//    void setProto(DMA_proto *_ECUproto);
     void start_stop_Action();
-
     void deviceEvent(comm_device_interface *devComm);
-
 
 signals:
     void ecuConnect(bool);
 
     void deviceEventLog(QString, int);
-    void createMap(mapDefinition*);
-
-//    void updateRAM(offsetMemory memory);
-
-    void logRateChanged(int);
 
     void Log(QString);
-    void logReady(QVector<float>);
-
-    void s_test(QHash<QString, Map*>*);
 
 };
 

@@ -22,6 +22,9 @@ public:
     virtual ~commParamWidget();
 
 public slots:
+    void setEnabledECUcomm(bool state);
+
+    void setEnabledWBcomm(bool state);
 
 private:
     QGridLayout commonGrpBxLayout;

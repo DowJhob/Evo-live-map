@@ -2,9 +2,9 @@
 
 pollHelper::pollHelper(DMA_proto *parent_proto) : QObject(parent_proto), parent_proto(parent_proto)
 {
-//        pollTimer = new QTimer();
-//        pollTimer->setInterval(50);
-//        connect(pollTimer, &QTimer::timeout, this, &pollHelper::poll/*, Qt::DirectConnection*/); // Тут Qt::DirectConnection важно, что бы это выполнялось в потоке ecu
+    //        pollTimer = new QTimer();
+    //        pollTimer->setInterval(50);
+    //        connect(pollTimer, &QTimer::timeout, this, &pollHelper::poll/*, Qt::DirectConnection*/); // Тут Qt::DirectConnection важно, что бы это выполнялось в потоке ecu
 }
 
 void pollHelper::setLogRate(int rate)
@@ -17,13 +17,13 @@ void pollHelper::init()
     qDebug()<<"=========== pollHelper::init ================ QThread::currentThread()" << thread();
     pollTimer = new QTimer();
     pollTimer->setInterval(50);
-//    connect(pollTimer, &QTimer::timeout, this, &pollHelper::poll/*, Qt::DirectConnection*/);
+    //    connect(pollTimer, &QTimer::timeout, this, &pollHelper::poll/*, Qt::DirectConnection*/);
     connect(pollTimer, &QTimer::timeout, this, &pollHelper::poll2/*, Qt::DirectConnection*/);
 }
 
 void pollHelper::startLog(int minPollTime)
 {
-//    qDebug()<<"=========== pollHelper::startLog ================" << thread();
+    //    qDebug()<<"=========== pollHelper::startLog ================" << thread();
 
     if(pollTimer == nullptr)
         init();
@@ -41,12 +41,13 @@ void pollHelper::startLog()
 
 void pollHelper::stopLog()
 {
-    pollTimer->stop();
+    if(pollTimer != nullptr)
+        pollTimer->stop();
 }
 
 void pollHelper::startLog2()
 {
-//    qDebug()<<"=========== pollHelper::startLog2 ================" << thread();
+    //    qDebug()<<"=========== pollHelper::startLog2 ================" << thread();
 
     if(pollTimer == nullptr)
         init();
@@ -58,7 +59,7 @@ void pollHelper::startLog2()
 
 void pollHelper::poll()
 {
-//    qDebug() << "pollHelper::poll" << parent_proto->ramMut->byteSize << parent_proto->ramMut->addr;
+    //    qDebug() << "pollHelper::poll" << parent_proto->ramMut->byteSize << parent_proto->ramMut->addr;
     offsetMemory a = parent_proto->indirectDMAread(parent_proto->ramMut->addr, parent_proto->ramMut->byteSize);
     for(int i = 0; i < parent_proto->ramMut->size(); i++)
     {
@@ -70,7 +71,7 @@ void pollHelper::poll()
 
 void pollHelper::poll2()
 {
-//    qDebug() << "pollHelper::poll" << parent_proto->ramMut->byteSize << parent_proto->ramMut->addr;
+    //    qDebug() << "pollHelper::poll" << parent_proto->ramMut->byteSize << parent_proto->ramMut->addr;
     offsetMemory a = parent_proto->indirectDMAread(parent_proto->ramMut->addr, parent_proto->ramMut->byteSize);
     for(int i = 0; i < parent_proto->ramMut->size(); i++)
     {

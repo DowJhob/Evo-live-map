@@ -30,8 +30,8 @@ mapWidget::mapWidget(QWidget *parent, mapDefinition *def, QVector<QColor> *color
 
 mapWidget::~mapWidget()
 {
-    //mapModel_->deleteLater();
-    //mapTable->deleteLater();
+    mapModel_->deleteLater();
+    mapTable->deleteLater();
 }
 
 void mapWidget::setColorMap(QVector<QColor> *colormap)

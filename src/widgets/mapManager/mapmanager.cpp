@@ -28,7 +28,6 @@ void mapManager::createMap(mapDefinition *dMap)
 
     connect(table->mapModel_, &mapModel::updateRAM, _ecu, &ecu::updateRAM, Qt::QueuedConnection);
 
-
 //    connect(_ecu->DMAproto, &DMA_proto::logReady, table->mapTable, &mapView::logReady, Qt::QueuedConnection);
     connect(_ecu->DMAproto, &DMA_proto::logReady, table->mapModel_, &mapModel::logReady, Qt::QueuedConnection);
 
@@ -128,7 +127,7 @@ void mapManager::setECU(ecu *_ecu)
 
 void mapManager::_connect(bool state)
 {
-    if(state)
+    if(state)                                                             // CONNECT
     {
         // переберем все описания таблиц
         for ( Map *tab : qAsConst(_ecu->ecuDef.RAMtables) )
@@ -137,30 +136,37 @@ void mapManager::_connect(bool state)
         }
         emit mapCreated();
     }
-    else
+    else                                                                  // DISCONNECT
     {
-        for(int i = 0; i<  ui->treeWidget->topLevelItemCount(); i++)
+//        qDebug() << "================ mapManager::disconnect: topLevelItemCount() =" << ui->treeWidget->topLevelItemCount() << " ================================";
+        int count = ui->treeWidget->topLevelItemCount();
+        for(int i = 0; i < count; i++)
         {
-            auto item = ui->treeWidget->takeTopLevelItem(i);
+//            qDebug() << "================ mapManager::disconnect: i =" << i << " ================================";
+            QTreeWidgetItem* item = ui->treeWidget->takeTopLevelItem(0);                                                      // ниже удаляются toplevelitem поэтому проще брать всегда верхний, он будет всплывать
+//            qDebug() << "================ mapManager::disconnect top level item: " << item->data(0, Qt::DisplayRole) << " ================================";
             if(item != nullptr)
             {
-                auto data = item->data(2, Qt::UserRole);
+                QVariant data = item->data(2, Qt::UserRole);
                 if(!data.isNull())
                 {
                     mapWidget *map = data.value<mapWidget*>();
                     map->hide();
+//                    qDebug() << "================ mapManager::disconnect map: " << map->mapTable->declaration->Name << "delete ================================";
                     map->deleteLater();
                 }
                 else
                 {
-                    for(auto child_item : item->takeChildren())
+                    QList<QTreeWidgetItem*> children = item->takeChildren();                                           // тут вынимаешь же!
+                    for(QTreeWidgetItem* child_item : children)
                     {
                         if(child_item != nullptr)
                         {
-                            auto data = child_item->data(2, Qt::UserRole);
+                            QVariant data = child_item->data(2, Qt::UserRole);
                             if(!data.isNull())
                             {
                                 mapWidget *map = data.value<mapWidget*>();
+//                                qDebug() << "================ mapManager::disconnect map: " << map->mapTable->declaration->Name << "delete ================================";
                                 map->hide();
                                 map->deleteLater();
                             }
@@ -169,6 +175,7 @@ void mapManager::_connect(bool state)
                 }
             }
         }
+        //ui->treeWidget->clear();
     }
 }
 
