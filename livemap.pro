@@ -81,8 +81,8 @@ SOURCES += src/main.cpp\
     3rdparty/qhexedit2/src/qhexedit.cpp \
     src/DMA-proto/DMA-proto.cpp \
 #    src/Flasher.cpp \
-    src/ECU-flash-model/ecu-model.cpp \
-    src/ECU-flash-model/evo7-ecu-model.cpp \
+    src/ECU-model/ecu-model.cpp \
+    src/ECU-model/evo7-ecu-model.cpp \
     src/wideband/wb.cpp \
     src/widgets/DMA-ProtoManager/proto-manager.cpp \
     src/abstract-memory.cpp \
@@ -142,8 +142,8 @@ HEADERS  += src/mainwindow.h \
     3rdparty/qhexedit2/src/qhexedit.h \
     src/DMA-proto/DMA-proto.h \
 #    src/Flasher.h \
-    src/ECU-flash-model/ecu-model.h \
-    src/ECU-flash-model/evo7-ecu-model.h \
+    src/ECU-model/ecu-model.h \
+    src/ECU-model/evo7-ecu-model.h \
     src/wideband/wb.h \
     src/widgets/DMA-ProtoManager/proto-manager.h \
     src/abstract-memory.h \

@@ -1,7 +1,7 @@
 #ifndef ECUMODELMANAGER_H
 #define ECUMODELMANAGER_H
 
-#include "src/ECU-flash-model/ecu-model.h"
+#include "src/ECU-model/ecu-model.h"
 #include <QGroupBox>
 
 namespace Ui {

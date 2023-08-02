@@ -7,7 +7,7 @@
 #include "ecu-definition.h"
 #include "../abstract-memory.h"
 #include "../DMA-proto/DMA-proto.h"
-#include "src/ECU-flash-model/ecu-model.h"
+#include "src/ECU-model/ecu-model.h"
 #include "src/ecu/mapDefinition.h"
 
 

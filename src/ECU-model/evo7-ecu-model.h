@@ -3,7 +3,7 @@
 
 
 #include <QObject>
-#include "src/ECU-flash-model/ecu-model.h"
+#include "src/ECU-model/ecu-model.h"
 
 
 class evo7_ECUmodel : public ECU_model
