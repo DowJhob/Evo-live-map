@@ -9,7 +9,7 @@
 #include "../ecu/rammut.h"
 #include "../abstract-memory.h"
 #include "../comm-device-interface/comm-device-interface.h"
-#include "src/ECU-flash-model/ecu-flash-model.h"
+#include "src/ECU-flash-model/ecu-model.h"
 
 enum class DMAcomand
 {

@@ -1,9 +1,9 @@
-#ifndef EVO7_ECU_FLASH_MODEL_H
-#define EVO7_ECU_FLASH_MODEL_H
+#ifndef EVO7_ECU_MODEL_H
+#define EVO7_ECU_MODEL_H
 
 
 #include <QObject>
-#include "src/ECU-flash-model/ecu-flash-model.h"
+#include "src/ECU-flash-model/ecu-model.h"
 
 
 class evo7_ECUmodel : public ECU_model
@@ -25,4 +25,4 @@ private:
 
 };
 
-#endif // EVO7_ECU_FLASH_MODEL_H
+#endif // EVO7_ECU_MODEL_H

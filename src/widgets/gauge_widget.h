@@ -8,6 +8,7 @@
 #include <QLCDNumber>
 #include <QMenu>
 #include <QContextMenuEvent>
+#include <QActionGroup>
 
 #include <src/ecu/ecu-definition.h>
 

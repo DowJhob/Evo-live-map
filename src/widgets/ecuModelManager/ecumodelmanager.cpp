@@ -1,5 +1,5 @@
 #include "ecumodelmanager.h"
-#include "src/ECU-flash-model/evo7-ecu-flash-model.h"
+#include "src/ECU-flash-model/evo7-ecu-model.h"
 #include "ui_ecumodelmanager.h"
 
 ecuModelManager::ecuModelManager(QWidget *parent) : QGroupBox(parent), ui(new Ui::ecuModelManager)

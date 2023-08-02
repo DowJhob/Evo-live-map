@@ -27,8 +27,15 @@ public slots:
     virtual void startLog();
     virtual void stopLog();
 
+
+    void startLog2();
+
+
 private slots:
     void poll();
+
+    void poll2();
+
 
 private:
     DMA_proto *parent_proto = nullptr;

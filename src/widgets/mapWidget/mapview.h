@@ -27,12 +27,12 @@ protected:
     void keyPressEvent(QKeyEvent *event);
 
 private:
-
-private slots:
     void actionCopy();
     void actionPaste();
     void actionIncrease();
     void actionDecrease();
+
+private slots:
 
 signals:
     void updateRAM();

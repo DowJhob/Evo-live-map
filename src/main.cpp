@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QObject>
 #include <QElapsedTimer>
+//#include <QQmlApplicationEngine>
 
 #include "deviceNativeFilter.h"
 #include "mainwindow.h"
@@ -13,8 +14,16 @@ QElapsedTimer t;
 
 int main(int argc, char *argv[])
 {
+//    QApplication::setAttribute(Qt::AA_UseOpenGLES);
     QApplication app(argc, argv);
     QThread::currentThread()->setPriority(QThread::TimeCriticalPriority);
+//    QQmlApplicationEngine engine;
+
+//    engine.load(QUrl(QStringLiteral("../src/widgets/mapWidget/fff.qml")));
+//    if (engine.rootObjects().isEmpty())
+//        return -1;
+
+
 
 
     qDebug() << "=========== main:: ================ QThread:" << QThread::currentThread();

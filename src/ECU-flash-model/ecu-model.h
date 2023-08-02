@@ -1,5 +1,5 @@
-#ifndef ECU_FLASH_MODEL_H
-#define ECU_FLASH_MODEL_H
+#ifndef ECU_MODEL_H
+#define ECU_MODEL_H
 
 //
 
@@ -40,4 +40,4 @@ private:
 
 };
 
-#endif // ECU_FLASH_MODEL_H
+#endif // ECU_MODEL_H

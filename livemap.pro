@@ -6,8 +6,49 @@
 
 CONFIG += c++17
 #CONFIG += qwt
+#CONFIG += qmltypes
+
 QT     += core gui xml serialport #datavisualization
 #widgets
+#QT     += quick qml
+
+
+# https://bugreports.qt.io/browse/QTCREATORBUG-24987
+
+#CONFIG(debug, debug|release) {
+#    EXE_DIR = $${OUT_PWD}/debug
+#} else {
+#    EXE_DIR = $${OUT_PWD}/release
+#}
+
+#CONFIG += file_copies
+#COPIES += qmltypes metatypes
+
+#qmltypes.files = $$files($${OUT_PWD}/$${TARGET}.qmltypes)
+#qmltypes.path = $${EXE_DIR}
+
+#metatypes.files = $$files($${OUT_PWD}/$${TARGET}_metatypes.json)
+#metatypes.path = $${EXE_DIR}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 CONFIG(debug, debug|release) {
     VARIANT = debug
@@ -40,8 +81,8 @@ SOURCES += src/main.cpp\
     3rdparty/qhexedit2/src/qhexedit.cpp \
     src/DMA-proto/DMA-proto.cpp \
 #    src/Flasher.cpp \
-    src/ECU-flash-model/ecu-flash-model.cpp \
-    src/ECU-flash-model/evo7-ecu-flash-model.cpp \
+    src/ECU-flash-model/ecu-model.cpp \
+    src/ECU-flash-model/evo7-ecu-model.cpp \
     src/wideband/wb.cpp \
     src/widgets/DMA-ProtoManager/proto-manager.cpp \
     src/abstract-memory.cpp \
@@ -101,8 +142,8 @@ HEADERS  += src/mainwindow.h \
     3rdparty/qhexedit2/src/qhexedit.h \
     src/DMA-proto/DMA-proto.h \
 #    src/Flasher.h \
-    src/ECU-flash-model/ecu-flash-model.h \
-    src/ECU-flash-model/evo7-ecu-flash-model.h \
+    src/ECU-flash-model/ecu-model.h \
+    src/ECU-flash-model/evo7-ecu-model.h \
     src/wideband/wb.h \
     src/widgets/DMA-ProtoManager/proto-manager.h \
     src/abstract-memory.h \
@@ -181,6 +222,7 @@ RESOURCES += \
     res.qrc
 
 DISTFILES += \
+    src/widgets/mapWidget/fff.qml \
     xdf/80700010-jcsbanks.xdf \
     xdf/80700010_DMA-stockDMA-byNanner55.xdf \
     xdf/88590015-stockDMA-byNanner55.xdf \

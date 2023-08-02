@@ -57,22 +57,23 @@ void jcsbanksDMA::directDMAwrite(quint32 addr, char* buf, int lenght)
 void jcsbanksDMA::startLog(ramMUT *_ramMut)
 {
     connect(this, &jcsbanksDMA::_poll, this, &jcsbanksDMA::poll/*, Qt::DirectConnection*/);
-    qDebug()<<"=========== jcsbanksDMA::startLog ================" << thread();
+//    qDebug()<<"=========== jcsbanksDMA::startLog ================" << thread();
     DMA_proto::startLog(_ramMut);
 
-    int curBaudRate = (*devComm)->baudRate ;
+//    int curBaudRate = (*devComm)->baudRate ;
 
-    int timeForSendCommand = (1000 * 7)/(curBaudRate/bitsInLineByte) + delay_after_command;
+//    int timeForSendCommand = (1000 * 7)/(curBaudRate/bitsInLineByte) + delay_after_command;
 
-    int timesNeededForByteBlock = (1000 *ramMut->byteSize)/(curBaudRate/bitsInLineByte);
+//    int timesNeededForByteBlock = (1000 *ramMut->byteSize)/(curBaudRate/bitsInLineByte);
 
-    int minPollTime = timeForSendCommand + timesNeededForByteBlock + mcuResponseTime + 1;
+//    int minPollTime = timeForSendCommand + timesNeededForByteBlock + mcuResponseTime + 1;
 
-    qDebug()<<"=========== jcsbanksDMA::startLog ================ minPollTime" << minPollTime;
+//    qDebug()<<"=========== jcsbanksDMA::startLog ================ minPollTime" << minPollTime;
 
-    (*devComm)->_readTimeout = minPollTime;
+//    (*devComm)->_readTimeout = minPollTime;
 
-    poller->startLog(minPollTime);
+//    poller->startLog(minPollTime);
+    poller->startLog2();
 }
 
 void jcsbanksDMA::startLog()
@@ -123,7 +124,7 @@ void jcsbanksDMA::sendDMAcomand(char command, unsigned long addr, unsigned long 
     {
         //QThread::msleep(10);
         memcpy((*devComm)->p_out_buff, buf, count);
-        qDebug() << "jcsbanksDMA::sendDMAcomand" << QString::number(command, 16) << "addr" << QString::number(addr, 16) << "size" << count;
+//        qDebug() << "jcsbanksDMA::sendDMAcomand" << QString::number(command, 16) << "addr" << QString::number(addr, 16) << "size" << count;
         (*devComm)->write( count);
     }
 

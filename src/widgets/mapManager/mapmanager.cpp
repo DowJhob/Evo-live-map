@@ -28,7 +28,9 @@ void mapManager::createMap(mapDefinition *dMap)
 
     connect(table->mapModel_, &mapModel::updateRAM, _ecu, &ecu::updateRAM, Qt::QueuedConnection);
 
-    connect(_ecu->DMAproto, &DMA_proto::logReady, table->mapTable, &mapView::logReady, Qt::QueuedConnection);
+
+//    connect(_ecu->DMAproto, &DMA_proto::logReady, table->mapTable, &mapView::logReady, Qt::QueuedConnection);
+    connect(_ecu->DMAproto, &DMA_proto::logReady, table->mapModel_, &mapModel::logReady, Qt::QueuedConnection);
 
     addMapToTree(table);
 }

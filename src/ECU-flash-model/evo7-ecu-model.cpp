@@ -1,4 +1,4 @@
-#include "evo7-ecu-flash-model.h"
+#include "evo7-ecu-model.h"
 #include "qendian.h"
 #include <QDebug>
 

@@ -26,10 +26,6 @@ mapWidget::mapWidget(QWidget *parent, mapDefinition *def, QVector<QColor> *color
 
     _layout->addWidget(mapTable);
     setLayout(_layout);
-
-    //connect(mapModel_, &mapModel::upd, mapTable, &mapView::reset);
-//mapModel_->headerDataChanged(Qt::Horizontal, 0, 10);
-    //show();
 }
 
 mapWidget::~mapWidget()

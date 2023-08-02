@@ -201,7 +201,6 @@ void mapModel::c_updateRAM(float value, const QModelIndex &index)
 
     offsetMemory buff(&declaration->rom_scaling, value);
     qDebug()<< "mapModel::c_updateRAM" << index.row() << index.column() << buff.toHex(':');
-    //qDebug() <<"hop";
     offset *= declaration->rom_scaling.getElementSize();
     buff.addr = declaration->addr + offset;
 
@@ -263,7 +262,7 @@ void mapModel::tracer_calc(float x, float y)
     auto i = index(current_marker.Y, current_marker.X);
     auto j = index(current_marker.Y+1, current_marker.X+1);
 //qDebug() << "mapModel::tracer_calc indexes" << i.flags() << j;
-    emit dataChanged(i, j, xxx);
+    emit dataChanged(i, j, QVector<int>{Qt::BackgroundColorRole});
 }
 
 void mapModel::saveTracer()

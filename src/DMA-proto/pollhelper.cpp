@@ -17,12 +17,13 @@ void pollHelper::init()
     qDebug()<<"=========== pollHelper::init ================ QThread::currentThread()" << thread();
     pollTimer = new QTimer();
     pollTimer->setInterval(50);
-    connect(pollTimer, &QTimer::timeout, this, &pollHelper::poll/*, Qt::DirectConnection*/); // Тут Qt::DirectConnection важно, что бы это выполнялось в потоке ecu
+//    connect(pollTimer, &QTimer::timeout, this, &pollHelper::poll/*, Qt::DirectConnection*/);
+    connect(pollTimer, &QTimer::timeout, this, &pollHelper::poll2/*, Qt::DirectConnection*/);
 }
 
 void pollHelper::startLog(int minPollTime)
 {
-    qDebug()<<"=========== pollHelper::startLog ================" << thread();
+//    qDebug()<<"=========== pollHelper::startLog ================" << thread();
 
     if(pollTimer == nullptr)
         init();
@@ -43,9 +44,21 @@ void pollHelper::stopLog()
     pollTimer->stop();
 }
 
+void pollHelper::startLog2()
+{
+//    qDebug()<<"=========== pollHelper::startLog2 ================" << thread();
+
+    if(pollTimer == nullptr)
+        init();
+
+    pollTimer->setSingleShot(true);
+
+    pollTimer->start();
+}
+
 void pollHelper::poll()
 {
-    qDebug() << "pollHelper::poll" << parent_proto->ramMut->byteSize << parent_proto->ramMut->addr;
+//    qDebug() << "pollHelper::poll" << parent_proto->ramMut->byteSize << parent_proto->ramMut->addr;
     offsetMemory a = parent_proto->indirectDMAread(parent_proto->ramMut->addr, parent_proto->ramMut->byteSize);
     for(int i = 0; i < parent_proto->ramMut->size(); i++)
     {
@@ -53,4 +66,18 @@ void pollHelper::poll()
     }
 
     emit parent_proto->logReady(parent_proto->ramMut->scaledValue);
+}
+
+void pollHelper::poll2()
+{
+//    qDebug() << "pollHelper::poll" << parent_proto->ramMut->byteSize << parent_proto->ramMut->addr;
+    offsetMemory a = parent_proto->indirectDMAread(parent_proto->ramMut->addr, parent_proto->ramMut->byteSize);
+    for(int i = 0; i < parent_proto->ramMut->size(); i++)
+    {
+        parent_proto->ramMut->scaledValue[i] = a.toFloatOffset( &(*parent_proto->ramMut)[i].scaling, parent_proto->ramMut->at(i).offset );
+    }
+
+    emit parent_proto->logReady(parent_proto->ramMut->scaledValue);
+    //        pollTimer->singleShot(10, this, &pollHelper::poll2);
+    pollTimer->start();
 }

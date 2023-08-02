@@ -1,5 +1,5 @@
 #include "flashwidget.h"
-#include "src/ECU-flash-model/evo7-ecu-flash-model.h"
+#include "src/ECU-flash-model/evo7-ecu-model.h"
 #include "ui_flashwidget.h"
 
 flashWidget::flashWidget(QWidget *parent) :

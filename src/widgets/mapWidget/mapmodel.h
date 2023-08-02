@@ -6,6 +6,7 @@
 #include <QBrush>
 #include <QColor>
 #include <QElapsedTimer>
+//#include <qqml.h>
 
 #include "../../ecu/ecu.h"
 
@@ -25,6 +26,8 @@ struct Tracer_marker2
 class mapModel : public QAbstractTableModel
 {
     Q_OBJECT
+//    QML_ELEMENT
+
 public:
     Map *declaration;
     //explicit

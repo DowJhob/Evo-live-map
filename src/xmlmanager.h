@@ -20,9 +20,9 @@ private:
 
     QDomElement getXMLDom(QIODevice *device);
 
-    virtual void serialize(QDomElement el);
+    virtual void serialize(QDomElement el) = 0;
 
-    virtual void subSerialize(QDomNode node);
+    virtual void subSerialize(QDomNode node) = 0;
 
 };
 
