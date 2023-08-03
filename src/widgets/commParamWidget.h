@@ -13,8 +13,8 @@ class commParamWidget : public QGroupBox
     Q_OBJECT
 public:
     uint baudRate;
-    commDeviceManager devManager;
-    wbManager _wbManager;
+    commDeviceManagerWidget devManager;
+    wbManagerWidget _wbManager;
     ecuModelManager _ecuModelManager;
     protoManager _protoManager;
 
@@ -22,13 +22,16 @@ public:
     virtual ~commParamWidget();
 
 public slots:
-    void setEnabledECUcomm(bool state);
-
     void setEnabledWBcomm(bool state);
+
+    void connectedState();
+
+    void devicePresentState();
+
+    void deviceLostState();
 
 private:
     QGridLayout commonGrpBxLayout;
-
 
 signals:
 

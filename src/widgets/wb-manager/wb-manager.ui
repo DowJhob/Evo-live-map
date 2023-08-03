@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>wbManager</class>
- <widget class="QGroupBox" name="wbManager">
+ <class>wbManagerWidget</class>
+ <widget class="QGroupBox" name="wbManagerWidget">
   <property name="geometry">
    <rect>
     <x>0</x>

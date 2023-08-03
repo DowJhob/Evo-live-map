@@ -2,7 +2,7 @@
 
 op20wb::op20wb(OP20 *op20): op20(op20)// : j2534_interface(dllName, DeviceDesc, DeviceUniqueID)
 {
-    DeviceDesc = op20->DeviceDesc + " / " + op20->DeviceUniqueID;
+    DeviceDesc = this->op20->DeviceDesc + " / " + this->op20->DeviceUniqueID;
     //pollHelper();
 }
 
@@ -12,6 +12,7 @@ op20wb::~op20wb()
 
 bool op20wb::openWB(uint baudRate)
 {
+    qDebug() << "====================op20wb::openWB ================================== start";
     if ( PassThru::Status status = op20->j2534->PassThruOpen(nullptr, &op20->devID); status == PassThru::Status::NoError || status == PassThru::Status::DeviceInUse )
     {
         op20->WBinUse = true;
@@ -96,10 +97,32 @@ QByteArray op20wb::readWB()
     return a;
 }
 
+void op20wb::startLog(int baudRate)
+{
+    qDebug() << "==================== op20wb::startLog ================================== baudRate" << baudRate;
+    if(shootTimer == nullptr)
+    {
+        shootTimer = new QTimer();
+//        shootTimer->setParent(nullptr);
+        shootTimer->setSingleShot(true);
+        connect(shootTimer, &QTimer::timeout, this, &op20wb::poll, Qt::QueuedConnection);
+    }
+    shootTimer->start(pollRate);
+}
+
+void op20wb::stopLog()
+{
+    qDebug() << "==================== op20wb::stopLog ==================================";
+    shootTimer->stop();
+}
+
 void op20wb::poll()
 {
     qDebug() << "op20wb::poll" ;
+
     QByteArray a = readWB();
     if (a.size() > 0)
         emit readyRead(a);
+
+    shootTimer->start(pollRate);
 }

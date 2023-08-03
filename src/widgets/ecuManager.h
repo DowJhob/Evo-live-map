@@ -24,6 +24,7 @@ public:
     ~ecuManagerWidget();
 
     void setUSBfilter(deviceNativeFilter *usbFilter);
+    void setConectionParamWidget();
 
 public slots:
     
@@ -32,7 +33,6 @@ public slots:
 private:
     QAction *a_start_action;
     QAction *a_ramReset;
-    void setConectionParamWidget();
 
     gaugeWidget wbWgt{"           = Wideband =           ", 4};
 

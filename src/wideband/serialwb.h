@@ -23,6 +23,17 @@ public:
     bool closeWB();
     QByteArray readWB();
 
+    void startLog(int baudRate)
+    {
+        qDebug() << "==================== serialWB::startLog ================================== baudRate" << baudRate;
+    }
+
+    void stopLog()
+    {
+        qDebug() << "==================== serialWB::stopLog ==================================";
+    }
+
+
 private:
     QSerialPortInfo portInfo;
     QSerialPort port;

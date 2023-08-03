@@ -11,12 +11,13 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
     baudRate = defaultBaudRate;
     setLayout(&commonGrpBxLayout);
 
-    commonGrpBxLayout.addWidget(&devManager, 0, 0);
-    commonGrpBxLayout.addWidget(&_wbManager, 1, 0);
-    commonGrpBxLayout.addWidget(&_ecuModelManager, 2, 0);
-    commonGrpBxLayout.addWidget(&_protoManager, 3, 0);
-
-    connect(&devManager,   &commDeviceManager::tactrixArrived,   &_wbManager,  &wbManager::addTactrix);
+    commonGrpBxLayout.addWidget(&devManager,       0, 0);
+    commonGrpBxLayout.addWidget(&_protoManager,    1, 0);
+    commonGrpBxLayout.addWidget(&_wbManager,       2, 0);
+    commonGrpBxLayout.addWidget(&_ecuModelManager, 3, 0);
+    
+    connect(&devManager,   &commDeviceManagerWidget::tactrixArrived,   &_wbManager,  &wbManagerWidget::addTactrix);
+    connect(&devManager,   &commDeviceManagerWidget::tactrixRemoved,   &_wbManager,  &wbManagerWidget::removeTactrix);
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     QSpacerItem *si = new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding);
@@ -25,14 +26,31 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
 
 commParamWidget::~commParamWidget(){}
 
-void commParamWidget::setEnabledECUcomm(bool state)
-{
-    devManager.setEnabled(state);
-    _ecuModelManager.setEnabled(state);
-    _protoManager.setEnabled(state);
-}
+
 
 void commParamWidget::setEnabledWBcomm(bool state)
 {
     _wbManager.setEnabled(state);
+}
+
+void commParamWidget::connectedState()
+{
+    devManager.setEnabled(false);
+    _protoManager.setEnabled(false);
+    _ecuModelManager.setEnabled(false);
+}
+
+void commParamWidget::devicePresentState()
+{
+    devManager.setEnabled(true);
+    _protoManager.setEnabled(true);
+    _ecuModelManager.setEnabled(true);
+}
+
+void commParamWidget::deviceLostState()
+{
+    devManager.setEnabled(false);
+    _protoManager.setEnabled(false);
+    _ecuModelManager.setEnabled(true);
+    //        _wbManager.setEnabled(state);
 }

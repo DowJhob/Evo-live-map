@@ -20,18 +20,25 @@ public:
 
     QByteArray readWB();
 
+    void startLog(int baudRate);
+
+    void stopLog();
+
 private slots:
     void poll();
 
 private:
     OP20 *op20;
     //unsigned long devID = 0;
+    QTimer *shootTimer;
     unsigned long chanID_INNO = 0;
 
     Message rxmsg;
     Message msgMask, msgPattern;
     unsigned long msgId;
     unsigned long numRxMsg = 1;
+
+    int pollRate = 50;
 
 signals:
     void _poll();

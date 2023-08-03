@@ -19,6 +19,11 @@ public:
     virtual bool closeWB() = 0;
     virtual QByteArray readWB() = 0;
 
+
+    virtual void startLog(int baudRate) = 0;
+
+    virtual void stopLog() = 0;
+
 signals:
     void readyRead(QByteArray);
 

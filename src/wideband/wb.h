@@ -12,6 +12,7 @@ class WB : public QObject
 {
     Q_OBJECT
 public:
+    QThread *thread;
     WB();
 
 public slots:
@@ -25,17 +26,19 @@ public slots:
 
     void stopLog();
 
-    void init();
+//    void init();
 
-    void poll();
+//    void poll();
 
 private:
-    QTimer *pollTimer = nullptr;
+//    QTimer *pollTimer = nullptr;
     commDeviceWB *wbdevComm;
     wbProto *protoWB;
+    bool stopFlag = false;
 
 signals:
     void _poll();
+    void removeDevice(commDeviceWB*);
 
 };
 

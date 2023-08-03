@@ -14,24 +14,24 @@
 #include "../../wideband/op20wb.h"
 
 namespace Ui {
-class commDeviceManager;
+class commDeviceManagerWidget;
 }
 
-class commDeviceManager : public QGroupBox
+class commDeviceManagerWidget : public QGroupBox
 {
     Q_OBJECT
 
 public:
     uint baudRate;
-    commDeviceManager(QWidget *parent = nullptr);
-    ~commDeviceManager();
+    commDeviceManagerWidget(QWidget *parent = nullptr);
+    ~commDeviceManagerWidget();
 
 public slots:
     void deviceEvent(device dev);
     void _removeDevice(comm_device_interface*devComm);
 
 private:
-    Ui::commDeviceManager *ui;
+    Ui::commDeviceManagerWidget *ui;
 
     void addDevice(device dev);
     void removeDevice(device dev);

@@ -1,20 +1,20 @@
 #include "devicemanager.h"
 #include "ui_devicemanager.h"
 
-commDeviceManager::commDeviceManager(QWidget *parent):QGroupBox(parent), ui(new Ui::commDeviceManager)
+commDeviceManagerWidget::commDeviceManagerWidget(QWidget *parent):QGroupBox(parent), ui(new Ui::commDeviceManagerWidget)
 {
     ui->setupUi(this);
 
-    connect(ui->availCommDev, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commDeviceManager::_deviceSelected);
-    connect(ui->el_baudRate,  &QLineEdit::editingFinished, this, &commDeviceManager::_baudRateChanged);
+    connect(ui->availCommDev, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commDeviceManagerWidget::_deviceSelected);
+    connect(ui->el_baudRate,  &QLineEdit::editingFinished, this, &commDeviceManagerWidget::_baudRateChanged);
 }
 
-commDeviceManager::~commDeviceManager()
+commDeviceManagerWidget::~commDeviceManagerWidget()
 {
     delete ui;
 }
 
-void commDeviceManager::deviceEvent(device dev)
+void commDeviceManagerWidget::deviceEvent(device dev)
 {
     switch (dev.direction)
     {
@@ -23,7 +23,7 @@ void commDeviceManager::deviceEvent(device dev)
     }
 }
 
-void commDeviceManager::addDevice(device dev)
+void commDeviceManagerWidget::addDevice(device dev)
 {
     //qDebug()<< "deviceManager::addDevice start" << dev.DeviceDesc;
 
@@ -32,10 +32,10 @@ void commDeviceManager::addDevice(device dev)
     comm_device_interface *devComm = nullptr;
     switch (dev.type)
     {
-    case deviceType::SERIAL  : devComm = new serial_comm(this, dev.PortName); break;
-    case deviceType::FTDI    : devComm = new FTDI_comm(this, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
-    case deviceType::J2534 : devComm = new j2534_comm(this, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
-    case deviceType::OP20    : devComm = new OP20(nullptr, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID);
+    case deviceType::SERIAL : devComm = new serial_comm(this, dev.PortName); break;
+    case deviceType::FTDI   : devComm = new FTDI_comm(this, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
+    case deviceType::J2534  : devComm = new j2534_comm(this, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
+    case deviceType::OP20   : devComm = new OP20(nullptr, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID);
         emit tactrixArrived(new op20wb(static_cast<OP20*>(devComm)));
         break;
 
@@ -47,7 +47,7 @@ void commDeviceManager::addDevice(device dev)
     ui->availCommDev->addItem(dev.DeviceDesc + " / " + dev.DeviceUniqueID, QVariant::fromValue<comm_device_interface*>(devComm));
 }
 
-void commDeviceManager::removeDevice(device dev)
+void commDeviceManagerWidget::removeDevice(device dev)
 {
     int index = ui->availCommDev->findText(dev.DeviceDesc + " / " + dev.DeviceUniqueID);
     comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(ui->availCommDev->itemData(index));
@@ -66,7 +66,7 @@ void commDeviceManager::removeDevice(device dev)
 
 }
 
-void commDeviceManager::_removeDevice(comm_device_interface *devComm)
+void commDeviceManagerWidget::_removeDevice(comm_device_interface *devComm)
 {
     if( devComm != nullptr)
     {
@@ -74,7 +74,7 @@ void commDeviceManager::_removeDevice(comm_device_interface *devComm)
     }
 }
 
-void commDeviceManager::_deviceSelected(int index)
+void commDeviceManagerWidget::_deviceSelected(int index)
 {
     qDebug()<< "deviceManager::_deviceSelected";
     comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(ui->availCommDev->itemData(index));
@@ -85,7 +85,7 @@ void commDeviceManager::_deviceSelected(int index)
     devComm->setBaudRate(baudRate);
 }
 
-void commDeviceManager::_baudRateChanged()   // Обновляем скорость обмена
+void commDeviceManagerWidget::_baudRateChanged()   // Обновляем скорость обмена
 {
     comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(ui->availCommDev->currentData());
     baudRate = ui->el_baudRate->text().toUInt();

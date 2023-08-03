@@ -1,18 +1,16 @@
 #include "wb.h"
 
-
 WB::WB()
 {
-    QThread *this_thread = new QThread();
+    thread = new QThread();
     //connect(this_thread, &QThread::started, this, &controller::loop, Qt::QueuedConnection);
-    connect(this, &WB::destroyed, this_thread, &QThread::quit);
-    connect(this_thread, &QThread::finished, this_thread, &QThread::deleteLater);
-    moveToThread(this_thread);
-    this_thread->start();
-    qDebug() << "=========== WB:: ================ QThread:" << this_thread;
+    connect(this, &WB::destroyed, thread, &QThread::quit);
+    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+    moveToThread(thread);
+    thread->start();
+    qDebug() << "=========== WB:: ================ QThread:" << thread;
 
-
-    connect(this, &WB::_poll, this, &WB::poll);
+//    connect(this, &WB::_poll, this, &WB::poll);
 }
 
 void WB::setWBDev(commDeviceWB *_wbdevComm)
@@ -21,7 +19,8 @@ void WB::setWBDev(commDeviceWB *_wbdevComm)
     if (wbdevComm == nullptr  )
     {
         // все интерфесы отключены, сделай что нибудь!!!!
-        stopLog();
+
+//        stopFlag = true;
     }
 }
 
@@ -30,13 +29,13 @@ void WB::setWBproto(wbProto *_protoWB)
     protoWB = _protoWB;
     if (protoWB == nullptr  )
     {
-        // все интерфесы отключены, сделай что нибудь!!!!
-        // stopLog();
+        // это не должно происходить вообще
     }
 }
 
 void WB::start(bool state)
 {
+    qDebug() << "==================== WB::start ==================================" << state;
     if(state)
         startLog();
     else
@@ -45,30 +44,35 @@ void WB::start(bool state)
 
 void WB::startLog()
 {
+    qDebug() << "==================== WB::startLog ==================================" << wbdevComm << protoWB->baudRate;
     if(wbdevComm->openWB(protoWB->baudRate))
     {
-        poll();
+        wbdevComm->startLog(protoWB->baudRate);
     }
 }
 
 void WB::stopLog()
 {
-    wbdevComm->closeWB();
+    qDebug() << "==================== WB::stopLog ==================================" << wbdevComm << protoWB->baudRate;
+
+    wbdevComm->stopLog();
 }
 
-void WB::init()
-{
-    pollTimer = new QTimer(this);
-    pollTimer->setInterval(50);
-    QObject::connect(pollTimer, &QTimer::timeout, this, &WB::poll, Qt::DirectConnection);
+//void WB::init()
+//{
+//    pollTimer = new QTimer(this);
+//    pollTimer->setInterval(50);
+//    QObject::connect(pollTimer, &QTimer::timeout, this, &WB::poll, Qt::DirectConnection);
+//}
 
-}
-
-void WB::poll()
-{
-    qDebug() << "WB::poll" ;
-    QByteArray a = wbdevComm->readWB();
-    if (a.size() > 0)
-        emit wbdevComm->readyRead(a);
-    emit _poll();
-}
+//void WB::poll()
+//{
+//    qDebug() << "WB::poll" ;
+//    QByteArray a = wbdevComm->readWB();
+//    if (a.size() > 0)
+//        emit wbdevComm->readyRead(a);
+//    if(!stopFlag)
+//        emit _poll();
+//    else
+//        stopFlag = false;
+//}

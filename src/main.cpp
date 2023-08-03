@@ -14,14 +14,14 @@ QElapsedTimer t;
 
 int main(int argc, char *argv[])
 {
-//    QApplication::setAttribute(Qt::AA_UseOpenGLES);
+    //    QApplication::setAttribute(Qt::AA_UseOpenGLES);
     QApplication app(argc, argv);
     QThread::currentThread()->setPriority(QThread::TimeCriticalPriority);
-//    QQmlApplicationEngine engine;
+    //    QQmlApplicationEngine engine;
 
-//    engine.load(QUrl(QStringLiteral("../src/widgets/mapWidget/fff.qml")));
-//    if (engine.rootObjects().isEmpty())
-//        return -1;
+    //    engine.load(QUrl(QStringLiteral("../src/widgets/mapWidget/fff.qml")));
+    //    if (engine.rootObjects().isEmpty())
+    //        return -1;
 
 
 
@@ -56,13 +56,15 @@ int main(int argc, char *argv[])
 
     //========================================================================================
 
-WB *wb = new WB;
-wbManager *_wbManager = &_ecuManager->cpW._wbManager;
+    WB *wb = new WB;
+    wbManagerWidget *_wbManager = &_ecuManager->cpW._wbManager;
+    _wbManager->wb_thread    = wb->thread;
 
-QObject::connect(_wbManager, &wbManager::wbSelected, wb, &WB::setWBDev);
-QObject::connect(_wbManager, &wbManager::protoSelected, wb, &WB::setWBproto);
-QObject::connect(_wbManager, &wbManager::wbStart, wb, &WB::start);
+    QObject::connect(_wbManager, &wbManagerWidget::wbSelected, wb, &WB::setWBDev);
+    QObject::connect(_wbManager, &wbManagerWidget::protoSelected, wb, &WB::setWBproto);
+    QObject::connect(_wbManager, &wbManagerWidget::wbStart, wb, &WB::start, Qt::QueuedConnection);
 
+    _ecuManager->setConectionParamWidget();
 
     //========================================================================================
     mainWindow.setECUmanager(_ecuManager);

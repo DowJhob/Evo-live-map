@@ -1,72 +1,75 @@
 #include "wb-manager.h"
 #include "ui_wb-manager.h"
 
-wbManager::wbManager(QWidget *parent):QGroupBox(parent), ui(new Ui::wbManager)
+wbManagerWidget::wbManagerWidget(QWidget *parent):QGroupBox(parent), ui(new Ui::wbManagerWidget)
 {
     ui->setupUi(this);
-    connect(ui->availWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::_wbSelected);
-    connect(ui->protoWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManager::_protoSelected);
-    connect(ui->startBtn, &QPushButton::clicked, this, &wbManager::startStop);
+    connect(ui->availWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManagerWidget::_wbSelected);
+    connect(ui->protoWB,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &wbManagerWidget::_protoSelected);
+    connect(ui->startBtn, &QPushButton::clicked, this, &wbManagerWidget::startStop);
 }
 
-void wbManager::fillProto()
+void wbManagerWidget::fillProto()
 {
     ui->protoWB->addItem("Innovate", QVariant::fromValue<wbProto*>(new innoProto()));
     ui->protoWB->addItem("AEM", QVariant::fromValue<wbProto*>(new aemProto()));
     ui->protoWB->addItem("PLX", QVariant::fromValue<wbProto*>(new plxProto()));
 }
 
-void wbManager::_wbSelected(int index)
+void wbManagerWidget::_wbSelected(int index)
 {
     qDebug()<< "wbManager::_wbSelected" ;
-    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(ui->availWB->itemData(index));
-    wbProto *_protoWB = qvariant_cast<wbProto*>(ui->protoWB->currentData());
-    if(cdWB == nullptr)
-    {
-        ui->startBtn->setDisabled(true);
-        return;
-    }
+    //    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(ui->availWB->itemData(index));
+    //    wbProto *_protoWB = qvariant_cast<wbProto*>(ui->protoWB->currentData());
+    //    if(cdWB == nullptr)
+    //    {
+    //        ui->startBtn->setDisabled(true);
+    //        return;
+    //    }
 
-    ui->startBtn->setDisabled(false);
 
     //emit wbSelected(cdWB);
 
-    disconnect(wbToProto);
-    disconnect(ProtoToLog);
-    wbToProto = connect(cdWB, &commDeviceWB::readyRead, _protoWB, &wbProto::handleWB);
-    ProtoToLog = connect(_protoWB, &wbProto::logReady, this, &wbManager::logReady);
+    //    disconnect(wbToProto);
+    //    disconnect(ProtoToLog);
+    //    wbToProto = connect(cdWB, &commDeviceWB::readyRead, _protoWB, &wbProto::handleWB);
+    //    ProtoToLog = connect(_protoWB, &wbProto::logReady, this, &wbManagerWidget::logReady);
 
     //qDebug() << "=========== wbLogger::readyRead ================";
-    qDebug()<< "deviceManager::_deviceSelected";
-    commDeviceWB *devComm = qvariant_cast<commDeviceWB*>(ui->availWB->itemData(index));
-    if(devComm ==nullptr)
-        return;
-
-    emit wbSelected(devComm);
+    //    qDebug()<< "deviceManager::_deviceSelected";
+    commDeviceWB *wbdevComm = qvariant_cast<commDeviceWB*>(ui->availWB->itemData(index));
+    emit wbSelected(wbdevComm);
+    if(wbdevComm == nullptr)
+        ui->startBtn->setDisabled(true);
+    else
+    {
+        ui->startBtn->setDisabled(false);
+        wbdevComm->moveToThread(wb_thread);
+    }
 }
 
-void wbManager::_protoSelected(int index)
+void wbManagerWidget::_protoSelected(int index)
 {
     wbProto *_protoWB = qvariant_cast<wbProto*>(ui->protoWB->itemData(index));
 
-    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(ui->availWB->currentData());
-    if(cdWB == nullptr)
-        return;
-    disconnect(wbToProto);
-    disconnect(ProtoToLog);
-    wbToProto = connect(cdWB, &commDeviceWB::readyRead, _protoWB, &wbProto::handleWB);
-    ProtoToLog = connect(_protoWB, &wbProto::logReady, this, &wbManager::logReady);
+    //    commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(ui->availWB->currentData());
+    qDebug()<< "wbManagerWidget::_protoSelected";
+    //    if(cdWB == nullptr)
+    //        return;
+    //    disconnect(wbToProto);
+    //    disconnect(ProtoToLog);
+    //    wbToProto = connect(cdWB, &commDeviceWB::readyRead, _protoWB, &wbProto::handleWB);
+    //    ProtoToLog = connect(_protoWB, &wbProto::logReady, this, &wbManagerWidget::logReady);
 
 
-    qDebug()<< "deviceManager::_deviceSelected";
-    wbProto *proto = qvariant_cast<wbProto*>(ui->protoWB->itemData(index));
-    if(proto ==nullptr)
-        return;
+    //    wbProto *proto = qvariant_cast<wbProto*>(ui->protoWB->itemData(index));
+    //    if(_protoWB ==nullptr)
+    //        return;
 
-    emit protoSelected(proto);
+    emit protoSelected(_protoWB);
 }
 
-void wbManager::addTactrix(commDeviceWB *cdWB)
+void wbManagerWidget::addTactrix(commDeviceWB *cdWB)
 {
     qDebug()<< "wbManager::addTactrix";
     ui->availWB->addItem(cdWB->DeviceDesc, QVariant::fromValue<commDeviceWB*>(cdWB));
@@ -77,7 +80,18 @@ void wbManager::addTactrix(commDeviceWB *cdWB)
     });
 }
 
-void wbManager::deviceEvent()
+void wbManagerWidget::removeTactrix(comm_device_interface *cdWB)
+{
+    qDebug()<< "wbManager::removeTactrix";
+
+}
+
+void wbManagerWidget::removeDevice()
+{
+
+}
+
+void wbManagerWidget::deviceEvent()
 {
     // dir::arrive
     //    switch (dev.direction)
@@ -87,7 +101,7 @@ void wbManager::deviceEvent()
     //    }
 }
 
-void wbManager::fillSerial()
+void wbManagerWidget::fillSerial()
 {
     for( const auto &portInfo : QSerialPortInfo::availablePorts())
     {
@@ -95,17 +109,12 @@ void wbManager::fillSerial()
     }
 }
 
-void wbManager::addDevice()
+void wbManagerWidget::addDevice()
 {
 
 }
 
-void wbManager::removeDevice()
-{
-
-}
-
-void wbManager::startStop()
+void wbManagerWidget::startStop()
 {
     commDeviceWB *cdWB = qvariant_cast<commDeviceWB*>(ui->availWB->currentData());
     wbProto *_protoWB = qvariant_cast<wbProto*>(ui->protoWB->currentData());
@@ -114,17 +123,13 @@ void wbManager::startStop()
     if(ui->startBtn->text() == "Start")
     {
         ui->availWB->setDisabled(true);
-        {
-            emit wbStart(true);
-            ui->startBtn->setText("Stop");
-        }
+        ui->startBtn->setText("Stop");
+        emit wbStart(true);
     }
     else
     {
         ui->availWB->setDisabled(false);
-        {
-            emit wbStart(false);
-            ui->startBtn->setText("Start");
-        }
+        ui->startBtn->setText("Start");
+        emit wbStart(false);
     }
 }

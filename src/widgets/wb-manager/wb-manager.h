@@ -26,23 +26,26 @@
 Q_DECLARE_METATYPE( wbProto* )
 
 namespace Ui {
-class wbManager;
+class wbManagerWidget;
 }
 
-class wbManager : public QGroupBox
+class wbManagerWidget : public QGroupBox
 {
     Q_OBJECT
 public:
-    wbManager(QWidget *parent = nullptr);
+    QThread *wb_thread;
+    wbManagerWidget(QWidget *parent = nullptr);
 
 public slots:
     void addTactrix(commDeviceWB *cdWB);
+    void removeTactrix(comm_device_interface *cdWB);
+
     void deviceEvent();
     void fillSerial();
     void fillProto();
 
 private:
-    Ui::wbManager *ui;
+    Ui::wbManagerWidget *ui;
 
     QMetaObject::Connection wbToProto;
     QMetaObject::Connection ProtoToLog;
