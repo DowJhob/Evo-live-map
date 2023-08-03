@@ -30,7 +30,7 @@ private slots:
 private:
     OP20 *op20;
     //unsigned long devID = 0;
-    QTimer *shootTimer;
+    QTimer *shootTimer = nullptr;
     unsigned long chanID_INNO = 0;
 
     Message rxmsg;
