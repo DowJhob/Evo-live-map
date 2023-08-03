@@ -18,9 +18,7 @@ void WB::setWBDev(commDeviceWB *_wbdevComm)
     wbdevComm = _wbdevComm;
     if (wbdevComm == nullptr  )
     {
-        // все интерфесы отключены, сделай что нибудь!!!!
 
-//        stopFlag = true;
     }
 }
 
@@ -56,23 +54,6 @@ void WB::stopLog()
     qDebug() << "==================== WB::stopLog ==================================" << wbdevComm << protoWB->baudRate;
 
     wbdevComm->stopLog();
+
+    wbdevComm->closeWB();
 }
-
-//void WB::init()
-//{
-//    pollTimer = new QTimer(this);
-//    pollTimer->setInterval(50);
-//    QObject::connect(pollTimer, &QTimer::timeout, this, &WB::poll, Qt::DirectConnection);
-//}
-
-//void WB::poll()
-//{
-//    qDebug() << "WB::poll" ;
-//    QByteArray a = wbdevComm->readWB();
-//    if (a.size() > 0)
-//        emit wbdevComm->readyRead(a);
-//    if(!stopFlag)
-//        emit _poll();
-//    else
-//        stopFlag = false;
-//}

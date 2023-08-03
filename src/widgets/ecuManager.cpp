@@ -17,9 +17,7 @@ ecuManagerWidget::ecuManagerWidget(QWidget *parent, ecu *ECU) : QToolBar(parent)
 
     addWidget(&cpW);
 
-
-    cpW._protoManager.ecu_thread = ECU->this_thread;                                         //
-//    setConectionParamWidget();
+    cpW._protoManager.ecu_thread = ECU->this_thread;
 
     addSeparator();
 
@@ -52,7 +50,10 @@ void ecuManagerWidget::ECUconnected(bool state)
         cpW.connectedState();
     }
     else
+    {
         a_start_action->setText("Start");
+        cpW.devicePresentState();
+    }
 }
 
 void ecuManagerWidget::deviceEvent(comm_device_interface *devComm)
