@@ -5,9 +5,10 @@ aemProto::aemProto()
     baudRate = 9200;
 }
 
-void aemProto::handleWB(QByteArray a)
+QString aemProto::handleWB(QByteArray a)
 {
     a.chop(2);
-    emit logReady(a);
+    return a;
+//    emit logReady(a);
     //emit logReady("test\n\n");
 }

@@ -36,9 +36,13 @@ private:
     wbProto *protoWB;
     bool stopFlag = false;
 
+    void handleWB(QByteArray a);
+
 signals:
     void _poll();
     void removeDevice(commDeviceWB*);
+
+    void lambdaValue(QString);
 
 };
 

@@ -12,7 +12,7 @@ public:
     ulong *DataSize;
 
     aemProto();
-    void handleWB(QByteArray a);
+    QString handleWB(QByteArray a);
 
 private:
 

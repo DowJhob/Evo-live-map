@@ -16,9 +16,9 @@ WB::WB()
 void WB::setWBDev(commDeviceWB *_wbdevComm)
 {
     wbdevComm = _wbdevComm;
-    if (wbdevComm == nullptr  )
+    if (wbdevComm != nullptr  )
     {
-
+        connect(wbdevComm, &commDeviceWB::readyRead, this, &WB::handleWB);
     }
 }
 
@@ -56,4 +56,9 @@ void WB::stopLog()
     wbdevComm->stopLog();
 
     wbdevComm->closeWB();
+}
+
+void WB::handleWB(QByteArray a)
+{
+    emit lambdaValue( protoWB->handleWB(a));
 }

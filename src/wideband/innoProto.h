@@ -83,10 +83,10 @@ class innoProto : public wbProto
 {
 public:
     innoProto();
-    void handleWB(QByteArray a);
+    QString handleWB(QByteArray a);
 
 private:
-    void func_check(int func, uint _afr, uint _lambda);
+    QString func_check(int func, uint _afr, uint _lambda);
 
 };
 

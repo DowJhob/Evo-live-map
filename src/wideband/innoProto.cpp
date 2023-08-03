@@ -5,7 +5,7 @@ innoProto::innoProto()
     baudRate = 19200;
 }
 
-void innoProto::handleWB(QByteArray a)
+QString innoProto::handleWB(QByteArray a)
 {
     //    if (msg->RxStatus & START_OF_MESSAGE)
     //        return; // skip
@@ -23,7 +23,7 @@ void innoProto::handleWB(QByteArray a)
     //    a = QByteArray{"60:b2:82:43:13:0a"};
     uchar *data = (uchar*)a.data();
     if (a.size() < 2)
-        return;
+        return "";
 
     inno_v1_mts_hdr hdrv1;
     inno_v2_mts_hdr hdrv2;
@@ -52,7 +52,7 @@ void innoProto::handleWB(QByteArray a)
             payload = 14; // LM-1 V1 payload is a fixed size
         }
         if (payload + 2 != a.size())
-            return;
+            return "";
         msgptr = (uchar*)data + 2;
         // work our way through the payload bytes
         while (payload)
@@ -66,7 +66,7 @@ void innoProto::handleWB(QByteArray a)
                     *((int*)&pkt) = (msgptr[0]<<24) + (msgptr[1]<<16) + (msgptr[2]<<8) + msgptr[3];
                     msgptr += 4;
                     payload -= 4;
-                    func_check(pkt.func, pkt.afr_msb * 128 + pkt.afr, pkt.lambda_hi * 128 + pkt.lambda);
+                    return func_check(pkt.func, pkt.afr_msb * 128 + pkt.afr, pkt.lambda_hi * 128 + pkt.lambda);
                 }
                 else if ((*msgptr & 0xA2) == 0x80) // LM-1 packet (within v2 header)
                 {
@@ -75,7 +75,7 @@ void innoProto::handleWB(QByteArray a)
                     is_lm1_packet = true;
                     msgptr += 2;
                     payload -= 2;
-                    func_check(hdrv1.func, hdrv1.afr_msb * 128 + hdrv1.afr, 1);
+                    return func_check(hdrv1.func, hdrv1.afr_msb * 128 + hdrv1.afr, 1);
                 }
                 else  // must be AUX packet
                 {
@@ -96,7 +96,7 @@ void innoProto::handleWB(QByteArray a)
                 msgptr += 4;
                 payload -= 4;
 
-                func_check(hdrv1.func, hdrv1.afr_msb * 128 + hdrv1.afr, pkt.lambda_hi * 128 + pkt.lambda);
+                return func_check(hdrv1.func, hdrv1.afr_msb * 128 + hdrv1.afr, pkt.lambda_hi * 128 + pkt.lambda);
 
                 // get 5 AUX packets
                 qDebug() << "-- 5 AUX packets --";
@@ -115,7 +115,7 @@ void innoProto::handleWB(QByteArray a)
     }
 }
 
-void innoProto::func_check(int func, uint _afr, uint _lambda)
+QString innoProto::func_check(int func, uint _afr, uint _lambda)
 {
     double lambda,afr;
     float result = 0.0;
@@ -150,8 +150,8 @@ void innoProto::func_check(int func, uint _afr, uint _lambda)
     case 0b110: res = "E" + QString::number(_lambda); break;       // 110 Error code in Lambda value
 
     }
-
-    emit logReady(QString::number(result, 'f', 2));
+    return QString::number(result, 'f', 2);
+//    emit logReady(QString::number(result, 'f', 2));
     //      emit AFR(result);
     //        010 Free air calibration in progress, Lambda data not valid
     //        011 Need Free air Calibration Request, Lambda data not valid

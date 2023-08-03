@@ -62,7 +62,8 @@ int main(int argc, char *argv[])
 
     QObject::connect(_wbManager, &wbManagerWidget::wbSelected, wb, &WB::setWBDev);
     QObject::connect(_wbManager, &wbManagerWidget::protoSelected, wb, &WB::setWBproto);
-    QObject::connect(_wbManager, &wbManagerWidget::wbStart, wb, &WB::start, Qt::QueuedConnection);
+    QObject::connect(_wbManager, &wbManagerWidget::wbStart, wb, &WB::start);
+    QObject::connect(wb, &WB::lambdaValue, &_ecuManager->wbWgt, &gaugeWidget::display);
 
     _ecuManager->setConectionParamWidget();
 
