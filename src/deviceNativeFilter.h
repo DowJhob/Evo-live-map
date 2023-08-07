@@ -15,6 +15,13 @@
 #include "types.h"
 #include <QSettings>
 
+#define TACTRIXOP20_DEVICEINSTANCEID   "VID_0403&PID_CC4C"
+#define TACTRIXOP20_DEVICEINSTANCEID2  "VID_0403&PID_CC4D"
+#define TACTRIX_OPENPORT_13_UNIVERSAL  "VID_0403&PID_CC4A"
+#define TACTRIX_OPENPORT_13_MITSUBISHI "VID_0403&PID_CC48"
+#define TACTRIX_OPENPORT_13_SUBARU     "VID_0403&PID_CC49"
+#define TACTRIX_OPENPORT_13_ID2        "VID_0403&PID_6001"
+
 typedef struct device
 {
     device(){}
@@ -79,11 +86,6 @@ private:
 
     void handleEvent(long wParam, PDEV_BROADCAST_DEVICEINTERFACE pDevInf);
     ///=========================================================
-
-    QString tactrixOP20_DeviceInstanceId = "VID_0403&PID_CC4C";
-    QString tactrixOP20_DeviceInstanceId2 = "VID_0403&PID_CC4D";
-    QString tactrixOP13_DeviceInstanceId = "VID_0403&PID_CC4A";
-    QString tactrixOP13_DeviceInstanceId2 = "VID_0403&PID_6001";
 
     const QVector<GUID> subscribeInterfaces{
         { 0xa5dcbf10, 0x6530, 0x11d2, {0x90, 0x1f, 0x00, 0xc0, 0x4f, 0xb9, 0x51, 0xed}},        // raw usb device work for all

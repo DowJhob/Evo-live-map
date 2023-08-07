@@ -32,9 +32,9 @@ void commDeviceManagerWidget::addDevice(device dev)
     comm_device_interface *devComm = nullptr;
     switch (dev.type)
     {
-    case deviceType::SERIAL : devComm = new serial_comm(this, dev.PortName); break;
-    case deviceType::FTDI   : devComm = new FTDI_comm(this, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
-    case deviceType::J2534  : devComm = new j2534_comm(this, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
+    case deviceType::SERIAL : devComm = new serial_comm(nullptr, dev.PortName); break;
+    case deviceType::FTDI   : devComm = new FTDI_comm(nullptr, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
+    case deviceType::J2534  : devComm = new j2534_comm(nullptr, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
     case deviceType::OP20   : devComm = new OP20(nullptr, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID);
         emit tactrixArrived(new op20wb(static_cast<OP20*>(devComm)));
         break;

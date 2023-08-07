@@ -231,7 +231,7 @@ void deviceNativeFilter::checkType(device dev)
     dev.FunctionLibrary = getDLLpath( dev.Mfg, reg64);
     if(!dev.FunctionLibrary.isEmpty())
     {
-        if(dev.DeviceInstanceId.contains(tactrixOP20_DeviceInstanceId2) )
+        if(dev.DeviceInstanceId.contains(TACTRIXOP20_DEVICEINSTANCEID2) )
         { //
             dev.type =  deviceType::OP20;
         }
@@ -255,45 +255,3 @@ void deviceNativeFilter::checkType(device dev)
     emit deviceEvent(dev);
 
 }
-
-
-//***  Need check!!!
-
-//void deviceNativeFilter::checkType(device dev)
-//{
-//    if(dev.DeviceInstanceId.contains(Marathon_DeviceInstanceId))
-//    {
-//        dev.type =  deviceType::Marathon;
-//        dev.FunctionLibrary.clear();
-//        dev.FunctionLibrary = getMarathonDLLpath( dev.Mfg, PassThruReg64);
-//    }
-//    else if (dev.classDev == GUID{ 0x4d36e978, 0xe325, 0x11ce, {0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18}})       // Serial and parralel ports standart Windows class (seeng Openport1.3 (as serial port))
-//    {
-//        dev.type =  deviceType::SERIAL;
-//    }
-//    else if (dev.classDev == GUID{0x219d0508, 0x57a8, 0x4ff5, {0x97, 0xa1, 0xbd, 0x86, 0x58, 0x7c, 0x6c, 0x7e}}) //||      // FTDI_D2XX_Device Class GUID
-//        //(dev.classDev == GUID{ 0x86e0d1e0, 0x8089, 0x11d0, {0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73}}) ||            // FTDI_VCP_Device Class GUID
-//    {
-//        dev.type =  deviceType::FTDI;
-//    }
-//    else
-//    {
-//        dev.FunctionLibrary.clear();
-//        dev.FunctionLibrary = getPassThruDLLpath( dev.Mfg, PassThruReg64);
-//        if(!dev.FunctionLibrary.isEmpty())
-//        {
-//            if(dev.DeviceInstanceId.contains(tactrixOP20_DeviceInstanceId2) )
-//            {
-//                dev.type =  deviceType::OP20;
-//            }
-//            else
-//            {
-//                dev.type =  deviceType::J2534;
-//            }
-//        }
-//    }
-
-//    //qDebug() << "enumerator::checkType dev.type" << (int)dev.type << dev.DeviceUniqueID << dev.DeviceInstanceId + "/" + dev.DeviceDesc + "/" + dev.Mfg;
-//    emit deviceEvent(dev);
-
-//}
