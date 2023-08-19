@@ -16,8 +16,8 @@ ecuManagerWidget::ecuManagerWidget(QWidget *parent, ecu *ECU) : QToolBar(parent)
     addSeparator();
 
     addWidget(&cpW);
-
-    cpW._protoManager.ecu_thread = ECU->this_thread;
+    
+    cpW._protoManager.ecu_thread = ECU->readThread;
 
     addSeparator();
 

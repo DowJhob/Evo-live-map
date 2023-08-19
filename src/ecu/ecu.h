@@ -10,7 +10,6 @@
 #include "src/ECU-model/ecu-model.h"
 #include "src/ecu/mapDefinition.h"
 
-
 class ecu : public QObject
 {
     Q_OBJECT
@@ -21,7 +20,7 @@ public:
     ECU_model *ecu_model = nullptr;
     DMA_proto *DMAproto = nullptr;
 
-    QThread *this_thread;
+    QThread *readThread;
 
     ecu();
     ~ecu();
@@ -35,9 +34,6 @@ public slots:
 
     void startLog();
     void stopLog();
-
-    void updateRAM(offsetMemory memory);
-    void RAMreset();
 
     mapDefinition *getMap(Map *declMap);
 
@@ -54,11 +50,32 @@ signals:
 
     void removeDevice(comm_device_interface*);
 
+    void updateRAM(offsetMemory);
+
+    void RAMreset();
+
     void Log(QString);
 
     void logReady(QVector<float>);
 
     void s_test();
+
+};
+
+class writer : public QObject
+{
+    Q_OBJECT
+public:
+    writer(ecu *parent = nullptr);
+    ~writer();
+    QThread *writeThread;
+
+public slots:
+    void updateRAM(offsetMemory memory);
+    void RAMreset();
+
+private:
+    ecu *parent = nullptr;
 
 };
 

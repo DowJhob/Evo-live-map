@@ -36,7 +36,7 @@ void mapManager::createMap(mapDefinition *dMap)
 
 void mapManager::s_test()
 {
-    for ( Map *tab : _ecu->ecuDef.RAMtables)
+    for ( Map *tab : qAsConst(_ecu->ecuDef.RAMtables))
     {
         mapWidget *table = new mapWidget(nullptr, tab);
         addMapToTree(table);

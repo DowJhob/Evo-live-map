@@ -61,10 +61,10 @@ bool mapModel::setData(const QModelIndex &index, const QVariant &value, int role
     switch(role){
     case Qt::EditRole :
         float val = value.toFloat();
+        c_updateRAM(val, index);
         int offset = index.row() * declaration->X_axis.elements + index.column();
         mapData2[offset] = val;
         backgroundColorMap[offset] = getColor(val, declaration->rom_scaling.min, mapColorDiscret);
-        c_updateRAM(val, index);
         emit dataChanged(index, index);
         break;
     }

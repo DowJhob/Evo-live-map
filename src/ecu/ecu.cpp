@@ -3,13 +3,18 @@
 
 ecu::ecu()
 {
-    this_thread = new QThread();
+    readThread = new QThread();
     //connect(this_thread, &QThread::started, this, &controller::loop, Qt::QueuedConnection);
-    connect(this, &ecu::destroyed, this_thread, &QThread::quit);
-    connect(this_thread, &QThread::finished, this_thread, &QThread::deleteLater);
-    moveToThread(this_thread);
-    this_thread->start();
-    qDebug() << "=========== ecu:: ================ QThread:" << this_thread;
+    connect(this, &ecu::destroyed, readThread, &QThread::quit);
+    connect(readThread, &QThread::finished, readThread, &QThread::deleteLater);
+    moveToThread(readThread);
+    readThread->start();
+    qDebug() << "=========== ecu:: ================ QThread:" << readThread;
+
+    writer* _writer = new writer(this);
+    connect(this, &ecu::destroyed, _writer, &writer::deleteLater);
+    connect(this, &ecu::RAMreset, _writer, &writer::RAMreset, Qt::QueuedConnection);
+    connect(this, &ecu::updateRAM, _writer, &writer::updateRAM, Qt::QueuedConnection);
 }
 
 ecu::~ecu()
@@ -102,28 +107,6 @@ void ecu::stopLog()
     DMAproto->stopLog();
 }
 
-void ecu::RAMreset()
-{
-    DMAproto->stopLog();
-    qDebug() << "ecuDefinition::RAMreset(addr::" << ecuDef.ramMut.DEAD_var << ");";
-    quint16 r = 0x0000;
-    DMAproto->directDMAwrite(ecuDef.ramMut.DEAD_var, (char*)&r, 2);
-    //QMetaObject::invokeMethod(ECUproto, "directDMAwrite", Q_ARG(quint32, ecuDef.ramMut.DEAD_var), Q_ARG(char*, (char*)&r), Q_ARG(int, 2));
-
-    DMAproto->startLog();
-}
-
-void ecu::updateRAM(offsetMemory memory)
-{
-    DMAproto->stopLog();
-    //qDebug()<< "ecu::updateRAM" << memory.toHex(':');
-    //    ECUproto->updateRAM(memory);
-    DMAproto->directDMAwrite(memory.addr, memory.data(), memory.size());
-    //QMetaObject::invokeMethod(ECUproto, "updateRAM", Q_ARG(offsetMemory, memory));
-
-    DMAproto->startLog(&ecuDef.ramMut);
-}
-
 mapDefinition *ecu::getMap(Map *declMap)
 {
     //qDebug()<<"ecuDefinition::getMap"<<declMap->Name;
@@ -157,4 +140,37 @@ void ecu::test()
     }
     //==================================================================================================
     emit s_test();
+}
+
+writer::writer(ecu *parent) : parent(parent)
+{
+    writeThread = new QThread();
+    //connect(this_thread, &QThread::started, this, &controller::loop, Qt::QueuedConnection);
+    connect(this, &ecu::destroyed, writeThread, &QThread::quit);
+    connect(writeThread, &QThread::finished, writeThread, &QThread::deleteLater);
+    moveToThread(writeThread);
+    writeThread->start();
+    qDebug() << "=========== writer::writer ================ QThread:" << writeThread;
+}
+
+writer::~writer()
+{
+
+}
+
+void writer::RAMreset()
+{
+//    parent->DMAproto->stopLog();
+//    qDebug() << "writer::RAMreset(addr::" << parent->ecuDef.ramMut.DEAD_var << ");";
+    quint16 r = 0x0000;
+    parent->DMAproto->directDMAwrite(parent->ecuDef.ramMut.DEAD_var, (char*)&r, 2);
+//    parent->DMAproto->startLog();
+}
+
+void writer::updateRAM(offsetMemory memory)
+{
+//    parent->DMAproto->stopLog();
+    //qDebug()<< "writer::updateRAM" << memory.toHex(':');
+    parent->DMAproto->directDMAwrite(memory.addr, memory.data(), memory.size());
+//    parent->DMAproto->startLog(&parent->ecuDef.ramMut);
 }
