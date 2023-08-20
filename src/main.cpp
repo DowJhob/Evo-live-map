@@ -14,7 +14,6 @@ QElapsedTimer t;
 
 int main(int argc, char *argv[])
 {
-    //    QApplication::setAttribute(Qt::AA_UseOpenGLES);
     QApplication app(argc, argv);
     QThread::currentThread()->setPriority(QThread::TimeCriticalPriority);
     //    QQmlApplicationEngine engine;

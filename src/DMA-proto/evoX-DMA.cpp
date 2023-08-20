@@ -115,6 +115,16 @@ void evoX_DMA::setLogRate(int freqRate)
 
 }
 
+void evoX_DMA::RAMreset(quint32 var1, quint16 var2)
+{
+
+}
+
+void evoX_DMA::updateRAM(offsetMemory memory)
+{
+
+}
+
 void evoX_DMA::setHeader(DMAcomand command, uchar count, quint32 addr)
 {
     //uchar packetBodySize = 0x2C;

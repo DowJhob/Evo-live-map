@@ -43,9 +43,9 @@ void mapView::logReady(QVector<float> scaledValue)
 
 void mapView::keyPressEvent(QKeyEvent *event)
 {
-    if( event==QKeySequence::ZoomIn || event->matches(QKeySequence::MoveToNextPage) )
+    if( event == QKeySequence::ZoomIn || event == QKeySequence::MoveToPreviousPage)
         actionIncrease();
-    else if( event->matches( QKeySequence::ZoomOut) || event->matches(QKeySequence::MoveToPreviousPage) )
+    else if( event == QKeySequence::ZoomOut || event == QKeySequence::MoveToNextPage)
         actionDecrease();
     else if( event->matches( QKeySequence::Copy ) )
         actionCopy();
@@ -86,27 +86,31 @@ void mapView::actionPaste(){
 void mapView::actionIncrease()
 {
     auto sIx= selectedIndexes() ;
+    mapModel *_model = (mapModel*)model();
     for (auto index : qAsConst(sIx))
     {
-        auto value =  model()->index(index.row(),index.column()).data(Qt::UserRole).toFloat()
+        auto value =  _model->index(index.row(),index.column()).data(Qt::UserRole).toFloat()
                 + declaration->rom_scaling.increment
                 ;
         //qDebug()<< "value"<<value;
-        model()->setData( index, value , Qt::EditRole );
-        //update(index);
+        _model->setData( index, value , Qt::EditRole );
     }
+
+    _model->updArea(sIx.constFirst(), sIx.last());
 }
 
 void mapView::actionDecrease()
 {
     auto sIx= selectedIndexes() ;
+    mapModel *_model = (mapModel*)model();
     for (auto index : qAsConst(sIx))
     {
-        auto value =  model()->index(index.row(),index.column()).data(Qt::UserRole).toFloat()
+        auto value =  _model->index(index.row(),index.column()).data(Qt::UserRole).toFloat()
                 - declaration->rom_scaling.increment
                 ;
         //qDebug()<< "value"<<value;
-        model()->setData( index, value , Qt::EditRole );
+        _model->setData( index, value , Qt::EditRole );
         //update(index);
     }
+    _model->updArea(sIx.constFirst(), sIx.last());
 }

@@ -29,6 +29,15 @@ public slots:
     void stopLog();
 
     void setLogRate(int freqRate);
+    void RAMreset(quint32 var1, quint16 var2)
+    {
+
+    }
+
+    void updateRAM(offsetMemory memory)
+    {
+
+    }
 
 
 private slots:

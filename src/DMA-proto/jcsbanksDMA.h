@@ -26,6 +26,10 @@ public slots:
     void startLog(ramMUT *_ramMut);
     void startLog();
     void stopLog();
+    void RAMreset(quint32 var1, quint16 var2);
+
+    void updateRAM(offsetMemory memory);
+
 
     void setLogRate(int freqRate);
 

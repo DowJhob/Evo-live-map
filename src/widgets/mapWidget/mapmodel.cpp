@@ -65,7 +65,7 @@ bool mapModel::setData(const QModelIndex &index, const QVariant &value, int role
         int offset = index.row() * declaration->X_axis.elements + index.column();
         mapData2[offset] = val;
         backgroundColorMap[offset] = getColor(val, declaration->rom_scaling.min, mapColorDiscret);
-        emit dataChanged(index, index);
+//        emit dataChanged(index, index);
         break;
     }
     return true;
@@ -198,7 +198,7 @@ void mapModel::c_updateRAM(float value, const QModelIndex &index)
     }
 
     offsetMemory buff(&declaration->rom_scaling, value);
-    qDebug()<< "mapModel::c_updateRAM" << index.row() << index.column() << buff.toHex(':');
+//    qDebug()<< "mapModel::c_updateRAM" << index.row() << index.column() << buff.toHex(':');
     offset *= declaration->rom_scaling.getElementSize();
     buff.addr = declaration->addr + offset;
 
@@ -210,6 +210,11 @@ void mapModel::logReady(QVector<float> scaledValue)
     float x = scaledValue[declaration->X_axis.ram_mut_number];
     float y = scaledValue.at(declaration->Y_axis.ram_mut_number);
     tracer_calc( x,  y);
+}
+
+void mapModel::updArea(QModelIndex f, QModelIndex l)
+{
+emit dataChanged(f, l);
 }
 
 QBrush mapModel::background(int x, int y)

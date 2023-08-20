@@ -39,6 +39,9 @@ public:
     virtual QByteArray indirectDMAread(quint32 addr, int lenght) = 0;
     virtual QByteArray directDMAread(quint32 addr, int len) = 0;
     virtual void setLogRate(int freqRate) = 0;
+    virtual void RAMreset(quint32 var1, quint16 var2) = 0;
+
+    virtual void updateRAM(offsetMemory memory) = 0;
 
 public slots:
     virtual void directDMAwrite(quint32 addr, char *buf, int lenght) = 0;

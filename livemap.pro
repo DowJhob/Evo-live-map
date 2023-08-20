@@ -7,6 +7,7 @@
 CONFIG += c++17
 #CONFIG += qwt
 #CONFIG += qmltypes
+CONFIG += opengl
 
 QT     += core gui xml serialport #datavisualization
 #widgets

@@ -9,12 +9,9 @@ ecu::ecu()
     connect(readThread, &QThread::finished, readThread, &QThread::deleteLater);
     moveToThread(readThread);
     readThread->start();
-    qDebug() << "=========== ecu:: ================ QThread:" << readThread;
+//    qDebug() << "=========== ecu:: ================ QThread:" << readThread;
+//    qDebug() << "=========== ecu:: ================ QThread:" << thread();
 
-    writer* _writer = new writer(this);
-    connect(this, &ecu::destroyed, _writer, &writer::deleteLater);
-    connect(this, &ecu::RAMreset, _writer, &writer::RAMreset, Qt::QueuedConnection);
-    connect(this, &ecu::updateRAM, _writer, &writer::updateRAM, Qt::QueuedConnection);
 }
 
 ecu::~ecu()
@@ -107,6 +104,18 @@ void ecu::stopLog()
     DMAproto->stopLog();
 }
 
+void ecu::updateRAM(offsetMemory memory)
+{
+//    qDebug() << "=========== ecu::updateRAM ================ sender()->thread:" << sender()->thread();
+
+    DMAproto->updateRAM(memory);
+}
+
+void ecu::RAMreset()
+{
+    DMAproto->RAMreset(ecuDef.ramMut.DEAD_var, 0);
+}
+
 mapDefinition *ecu::getMap(Map *declMap)
 {
     //qDebug()<<"ecuDefinition::getMap"<<declMap->Name;
@@ -140,37 +149,4 @@ void ecu::test()
     }
     //==================================================================================================
     emit s_test();
-}
-
-writer::writer(ecu *parent) : parent(parent)
-{
-    writeThread = new QThread();
-    //connect(this_thread, &QThread::started, this, &controller::loop, Qt::QueuedConnection);
-    connect(this, &ecu::destroyed, writeThread, &QThread::quit);
-    connect(writeThread, &QThread::finished, writeThread, &QThread::deleteLater);
-    moveToThread(writeThread);
-    writeThread->start();
-    qDebug() << "=========== writer::writer ================ QThread:" << writeThread;
-}
-
-writer::~writer()
-{
-
-}
-
-void writer::RAMreset()
-{
-//    parent->DMAproto->stopLog();
-//    qDebug() << "writer::RAMreset(addr::" << parent->ecuDef.ramMut.DEAD_var << ");";
-    quint16 r = 0x0000;
-    parent->DMAproto->directDMAwrite(parent->ecuDef.ramMut.DEAD_var, (char*)&r, 2);
-//    parent->DMAproto->startLog();
-}
-
-void writer::updateRAM(offsetMemory memory)
-{
-//    parent->DMAproto->stopLog();
-    //qDebug()<< "writer::updateRAM" << memory.toHex(':');
-    parent->DMAproto->directDMAwrite(memory.addr, memory.data(), memory.size());
-//    parent->DMAproto->startLog(&parent->ecuDef.ramMut);
 }

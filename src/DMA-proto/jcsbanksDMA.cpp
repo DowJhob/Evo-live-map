@@ -56,7 +56,7 @@ void jcsbanksDMA::directDMAwrite(quint32 addr, char* buf, int lenght)
 
 void jcsbanksDMA::startLog(ramMUT *_ramMut)
 {
-    connect(this, &jcsbanksDMA::_poll, this, &jcsbanksDMA::poll/*, Qt::DirectConnection*/);
+//    connect(this, &jcsbanksDMA::_poll, this, &jcsbanksDMA::poll/*, Qt::DirectConnection*/);
 //    qDebug()<<"=========== jcsbanksDMA::startLog ================" << thread();
     DMA_proto::startLog(_ramMut);
 
@@ -78,7 +78,7 @@ void jcsbanksDMA::startLog(ramMUT *_ramMut)
 
 void jcsbanksDMA::startLog()
 {
-    poller->startLog();
+    poller->startLog2();
 }
 
 void jcsbanksDMA::stopLog()
@@ -86,6 +86,24 @@ void jcsbanksDMA::stopLog()
     //qDebug()<<"=========== jcsbanksDMA::stopLog ================";
     poller->stopLog();
     //pollTimer->stop();
+}
+
+void jcsbanksDMA::RAMreset(quint32 var1, quint16 var2)
+{
+//    stopLog();                                      // Запоминать состояние логгера не нужно, на этом этапе он всегда работает иначе эку вывалиться из мут
+    //    qDebug() << "jcsbanksDMA::RAMreset(addr::" << parent->ecuDef.ramMut.DEAD_var << ");";
+    //        quint16 r = 0x0000;
+    //        directDMAwrite(ecuDef.ramMut.DEAD_var, (char*)&r, 2);
+    directDMAwrite(var1, (char*)&var2, 2);
+//    startLog();
+}
+
+void jcsbanksDMA::updateRAM(offsetMemory memory)
+{
+//    stopLog();
+    qDebug()<< "jcsbanksDMA::updateRAM" << memory.toHex(':');
+    directDMAwrite(memory.addr, memory.data(), memory.size());
+//    startLog();
 }
 
 void jcsbanksDMA::setLogRate(int freqRate)

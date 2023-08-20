@@ -15,7 +15,6 @@ class ecu : public QObject
     Q_OBJECT
 public:
     ecuDefinition ecuDef;
-
     comm_device_interface *devComm = nullptr;
     ECU_model *ecu_model = nullptr;
     DMA_proto *DMAproto = nullptr;
@@ -35,6 +34,10 @@ public slots:
     void startLog();
     void stopLog();
 
+    void updateRAM(offsetMemory memory);
+
+    void RAMreset();
+
     mapDefinition *getMap(Map *declMap);
 
     void setLogRate(int freqRate);
@@ -50,32 +53,11 @@ signals:
 
     void removeDevice(comm_device_interface*);
 
-    void updateRAM(offsetMemory);
-
-    void RAMreset();
-
     void Log(QString);
 
     void logReady(QVector<float>);
 
     void s_test();
-
-};
-
-class writer : public QObject
-{
-    Q_OBJECT
-public:
-    writer(ecu *parent = nullptr);
-    ~writer();
-    QThread *writeThread;
-
-public slots:
-    void updateRAM(offsetMemory memory);
-    void RAMreset();
-
-private:
-    ecu *parent = nullptr;
 
 };
 

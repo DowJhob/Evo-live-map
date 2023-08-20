@@ -23,19 +23,11 @@ public:
 
 public slots:
     void setLogRate(int rate);
-    virtual void startLog(int minPollTime);
-    virtual void startLog();
+    void startLog2();
     virtual void stopLog();
 
-
-    void startLog2();
-
-
 private slots:
-    void poll();
-
     void poll2();
-
 
 private:
     DMA_proto *parent_proto = nullptr;

@@ -49,6 +49,7 @@ public:
 
 public slots:
     void logReady(QVector<float> scaledValue);
+    void updArea( QModelIndex f,  QModelIndex l);
 
 private:
     float mapColorDiscret = 1;
