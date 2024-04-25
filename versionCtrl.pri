@@ -10,4 +10,4 @@ VERSION = $$GIT_VERSION
 win32 {
     VERSION ~= s/-\d+-g[a-f0-9]{6,}//
 }
-message($$VERSION)
+message({$$VERSION})
