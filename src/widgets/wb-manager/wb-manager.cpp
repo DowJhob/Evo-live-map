@@ -80,9 +80,17 @@ void wbManagerWidget::addTactrix(commDeviceWB *cdWB)
     });
 }
 
-void wbManagerWidget::removeTactrix(comm_device_interface *cdWB)
+void wbManagerWidget::removeTactrix(commDeviceWB *cdWB)
 {
     qDebug()<< "wbManager::removeTactrix";
+    int index = ui->availWB->findText(cdWB->DeviceDesc);
+    ui->availWB->removeItem(index);
+    cdWB->deleteLater();
+
+    commDeviceWB *devComm = qvariant_cast<commDeviceWB*>(ui->availWB->itemData(index));
+
+
+
 
 }
 

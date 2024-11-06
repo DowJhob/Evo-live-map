@@ -23,3 +23,9 @@ void DMA_proto::setCommDev(comm_device_interface **devComm)
 
     this->devComm = devComm;
 }
+
+bool DMA_proto::disconnect_()
+{
+    (*devComm)->close();
+    return false;
+}

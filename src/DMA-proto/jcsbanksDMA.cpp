@@ -34,6 +34,8 @@ bool jcsbanksDMA::connect_()
     // return (*ecu_model)->MUTconnect();
 }
 
+
+
 QByteArray jcsbanksDMA::indirectDMAread(quint32 addr, int lenght)
 {
     //qDebug() << "jcsbanksDMA::directDMAread";

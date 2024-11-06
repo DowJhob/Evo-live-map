@@ -37,6 +37,8 @@ bool evoX_DMA::connect_()
     return true;
 }
 
+
+
 QByteArray evoX_DMA::indirectDMAread(quint32 addr, int lenght)
 {
 return QByteArray();

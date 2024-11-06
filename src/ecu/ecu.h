@@ -29,6 +29,10 @@ public slots:
     void setECUmodel(ECU_model *_ECUmodel);
     void setDMAproto(DMA_proto *_ECUproto);
 
+    void deviceHasLeft(comm_device_interface *_devComm);
+
+
+
     bool connectDMA(bool state);
 
     void startLog();

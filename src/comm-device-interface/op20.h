@@ -4,7 +4,7 @@
 #include <QTimer>
 
 #include "j2534-comm.h"
-//#include "src/wideband/commdevicewb-interface.h"
+#include "src/wideband/commdevicewb-interface.h"
 
 class OP20 : public j2534_comm//, public commDeviceWB
 {
@@ -12,6 +12,7 @@ class OP20 : public j2534_comm//, public commDeviceWB
 public:
     OP20(QObject *parent, QString dllName = nullptr, QString DeviceDesc = "", QString DeviceUniqueID = "");
     ~OP20();
+    commDeviceWB* tactrixWBinstance = nullptr;
 
     bool inUse = false;
     bool WBinUse = false;

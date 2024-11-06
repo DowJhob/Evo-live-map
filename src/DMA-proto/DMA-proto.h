@@ -35,6 +35,7 @@ public:
     void setCommDev(comm_device_interface **devComm = nullptr);
 
     virtual bool connect_() = 0;
+    virtual bool disconnect_();
 
     virtual QByteArray indirectDMAread(quint32 addr, int lenght) = 0;
     virtual QByteArray directDMAread(quint32 addr, int len) = 0;

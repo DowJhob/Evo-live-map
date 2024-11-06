@@ -51,6 +51,15 @@ void ecu::setDMAproto(DMA_proto *_DMAproto)
     DMAproto->moveToThread(readThread);
 }
 
+void ecu::deviceHasLeft(comm_device_interface *_devComm)
+{
+    DMAproto->stopLog();
+    DMAproto->disconnect_();
+    devComm = nullptr;
+    DMAproto->setCommDev(nullptr);
+    delete _devComm;
+}
+
 bool ecu::connectDMA(bool state)
 {
     //qDebug() << "=========== ecu::connectDMA ================ devComm:" << devComm;
@@ -79,7 +88,7 @@ bool ecu::connectDMA(bool state)
                 emit Log("failure get ECU rom id");
         }
         else
-            emit Log("failure get ECU DMA connect - BaudRate" + QString::number( devComm->getBaudRate()));
+            emit Log("failure get ECU DMA connect");
     }
     else
     {
@@ -89,7 +98,7 @@ bool ecu::connectDMA(bool state)
         ecuDef.reset();
         emit ecuConnected(false);
     }
-    (*DMAproto->devComm)->close();
+    DMAproto->disconnect_();
     return false;
 }
 
