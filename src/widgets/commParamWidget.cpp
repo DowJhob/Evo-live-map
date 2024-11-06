@@ -13,7 +13,7 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
 
     commonGrpBxLayout.addWidget(&devManager,       0, 0);
     commonGrpBxLayout.addWidget(&_ecuModelManager, 1, 0);
-    commonGrpBxLayout.addWidget(&_protoManager,    2, 0);
+    commonGrpBxLayout.addWidget(&_logParamManager, 2, 0);
     commonGrpBxLayout.addWidget(&_wbManager,       3, 0);
     
     connect(&devManager,   &commDeviceManagerWidget::tactrixArrived,   &_wbManager,  &wbManagerWidget::addTactrix);
@@ -36,21 +36,21 @@ void commParamWidget::setEnabledWBcomm(bool state)
 void commParamWidget::connectedState()
 {
     devManager.setEnabled(false);
-    _protoManager.setEnabled(false);
+    _logParamManager.setEnabled(false);
     _ecuModelManager.setEnabled(false);
 }
 
 void commParamWidget::devicePresentState()
 {
     devManager.setEnabled(true);
-    _protoManager.setEnabled(true);
+    _logParamManager.setEnabled(true);
     _ecuModelManager.setEnabled(true);
 }
 
 void commParamWidget::deviceLostState()
 {
     devManager.setEnabled(false);
-    _protoManager.setEnabled(false);
+    _logParamManager.setEnabled(false);
     _ecuModelManager.setEnabled(true);
     //        _wbManager.setEnabled(state);
 }

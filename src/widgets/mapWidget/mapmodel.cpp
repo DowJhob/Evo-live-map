@@ -265,7 +265,7 @@ void mapModel::tracer_calc(float x, float y)
     auto i = index(current_marker.Y, current_marker.X);
     auto j = index(current_marker.Y+1, current_marker.X+1);
 //qDebug() << "mapModel::tracer_calc indexes" << i.flags() << j;
-    emit dataChanged(i, j, QVector<int>{Qt::BackgroundColorRole});
+    emit dataChanged(i, j, QVector<int>{Qt::BackgroundRole});
 }
 
 void mapModel::saveTracer()

@@ -85,13 +85,14 @@ void ecuModelManager::_protoSelected(int index)
     if(model == nullptr)
         return;
 
-    proto->ecu_model = &model;
+    // proto->ecu_model = &model;
 
-    proto->moveToThread(ecu_thread);
+    // qDebug()<< "protoManager::_protoSelected  thread():" << thread() << "   /  proto->thread():" << proto->thread();
+    // proto->moveToThread(ecu_thread);
 
     emit protoSelected(proto);
 
-    qDebug()<< "protoManager::_protoSelected  /  index:" << index << "   /  proto:" << proto;
+    // qDebug()<< "protoManager::_protoSelected  /  index:" << index << "   /  proto:" << proto << "   /  ecu_thread:" << ecu_thread << "   /  proto->thread():" << proto->thread();
 }
 
 void ecuModelManager::fillAvailModelProtos()

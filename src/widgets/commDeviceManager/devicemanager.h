@@ -28,9 +28,9 @@ public:
 
 public slots:
     void deviceEvent(device dev);
-    void _removeDevice(comm_device_interface*devComm);
 
 private:
+    comm_device_interface *selected_devComm = nullptr;
     Ui::commDeviceManagerWidget *ui;
 
     void addDevice(device dev);
@@ -42,9 +42,10 @@ private slots:
 
 signals:
     void deviceSelected(comm_device_interface*);
+    void deviceHasLeft(comm_device_interface*);
 
     void tactrixArrived(commDeviceWB *);
-    void tactrixRemoved(comm_device_interface*);
+    void tactrixRemoved(commDeviceWB*);
 
 };
 

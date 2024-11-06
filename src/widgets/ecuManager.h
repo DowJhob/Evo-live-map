@@ -36,9 +36,14 @@ private:
     QAction *a_start_action;
     QAction *a_ramReset;
 
+
+    ECU_model *selectedModel = nullptr;
+    DMA_proto* selectedProto = nullptr;
+    comm_device_interface* selectedCommDev = nullptr;
+
 private slots:
     void start_stop_Action();
-    void deviceEvent(comm_device_interface *devComm);
+    void setComDev(comm_device_interface *devComm);
 
 signals:
     void ecuConnect(bool);

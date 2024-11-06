@@ -9,9 +9,7 @@ ecu::ecu()
     connect(readThread, &QThread::finished, readThread, &QThread::deleteLater);
     moveToThread(readThread);
     readThread->start();
-//    qDebug() << "=========== ecu:: ================ QThread:" << readThread;
-//    qDebug() << "=========== ecu:: ================ QThread:" << thread();
-
+//    qDebug() << "=========== ecu:: ================ QThread::readThread" << readThread << "  \  QThread::thread" << thread();
 }
 
 ecu::~ecu()
@@ -20,34 +18,52 @@ ecu::~ecu()
     //pollTimer->deleteLater();
 }
 
-void ecu::setComDev(comm_device_interface *_devComm)
-{
-    //    devComm->setParent(nullptr);
-    //    devComm->moveToThread(thread());
-    if (_devComm == nullptr  )
-    {
-        // все интерфесы отключены, сделай что нибудь!!!!
-        if(DMAproto != nullptr)
-        {
-            DMAproto->stopLog();
-        }
-        QThread::msleep(devComm->_readTimeout + 200);   // это что бы вывалиться из цикла ожидания стартового сообщения
-        emit removeDevice(devComm);
+// void ecu::setComDev(comm_device_interface *_devComm)
+// {
+//     if (_devComm == nullptr  )
+//     {
+//         // все интерфесы отключены, сделай что нибудь!!!!
+//         if(DMAproto != nullptr)
+//         {
+//             DMAproto->stopLog();
+//         }
+//         QThread::msleep(devComm->_readTimeout + 200);   // это что бы вывалиться из цикла ожидания стартового сообщения
+//         emit removeDevice(devComm);
 
-        emit ecuConnected(false);
-    }
-    devComm = _devComm;
-}
+//         emit ecuConnected(false);
+//     }
+//     devComm = _devComm;
+// }
 
 void ecu::setECUmodel(ECU_model *_ECUmodel)
 {
-    this->ecu_model = _ECUmodel;
+    if (ecu_model != nullptr  )
+    {
+        DMAproto->stopLog();
+        DMAproto->disconnect_();
+    }
+    ecu_model = _ECUmodel;
 }
 
 void ecu::setDMAproto(DMA_proto *_DMAproto)
 {
+    if (DMAproto != nullptr  )
+    {
+        DMAproto->stopLog();
+        DMAproto->disconnect_();
+    }
     DMAproto = _DMAproto;
-    _DMAproto->setCommDev(&devComm);
+
+    DMAproto->moveToThread(readThread);
+}
+
+void ecu::deviceHasLeft(comm_device_interface *_devComm)
+{
+    DMAproto->stopLog();
+    DMAproto->disconnect_();
+    // devComm = nullptr;
+    DMAproto->setCommDev(nullptr);
+    delete _devComm;
 }
 
 bool ecu::connectDMA(bool state)
@@ -78,7 +94,7 @@ bool ecu::connectDMA(bool state)
                 emit Log("failure get ECU rom id");
         }
         else
-            emit Log("failure get ECU DMA connect - BaudRate" + QString::number( devComm->getBaudRate()));
+            emit Log("failure get ECU DMA connect");
     }
     else
     {
@@ -86,15 +102,17 @@ bool ecu::connectDMA(bool state)
         DMAproto->stopLog();
         QThread::msleep(1000);               // костыль
         ecuDef.reset();
+        // ecu_model->ecuDef.reset();
         emit ecuConnected(false);
     }
-    (*DMAproto->devComm)->close();
+    DMAproto->disconnect_();
     return false;
 }
 
 void ecu::startLog()
 {
     DMAproto->startLog(&ecuDef.ramMut);
+    // DMAproto->startLog(&ecu_model->ecuDef.ramMut);
 }
 
 void ecu::stopLog()
@@ -112,6 +130,7 @@ void ecu::updateRAM(offsetMemory memory)
 void ecu::RAMreset()
 {
     DMAproto->RAMreset(ecuDef.ramMut.DEAD_var, 0);
+    // DMAproto->RAMreset(ecu_model->ecuDef.ramMut.DEAD_var, 0);
 }
 
 mapDefinition *ecu::getMap(Map *declMap)
@@ -141,7 +160,7 @@ void ecu::test()
     //===================================================================================================
     if (!ecuDef.fromROMID("90550001"))
     {
-        (*DMAproto->devComm)->close();
+        DMAproto->disconnect_();
         qDebug() << "XML NOT FOUND!!!!!!!!!!!!!!!!!!!!!!!!!";
         emit Log("xml not found");
     }

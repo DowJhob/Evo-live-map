@@ -6,6 +6,7 @@ OP20::OP20(QObject *parent, QString dllName, QString DeviceDesc, QString DeviceU
 
 OP20::~OP20()
 {
+    qDebug() << "==================== OP20::~OP20:: ==================================" << j2534->lastErrorString();
 }
 
 bool OP20::close()

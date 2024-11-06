@@ -38,7 +38,7 @@ public:
 
 public slots:
     void addTactrix(commDeviceWB *cdWB);
-    void removeTactrix(comm_device_interface *cdWB);
+    void removeTactrix(commDeviceWB *cdWB);
 
     void deviceEvent();
     void fillSerial();

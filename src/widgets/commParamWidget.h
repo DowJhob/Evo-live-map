@@ -16,7 +16,7 @@ public:
     commDeviceManagerWidget devManager;
     wbManagerWidget _wbManager;
     ecuModelManager _ecuModelManager;
-    protoManager _protoManager;
+    protoManager _logParamManager;
 
     explicit commParamWidget(QWidget *parent = nullptr, uint defaultBaudRate = 62500, uint defaultLogRate = 10);
     virtual ~commParamWidget();

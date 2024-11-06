@@ -35,6 +35,8 @@ bool stockDMA::connect_()
     return false;
 }
 
+
+
 QByteArray stockDMA::indirectDMAread(quint32 addr, int lenght)
 {
     return QByteArray();

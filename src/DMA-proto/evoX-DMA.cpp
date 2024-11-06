@@ -5,13 +5,6 @@ evoX_DMA::evoX_DMA()
     qDebug() << "evoX_DMA";
 }
 
-evoX_DMA::evoX_DMA(comm_device_interface **devComm)
-{
-    this->devComm = devComm;
-
-    qDebug() << "evoX_DMA";
-}
-
 evoX_DMA::~evoX_DMA()
 {
     qDebug() << "~evoX_DMA";
@@ -20,22 +13,24 @@ evoX_DMA::~evoX_DMA()
 bool evoX_DMA::connect_()
 {
     qDebug() << "=========== evoX_DMA::connect ================ baudRate" << (*devComm)->getBaudRate();
-    (*devComm)->open();
+    // (*devComm)->open();
 
-    if (!(*devComm)->connect())
+    // if (!(*devComm)->connect())
     {
-        (*devComm)->close();
+        // (*devComm)->close();
         return false;
     }
 
     //==================================   5 baud init  ========================================
-    if ( !(*devComm)->five_baud_init() )
+    // if ( !(*devComm)->five_baud_init() )
     {
-        (*devComm)->close();
+        // (*devComm)->close();
         return false;
     }
     return true;
 }
+
+
 
 QByteArray evoX_DMA::indirectDMAread(quint32 addr, int lenght)
 {
@@ -53,8 +48,8 @@ QByteArray evoX_DMA::directDMAread(quint32 addr, int lenght)
     setHeader(DMAcomand::directRead, recPacketCount, addr);
     // checksum
     getChckSmm();
-    (*devComm)->write( 0x33 );
-    QByteArray b = (*devComm)->read();
+    // (*devComm)->write( 0x33 );
+    // QByteArray b = (*devComm)->read();
 
     int lastPacketBodySize = lenght - packetBodySize*(recPacketCount-1);
     //qDebug() << "directDMAread " << b.toHex(':');
@@ -62,7 +57,7 @@ QByteArray evoX_DMA::directDMAread(quint32 addr, int lenght)
     {
         if (i == recPacketCount-1)
             packetBodySize = lastPacketBodySize;
-        a.append(QByteArray(b.data() + 5 + i*packetSize, packetBodySize));
+        // a.append(QByteArray(b.data() + 5 + i*packetSize, packetBodySize));
     }
     return a;
 }
@@ -80,11 +75,11 @@ void evoX_DMA::directDMAwrite(quint32 addr, char *buf, int lenght)
         if (count == recPacketCount-1)
             currentPacketBodySize = lastPacketBodySize;
         setHeader( DMAcomand::directWrite, currentPacketBodySize, addr);
-        memcpy((*devComm)->p_out_buff + 5, buf + count*packetBodySize, currentPacketBodySize);
+        // memcpy((*devComm)->p_out_buff + 5, buf + count*packetBodySize, currentPacketBodySize);
         getChckSmm();
         //QElapsedTimer t;
         //t.restart();
-        (*devComm)->write(packetSize);
+        // (*devComm)->write(packetSize);
         //qDebug()  << "directDMAwrite write time " << t.nsecsElapsed();
         //t.restart();
         //auto a = read()
@@ -130,17 +125,17 @@ void evoX_DMA::setHeader(DMAcomand command, uchar count, quint32 addr)
     //uchar packetBodySize = 0x2C;
     //clear body
     for (uint i = 5; i < DS - 2; i++)
-        (*devComm)->p_out_buff[i]=0;
+        // (*devComm)->p_out_buff[i]=0;
     //============================================
-    (*devComm)->p_out_buff[0] = 0x87;
-    (*devComm)->p_out_buff[1] = count;
-    (*devComm)->p_out_buff[2] = (uchar)command;
+    // (*devComm)->p_out_buff[0] = 0x87;
+    // (*devComm)->p_out_buff[1] = count;
+    // (*devComm)->p_out_buff[2] = (uchar)command;
     if(command == DMAcomand::directRead)
-        qToBigEndian<quint32>(addr, (char*)(*devComm)->p_out_buff + 3);
+        // qToBigEndian<quint32>(addr, (char*)(*devComm)->p_out_buff + 3);
     if(command == DMAcomand::directWrite)
     {
         quint16 a = 0xffff&addr;
-        qToBigEndian<quint16>(a, (char*)(*devComm)->p_out_buff + 3);
+        // qToBigEndian<quint16>(a, (char*)(*devComm)->p_out_buff + 3);
         // qDebug() << "setHeader"<< QString::number(a, 16);
     }
 }

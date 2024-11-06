@@ -68,7 +68,7 @@ void deviceNativeFilter::handleEvent(long wParam, PDEV_BROADCAST_DEVICEINTERFACE
     case DBT_DEVICEREMOVECOMPLETE:{
         device dev( getDevProp(pDevInf));
         dev.direction = dir::remove;
-        emit deviceEvent(dev);
+        checkType(dev);
     }break;
     case DBT_DEVICEARRIVAL:{
         device dev ( getDevProp(pDevInf));
@@ -156,7 +156,7 @@ device deviceNativeFilter::getDevProp(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
     if(pDevInf == NULL)
         return device();
     QStringList qDevInf = QString::fromWCharArray((wchar_t*)pDevInf->dbcc_name).split('#');
-    qDebug() << "deviceNativeFilter::getDevProp pDevInf->dbcc_name" << qDevInf << "pDevInf->dbcc_classguid" << pDevInf->dbcc_classguid << Qt::endl;
+    // qDebug() << "============================deviceNativeFilter::getDevProp pDevInf->dbcc_name" << qDevInf << "pDevInf->dbcc_classguid" << pDevInf->dbcc_classguid << Qt::endl;
     if (qDevInf.length() >= 3)
     {
         QString DevType = qDevInf[0].mid(qDevInf[0].indexOf("?\\") + 2 );
@@ -169,7 +169,15 @@ device deviceNativeFilter::getDevProp(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
 
             QSettings paramKey(reg + "\\" + "Device Parameters", QSettings::NativeFormat);
 
-            //qDebug()<< "DeviceInstanceId" << DeviceInstanceId;
+            // qDebug()<< "==============================DeviceInstanceId" << paramKey.value("PortName", ";").toString()/*.split(';').at(1)*/;
+
+
+
+
+            QString pn = paramKey.value("PortName", ";").toString();
+            QStringList pnl = pn.split(';');
+            if(pnl.count() > 1)
+                pn = pnl[1];
 
             return device{
                 regKey.value("Mfg", ";").toString().split(';').at(1),
@@ -178,7 +186,7 @@ device deviceNativeFilter::getDevProp(PDEV_BROADCAST_DEVICEINTERFACE pDevInf)
                 DeviceInstanceId,
                 DeviceUniqueID,
                 pDevInf->dbcc_classguid,
-                paramKey.value("PortName", ";").toString().split(';').at(1)
+                pn
             };
         }
     }
@@ -224,7 +232,7 @@ QByteArray deviceNativeFilter::getDeviceDesc(HDEVINFO hDevInfo, SP_DEVINFO_DATA 
 
 void deviceNativeFilter::checkType(device dev)
 {
-    //qDebug() << "enumerator::checkType start dev.classDev" << dev.classDev;
+    // qDebug() << "enumerator::checkType start dev.classDev" << dev.classDev;
     //    if (pDevInf->dbcc_classguid == GUID({ 0x219d0508, 0x57a8, 0x4ff5, {0x97, 0xa1, 0xbd, 0x86, 0x58, 0x7c, 0x6c, 0x7e}})               // FTDI_D2XX_Device Class GUID
     //            || pDevInf->dbcc_classguid == GUID{ 0x6d1781b7, 0xc987, 0x4f6c, {0x8d, 0x4f, 0x1e, 0xfc, 0x09, 0x8b, 0xea, 0x67}} )  // проверим на соответствие тактриксу оп20
     dev.FunctionLibrary.clear();

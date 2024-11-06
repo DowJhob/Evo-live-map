@@ -58,6 +58,8 @@ private:
     //void Log(QString);
 };
 
+typedef comm_device_interface* p_comm_device_interface;
+
 Q_DECLARE_METATYPE( comm_device_interface* )
 
 #endif // COMM_DEVICE_INTERFACE_H

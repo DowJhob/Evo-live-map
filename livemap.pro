@@ -4,6 +4,7 @@
 #
 #-------------------------------------------------
 
+CONFIG += static
 CONFIG += c++17
 #CONFIG += qwt
 #CONFIG += qmltypes
@@ -84,6 +85,7 @@ SOURCES += src/main.cpp\
 #    src/Flasher.cpp \
     src/ECU-model/ecu-model.cpp \
     src/ECU-model/evo7-ecu-model.cpp \
+    src/ECU-model/evoX-ecu-model.cpp \
     src/wideband/wb.cpp \
     src/widgets/DMA-ProtoManager/proto-manager.cpp \
     src/abstract-memory.cpp \
@@ -145,6 +147,7 @@ HEADERS  += src/mainwindow.h \
 #    src/Flasher.h \
     src/ECU-model/ecu-model.h \
     src/ECU-model/evo7-ecu-model.h \
+    src/ECU-model/evoX-ecu-model.h \
     src/wideband/wb.h \
     src/widgets/DMA-ProtoManager/proto-manager.h \
     src/abstract-memory.h \
