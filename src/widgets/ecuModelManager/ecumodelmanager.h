@@ -15,7 +15,7 @@ class ecuModelManager : public QGroupBox
     Q_OBJECT
 
 public:
-    QThread *ecu_thread;
+    // QThread *ecu_thread;
 
     explicit ecuModelManager(QWidget *parent = nullptr);
     ~ecuModelManager();

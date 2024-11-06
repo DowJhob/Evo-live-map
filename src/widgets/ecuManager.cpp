@@ -17,7 +17,7 @@ ecuManagerWidget::ecuManagerWidget(QWidget *parent, ecu *ECU) : QToolBar(parent)
 
     addWidget(&cpW);
 
-    cpW._ecuModelManager.ecu_thread = ECU->readThread;
+    // cpW._ecuModelManager.ecu_thread = ECU->readThread;
 
     addSeparator();
 
@@ -94,7 +94,7 @@ void ecuManagerWidget::setConectionParamWidget()
 
     connect(&cpW.devManager,       &commDeviceManagerWidget::deviceSelected, ECU,   &ecu::setComDev);
     connect(&cpW._ecuModelManager, &ecuModelManager::modelSelected,    ECU,   &ecu::setECUmodel);
-    connect(&cpW._ecuModelManager, &ecuModelManager::protoSelected,    ECU,   &ecu::setDMAproto);
+    connect(&cpW._ecuModelManager, &ecuModelManager::protoSelected,    ECU,   &ecu::setDMAproto, Qt::DirectConnection); // &ecu::setDMAproto выполнится в потоке менеджера,иначе в потоке ecu  и не сможет переместить в поток
 
     connect(&cpW._protoManager, &protoManager::logRateChanged,      ECU,   &ecu::setLogRate);
 

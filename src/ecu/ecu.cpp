@@ -48,6 +48,7 @@ void ecu::setDMAproto(DMA_proto *_DMAproto)
 {
     DMAproto = _DMAproto;
     _DMAproto->setCommDev(&devComm);
+    DMAproto->moveToThread(readThread);
 }
 
 bool ecu::connectDMA(bool state)
