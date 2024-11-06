@@ -86,12 +86,7 @@ void wbManagerWidget::removeTactrix(commDeviceWB *cdWB)
     int index = ui->availWB->findText(cdWB->DeviceDesc);
     ui->availWB->removeItem(index);
     cdWB->deleteLater();
-
-    commDeviceWB *devComm = qvariant_cast<commDeviceWB*>(ui->availWB->itemData(index));
-
-
-
-
+    startStop();
 }
 
 void wbManagerWidget::removeDevice()
