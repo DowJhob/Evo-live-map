@@ -4,8 +4,8 @@
 #include <QObject>
 #include <QDebug>
 
-#include "../comm-device-interface/j2534-comm.h"
-//#include "DMA-proto.h"
+// #include "../comm-device-interface/j2534-comm.h"
+#include "DMA-proto.h"
 #include "pollhelper.h"
 
 class jcsbanksDMA : public DMA_proto
