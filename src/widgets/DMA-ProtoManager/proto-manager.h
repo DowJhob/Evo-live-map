@@ -3,14 +3,6 @@
 
 #include <QGroupBox>
 
-//#include "comm-device-interface.h"
-#include "../../DMA-proto/DMA-proto.h"
-#include "../../DMA-proto/jcsbanksDMA.h"
-#include "../../DMA-proto/stockDMA.h"
-#include "../../DMA-proto/evoX-DMA.h"
-
-Q_DECLARE_METATYPE( DMA_proto* )
-
 namespace Ui {
 class protoManager;
 }
@@ -31,11 +23,9 @@ private:
     Ui::protoManager *ui;
 
 private slots:
-    void _protoSelected(int index);
     void _logRateChanged();
 
 signals:
-    void protoSelected(DMA_proto*);
     void logRateChanged(uint);
 
 };

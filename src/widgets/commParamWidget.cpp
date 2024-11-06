@@ -12,9 +12,9 @@ commParamWidget::commParamWidget(QWidget *parent, uint defaultBaudRate, uint def
     setLayout(&commonGrpBxLayout);
 
     commonGrpBxLayout.addWidget(&devManager,       0, 0);
-    commonGrpBxLayout.addWidget(&_protoManager,    1, 0);
-    commonGrpBxLayout.addWidget(&_wbManager,       2, 0);
-    commonGrpBxLayout.addWidget(&_ecuModelManager, 3, 0);
+    commonGrpBxLayout.addWidget(&_ecuModelManager, 1, 0);
+    commonGrpBxLayout.addWidget(&_protoManager,    2, 0);
+    commonGrpBxLayout.addWidget(&_wbManager,       3, 0);
     
     connect(&devManager,   &commDeviceManagerWidget::tactrixArrived,   &_wbManager,  &wbManagerWidget::addTactrix);
     connect(&devManager,   &commDeviceManagerWidget::tactrixRemoved,   &_wbManager,  &wbManagerWidget::removeTactrix);

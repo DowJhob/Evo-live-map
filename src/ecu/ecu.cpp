@@ -42,8 +42,6 @@ void ecu::setComDev(comm_device_interface *_devComm)
 void ecu::setECUmodel(ECU_model *_ECUmodel)
 {
     this->ecu_model = _ECUmodel;
-    _ECUmodel->setCommDev(&devComm);
-    DMAproto->ecu_model = &ecu_model;
 }
 
 void ecu::setDMAproto(DMA_proto *_DMAproto)

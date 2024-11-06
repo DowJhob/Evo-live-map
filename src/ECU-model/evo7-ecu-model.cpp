@@ -1,6 +1,4 @@
 #include "evo7-ecu-model.h"
-#include "qendian.h"
-#include <QDebug>
 
 evo7_ECUmodel::evo7_ECUmodel()
 {
@@ -8,41 +6,12 @@ evo7_ECUmodel::evo7_ECUmodel()
     calIDsize = 4;
 }
 
-bool evo7_ECUmodel::connect()
+evo7_ECUmodel::~evo7_ECUmodel()
 {
-    if( (*devComm)->ISO9141() )
-    {
-        qDebug() << "=========== evo7_ECUmodel::connect ================";
-        return true;
-    }
-    (*devComm)->close();
-    return false;
+
 }
 
-bool evo7_ECUmodel::MUTconnect()
+QList<DMA_ProtoType> evo7_ECUmodel::getAvailProto()
 {
-    if( (*devComm)->ISO9141() )
-        if ( (*devComm)->five_baud_init() )
-        {
-            qDebug() << "=========== evo7_ECUmodel::MUTconnect ================";
-            return true;
-        }
-    (*devComm)->close();
-    return false;
+    return QList<DMA_ProtoType>{DMA_ProtoType::jcsbanks, DMA_ProtoType::nanner55};
 }
-
-//void evo7_ECUmodel::disconnect()
-//{
-
-//}
-
-//int evo7_ECUmodel::writeFLASH(quint32 addr, int lenght)
-//{
-
-//}
-
-//QByteArray evo7_ECUmodel::readFLASH(quint32 addr, int len)
-//{
-
-//}
-

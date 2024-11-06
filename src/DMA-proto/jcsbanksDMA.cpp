@@ -16,18 +16,22 @@ jcsbanksDMA::jcsbanksDMA(comm_device_interface **devComm)
 jcsbanksDMA::~jcsbanksDMA()
 {
     poller->deleteLater();
-    //qDebug() << "~jcsbanksDMA";
+    qDebug() << "~jcsbanksDMA";
 }
 
 bool jcsbanksDMA::connect_()
 {
     //qDebug() << "=========== jcsbanksDMA::connect ================ baudRate" << (*devComm)->getBaudRate();
-    if((*ecu_model)->MUTconnect())
-    {
-        // qDebug() << "=========== jcsbanksDMA::connect ================ open" << (*devComm)->getBaudRate();
-        return true;
-    }
+    if( (*devComm)->ISO9141() )
+        if ( (*devComm)->five_baud_init() )
+        {
+            qDebug() << "=========== jcsbanksDMA::MUTconnect ================";
+            return true;
+        }
+    (*devComm)->close();
     return false;
+
+    // return (*ecu_model)->MUTconnect();
 }
 
 QByteArray jcsbanksDMA::indirectDMAread(quint32 addr, int lenght)

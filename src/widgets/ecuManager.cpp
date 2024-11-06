@@ -3,8 +3,8 @@
 ecuManagerWidget::ecuManagerWidget(QWidget *parent, ecu *ECU) : QToolBar(parent), ECU(ECU)
 {
     //    ECU->test();
-    connect(this, &ecuManagerWidget::ecuConnect,     ECU,  &ecu::connectDMA,             Qt::QueuedConnection);
-    connect(ECU,  &ecu::ecuConnected,          this, &ecuManagerWidget::ECUconnected, Qt::QueuedConnection);
+    connect(this, &ecuManagerWidget::ecuConnect,     ECU, &ecu::connectDMA,                Qt::QueuedConnection);
+    connect(ECU,  &ecu::ecuConnected,               this, &ecuManagerWidget::ECUconnected, Qt::QueuedConnection);
 
     //=============================================================================
     a_start_action = addAction( QIcon( ":ico/connect.png" ), "Start", this, &ecuManagerWidget::start_stop_Action);
@@ -16,14 +16,14 @@ ecuManagerWidget::ecuManagerWidget(QWidget *parent, ecu *ECU) : QToolBar(parent)
     addSeparator();
 
     addWidget(&cpW);
-    
-    cpW._protoManager.ecu_thread = ECU->readThread;
+
+    cpW._ecuModelManager.ecu_thread = ECU->readThread;
 
     addSeparator();
 
     addWidget(&wbWgt);
 
-    setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Preferred);
+    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     setIconSize(QSize(200, 200));
 
     cpW.deviceLostState();
@@ -94,16 +94,15 @@ void ecuManagerWidget::setConectionParamWidget()
 
     connect(&cpW.devManager,       &commDeviceManagerWidget::deviceSelected, ECU,   &ecu::setComDev);
     connect(&cpW._ecuModelManager, &ecuModelManager::modelSelected,    ECU,   &ecu::setECUmodel);
+    connect(&cpW._ecuModelManager, &ecuModelManager::protoSelected,    ECU,   &ecu::setDMAproto);
 
-    connect(&cpW._protoManager, &protoManager::protoSelected,       ECU,   &ecu::setDMAproto);
     connect(&cpW._protoManager, &protoManager::logRateChanged,      ECU,   &ecu::setLogRate);
 
     connect(&cpW.devManager,    &commDeviceManagerWidget::deviceSelected, this,   &ecuManagerWidget::deviceEvent);
     connect(&cpW._wbManager,    &wbManagerWidget::logReady,               &wbWgt, &gaugeWidget::display);
 
     // Заполняем после подключения, тогда при добавлении буду сигналы
-    cpW._protoManager.addProtos();
-    cpW._ecuModelManager.addModels();
+    cpW._ecuModelManager.fillModels();
     cpW._wbManager.fillSerial();
     cpW._wbManager.fillProto();
 }

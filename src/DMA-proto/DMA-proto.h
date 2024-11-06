@@ -60,4 +60,5 @@ signals:
 
 };
 
+// Q_DECLARE_METATYPE( DMA_proto* )
 #endif // DMAPROTO_H

@@ -30,8 +30,8 @@ void flashWidget::addFlashModel()
 //        ECUproto->deleteLater();
     //qDebug()<< "deviceManager::addDevice start" << dev.DeviceDesc;
 
-    ECU_model *flashModel = new evo7_ECUmodel();
-    ui->availFlashModel->addItem("Custom DMA proto by jcsbanks", QVariant::fromValue<ECU_model*>(flashModel));
+    // ECU_model *flashModel = new evo7_ECUmodel();
+    // ui->availFlashModel->addItem("Custom DMA proto by jcsbanks", QVariant::fromValue<ECU_model*>(flashModel));
     //proto = new stockDMA();
     //ui->availProto->addItem("Stock DMA proto by nanner55", QVariant::fromValue<DMA_proto*>(proto));
     //proto = new evoX_DMA();
