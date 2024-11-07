@@ -3,6 +3,8 @@
 ecuManagerWidget::ecuManagerWidget(QWidget *parent, ecu *ECU) : QToolBar(parent), ECU(ECU)
 {
     //    ECU->test();
+
+
     connect(this, &ecuManagerWidget::ecuConnect,     ECU, &ecu::connectDMA,                Qt::QueuedConnection);
     connect(ECU,  &ecu::ecuConnected,               this, &ecuManagerWidget::ECUconnected, Qt::QueuedConnection);
 
@@ -56,8 +58,10 @@ void ecuManagerWidget::ECUconnected(bool state)
     }
 }
 
-void ecuManagerWidget::deviceEvent(comm_device_interface *devComm)
+void ecuManagerWidget::setComDev(comm_device_interface *devComm)
 {
+    selectedCommDev = devComm;
+
     if(devComm == nullptr)
     {
         //        cpW.setEnabledECUcomm(false);
@@ -87,14 +91,33 @@ void ecuManagerWidget::start_stop_Action()
 
 void ecuManagerWidget::setConectionParamWidget()
 {
-    connect(&cpW.devManager,       &commDeviceManagerWidget::deviceSelected, ECU,   &ecu::setComDev);
-    connect(&cpW.devManager,       &commDeviceManagerWidget::deviceSelected, this,  &ecuManagerWidget::deviceEvent);
+    // connect(&cpW.devManager,       &commDeviceManagerWidget::deviceSelected, ECU,   &ecu::setComDev);
+    connect(&cpW.devManager,       &commDeviceManagerWidget::deviceSelected, this,  &ecuManagerWidget::setComDev);
     connect(&cpW.devManager,       &commDeviceManagerWidget::deviceHasLeft,  ECU,   &ecu::deviceHasLeft);
 
-    connect(&cpW._ecuModelManager, &ecuModelManager::modelSelected,    ECU,   &ecu::setECUmodel);
-    connect(&cpW._ecuModelManager, &ecuModelManager::protoSelected,    ECU,   &ecu::setDMAproto, Qt::DirectConnection); // &ecu::setDMAproto выполнится в потоке менеджера,иначе в потоке ecu  и не сможет переместить в поток
 
-    connect(&cpW._protoManager, &protoManager::logRateChanged,      ECU,   &ecu::setLogRate);
+
+
+
+
+
+
+
+    connect(&cpW._ecuModelManager, &ecuModelManager::modelSelected,    ECU,   &ecu::setECUmodel);
+
+    // set pointer to pointer to commDEv for proto obj
+    connect(&cpW._ecuModelManager, &ecuModelManager::protoSelected,    this,   [&](DMA_proto* proto)
+            {
+                proto->setCommDev(&selectedCommDev);
+                ECU->setDMAproto(proto);}                  // &ecu::setDMAproto выполнится в потоке менеджера,иначе в потоке ecu, и не сможет переместить в поток
+            );
+
+
+
+
+
+
+    connect(&cpW._logParamManager, &protoManager::logRateChanged,      ECU,   &ecu::setLogRate);
 
     connect(&cpW._wbManager,    &wbManagerWidget::logReady,               &wbWgt, &gaugeWidget::display);
 

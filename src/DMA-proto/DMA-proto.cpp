@@ -17,7 +17,7 @@ void DMA_proto::startLog(ramMUT *_ramMut)
     ramMut->scaledValue.resize(_ramMut->size());
 }
 
-void DMA_proto::setCommDev(comm_device_interface **devComm)
+void DMA_proto::setCommDev(p_comm_device_interface *devComm)
 {
     qDebug() << "=========== DMA_proto::setCommDev ================" << devComm;
 

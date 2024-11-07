@@ -85,7 +85,7 @@ void ecuModelManager::_protoSelected(int index)
     if(model == nullptr)
         return;
 
-    proto->ecu_model = &model;
+    // proto->ecu_model = &model;
 
     // qDebug()<< "protoManager::_protoSelected  thread():" << thread() << "   /  proto->thread():" << proto->thread();
     // proto->moveToThread(ecu_thread);

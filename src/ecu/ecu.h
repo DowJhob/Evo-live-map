@@ -15,7 +15,7 @@ class ecu : public QObject
     Q_OBJECT
 public:
     ecuDefinition ecuDef;
-    comm_device_interface *devComm = nullptr;
+    // comm_device_interface *devComm = nullptr;
     ECU_model *ecu_model = nullptr;
     DMA_proto *DMAproto = nullptr;
 
@@ -25,7 +25,7 @@ public:
     ~ecu();
 
 public slots:
-    void setComDev(comm_device_interface *_devComm);
+    // void setComDev(comm_device_interface *_devComm);
     void setECUmodel(ECU_model *_ECUmodel);
     void setDMAproto(DMA_proto *_ECUproto);
 
