@@ -11,7 +11,7 @@
 #include "../../comm-device-interface/ftdi-comm.h"
 #include "../../comm-device-interface/serial-comm.h"
 
-#include "../../wideband/op20wb.h"
+#include "../../wideband/WB_OP20.h"
 
 namespace Ui {
 class commDeviceManagerWidget;

@@ -60,8 +60,6 @@ void ecuManagerWidget::ECUconnected(bool state)
 
 void ecuManagerWidget::setComDev(comm_device_interface *devComm)
 {
-    selectedCommDev = devComm;
-
     if(devComm == nullptr)
     {
         //        cpW.setEnabledECUcomm(false);
@@ -91,7 +89,7 @@ void ecuManagerWidget::start_stop_Action()
 
 void ecuManagerWidget::setConectionParamWidget()
 {
-    // connect(&cpW.devManager,       &commDeviceManagerWidget::deviceSelected, ECU,   &ecu::setComDev);
+    connect(&cpW.devManager,       &commDeviceManagerWidget::deviceSelected, ECU,   &ecu::setComDev);
     connect(&cpW.devManager,       &commDeviceManagerWidget::deviceSelected, this,  &ecuManagerWidget::setComDev);
     connect(&cpW.devManager,       &commDeviceManagerWidget::deviceHasLeft,  ECU,   &ecu::deviceHasLeft);
 
@@ -105,12 +103,13 @@ void ecuManagerWidget::setConectionParamWidget()
 
     connect(&cpW._ecuModelManager, &ecuModelManager::modelSelected,    ECU,   &ecu::setECUmodel);
 
+    connect(&cpW._ecuModelManager, &ecuModelManager::protoSelected,    ECU,   &ecu::setDMAproto);
     // set pointer to pointer to commDEv for proto obj
-    connect(&cpW._ecuModelManager, &ecuModelManager::protoSelected,    this,   [&](DMA_proto* proto)
-            {
-                proto->setCommDev(&selectedCommDev);
-                ECU->setDMAproto(proto);}                  // &ecu::setDMAproto выполнится в потоке менеджера,иначе в потоке ecu, и не сможет переместить в поток
-            );
+    // connect(&cpW._ecuModelManager, &ecuModelManager::protoSelected,    this,   [&](DMA_proto* proto)
+    //         {
+    //             proto->setCommDev(&selectedCommDev);
+    //             ECU->setDMAproto(proto);}                  // &ecu::setDMAproto выполнится в потоке менеджера,иначе в потоке ecu, и не сможет переместить в поток
+    //         );
 
 
 
@@ -122,7 +121,7 @@ void ecuManagerWidget::setConectionParamWidget()
     connect(&cpW._wbManager,    &wbManagerWidget::logReady,               &wbWgt, &gaugeWidget::display);
 
     // Заполняем после подключения, тогда при добавлении буду сигналы
-    cpW._ecuModelManager.fillModels();
+    cpW._ecuModelManager.fillModels(ECU->getAvailModels(), ECU->getAvailProtos());
     cpW._wbManager.fillSerial();
     cpW._wbManager.fillProto();
 }

@@ -29,7 +29,7 @@ void mapManager::createMap(mapDefinition *dMap)
     connect(table->mapModel_, &mapModel::updateRAM, _ecu, &ecu::updateRAM, Qt::QueuedConnection);
 
 //    connect(_ecu->DMAproto, &DMA_proto::logReady, table->mapTable, &mapView::logReady, Qt::QueuedConnection);
-    connect(_ecu->DMAproto, &DMA_proto::logReady, table->mapModel_, &mapModel::logReady, Qt::QueuedConnection);
+    connect(_ecu->selectedDMAproto, &DMA_proto::logReady, table->mapModel_, &mapModel::logReady, Qt::QueuedConnection);
 
     addMapToTree(table);
 }
@@ -100,7 +100,7 @@ void mapManager::colorFromFile(QString filename)
     QFile* file = new QFile(filename);
     if (!file->open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        qDebug() << "file fail";
+        // qDebug() << "file fail";
         //return nullptr;
     }
 
@@ -108,7 +108,7 @@ void mapManager::colorFromFile(QString filename)
 
     //QVector<QColor> *colormap = new QVector<QColor>;
 
-    qDebug() << "file ";
+    // qDebug() << "file ";
     while( !file->atEnd())
     {
         sl = QString(file->readLine()).simplified()

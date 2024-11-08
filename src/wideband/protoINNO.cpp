@@ -1,4 +1,4 @@
-#include "innoProto.h"
+#include "protoINNO.h"
 
 innoProto::innoProto()
 {

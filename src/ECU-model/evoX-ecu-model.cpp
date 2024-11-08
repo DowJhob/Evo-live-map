@@ -1,16 +1,13 @@
 #include "evoX-ecu-model.h"
 
-evoX_ECUmodel::evoX_ECUmodel()
+evoX_ECUmodel::evoX_ECUmodel(QObject* parent)
 {
-
+    availProtos.append(DMA_ProtoType::tephraX);
+    name = "EVO X ECU model";
+    type = ecuModelType::EVO_X_ECU_Model;
 }
 
 evoX_ECUmodel::~evoX_ECUmodel()
 {
 
-}
-
-QList<DMA_ProtoType> evoX_ECUmodel::getAvailProto()
-{
-    return QList<DMA_ProtoType>{DMA_ProtoType::tephraX};
 }

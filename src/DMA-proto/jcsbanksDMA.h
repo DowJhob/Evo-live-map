@@ -12,8 +12,8 @@ class jcsbanksDMA : public DMA_proto
 {
     Q_OBJECT
 public:
-    jcsbanksDMA();
-    explicit jcsbanksDMA(comm_device_interface **devComm);
+    explicit jcsbanksDMA(p_comm_device_interface *p_devComm);
+
     ~jcsbanksDMA();
 
     //public slots:

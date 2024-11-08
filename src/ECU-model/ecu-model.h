@@ -17,15 +17,18 @@ Q_DECLARE_METATYPE(ecuModelType);
 
 class ECU_model : public QObject
 {
- // Q_OBJECT
+    // Q_OBJECT
 public:
+    ecuModelType type;
+    QString name;
+    QList<DMA_ProtoType> availProtos;
     quint32 ptr_calID;
     quint16 calIDsize;
 
-    ECU_model();
+    explicit ECU_model(QObject* parent = nullptr/*, QMap<DMA_ProtoType, DMA_proto*> *availProtos = nullptr*/);
     // virtual ~ECU_model() = 0;
 
-    virtual QList<DMA_ProtoType> getAvailProto() = 0;
+    QList<DMA_ProtoType>* getAvailProtos();
 
 
 
@@ -35,7 +38,7 @@ public:
 
     bool getECU_def(QByteArray romIDbytes)
     {
-         // = DMAproto->directDMAread( ecu_model->ptr_calID, ecu_model->calIDsize);                        //читаем номер калибровки
+        // = DMAproto->directDMAread( ecu_model->ptr_calID, ecu_model->calIDsize);                        //читаем номер калибровки
         if ( !romIDbytes.isEmpty() )
         {
             QString romID = QString::number( qFromBigEndian<quint32>(romIDbytes.data()), 16 );
@@ -57,8 +60,6 @@ public:
 private:
 
 };
-
-typedef ECU_model* p_ECU_model;
 
 Q_DECLARE_METATYPE(ECU_model*);
 #endif // ECU_MODEL_H

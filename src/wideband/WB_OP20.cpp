@@ -1,4 +1,4 @@
-#include "op20wb.h"
+#include "WB_OP20.h"
 
 op20wb::op20wb(OP20 *op20): op20(op20)// : j2534_interface(dllName, DeviceDesc, DeviceUniqueID)
 {

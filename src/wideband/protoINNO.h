@@ -1,9 +1,9 @@
-#ifndef INNOPROTO_H
-#define INNOPROTO_H
+#ifndef PROTOINNO_H
+#define PROTOINNO_H
 
 #include <QDebug>
 
-#include "wb-proto.h"
+#include "protoWB.h"
 
 typedef struct
 {
@@ -90,4 +90,4 @@ private:
 
 };
 
-#endif // INNOPROTO_H
+#endif // PROTOINNO_H

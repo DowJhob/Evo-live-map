@@ -6,10 +6,8 @@
 class evoX_ECUmodel : public ECU_model
 {
 public:
-    evoX_ECUmodel();
+    evoX_ECUmodel(QObject* parent);
     ~evoX_ECUmodel();
-
-    QList<DMA_ProtoType> getAvailProto();
 
 private:
 

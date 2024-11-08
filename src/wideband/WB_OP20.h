@@ -1,8 +1,8 @@
-#ifndef OP20WB_H
-#define OP20WB_H
+#ifndef WB_OP20_H
+#define WB_OP20_H
 
 #include <QObject>
-#include "commdevicewb-interface.h"
+#include "WB_I_ComDev.h"
 #include "../comm-device-interface/op20.h"
 
 class op20wb : public commDeviceWB
@@ -45,4 +45,4 @@ signals:
 
 };
 
-#endif // OP20WB_H
+#endif // WB_OP20_H

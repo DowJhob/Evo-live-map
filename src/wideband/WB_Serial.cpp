@@ -1,4 +1,4 @@
-#include "serialwb.h"
+#include "WB_Serial.h"
 
 serialWB::serialWB(QSerialPortInfo portInfo, QObject *parent)//:QSerialPort(portInfo, parent)
 {

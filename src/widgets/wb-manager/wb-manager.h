@@ -14,14 +14,14 @@
 
 //#include "../deviceNativeFilter.h"
 //#include "../comm-device-interface/comm-device-interface.h"
-#include "../../wideband/wb-proto.h"
-#include "../../wideband/innoProto.h"
-#include "../../wideband/aemProto.h"
-#include "../../wideband/plxProto.h"
+#include "../../wideband/protoWB.h"
+#include "../../wideband/protoINNO.h"
+#include "../../wideband/protoAEM.h"
+#include "../../wideband/protoPLX.h"
 
 #include "../../comm-device-interface/op20.h"
-#include "../../wideband/commdevicewb-interface.h"
-#include "../../wideband/serialwb.h"
+#include "../../wideband/WB_I_ComDev.h"
+#include "../../wideband/WB_Serial.h"
 
 Q_DECLARE_METATYPE( wbProto* )
 

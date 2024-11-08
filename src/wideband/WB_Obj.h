@@ -1,11 +1,10 @@
-#ifndef WB_H
-#define WB_H
+#ifndef WB_OBJ_H
+#define WB_OBJ_H
 
 #include "qdebug.h"
 #include "qthread.h"
-#include "qtimer.h"
-#include "src/wideband/commdevicewb-interface.h"
-#include "src/wideband/wb-proto.h"
+#include "src/wideband/WB_I_ComDev.h"
+#include "src/wideband/protoWB.h"
 #include <QObject>
 
 class WB : public QObject
@@ -46,4 +45,4 @@ signals:
 
 };
 
-#endif // WB_H
+#endif // WB_OBJ_H

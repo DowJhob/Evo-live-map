@@ -4,7 +4,7 @@
 #include <QTimer>
 
 #include "j2534-comm.h"
-#include "src/wideband/commdevicewb-interface.h"
+#include "src/wideband/WB_I_ComDev.h"
 
 class OP20 : public j2534_comm//, public commDeviceWB
 {

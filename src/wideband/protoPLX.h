@@ -1,9 +1,9 @@
-#ifndef PLXPROTO_H
-#define PLXPROTO_H
+#ifndef PROTOPLX_H
+#define PROTOPLX_H
 
 #include <QDebug>
 
-#include "wb-proto.h"
+#include "protoWB.h"
 
 enum ParserState {
     EXPECTING_START,
@@ -32,4 +32,4 @@ private:
 
 };
 
-#endif // PLXPROTO_H
+#endif // PROTOPLX_H

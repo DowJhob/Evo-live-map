@@ -1,5 +1,5 @@
-#ifndef SERIALWB_H
-#define SERIALWB_H
+#ifndef WB_SERIAL_H
+#define WB_SERIAL_H
 
 #include <QObject>
 #include <QDebug>
@@ -7,7 +7,7 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 
-#include "commdevicewb-interface.h"
+#include "WB_I_ComDev.h"
 
 class serialWB: public commDeviceWB//
         //, public QSerialPort
@@ -40,4 +40,4 @@ private:
 
 };
 
-#endif // SERIALWB_H
+#endif // WB_SERIAL_H

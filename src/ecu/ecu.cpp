@@ -9,7 +9,18 @@ ecu::ecu()
     connect(readThread, &QThread::finished, readThread, &QThread::deleteLater);
     moveToThread(readThread);
     readThread->start();
-//    qDebug() << "=========== ecu:: ================ QThread::readThread" << readThread << "  \  QThread::thread" << thread();
+
+    for(auto _ECUmodel : qAsConst(AvailModels))
+    {
+        _ECUmodel->moveToThread(readThread);
+    }
+
+    for(auto proto : qAsConst(availProtos))
+    {
+        proto->moveToThread(readThread);
+    }
+
+    qDebug() << "=========== ecu:: ================ QThread::readThread" << readThread << "  \\  QThread::thread" << thread();
 }
 
 ecu::~ecu()
@@ -18,51 +29,56 @@ ecu::~ecu()
     //pollTimer->deleteLater();
 }
 
-// void ecu::setComDev(comm_device_interface *_devComm)
-// {
-//     if (_devComm == nullptr  )
-//     {
-//         // все интерфесы отключены, сделай что нибудь!!!!
-//         if(DMAproto != nullptr)
-//         {
-//             DMAproto->stopLog();
-//         }
-//         QThread::msleep(devComm->_readTimeout + 200);   // это что бы вывалиться из цикла ожидания стартового сообщения
-//         emit removeDevice(devComm);
+QMap<ecuModelType, ECU_model *> *ecu::getAvailModels()
+{
+    return &AvailModels;
+}
 
-//         emit ecuConnected(false);
-//     }
-//     devComm = _devComm;
-// }
+QMap<DMA_ProtoType, DMA_proto *> *ecu::getAvailProtos()
+{
+    return &availProtos;
+}
+
+void ecu::setComDev(comm_device_interface *_devComm)
+{
+    selectedDMAproto->stopLog();
+
+    if (selectedDevComm != nullptr  )
+    {
+        selectedDMAproto->disconnect_();
+    }
+
+    emit ecuConnected(false);
+
+    selectedDevComm = _devComm;
+}
 
 void ecu::setECUmodel(ECU_model *_ECUmodel)
 {
-    if (ecu_model != nullptr  )
+    if (selectedDMAproto != nullptr  )
     {
-        DMAproto->stopLog();
-        DMAproto->disconnect_();
+        selectedDMAproto->stopLog();
+        selectedDMAproto->disconnect_();
     }
-    ecu_model = _ECUmodel;
+    selectedECUmodel = _ECUmodel;
 }
 
 void ecu::setDMAproto(DMA_proto *_DMAproto)
 {
-    if (DMAproto != nullptr  )
+    if (selectedDMAproto != nullptr  )
     {
-        DMAproto->stopLog();
-        DMAproto->disconnect_();
+        selectedDMAproto->stopLog();
+        selectedDMAproto->disconnect_();
     }
-    DMAproto = _DMAproto;
+    selectedDMAproto = _DMAproto;
 
-    DMAproto->moveToThread(readThread);
+    // qDebug() << "=========== ecu::setDMAproto ================ _DMAproto" << _DMAproto << "  /  _DMAproto::thread" << _DMAproto->thread();
 }
 
 void ecu::deviceHasLeft(comm_device_interface *_devComm)
 {
-    DMAproto->stopLog();
-    DMAproto->disconnect_();
-    // devComm = nullptr;
-    DMAproto->setCommDev(nullptr);
+    selectedDMAproto->stopLog();
+
     delete _devComm;
 }
 
@@ -71,9 +87,9 @@ bool ecu::connectDMA(bool state)
     //qDebug() << "=========== ecu::connectDMA ================ devComm:" << devComm;
     if (state)
     {
-        if (DMAproto->connect_())
+        if (selectedDMAproto->connect_())
         {
-            QByteArray a = DMAproto->directDMAread( ecu_model->ptr_calID, ecu_model->calIDsize);                        //читаем номер калибровки
+            QByteArray a = selectedDMAproto->directDMAread( selectedECUmodel->ptr_calID, selectedECUmodel->calIDsize);                        //читаем номер калибровки
             if ( !a.isEmpty() )
             {
                 QString romID = QString::number( qFromBigEndian<quint32>(a.data()), 16 );
@@ -99,37 +115,37 @@ bool ecu::connectDMA(bool state)
     else
     {
         qDebug() << "=========== ecu::disconnectDMA ================";
-        DMAproto->stopLog();
+        selectedDMAproto->stopLog();
         QThread::msleep(1000);               // костыль
         ecuDef.reset();
         // ecu_model->ecuDef.reset();
         emit ecuConnected(false);
     }
-    DMAproto->disconnect_();
+    selectedDMAproto->disconnect_();
     return false;
 }
 
 void ecu::startLog()
 {
-    DMAproto->startLog(&ecuDef.ramMut);
+    selectedDMAproto->startLog(&ecuDef.ramMut);
     // DMAproto->startLog(&ecu_model->ecuDef.ramMut);
 }
 
 void ecu::stopLog()
 {
-    DMAproto->stopLog();
+    selectedDMAproto->stopLog();
 }
 
 void ecu::updateRAM(offsetMemory memory)
 {
 //    qDebug() << "=========== ecu::updateRAM ================ sender()->thread:" << sender()->thread();
 
-    DMAproto->updateRAM(memory);
+    selectedDMAproto->updateRAM(memory);
 }
 
 void ecu::RAMreset()
 {
-    DMAproto->RAMreset(ecuDef.ramMut.DEAD_var, 0);
+    selectedDMAproto->RAMreset(ecuDef.ramMut.DEAD_var, 0);
     // DMAproto->RAMreset(ecu_model->ecuDef.ramMut.DEAD_var, 0);
 }
 
@@ -141,10 +157,10 @@ mapDefinition *ecu::getMap(Map *declMap)
     mapDefinition *defMap = new mapDefinition;
     defMap->declMap = declMap;
     if(declMap->X_axis.addr != 0)
-        defMap->X_axis = DMAproto->directDMAread(declMap->X_axis.addr, declMap->X_axis.byteSize());   // читаем оси
+        defMap->X_axis = selectedDMAproto->directDMAread(declMap->X_axis.addr, declMap->X_axis.byteSize());   // читаем оси
     if(declMap->Y_axis.addr != 0)
-        defMap->Y_axis = DMAproto->directDMAread(declMap->Y_axis.addr, declMap->Y_axis.byteSize());
-    defMap->Map = DMAproto->directDMAread(declMap->addr, declMap->byteSize());
+        defMap->Y_axis = selectedDMAproto->directDMAread(declMap->Y_axis.addr, declMap->Y_axis.byteSize());
+    defMap->Map = selectedDMAproto->directDMAread(declMap->addr, declMap->byteSize());
     //emit gettedMap(defMap);
     return defMap;
 }
@@ -152,7 +168,7 @@ mapDefinition *ecu::getMap(Map *declMap)
 void ecu::setLogRate(int freqRate)
 {
     //pollTimer->setInterval(1/freqRate);
-    ((pollHelper*)DMAproto)->setLogRate(1/freqRate);
+    ((pollHelper*)selectedDMAproto)->setLogRate(1/freqRate);
 }
 
 void ecu::test()
@@ -160,7 +176,7 @@ void ecu::test()
     //===================================================================================================
     if (!ecuDef.fromROMID("90550001"))
     {
-        DMAproto->disconnect_();
+        selectedDMAproto->disconnect_();
         qDebug() << "XML NOT FOUND!!!!!!!!!!!!!!!!!!!!!!!!!";
         emit Log("xml not found");
     }

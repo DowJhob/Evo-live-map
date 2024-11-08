@@ -6,7 +6,7 @@
 #include "deviceNativeFilter.h"
 #include "mainwindow.h"
 
-#include "src/wideband/wb.h"
+#include "src/wideband/WB_Obj.h"
 #include "widgets/ecuManager.h"
 #include "widgets/mapManager/mapmanager.h"
 
@@ -15,6 +15,11 @@ QElapsedTimer t;
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+
+    app.setApplicationDisplayName(QString("livemap by eulle@ya.ru ver %1").arg(GIT_VERSION));
+    qDebug() << QString("Version: %1").arg(GIT_VERSION);
+    //========================================================================================
+
     QThread::currentThread()->setPriority(QThread::TimeCriticalPriority);
     //    QQmlApplicationEngine engine;
 
@@ -22,14 +27,7 @@ int main(int argc, char *argv[])
     //    if (engine.rootObjects().isEmpty())
     //        return -1;
 
-
-
-
     qDebug() << "=========== main:: ================ QThread:" << QThread::currentThread();
-
-    app.setApplicationDisplayName(QString("livemap by eulle@ya.ru ver %1").arg(GIT_VERSION));
-    qDebug() << QString("Version: %1").arg(GIT_VERSION);
-    //========================================================================================
 
     MainWindow mainWindow;
 

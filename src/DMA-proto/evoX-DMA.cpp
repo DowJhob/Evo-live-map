@@ -1,8 +1,10 @@
 #include "evoX-DMA.h"
 
-evoX_DMA::evoX_DMA()
+evoX_DMA::evoX_DMA(p_comm_device_interface *p_devComm) : DMA_proto(p_devComm)
 {
-    qDebug() << "evoX_DMA";
+    name = "evoX DMA proto by tephra";
+    type = DMA_ProtoType::tephraX;
+// qDebug() << "evoX_DMA::evoX_DMA(p_comm_device_interface *p_devComm)" << this->p_devComm;
 }
 
 evoX_DMA::~evoX_DMA()
@@ -12,7 +14,7 @@ evoX_DMA::~evoX_DMA()
 
 bool evoX_DMA::connect_()
 {
-    qDebug() << "=========== evoX_DMA::connect ================ baudRate" << (*devComm)->getBaudRate();
+    qDebug() << "=========== evoX_DMA::connect ================ baudRate" << (*p_devComm)->getBaudRate();
     // (*devComm)->open();
 
     // if (!(*devComm)->connect())
@@ -145,9 +147,9 @@ void evoX_DMA::getChckSmm()
     // checksum
     uchar chckSum = 0;
     for (uint i = 0; i < DS - 2; i++)
-        chckSum += (*devComm)->p_out_buff[i];
-    (*devComm)->p_out_buff[DS - 2] = chckSum;
+        chckSum += (*p_devComm)->p_out_buff[i];
+    (*p_devComm)->p_out_buff[DS - 2] = chckSum;
 
     // trailer
-    (*devComm)->p_out_buff[DS - 1] = 0x0D;
+    (*p_devComm)->p_out_buff[DS - 1] = 0x0D;
 }

@@ -1,4 +1,4 @@
-#include "plxProto.h"
+#include "protoPLX.h"
 
 plxProto::plxProto()
 {

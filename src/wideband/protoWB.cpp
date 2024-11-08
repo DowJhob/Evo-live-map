@@ -1,4 +1,4 @@
-#include "wb-proto.h"
+#include "protoWB.h"
 
 //float wbProto::handleWB(int proto, QByteArray a)
 //{

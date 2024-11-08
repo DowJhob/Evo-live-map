@@ -1,16 +1,11 @@
 #include "jcsbanksDMA.h"
 
-jcsbanksDMA::jcsbanksDMA()
+jcsbanksDMA::jcsbanksDMA(p_comm_device_interface *p_devComm) : /*jcsbanksDMA()*/ DMA_proto(p_devComm)
 {
+    name = "Custom DMA proto by jcsbanks";
+    type = DMA_ProtoType::jcsbanks;
     poller = new pollHelper(this);
-    //qDebug() << "jcsbanksDMA";
-}
-
-jcsbanksDMA::jcsbanksDMA(comm_device_interface **devComm)
-{
-    this->devComm = devComm;
-    poller = new pollHelper(this);
-    //qDebug() << "jcsbanksDMA";
+    // qDebug() << "jcsbanksDMA(p_comm_device_interface *p_devComm)" << this->p_devComm;
 }
 
 jcsbanksDMA::~jcsbanksDMA()
@@ -21,19 +16,18 @@ jcsbanksDMA::~jcsbanksDMA()
 
 bool jcsbanksDMA::connect_()
 {
-    //qDebug() << "=========== jcsbanksDMA::connect ================ baudRate" << (*devComm)->getBaudRate();
-    if( (*devComm)->ISO9141() )
-        if ( (*devComm)->five_baud_init() )
+    //qDebug() << "=========== jcsbanksDMA::connect ================ baudRate" << (*p_devComm)->getBaudRate();
+    if( (*p_devComm)->ISO9141() )
+        if ( (*p_devComm)->five_baud_init() )
         {
             qDebug() << "=========== jcsbanksDMA::MUTconnect ================";
             return true;
         }
-    (*devComm)->close();
+    (*p_devComm)->close();
     return false;
 
     // return (*ecu_model)->MUTconnect();
 }
-
 
 
 QByteArray jcsbanksDMA::indirectDMAread(quint32 addr, int lenght)
@@ -43,7 +37,7 @@ QByteArray jcsbanksDMA::indirectDMAread(quint32 addr, int lenght)
     //QByteArray a = (*devComm)->read(lenght);
     //qDebug() << "jcsbanksDMA::directDMAread" << a.toHex(':');
     //return a;
-    return (*devComm)->read(lenght);
+    return (*p_devComm)->read(lenght);
 }
 
 QByteArray jcsbanksDMA::directDMAread(quint32 addr, int lenght)
@@ -51,7 +45,7 @@ QByteArray jcsbanksDMA::directDMAread(quint32 addr, int lenght)
     //qDebug() << "jcsbanksDMA::directDMAread";
     sendDMAcomand(0xE1, addr, lenght, nullptr);
     //qDebug() << "jcsbanksDMA::directDMAread2";
-    return (*devComm)->read(lenght);
+    return (*p_devComm)->read(lenght);
 }
 
 void jcsbanksDMA::directDMAwrite(quint32 addr, char* buf, int lenght)
@@ -66,7 +60,7 @@ void jcsbanksDMA::startLog(ramMUT *_ramMut)
 //    qDebug()<<"=========== jcsbanksDMA::startLog ================" << thread();
     DMA_proto::startLog(_ramMut);
 
-//    int curBaudRate = (*devComm)->baudRate ;
+//    int curBaudRate = (*p_devComm)->baudRate ;
 
 //    int timeForSendCommand = (1000 * 7)/(curBaudRate/bitsInLineByte) + delay_after_command;
 
@@ -76,7 +70,7 @@ void jcsbanksDMA::startLog(ramMUT *_ramMut)
 
 //    qDebug()<<"=========== jcsbanksDMA::startLog ================ minPollTime" << minPollTime;
 
-//    (*devComm)->_readTimeout = minPollTime;
+//    (*p_devComm)->_readTimeout = minPollTime;
 
 //    poller->startLog(minPollTime);
     poller->startLog2();
@@ -134,22 +128,22 @@ void jcsbanksDMA::poll()
 void jcsbanksDMA::sendDMAcomand(char command, unsigned long addr, unsigned long count, char *buf)
 {
     //int subcount =0;
-    (*devComm)->p_out_buff[0] = command;
-    (*devComm)->write( 1 );
+    (*p_devComm)->p_out_buff[0] = command;
+    (*p_devComm)->write( 1 );
     QThread::msleep(delay_after_command);
-    (*devComm)->p_out_buff[0] = (addr & 0xFF000000) >> 24;
-    (*devComm)->p_out_buff[1] = (addr & 0xFF0000) >> 16;
-    (*devComm)->p_out_buff[2] = (addr & 0xFF00) >> 8;
-    (*devComm)->p_out_buff[3] = (addr & 0xFF);
-    (*devComm)->p_out_buff[4] = (count & 0xFF00) >> 8;
-    (*devComm)->p_out_buff[5] = (count & 0xFF);
-    (*devComm)->write( 6 );
+    (*p_devComm)->p_out_buff[0] = (addr & 0xFF000000) >> 24;
+    (*p_devComm)->p_out_buff[1] = (addr & 0xFF0000) >> 16;
+    (*p_devComm)->p_out_buff[2] = (addr & 0xFF00) >> 8;
+    (*p_devComm)->p_out_buff[3] = (addr & 0xFF);
+    (*p_devComm)->p_out_buff[4] = (count & 0xFF00) >> 8;
+    (*p_devComm)->p_out_buff[5] = (count & 0xFF);
+    (*p_devComm)->write( 6 );
     if ( buf != nullptr)
     {
         //QThread::msleep(10);
-        memcpy((*devComm)->p_out_buff, buf, count);
+        memcpy((*p_devComm)->p_out_buff, buf, count);
 //        qDebug() << "jcsbanksDMA::sendDMAcomand" << QString::number(command, 16) << "addr" << QString::number(addr, 16) << "size" << count;
-        (*devComm)->write( count);
+        (*p_devComm)->write( count);
     }
 
     //(*devComm)->write( 6+subcount);

@@ -1,9 +1,9 @@
-#ifndef AEMPROTO_H
-#define AEMPROTO_H
+#ifndef PROTOAEM_H
+#define PROTOAEM_H
 
 #include <QDebug>
 
-#include "wb-proto.h"
+#include "protoWB.h"
 
 class aemProto : public wbProto
 {
@@ -19,4 +19,4 @@ private:
 
 };
 
-#endif // AEMPROTO_H
+#endif // PROTOAEM_H

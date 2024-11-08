@@ -1,4 +1,4 @@
-#include "commdevicewb-interface.h"
+#include "WB_I_ComDev.h"
 
 commDeviceWB::commDeviceWB(){}
 

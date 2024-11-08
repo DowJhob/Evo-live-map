@@ -3,8 +3,6 @@
 
 #include <QObject>
 #include <QByteArray>
-//#include "innoProto.h"
-//#include "plxProto.h"
 
 class wbProto : public QObject
 {

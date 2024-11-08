@@ -13,8 +13,7 @@ class evoX_DMA : public DMA_proto
 {
     Q_OBJECT
 public:
-//    j2534_interface **devComm;
-    evoX_DMA();
+    explicit evoX_DMA(p_comm_device_interface *p_devComm);
     ~evoX_DMA();
 
 //public slots:

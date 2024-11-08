@@ -1,14 +1,12 @@
 #include "DMA-proto.h"
 
-DMA_proto::DMA_proto()
+DMA_proto::DMA_proto(p_comm_device_interface *p_devComm):p_devComm(p_devComm)
 {
-//    qDebug() << "DMA_proto";
+       // qDebug() << "DMA_proto::DMA_proto(p_comm_device_interface *p_devComm)";
 }
 
 DMA_proto::~DMA_proto()
-{
-//    qDebug() << "~ECU_interface";
-}
+{}
 
 void DMA_proto::startLog(ramMUT *_ramMut)
 {
@@ -17,15 +15,8 @@ void DMA_proto::startLog(ramMUT *_ramMut)
     ramMut->scaledValue.resize(_ramMut->size());
 }
 
-void DMA_proto::setCommDev(p_comm_device_interface *devComm)
-{
-    qDebug() << "=========== DMA_proto::setCommDev ================" << devComm;
-
-    this->devComm = devComm;
-}
-
 bool DMA_proto::disconnect_()
 {
-    (*devComm)->close();
+    (*p_devComm)->close();
     return false;
 }

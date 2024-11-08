@@ -1,4 +1,4 @@
-#include "wb.h"
+#include "WB_Obj.h"
 
 WB::WB()
 {
@@ -8,7 +8,7 @@ WB::WB()
     connect(thread, &QThread::finished, thread, &QThread::deleteLater);
     moveToThread(thread);
     thread->start();
-    qDebug() << "=========== WB:: ================ QThread:" << thread;
+    // qDebug() << "=========== WB:: ================ QThread:" << thread;
 
 //    connect(this, &WB::_poll, this, &WB::poll);
 }

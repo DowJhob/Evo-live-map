@@ -86,7 +86,14 @@ SOURCES += src/main.cpp\
     src/ECU-model/ecu-model.cpp \
     src/ECU-model/evo7-ecu-model.cpp \
     src/ECU-model/evoX-ecu-model.cpp \
-    src/wideband/wb.cpp \
+    src/wideband/WB_I_ComDev.cpp \
+    src/wideband/WB_OP20.cpp \
+    src/wideband/WB_Obj.cpp \
+    src/wideband/WB_Serial.cpp \
+    src/wideband/protoAEM.cpp \
+    src/wideband/protoINNO.cpp \
+    src/wideband/protoPLX.cpp \
+    src/wideband/protoWB.cpp \
     src/widgets/DMA-ProtoManager/proto-manager.cpp \
     src/abstract-memory.cpp \
     src/widgets/commDeviceManager/devicemanager.cpp \
@@ -108,22 +115,15 @@ SOURCES += src/main.cpp\
     src/widgets/Patcher/patcher.cpp \
 #    src/widgets/analizer.cpp \
     src/widgets/ecuManager.cpp \
-    src/wideband/op20wb.cpp \
     src/DMA-proto/pollhelper.cpp \
     src/deviceNativeFilter.cpp \
     src/ecu/ecu-definition.cpp \
     src/fast-notation.cpp \
     src/libs/j2534passthru.cpp \
     src/map-decl/map.cpp \
-    src/wideband/aemProto.cpp \
-    src/wideband/commdevicewb-interface.cpp \
-    src/wideband/innoProto.cpp \
-    src/wideband/plxProto.cpp \
-    src/wideband/serialwb.cpp \
     src/widgets/ecuModelManager/ecumodelmanager.cpp \
     src/widgets/flasher/flashwidget.cpp \
     src/widgets/wb-manager/wb-manager.cpp \
-    src/wideband/wb-proto.cpp \
     src/widgets/hexEditor/hexeditor.cpp \
     src/mainwindow.cpp \
 #    src/libs/J2534.cpp \
@@ -148,7 +148,14 @@ HEADERS  += src/mainwindow.h \
     src/ECU-model/ecu-model.h \
     src/ECU-model/evo7-ecu-model.h \
     src/ECU-model/evoX-ecu-model.h \
-    src/wideband/wb.h \
+    src/wideband/WB_I_ComDev.h \
+    src/wideband/WB_OP20.h \
+    src/wideband/WB_Obj.h \
+    src/wideband/WB_Serial.h \
+    src/wideband/protoAEM.h \
+    src/wideband/protoINNO.h \
+    src/wideband/protoPLX.h \
+    src/wideband/protoWB.h \
     src/widgets/DMA-ProtoManager/proto-manager.h \
     src/abstract-memory.h \
     src/widgets/commDeviceManager/devicemanager.h \
@@ -166,7 +173,6 @@ HEADERS  += src/mainwindow.h \
     src/widgets/Patcher/patcher.h \
 #    src/widgets/analizer.h \
     src/widgets/ecuManager.h \
-    src/wideband/op20wb.h \
     src/DMA-proto/pollhelper.h \
     src/DMA-proto/evoX-DMA.h \
     src/DMA-proto/jcsbanksDMA.h \
@@ -186,15 +192,9 @@ HEADERS  += src/mainwindow.h \
     src/map-decl/submap.h \
     src/test-map.h \
     src/types.h \
-    src/wideband/aemProto.h \
-    src/wideband/commdevicewb-interface.h \
-    src/wideband/innoProto.h \
-    src/wideband/plxProto.h \
-    src/wideband/serialwb.h \
     src/widgets/ecuModelManager/ecumodelmanager.h \
     src/widgets/flasher/flashwidget.h \
     src/widgets/wb-manager/wb-manager.h \
-    src/wideband/wb-proto.h \
     src/widgets/commParamWidget.h \
     src/widgets/gauge_widget.h \
     src/widgets/hexEditor/hexeditor.h \
