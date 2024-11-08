@@ -4,7 +4,7 @@
 #include <QObject>
 #include "qdebug.h"
 #include "qendian.h"
-// #include "src/DMA-proto/DMA-proto.h"
+#include "src/DMA-proto/DMA-proto.h"
 #include "src/ecu/ecu-definition.h"
 
 enum class ecuModelType
@@ -13,16 +13,7 @@ enum class ecuModelType
     EVO_X_ECU_Model
 };
 
-enum class DMA_ProtoType
-{
-    jcsbanks,
-    nanner55,
-    tephraX
-};
-
 Q_DECLARE_METATYPE(ecuModelType);
-
-Q_DECLARE_METATYPE(DMA_ProtoType);
 
 class ECU_model : public QObject
 {

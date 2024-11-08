@@ -9,7 +9,7 @@ class commDeviceWB : public QObject
     Q_OBJECT
 public:
     QString DeviceDesc;// + " / " + cdWB->DeviceUniqueID
-    explicit commDeviceWB(){}
+    explicit commDeviceWB();
     explicit commDeviceWB(QString DeviceDesc);
     virtual ~commDeviceWB();
 

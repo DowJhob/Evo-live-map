@@ -11,6 +11,15 @@
 #include "../comm-device-interface/comm-device-interface.h"
 #include "src/ecu/ecu-definition.h"
 
+enum class DMA_ProtoType
+{
+    jcsbanks,
+    nanner55,
+    tephraX
+};
+
+Q_DECLARE_METATYPE(DMA_ProtoType);
+
 enum class DMAcomand
 {
     stockWrite,
