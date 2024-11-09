@@ -38,7 +38,7 @@ public:
     virtual QByteArray read(uint readTimeout = 0) = 0;
     virtual void write(int lenght ) = 0;
 
-    bool connect();
+    bool connect(Protocol protocol);
     void setBaudRate(uint BaudRate);
 
     uint getBaudRate();

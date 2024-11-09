@@ -14,7 +14,7 @@ comm_device_interface::~comm_device_interface()
     //qDebug() << "~comm_device_interface";
 }
 
-bool comm_device_interface::connect()
+bool comm_device_interface::connect(Protocol protocol)
 {
     qDebug() << "=========== comm_device_interface::connect ================";
     bool status = false;

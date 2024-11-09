@@ -18,7 +18,7 @@ bool stockDMA::connect_()
     if((*p_devComm)->open())
     {
         qDebug() << "=========== stockDMA::connect ================ open" << (*p_devComm)->getBaudRate();
-        if ((*p_devComm)->connect())
+        if ((*p_devComm)->connect(Protocol::ISO9141))
         {
             qDebug() << "=========== stockDMA::connect ================ connect" << (*p_devComm)->getBaudRate();
             return true;
@@ -106,6 +106,16 @@ void stockDMA::stopLog()
 void stockDMA::setLogRate(int freqRate)
 {
     poller->setLogRate(1/freqRate);
+}
+
+void stockDMA::RAMreset(quint32 var1, quint16 var2)
+{
+
+}
+
+void stockDMA::updateRAM(offsetMemory memory)
+{
+
 }
 
 void stockDMA::setHeader(DMAcomand command, uchar count, quint32 addr)

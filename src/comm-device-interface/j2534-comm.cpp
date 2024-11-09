@@ -61,11 +61,12 @@ bool j2534_comm::info()
 bool j2534_comm::open()
 {
     PassThru::Status status;
-    qDebug() << "==================== j2534_interface::ISO9141 -  =========================== status" << status << devID;
     if ( status = j2534->PassThruOpen(nullptr, &devID); status != PassThru::Status::NoError && status != PassThru::Status::DeviceInUse )
     {
+        qDebug() << "==================== j2534_comm::open -  =========================== status" << status << devID;
         return false;
     }
+    qDebug() << "==================== j2534_comm::open -  =========================== status" << status << devID;
     return true;
 }
 
@@ -221,16 +222,19 @@ bool j2534_comm::ISO9141()
 
 bool j2534_comm::ISO15765()
 {
+    uint baudRate = 500000;
+
     j2534->PassThruIoctl(chanID, PassThru::IoctlID::CLEAR_RX_BUFFER, nullptr, nullptr);
     j2534->PassThruIoctl(chanID, PassThru::IoctlID::CLEAR_TX_BUFFER, nullptr, nullptr);
     j2534->PassThruIoctl(chanID, PassThru::IoctlID::CLEAR_MSG_FILTERS, nullptr, nullptr);
 
     //-======================================== SET CONFIG ===========================================
-    Config scp[4] = { Config{Config::Parameter::DataRate, baudRate},
-                      Config{Config::Parameter::ISO15765BS, 0x20},
-                      Config{Config::Parameter::ISO15765STmin, 0},
-                      Config{Config::Parameter::Loopback, 0}
-                    };        // set timing
+    Config scp[4] = {
+                     Config{Config::Parameter::DataRate, baudRate},  // этого у тефры нету
+                     Config{Config::Parameter::Loopback, 0},         // этого у тефры нету
+                     Config{Config::Parameter::ISO15765BS, 0x20},
+                     Config{Config::Parameter::ISO15765STmin, 0},
+                     };        // set timing
 
     const SArray<const Config> configList{4, scp};
     if (j2534->PassThruIoctl(chanID, PassThru::SET_CONFIG, &configList, nullptr))
@@ -243,7 +247,7 @@ bool j2534_comm::ISO15765()
 
     Message msgMask, msgPattern, msgFlowControl;
 
-    msgMask.m_protocolId = ulong(protocol);
+    msgMask.m_protocolId = ulong(Protocol::ISO15765);
     msgMask.m_rxStatus   = 0;
     msgMask.m_txFlags    = Message::TxFlag::OutISO15765FramePad;
     msgMask.m_timestamp  = 0;
@@ -254,7 +258,7 @@ bool j2534_comm::ISO15765()
     msgMask.m_data[2] = 0xFF;
     msgMask.m_data[3] = 0xFF;
 
-    msgPattern.m_protocolId = ulong(protocol);
+    msgPattern.m_protocolId = ulong(Protocol::ISO15765);
     msgPattern.m_rxStatus = 0;
     msgPattern.m_txFlags = Message::TxFlag::OutISO15765FramePad;
     msgPattern.m_timestamp = 0;
@@ -265,7 +269,7 @@ bool j2534_comm::ISO15765()
     msgPattern.m_data[2] = 7;
     msgPattern.m_data[3] = 0xE8;
 
-    msgFlowControl.m_protocolId = ulong(protocol);
+    msgFlowControl.m_protocolId = ulong(Protocol::ISO15765);
     msgFlowControl.m_rxStatus = 0;
     msgFlowControl.m_txFlags = Message::TxFlag::OutISO15765FramePad;
     msgFlowControl.m_timestamp = 0;
@@ -286,6 +290,8 @@ bool j2534_comm::ISO15765()
 
     QThread::msleep(100);
 }
+
+
 
 bool j2534_comm::ISO14230()
 {

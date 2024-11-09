@@ -20,7 +20,7 @@ typedef struct
 
 using namespace J2534;
 class j2534_comm : public comm_device_interface//,
-        //public pollHelper
+                   //public pollHelper
 {
     //friend class OP20;
 public:
@@ -45,7 +45,10 @@ public:
     PassThru *j2534;
 
     bool ISO9141();
+
+    // Проверил, все как у тефры
     bool ISO15765();
+
     bool ISO14230();
 
     Message tx_msg = {};
