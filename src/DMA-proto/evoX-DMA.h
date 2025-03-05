@@ -357,19 +357,16 @@ private:
         }
     }
 
+    uint ECU_ROM_checksum = 0xbfff0;
+    uint Current_Alt_Map = 0x805018;
+    // uint
+    //         uint
+    //         uint
+
     void Connect()
     {
         QByteArray buffer2;
-        // byte[] buffer = LocalROM_Query(0xb_fff0, 4);
-        // Write_Debug_Log_Entry(Environment.NewLine + ".. local rom checksum: " + buffer.ToString());
 
-        buffer2 = ISO15765_Mode23_Query(0xbfff0, 4);
-
-        // Write_Debug_Log_Entry(Environment.NewLine + ".. ECU checksum: " + buffer2.ToString());
-        // if (buffer2 == null)
-        // {
-        //     throw new ApplicationException("Error: Couldn't retrieve the ECU Checksum\nPlease try again with the OP20 actually connected to the vehicle...");
-        // }
         int index = 0;
         while (true)
         {

@@ -14,20 +14,7 @@ jcsbanksDMA::~jcsbanksDMA()
     qDebug() << "~jcsbanksDMA";
 }
 
-bool jcsbanksDMA::connect_()
-{
-    //qDebug() << "=========== jcsbanksDMA::connect ================ baudRate" << (*p_devComm)->getBaudRate();
-    if( (*p_devComm)->ISO9141() )
-        if ( (*p_devComm)->five_baud_init() )
-        {
-            qDebug() << "=========== jcsbanksDMA::MUTconnect ================";
-            return true;
-        }
-    (*p_devComm)->close();
-    return false;
 
-    // return (*ecu_model)->MUTconnect();
-}
 
 
 QByteArray jcsbanksDMA::indirectDMAread(quint32 addr, int lenght)
