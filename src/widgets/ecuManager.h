@@ -37,9 +37,8 @@ private:
     QAction *a_ramReset;
 
 
-    ECU_model *selectedModel = nullptr;
-    DMA_proto* selectedProto = nullptr;
-    comm_device_interface* selectedCommDev = nullptr;
+    void fillAvailProtos(ECU_model* _ECUmodel);
+
 
 private slots:
     void start_stop_Action();

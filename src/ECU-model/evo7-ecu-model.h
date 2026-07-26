@@ -3,7 +3,6 @@
 
 #include "src/ECU-model/ecu-model.h"
 
-
 class evo7_ECUmodel : public ECU_model
 {
     Q_OBJECT

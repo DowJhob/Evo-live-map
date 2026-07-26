@@ -2,8 +2,8 @@
 
 evo7_ECUmodel::evo7_ECUmodel(QObject *parent)
 {
-    availProtos.append(DMA_ProtoType::jcsbanks);
-    availProtos.append(DMA_ProtoType::nanner55);
+    availProtos.insert(DMA_ProtoType::jcsbanks, "Custom DMA proto by jcsbanks");
+    availProtos.insert(DMA_ProtoType::nanner55, "stock DMA proto by nanner55");
 
     name = "EVO7-9 ECU model";
     type = ecuModelType::EVO7_9_ECU_Model;

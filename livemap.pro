@@ -99,7 +99,7 @@ SOURCES += src/main.cpp\
     src/widgets/commDeviceManager/devicemanager.cpp \
     src/comm-device-interface/comm-device-interface.cpp \
     src/comm-device-interface/ftdi-comm.cpp \
-    src/DMA-proto/evoX-DMA.cpp \
+    # src/DMA-proto/evoX-DMA.cpp \
     src/DMA-proto/jcsbanksDMA.cpp \
     src/DMA-proto/stockDMA.cpp \
     src/comm-device-interface/j2534-comm.cpp \
@@ -174,7 +174,7 @@ HEADERS  += src/mainwindow.h \
 #    src/widgets/analizer.h \
     src/widgets/ecuManager.h \
     src/DMA-proto/pollhelper.h \
-    src/DMA-proto/evoX-DMA.h \
+    # src/DMA-proto/evoX-DMA.h \
     src/DMA-proto/jcsbanksDMA.h \
     src/DMA-proto/stockDMA.h \
     src/deviceNativeFilter.h \

@@ -21,14 +21,15 @@ class ECU_model : public QObject
 public:
     ecuModelType type;
     QString name;
-    QList<DMA_ProtoType> availProtos;
+
+    QMap<DMA_ProtoType, QString> availProtos;
     quint32 ptr_calID;
     quint16 calIDsize;
 
     explicit ECU_model(QObject* parent = nullptr/*, QMap<DMA_ProtoType, DMA_proto*> *availProtos = nullptr*/);
     // virtual ~ECU_model() = 0;
 
-    QList<DMA_ProtoType>* getAvailProtos();
+    // QList<DMA_ProtoType>* getAvailProtos();
 
 
 
@@ -56,6 +57,7 @@ public:
         else
             qDebug() << "failure get ECU rom id";
     }
+
 
 private:
 

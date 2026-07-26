@@ -95,25 +95,9 @@ void ecuManagerWidget::setConectionParamWidget()
 
 
 
-
-
-
-
-
-
-    connect(&cpW._ecuModelManager, &ecuModelManager::modelSelected,    ECU,   &ecu::setECUmodel);
-
+    connect(&cpW._ecuModelManager, &ecuModelManager::modelSelected,    ECU,   &ecu::setECUmodelType);
+    connect(ECU, &ecu::getAvailProtos,    &cpW._ecuModelManager,   &ecuModelManager::fillAvailProtos);
     connect(&cpW._ecuModelManager, &ecuModelManager::protoSelected,    ECU,   &ecu::setDMAproto);
-    // set pointer to pointer to commDEv for proto obj
-    // connect(&cpW._ecuModelManager, &ecuModelManager::protoSelected,    this,   [&](DMA_proto* proto)
-    //         {
-    //             proto->setCommDev(&selectedCommDev);
-    //             ECU->setDMAproto(proto);}                  // &ecu::setDMAproto выполнится в потоке менеджера,иначе в потоке ecu, и не сможет переместить в поток
-    //         );
-
-
-
-
 
 
     connect(&cpW._logParamManager, &protoManager::logRateChanged,      ECU,   &ecu::setLogRate);
@@ -121,7 +105,8 @@ void ecuManagerWidget::setConectionParamWidget()
     connect(&cpW._wbManager,    &wbManagerWidget::logReady,               &wbWgt, &gaugeWidget::display);
 
     // Заполняем после подключения, тогда при добавлении буду сигналы
-    cpW._ecuModelManager.fillModels(ECU->getAvailModels(), ECU->getAvailProtos());
+    // cpW._ecuModelManager.fillModels(ECU->getAvailModels(), ECU->getAvailProtos());
+    cpW._ecuModelManager.fillModels(ECU->getAvailModels2());
     cpW._wbManager.fillSerial();
     cpW._wbManager.fillProto();
 }

@@ -123,6 +123,14 @@ device deviceNativeFilter::getDevProp(HDEVINFO hDevInfo, SP_DEVINFO_DATA DeviceI
     QByteArray DeviceInstanceId = getDeviceDesc(hDevInfo, DeviceInfoData, SPDRP_HARDWAREID);
     QByteArray DeviceDesc = getDeviceDesc(hDevInfo, DeviceInfoData, SPDRP_DEVICEDESC);
     QByteArray classDev2 = getDeviceDesc(hDevInfo, DeviceInfoData, SPDRP_CLASSGUID);
+    QByteArray port = getDeviceDesc(hDevInfo, DeviceInfoData, SPDRP_FRIENDLYNAME     );
+auto s =    QString::fromWCharArray( (wchar_t*)port.data());
+
+    dev.PortName = s;
+
+
+
+
     QString classDev = QString::fromWCharArray( (wchar_t*)classDev2.data() );
     //QByteArray DeviceUniqueID = getDeviceDesc(hDevInfo, DeviceInfoData, 26);
 

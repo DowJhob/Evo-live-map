@@ -45,7 +45,7 @@ void commDeviceManagerWidget::addDevice(device dev)
 
     devComm->setBaudRate(ui->el_baudRate->text().toUInt());
 
-    ui->availCommDev->addItem(dev.DeviceDesc + " / " + dev.DeviceUniqueID, QVariant::fromValue<comm_device_interface*>(devComm));
+    ui->availCommDev->addItem(dev.PortName /*+ " / " + dev.DeviceUniqueID*/, QVariant::fromValue<comm_device_interface*>(devComm));
 }
 
 void commDeviceManagerWidget::removeDevice(device dev)

@@ -20,26 +20,21 @@ public:
     explicit ecuModelManager(QWidget *parent = nullptr);
     ~ecuModelManager();
 
+public slots:
     // Заполняем после подключения, тогда при добавлении буду сигналы
-    void fillModels(QMap<ecuModelType, ECU_model*>* availECUmodels, QMap<DMA_ProtoType, DMA_proto*>* availProto);
+    void fillModels(QMap<ecuModelType, QString>*availECUmodels);
+    void fillAvailProtos(QMap<DMA_ProtoType, QString> *availProtos);
 
 private:
     Ui::ecuModelManager *ui;
 
-    QMap<ecuModelType, ECU_model*>* availECUmodels = nullptr;
-    QMap<DMA_ProtoType, DMA_proto*>* availProtos = nullptr;
-
 private slots:
     void _modelSelected(int index);
-
     void _protoSelected(int index);
 
-    void fillAvailProtos(ECU_model *_ECUmodel);
-
 signals:
-    void modelSelected(ECU_model*);
-
-    void protoSelected(DMA_proto*);
+    void modelSelected(ecuModelType);
+    void protoSelected(DMA_ProtoType);
 
 };
 

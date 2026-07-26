@@ -10,15 +10,15 @@ ecu::ecu()
     moveToThread(readThread);
     readThread->start();
 
-    for(auto _ECUmodel : qAsConst(AvailModels))
-    {
-        _ECUmodel->moveToThread(readThread);
-    }
+    // for(auto _ECUmodel : qAsConst(AvailModels))
+    // {
+    //     _ECUmodel->moveToThread(readThread);
+    // }
 
-    for(auto proto : qAsConst(availProtos))
-    {
-        proto->moveToThread(readThread);
-    }
+    // for(auto proto : qAsConst(availProtos))
+    // {
+    //     proto->moveToThread(readThread);
+    // }
 
     qDebug() << "=========== ecu:: ================ QThread::readThread" << readThread << "  \\  QThread::thread" << thread();
 }
@@ -29,19 +29,20 @@ ecu::~ecu()
     //pollTimer->deleteLater();
 }
 
-QMap<ecuModelType, ECU_model *> *ecu::getAvailModels()
-{
-    return &AvailModels;
-}
+// QMap<ecuModelType, ECU_model *> *ecu::getAvailModels()
+// {
+//     return &AvailModels;
+// }
 
-QMap<DMA_ProtoType, DMA_proto *> *ecu::getAvailProtos()
-{
-    return &availProtos;
-}
+// QMap<DMA_ProtoType, DMA_proto *> *ecu::getAvailProtos()
+// {
+//     return &availProtos;
+// }
 
 void ecu::setComDev(comm_device_interface *_devComm)
 {
-    selectedDMAproto->stopLog();
+    if (selectedDMAproto != nullptr  )
+        selectedDMAproto->stopLog();
 
     if (selectedDevComm != nullptr  )
     {
@@ -63,14 +64,67 @@ void ecu::setECUmodel(ECU_model *_ECUmodel)
     selectedECUmodel = _ECUmodel;
 }
 
-void ecu::setDMAproto(DMA_proto *_DMAproto)
+void ecu::setECUmodelType(ecuModelType _ECUmodelType)
+{
+    if (selectedECUmodel != nullptr  )
+    {
+        if (selectedECUmodel->type == _ECUmodelType  )
+        {
+            return;
+        }
+        selectedECUmodel->deleteLater();
+    }
+
+
+    switch (_ECUmodelType) {
+    case ecuModelType::EVO7_9_ECU_Model:
+        selectedECUmodel = new evo7_ECUmodel(this);
+        break;
+    case ecuModelType::EVO_X_ECU_Model:
+        selectedECUmodel = new evoX_ECUmodel(this);
+        break;
+    default:
+        break;
+
+    }
+
+    auto a = selectedECUmodel->availProtos;
+    auto b = &a;
+
+    qDebug() << "=========== ecu::setECUmodelType ================" << b;
+
+    emit getAvailProtos(&(selectedECUmodel->availProtos));
+}
+
+void ecu::setDMAproto(DMA_ProtoType _DMAprotoType)
 {
     if (selectedDMAproto != nullptr  )
     {
         selectedDMAproto->stopLog();
         selectedDMAproto->disconnect_();
+
+        if (selectedDMAproto->type == _DMAprotoType  )
+        {
+            return;
+        }
+        selectedDMAproto->deleteLater();
     }
-    selectedDMAproto = _DMAproto;
+
+    switch (_DMAprotoType) {
+    case DMA_ProtoType::jcsbanks:
+        selectedDMAproto = new jcsbanksDMA(&selectedDevComm);
+        break;
+    case DMA_ProtoType::nanner55:
+        selectedDMAproto = new stockDMA(&selectedDevComm);
+        break;
+    case DMA_ProtoType::tephraX:
+        selectedDMAproto = new stockDMA(&selectedDevComm);
+        break;
+    default:
+        break;
+    }
+
+    selectedDMAprotoType = _DMAprotoType;
 
     // qDebug() << "=========== ecu::setDMAproto ================ _DMAproto" << _DMAproto << "  /  _DMAproto::thread" << _DMAproto->thread();
 }
@@ -138,7 +192,7 @@ void ecu::stopLog()
 
 void ecu::updateRAM(offsetMemory memory)
 {
-//    qDebug() << "=========== ecu::updateRAM ================ sender()->thread:" << sender()->thread();
+    //    qDebug() << "=========== ecu::updateRAM ================ sender()->thread:" << sender()->thread();
 
     selectedDMAproto->updateRAM(memory);
 }

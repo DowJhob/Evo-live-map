@@ -17,30 +17,30 @@ ecuModelManager::~ecuModelManager()
 }
 
 // Заполняем после подключения, тогда при добавлении буду сигналы
-void ecuModelManager::fillModels(QMap<ecuModelType, ECU_model*>* availECUmodels, QMap<DMA_ProtoType, DMA_proto *> *availProto)
+void ecuModelManager::fillModels(QMap<ecuModelType, QString> *availECUmodels)
 {
-    this->availECUmodels = availECUmodels;
-    this->availProtos = availProto;
-
-    for(auto _ECUmodel : *availECUmodels)
+    // this->availECUmodels = availECUmodels;
+    // this->availProtos = availProto;
+    for (auto it = availECUmodels->keyValueBegin(); it != availECUmodels->keyValueEnd(); ++it)
     {
-        ui->availECUmodel->addItem(_ECUmodel->name, QVariant::fromValue<ecuModelType>(_ECUmodel->type));
+        auto _ECUmodelType = it->first; auto _ECUmodelName = it->second;
+        ui->availECUmodel->addItem(_ECUmodelName, QVariant::fromValue<ecuModelType>(_ECUmodelType));
     }
+
 }
 
-void ecuModelManager::fillAvailProtos(ECU_model* _ECUmodel)
+void ecuModelManager::fillAvailProtos(QMap<DMA_ProtoType, QString> *availProtos)
 {
     ui->availProto_comboBox->blockSignals(true);
     ui->availProto_comboBox->clear();
     ui->availProto_comboBox->blockSignals(false);
 
-    if(_ECUmodel == nullptr)
-        return;
-
-    for(auto protoType : *_ECUmodel->getAvailProtos())
+    // if(_ECUmodel == nullptr)
+    //     return;
+    for (auto it = availProtos->keyValueBegin(); it != availProtos->keyValueEnd(); ++it)
     {
-        auto proto = availProtos->value(protoType);
-        ui->availProto_comboBox->addItem(proto->name, QVariant::fromValue<DMA_ProtoType>(proto->type));
+        auto protoType = it->first; auto protoName = it->second;
+        ui->availProto_comboBox->addItem(protoName, QVariant::fromValue<DMA_ProtoType>(protoType));
     }
 }
 
@@ -48,28 +48,29 @@ void ecuModelManager::_modelSelected(int index)
 {
     ecuModelType modelType = qvariant_cast<ecuModelType>(ui->availECUmodel->itemData(index));
 
-    ECU_model* model = availECUmodels->value(modelType, nullptr);
+    // ECU_model* model = availECUmodels->value(modelType, nullptr);
 
-    if(model == nullptr)
-        return;
+    // if(model == nullptr)
+        // return;
 
-    qDebug()<< "ecuModelManager::_modelSelected  /  index:" << index << "   /  model:" << model << "   /  model->thread():" << model->thread();
+    // qDebug()<< "ecuModelManager::_modelSelected  /  index:" << index << "   /  model:" << model << "   /  model->thread():" << model->thread();
 
-    emit modelSelected(model);
+    // emit modelSelected(model);
+    emit modelSelected(modelType);
 
-    fillAvailProtos(model);
+    // fillAvailProtos(model);
 }
 
 void ecuModelManager::_protoSelected(int index)
 {
     DMA_ProtoType protoType = qvariant_cast<DMA_ProtoType>(ui->availProto_comboBox->itemData(index));
 
-    DMA_proto* proto = availProtos->value(protoType);
+    // DMA_proto* proto = availProtos->value(protoType);
 
-    if(proto == nullptr)
-        return;
+    // if(proto == nullptr)
+    //     return;
 
-    qDebug()<< "ecuModelManager::_protoSelected  /  index:" << index << "   /  proto:" << proto << "   /  proto->thread():" << proto->thread();
+    // qDebug()<< "ecuModelManager::_protoSelected  /  index:" << index << "   /  proto:" << proto << "   /  proto->thread():" << proto->thread();
 
-    emit protoSelected(proto);
+    emit protoSelected(protoType);
 }
