@@ -4,7 +4,6 @@ ecuManagerWidget::ecuManagerWidget(QWidget *parent, ecu *ECU) : QToolBar(parent)
 {
     //    ECU->test();
 
-
     connect(this, &ecuManagerWidget::ecuConnect,     ECU, &ecu::connectDMA,                Qt::QueuedConnection);
     connect(ECU,  &ecu::ecuConnected,               this, &ecuManagerWidget::ECUconnected, Qt::QueuedConnection);
 
@@ -17,7 +16,7 @@ ecuManagerWidget::ecuManagerWidget(QWidget *parent, ecu *ECU) : QToolBar(parent)
 
     addSeparator();
 
-    addWidget(&cpW);
+    addWidget(&commDevsMngrWgt);
 
     // cpW._ecuModelManager.ecu_thread = ECU->readThread;
 
@@ -28,17 +27,14 @@ ecuManagerWidget::ecuManagerWidget(QWidget *parent, ecu *ECU) : QToolBar(parent)
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     setIconSize(QSize(200, 200));
 
-    cpW.deviceLostState();
+    commDevsMngrWgt.deviceLostState();
+    connect(&commDevsMngrWgt.ECUcommDevManager,       &ECUcommDeviceManagerWidget::deviceSelected, this,  &ecuManagerWidget::setComDev);
+    commDevsMngrWgt.getPresentCommDevices();
 }
 
 ecuManagerWidget::~ecuManagerWidget()
 {
     //qDebug() << "~ecuManager";
-}
-
-void ecuManagerWidget::setUSBfilter(deviceNativeFilter *usbFilter)
-{
-    connect(usbFilter, &deviceNativeFilter::deviceEvent, &cpW.devManager, &commDeviceManagerWidget::deviceEvent);
 }
 
 void ecuManagerWidget::ECUconnected(bool state)
@@ -49,12 +45,12 @@ void ecuManagerWidget::ECUconnected(bool state)
     if(state)
     {
         a_start_action->setText("Stop");
-        cpW.connectedState();
+        commDevsMngrWgt.connectedState();
     }
     else
     {
         a_start_action->setText("Start");
-        cpW.devicePresentState();
+        commDevsMngrWgt.devicePresentState();
     }
 }
 
@@ -63,7 +59,7 @@ void ecuManagerWidget::setComDev(comm_device_interface *devComm)
     if(devComm == nullptr)
     {
         //        cpW.setEnabledECUcomm(false);
-        cpW.deviceLostState();
+        commDevsMngrWgt.deviceLostState();
         a_start_action->setDisabled(true);
         a_ramReset->setDisabled(true);
         emit deviceEventLog("No interface", 0);
@@ -71,7 +67,7 @@ void ecuManagerWidget::setComDev(comm_device_interface *devComm)
     }
     emit deviceEventLog(devComm->DeviceDesc + " / " + devComm->DeviceUniqueID, 0);
 
-    cpW.devicePresentState();
+    commDevsMngrWgt.devicePresentState();
     a_start_action->setDisabled(false);
 }
 
@@ -89,24 +85,24 @@ void ecuManagerWidget::start_stop_Action()
 
 void ecuManagerWidget::setConectionParamWidget()
 {
-    connect(&cpW.devManager,       &commDeviceManagerWidget::deviceSelected, ECU,   &ecu::setComDev);
-    connect(&cpW.devManager,       &commDeviceManagerWidget::deviceSelected, this,  &ecuManagerWidget::setComDev);
-    connect(&cpW.devManager,       &commDeviceManagerWidget::deviceHasLeft,  ECU,   &ecu::deviceHasLeft);
+    connect(&commDevsMngrWgt.ECUcommDevManager,       &ECUcommDeviceManagerWidget::deviceSelected, ECU,   &ecu::setComDev);
+    // connect(&commDevsMngrWgt.ECUcommDevManager,       &ECUcommDeviceManagerWidget::deviceSelected, this,  &ecuManagerWidget::setComDev);
+    connect(&commDevsMngrWgt.ECUcommDevManager,       &ECUcommDeviceManagerWidget::deviceHasLeft,  ECU,   &ecu::deviceHasLeft);
 
 
 
-    connect(&cpW._ecuModelManager, &ecuModelManager::modelSelected,    ECU,   &ecu::setECUmodelType);
-    connect(ECU, &ecu::getAvailProtos,    &cpW._ecuModelManager,   &ecuModelManager::fillAvailProtos);
-    connect(&cpW._ecuModelManager, &ecuModelManager::protoSelected,    ECU,   &ecu::setDMAproto);
+    connect(&commDevsMngrWgt._ecuModelManager, &ecuModelManager::modelSelected,    ECU,   &ecu::setECUmodelType);
+    connect(ECU, &ecu::getAvailProtos,    &commDevsMngrWgt._ecuModelManager,   &ecuModelManager::fillAvailProtos);
+    connect(&commDevsMngrWgt._ecuModelManager, &ecuModelManager::protoSelected,    ECU,   &ecu::setDMAproto);
 
 
-    connect(&cpW._logParamManager, &protoManager::logRateChanged,      ECU,   &ecu::setLogRate);
+    connect(&commDevsMngrWgt._logParamManager, &protoManager::logRateChanged,      ECU,   &ecu::setLogRate);
 
-    connect(&cpW._wbManager,    &wbManagerWidget::logReady,               &wbWgt, &gaugeWidget::display);
+    connect(&commDevsMngrWgt._wbManager,    &wbManagerWidget::logReady,               &wbWgt, &gaugeWidget::display);
 
     // Заполняем после подключения, тогда при добавлении буду сигналы
     // cpW._ecuModelManager.fillModels(ECU->getAvailModels(), ECU->getAvailProtos());
-    cpW._ecuModelManager.fillModels(ECU->getAvailModels2());
-    cpW._wbManager.fillSerial();
-    cpW._wbManager.fillProto();
+    commDevsMngrWgt._ecuModelManager.fillModels(ECU->getAvailModels2());
+    commDevsMngrWgt._wbManager.fillSerial();
+    commDevsMngrWgt._wbManager.fillProto();
 }

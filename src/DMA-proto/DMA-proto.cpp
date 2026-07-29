@@ -17,6 +17,7 @@ void DMA_proto::startLog(ramMUT *_ramMut)
 
 bool DMA_proto::disconnect_()
 {
-    (*p_devComm)->close();
+    if(*p_devComm != nullptr)
+        (*p_devComm)->close();
     return false;
 }

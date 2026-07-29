@@ -1,5 +1,5 @@
-#ifndef DEVICEMANAGER_H
-#define DEVICEMANAGER_H
+#ifndef ECUCOMMDEVICESMANAGER_H
+#define ECUCOMMDEVICESMANAGER_H
 
 #include <QGroupBox>
 
@@ -17,14 +17,14 @@ namespace Ui {
 class commDeviceManagerWidget;
 }
 
-class commDeviceManagerWidget : public QGroupBox
+class ECUcommDeviceManagerWidget : public QGroupBox
 {
     Q_OBJECT
 
 public:
     uint baudRate;
-    commDeviceManagerWidget(QWidget *parent = nullptr);
-    ~commDeviceManagerWidget();
+    ECUcommDeviceManagerWidget(QWidget *parent = nullptr);
+    ~ECUcommDeviceManagerWidget();
 
 public slots:
     void deviceEvent(device dev);
@@ -49,4 +49,4 @@ signals:
 
 };
 
-#endif // DEVICEMANAGER_H
+#endif // ECUCOMMDEVICESMANAGER_H

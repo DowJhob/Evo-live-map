@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 
     MainWindow mainWindow;
 
-    deviceNativeFilter usbFilter;
+    // deviceNativeFilter usbFilter;
 
     qRegisterMetaType<Map>("Map");
     qRegisterMetaType<mapDefinition>("mapDefinition");
@@ -44,17 +44,12 @@ int main(int argc, char *argv[])
     ecuManagerWidget *_ecuManager = new ecuManagerWidget(&mainWindow, ECU);
 
 
-    _ecuManager->setUSBfilter(&usbFilter);
-    QObject::connect(_ecuManager, &ecuManagerWidget::deviceEventLog, &mainWindow, &MainWindow::deviceEventLog);
-    QObject::connect(_ecuManager, &ecuManagerWidget::Log,            &mainWindow, &MainWindow::Log);
-
     //========================================================================================
     mapManager *_mapManager = new mapManager(&mainWindow, ECU);
 
     //========================================================================================
-
     WB *wb = new WB;
-    wbManagerWidget *_wbManager = &_ecuManager->cpW._wbManager;
+    wbManagerWidget *_wbManager = &_ecuManager->commDevsMngrWgt._wbManager;
     _wbManager->wb_thread    = wb->thread;
 
     QObject::connect(_wbManager, &wbManagerWidget::wbSelected, wb, &WB::setWBDev);
@@ -67,13 +62,6 @@ int main(int argc, char *argv[])
     //========================================================================================
     mainWindow.setECUmanager(_ecuManager);
     mainWindow.setMAPmanager(_mapManager);
-
-    //========================================================================================
-    usbFilter.notifyRegister((HWND)mainWindow.winId());
-    usbFilter.getPresentCommDevices();
-
-    //========================= Подписываемся на события ====================================================
-    app.installNativeEventFilter(&usbFilter);
 
     mainWindow.show();
     return app.exec();

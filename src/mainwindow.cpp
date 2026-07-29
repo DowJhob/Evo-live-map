@@ -24,9 +24,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     qDebug() << "=========== MainWindow:: ================ QThread:" << thread();
 }
 
-void MainWindow::setECUmanager(QToolBar *_ecuManager)
+void MainWindow::setECUmanager(ecuManagerWidget *_ecuManager)
 {
     addToolBar(Qt::TopToolBarArea, _ecuManager);
+
+    connect(_ecuManager, &ecuManagerWidget::deviceEventLog, this, &MainWindow::deviceEventLog);
+    connect(_ecuManager, &ecuManagerWidget::Log,            this, &MainWindow::Log);
 }
 
 void MainWindow::setMAPmanager(mapManager *_mapManager)

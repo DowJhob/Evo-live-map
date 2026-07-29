@@ -1,20 +1,20 @@
-#include "devicemanager.h"
-#include "ui_devicemanager.h"
+#include "ECUcommDevicesManager.h"
+#include "ui_ECUcommDevicesManager.h"
 
-commDeviceManagerWidget::commDeviceManagerWidget(QWidget *parent):QGroupBox(parent), ui(new Ui::commDeviceManagerWidget)
+ECUcommDeviceManagerWidget::ECUcommDeviceManagerWidget(QWidget *parent):QGroupBox(parent), ui(new Ui::commDeviceManagerWidget)
 {
     ui->setupUi(this);
 
-    connect(ui->availCommDev, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &commDeviceManagerWidget::_deviceSelected);
-    connect(ui->el_baudRate,  &QLineEdit::editingFinished, this, &commDeviceManagerWidget::_baudRateChanged);
+    connect(ui->availCommDev, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ECUcommDeviceManagerWidget::_deviceSelected);
+    connect(ui->el_baudRate,  &QLineEdit::editingFinished, this, &ECUcommDeviceManagerWidget::_baudRateChanged);
 }
 
-commDeviceManagerWidget::~commDeviceManagerWidget()
+ECUcommDeviceManagerWidget::~ECUcommDeviceManagerWidget()
 {
     delete ui;
 }
 
-void commDeviceManagerWidget::deviceEvent(device dev)
+void ECUcommDeviceManagerWidget::deviceEvent(device dev)
 {
     switch (dev.direction)
     {
@@ -23,7 +23,7 @@ void commDeviceManagerWidget::deviceEvent(device dev)
     }
 }
 
-void commDeviceManagerWidget::addDevice(device dev)
+void ECUcommDeviceManagerWidget::addDevice(device dev)
 {
     // qDebug()<< "deviceManager::addDevice start" << dev.DeviceDesc;
 
@@ -46,9 +46,10 @@ void commDeviceManagerWidget::addDevice(device dev)
     devComm->setBaudRate(ui->el_baudRate->text().toUInt());
 
     ui->availCommDev->addItem(dev.PortName /*+ " / " + dev.DeviceUniqueID*/, QVariant::fromValue<comm_device_interface*>(devComm));
+    // setDisabled(false);
 }
 
-void commDeviceManagerWidget::removeDevice(device dev)
+void ECUcommDeviceManagerWidget::removeDevice(device dev)
 {
     int index = ui->availCommDev->findText(dev.DeviceDesc + " / " + dev.DeviceUniqueID);
 
@@ -77,7 +78,7 @@ void commDeviceManagerWidget::removeDevice(device dev)
         qDebug() << "Error deleting item";
 }
 
-void commDeviceManagerWidget::_deviceSelected(int index)
+void ECUcommDeviceManagerWidget::_deviceSelected(int index)
 {
     qDebug()<< "deviceManager::_deviceSelected";
     comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(ui->availCommDev->itemData(index));
@@ -95,7 +96,7 @@ void commDeviceManagerWidget::_deviceSelected(int index)
     emit deviceSelected(devComm);
 }
 
-void commDeviceManagerWidget::_baudRateChanged()   // Обновляем скорость обмена
+void ECUcommDeviceManagerWidget::_baudRateChanged()   // Обновляем скорость обмена
 {
     comm_device_interface *devComm = qvariant_cast<comm_device_interface*>(ui->availCommDev->currentData());
     baudRate = ui->el_baudRate->text().toUInt();

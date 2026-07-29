@@ -96,7 +96,6 @@ SOURCES += src/main.cpp\
     src/wideband/protoWB.cpp \
     src/widgets/DMA-ProtoManager/proto-manager.cpp \
     src/abstract-memory.cpp \
-    src/widgets/commDeviceManager/devicemanager.cpp \
     src/comm-device-interface/comm-device-interface.cpp \
     src/comm-device-interface/ftdi-comm.cpp \
     # src/DMA-proto/evoX-DMA.cpp \
@@ -112,8 +111,10 @@ SOURCES += src/main.cpp\
 #    src/widgets/3D/s3dplot.cpp \
 #    src/widgets/3D/s3dscatter.cpp \
 #    src/widgets/3D/scatterdatamodifier.cpp \
+    src/widgets/ECUcommDeviceManager/ECUcommDevicesManager.cpp \
     src/widgets/Patcher/patcher.cpp \
 #    src/widgets/analizer.cpp \
+    src/widgets/commDevicesWidget.cpp \
     src/widgets/ecuManager.cpp \
     src/DMA-proto/pollhelper.cpp \
     src/deviceNativeFilter.cpp \
@@ -130,7 +131,6 @@ SOURCES += src/main.cpp\
     src/libs/ftdi.cpp \
     src/map-decl/scaling.cpp \
     src/map-decl/submap.cpp \
-    src/widgets/commParamWidget.cpp \
     src/widgets/gauge_widget.cpp \
     src/widgets/loggermanager.cpp \
     src/widgets/mapManager/mapmanager.cpp \
@@ -158,7 +158,6 @@ HEADERS  += src/mainwindow.h \
     src/wideband/protoWB.h \
     src/widgets/DMA-ProtoManager/proto-manager.h \
     src/abstract-memory.h \
-    src/widgets/commDeviceManager/devicemanager.h \
     src/comm-device-interface/ftdi-comm.h \
     src/comm-device-interface/j2534-comm.h \
     src/comm-device-interface/serial-comm.h \
@@ -170,8 +169,10 @@ HEADERS  += src/mainwindow.h \
 #    src/widgets/3D/s3dplot.h \
 #    src/widgets/3D/s3dscatter.h \
 #    src/widgets/3D/scatterdatamodifier.h \
+    src/widgets/ECUcommDeviceManager/ECUcommDevicesManager.h \
     src/widgets/Patcher/patcher.h \
 #    src/widgets/analizer.h \
+    src/widgets/commDevicesWidget.h \
     src/widgets/ecuManager.h \
     src/DMA-proto/pollhelper.h \
     # src/DMA-proto/evoX-DMA.h \
@@ -195,7 +196,6 @@ HEADERS  += src/mainwindow.h \
     src/widgets/ecuModelManager/ecumodelmanager.h \
     src/widgets/flasher/flashwidget.h \
     src/widgets/wb-manager/wb-manager.h \
-    src/widgets/commParamWidget.h \
     src/widgets/gauge_widget.h \
     src/widgets/hexEditor/hexeditor.h \
     src/widgets/loggermanager.h \
@@ -207,11 +207,11 @@ HEADERS  += src/mainwindow.h \
     #ecu/ecu_x_comm.h \
 
 FORMS    += mainwindow.ui \
+    src/widgets/ECUcommDeviceManager/ECUcommDevicesManager.ui \
     src/widgets/ecuModelManager/ecumodelmanager.ui \
     src/widgets/flasher/flashwidget.ui \
     src/widgets/wb-manager/wb-manager.ui \
     src/widgets/DMA-ProtoManager/proto-manager.ui \
-    src/widgets/commDeviceManager/devicemanager.ui \
     src/widgets/Patcher/patcher.ui \
     src/widgets/mapManager/mapmanager.ui
 

@@ -46,7 +46,7 @@ public:
     ~MainWindow();
     explicit MainWindow(QWidget *parent = nullptr);
 
-    void setECUmanager(QToolBar *_ecuManager);
+    void setECUmanager(ecuManagerWidget *_ecuManager);
     void setMAPmanager(mapManager *_mapManager);
 
 protected:

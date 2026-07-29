@@ -53,6 +53,8 @@ typedef struct device
     QString PortName;
 }device;
 
+// Q_DECLARE_METATYPE( device )
+
 class deviceNativeFilter: public QObject, public QAbstractNativeEventFilter
 {
     Q_OBJECT
