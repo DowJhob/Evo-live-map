@@ -1,5 +1,5 @@
-#include "wb-manager.h"
-#include "ui_wb-manager.h"
+#include "wb-managerWidget.h"
+#include "ui_wb-managerWidget.h"
 
 wbManagerWidget::wbManagerWidget(QWidget *parent):QGroupBox(parent), ui(new Ui::wbManagerWidget)
 {
@@ -44,7 +44,7 @@ void wbManagerWidget::_wbSelected(int index)
     else
     {
         ui->startBtn->setDisabled(false);
-        wbdevComm->moveToThread(wb_thread);
+        // wbdevComm->moveToThread(wb_thread);
     }
 }
 

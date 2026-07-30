@@ -13,7 +13,12 @@
 #include "src/ECU-model/ecu-model.h"
 #include "src/ECU-model/evo7-ecu-model.h"
 #include "src/ECU-model/evoX-ecu-model.h"
+#include "src/comm-device-interface/ftdi-comm.h"
+#include "src/comm-device-interface/op20.h"
+#include "src/comm-device-interface/serial-comm.h"
+#include "src/deviceNativeFilter.h"
 #include "src/ecu/mapDefinition.h"
+#include "src/wideband/WB_OP20.h"
 
 class ecu : public QObject
 {
@@ -29,17 +34,16 @@ public:
 
     // QMap<ecuModelType, ECU_model*>* getAvailModels();
 
-    QMap<ecuModelType, QString> *getAvailModels2()
-    {
-        return &AvailModels2;
-    }
+    QMap<ecuModelType, QString> *getAvailModels();
 
 
     // QMap<DMA_ProtoType, DMA_proto*>* getAvailProtos();
 
 
 public slots:
-    void setComDev(comm_device_interface *_devComm);
+
+
+    void setSelectedECUcommDevice(comm_device_interface *DevComm);
     void setECUmodel(ECU_model *_ECUmodel);
 
     void setECUmodelType(ecuModelType _ECUmodelType);

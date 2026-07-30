@@ -63,7 +63,7 @@ signals:
     void protoSelected(wbProto*);
     void wbStart(bool);
 
-    void logReady(QString);
+    // void logReady(QString);
 
 };
 

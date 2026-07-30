@@ -14,14 +14,23 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     statusBar()->showMessage("No interface", 0);
 
 
+    //========================================================================================
+    _mapManager = new mapManager(this, ECU);
+    // this->_mapManager = _mapManager;
+    ui->tabWidget->addTab(_mapManager, "Map manager");
     //=============================================================================
-//    ui->tabWidget->addTab(&an, "Ana");
+    //    ui->tabWidget->addTab(&an, "Ana");
 
-//        ui->tabWidget->addTab(&plot, "Surface");
-//        ui->tabWidget->addTab(&scat, "Surface");
+    //        ui->tabWidget->addTab(&plot, "Surface");
+    //        ui->tabWidget->addTab(&scat, "Surface");
 
 
     qDebug() << "=========== MainWindow:: ================ QThread:" << thread();
+}
+
+void MainWindow::setECU(ecu *ECU)
+{
+    this->ECU = ECU;
 }
 
 void MainWindow::setECUmanager(ecuManagerWidget *_ecuManager)
@@ -30,12 +39,6 @@ void MainWindow::setECUmanager(ecuManagerWidget *_ecuManager)
 
     connect(_ecuManager, &ecuManagerWidget::deviceEventLog, this, &MainWindow::deviceEventLog);
     connect(_ecuManager, &ecuManagerWidget::Log,            this, &MainWindow::Log);
-}
-
-void MainWindow::setMAPmanager(mapManager *_mapManager)
-{
-    this->_mapManager = _mapManager;
-    ui->tabWidget->addTab(_mapManager, "Map manager");
 }
 
 MainWindow::~MainWindow()
@@ -55,6 +58,15 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::deviceEventLog(QString msg, int pos)
 {
     statusBar()->showMessage(msg, pos);
+}
+
+void MainWindow::setWBGUAGE(gaugeWidget *wbWgt)
+{
+    // this->_mapManager = _mapManager;
+    addToolBar(Qt::TopToolBarArea, wbWgt);
+
+    // toolbar
+    // ui->tabWidget->addTab(wbWgt, "======================");
 }
 
 void MainWindow::create_gauge(QString name, mutParam *param)

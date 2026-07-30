@@ -51,9 +51,10 @@ typedef struct device
     dir direction;
     GUID classDev;
     QString PortName;
+    uint baudRate;
 }device;
 
-// Q_DECLARE_METATYPE( device )
+Q_DECLARE_METATYPE( device )
 
 class deviceNativeFilter: public QObject, public QAbstractNativeEventFilter
 {

@@ -25,5 +25,5 @@ private:
     void getSubMapDeclaration(QDomElement node, subMap *_subTableDeclaration);
 
 };
-
+Q_DECLARE_METATYPE( Map )
 #endif // MAP_H

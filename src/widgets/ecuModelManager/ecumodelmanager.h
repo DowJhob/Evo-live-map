@@ -10,19 +10,19 @@ namespace Ui {
 class ecuModelManager;
 }
 
-class ecuModelManager : public QGroupBox
+class ecuModelManagerWidget : public QGroupBox
 {
     Q_OBJECT
 
 public:
     // QThread *ecu_thread;
 
-    explicit ecuModelManager(QWidget *parent = nullptr);
-    ~ecuModelManager();
+    explicit ecuModelManagerWidget(QWidget *parent = nullptr);
+    ~ecuModelManagerWidget();
 
 public slots:
     // Заполняем после подключения, тогда при добавлении буду сигналы
-    void fillModels(QMap<ecuModelType, QString>*availECUmodels);
+    void fillECU_Models(QMap<ecuModelType, QString>*availECUmodels);
     void fillAvailProtos(QMap<DMA_ProtoType, QString> *availProtos);
 
 private:

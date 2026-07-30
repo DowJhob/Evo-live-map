@@ -2,12 +2,12 @@
 
 WB::WB()
 {
-    thread = new QThread();
+    _thread = new QThread();
     //connect(this_thread, &QThread::started, this, &controller::loop, Qt::QueuedConnection);
-    connect(this, &WB::destroyed, thread, &QThread::quit);
-    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
-    moveToThread(thread);
-    thread->start();
+    connect(this, &WB::destroyed, _thread, &QThread::quit);
+    connect(_thread, &QThread::finished, _thread, &QThread::deleteLater);
+    moveToThread(_thread);
+    _thread->start();
     // qDebug() << "=========== WB:: ================ QThread:" << thread;
 
 //    connect(this, &WB::_poll, this, &WB::poll);
@@ -19,6 +19,8 @@ void WB::setWBDev(commDeviceWB *_wbdevComm)
     if (wbdevComm != nullptr  )
     {
         connect(wbdevComm, &commDeviceWB::readyRead, this, &WB::handleWB);
+        // thread =this->thread;
+        wbdevComm->moveToThread(_thread);
     }
 }
 

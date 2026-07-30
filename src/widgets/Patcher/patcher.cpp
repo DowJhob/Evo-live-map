@@ -15,8 +15,8 @@ Patcher::Patcher(QWidget *parent) : QGroupBox(parent), ui(new Ui::Patcher)
 
 Patcher::~Patcher()
 {
-    delete ui;
     clearPatches();
+    delete ui;
 }
 
 void Patcher::addPatches()
@@ -58,7 +58,8 @@ void Patcher::checkPatches()
 
 void Patcher::clearPatches()
 {
-    ui->treeWidget->clear();
+    if(ui->treeWidget->topLevelItemCount()  != 0)
+        ui->treeWidget->clear();
     for ( auto *patch : qAsConst(patches) )
     {
         delete(patch->blobs);

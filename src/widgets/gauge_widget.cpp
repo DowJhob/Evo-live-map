@@ -1,7 +1,8 @@
 #include "gauge_widget.h"
 
-gaugeWidget::gaugeWidget(QString name, uint DigitNum, QWidget *parent):QWidget(parent)
+gaugeWidget::gaugeWidget(QString name, uint DigitNum, QWidget *parent):QToolBar(parent)
 {
+
     //       setMinimumSize(64, 64);
     //        setMaximumSize(100, 100);
     lcd.setDigitCount(DigitNum);
@@ -14,20 +15,21 @@ gaugeWidget::gaugeWidget(QString name, uint DigitNum, QWidget *parent):QWidget(p
     QString s;
     s.fill ('-', DigitNum);
     lcd.display(s);
-    QGridLayout *lay = new QGridLayout(this);
-    QLabel *lab = new QLabel(name, this);
+    QGridLayout *lay = new QGridLayout();
+    QLabel *lab = new QLabel(name);
     lay->addWidget(lab );
     lay->addWidget(&lcd);
-    lab->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum );
+
+    lab->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
 
     lcd.setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 
 
-    setLayout( lay );
+    // a.setLayout( lay );
     //lay->setSizeConstraint(
-    setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding );
+    setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Expanding );
 
-    resize(200, 200);
+    // resize(200, 200);
 
     m_pmnu = new QMenu(this);
     QActionGroup *group = new QActionGroup(m_pmnu);
@@ -50,6 +52,7 @@ gaugeWidget::gaugeWidget(QString name, uint DigitNum, QWidget *parent):QWidget(p
 
     connect(group, &QActionGroup::triggered, this, &gaugeWidget::setProto);
     setToolTip("Press right mouse button for set wideband proto");
+    addWidget(&a);
 }
 
 void gaugeWidget::contextMenuEvent(QContextMenuEvent *pe)

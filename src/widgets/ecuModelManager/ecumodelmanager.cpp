@@ -2,22 +2,22 @@
 
 #include "ui_ecumodelmanager.h"
 
-ecuModelManager::ecuModelManager(QWidget *parent) : QGroupBox(parent), ui(new Ui::ecuModelManager)
+ecuModelManagerWidget::ecuModelManagerWidget(QWidget *parent) : QGroupBox(parent), ui(new Ui::ecuModelManager)
 {
     ui->setupUi(this);
 
-    connect(ui->availECUmodel,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ecuModelManager::_modelSelected);
+    connect(ui->availECUmodel,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ecuModelManagerWidget::_modelSelected);
 
-    connect(ui->availProto_comboBox,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ecuModelManager::_protoSelected);
+    connect(ui->availProto_comboBox,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ecuModelManagerWidget::_protoSelected);
 }
 
-ecuModelManager::~ecuModelManager()
+ecuModelManagerWidget::~ecuModelManagerWidget()
 {
     delete ui;
 }
 
 // Заполняем после подключения, тогда при добавлении буду сигналы
-void ecuModelManager::fillModels(QMap<ecuModelType, QString> *availECUmodels)
+void ecuModelManagerWidget::fillECU_Models(QMap<ecuModelType, QString> *availECUmodels)
 {
     // this->availECUmodels = availECUmodels;
     // this->availProtos = availProto;
@@ -29,7 +29,7 @@ void ecuModelManager::fillModels(QMap<ecuModelType, QString> *availECUmodels)
 
 }
 
-void ecuModelManager::fillAvailProtos(QMap<DMA_ProtoType, QString> *availProtos)
+void ecuModelManagerWidget::fillAvailProtos(QMap<DMA_ProtoType, QString> *availProtos)
 {
     ui->availProto_comboBox->blockSignals(true);
     ui->availProto_comboBox->clear();
@@ -44,7 +44,7 @@ void ecuModelManager::fillAvailProtos(QMap<DMA_ProtoType, QString> *availProtos)
     }
 }
 
-void ecuModelManager::_modelSelected(int index)
+void ecuModelManagerWidget::_modelSelected(int index)
 {
     ecuModelType modelType = qvariant_cast<ecuModelType>(ui->availECUmodel->itemData(index));
 
@@ -61,7 +61,7 @@ void ecuModelManager::_modelSelected(int index)
     // fillAvailProtos(model);
 }
 
-void ecuModelManager::_protoSelected(int index)
+void ecuModelManagerWidget::_protoSelected(int index)
 {
     DMA_ProtoType protoType = qvariant_cast<DMA_ProtoType>(ui->availProto_comboBox->itemData(index));
 

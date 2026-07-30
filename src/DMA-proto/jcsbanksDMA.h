@@ -19,6 +19,9 @@ public:
     //public slots:
     bool connect_()
     {
+        if( (*p_devComm) == nullptr )
+            return false;
+
         //qDebug() << "=========== jcsbanksDMA::connect ================ baudRate" << (*p_devComm)->getBaudRate();
         if( (*p_devComm)->ISO9141() )
             if ( (*p_devComm)->five_baud_init() )
@@ -51,7 +54,7 @@ public slots:
 
 
 private slots:
-//    void poll();
+    //    void poll();
 
 private:
     pollHelper *poller;

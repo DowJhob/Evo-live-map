@@ -11,4 +11,6 @@ typedef struct                                       // Содержимое т�
     offsetMemory Y_axis;
 } mapDefinition;
 
+Q_DECLARE_METATYPE( mapDefinition )
+
 #endif // MAPDEFINITION_H

@@ -7,17 +7,15 @@ namespace Ui {
 class protoManager;
 }
 
-class protoManager : public QGroupBox
+class logRateManagerWidget : public QGroupBox
 {
     Q_OBJECT
 
 public:
     QThread *ecu_thread;
 
-    explicit protoManager(QWidget *parent = nullptr);
-    ~protoManager();
-
-    void addProtos();
+    explicit logRateManagerWidget(QWidget *parent = nullptr);
+    ~logRateManagerWidget();
 
 private:
     Ui::protoManager *ui;

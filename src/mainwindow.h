@@ -25,7 +25,7 @@
 #include "widgets/hexEditor/hexeditor.h"
 #include "widgets/gauge_widget.h"
 
-#include "widgets/ecuManager.h"
+#include "widgets/ecuManagerWidget.h"
 
 #include "widgets/loggermanager.h"
 
@@ -46,8 +46,8 @@ public:
     ~MainWindow();
     explicit MainWindow(QWidget *parent = nullptr);
 
+    void setECU(ecu *ECU);
     void setECUmanager(ecuManagerWidget *_ecuManager);
-    void setMAPmanager(mapManager *_mapManager);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -56,6 +56,9 @@ public slots:
 //    void setUSBfilter(deviceNativeFilter *usbFilter);
     void Log(QString str);
     void deviceEventLog(QString msg, int pos);
+
+    void setWBGUAGE(gaugeWidget *wbWgt);
+
 
 private slots:
 //    void ecuConnected(QHash<QString, Map *> *RAMtables);
@@ -68,7 +71,7 @@ private:
 //    s3Dplot plot;
 //s3Dscatter scat;
 //    Analizer an;
-
+    ecu *ECU = nullptr;
     Ui::MainWindow *ui;
 
     //======================== widget lists =================================

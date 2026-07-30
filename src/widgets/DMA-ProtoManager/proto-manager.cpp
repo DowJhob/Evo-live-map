@@ -1,17 +1,17 @@
 #include "proto-manager.h"
 #include "ui_proto-manager.h"
 
-protoManager::protoManager(QWidget *parent) : QGroupBox(parent), ui(new Ui::protoManager)
+logRateManagerWidget::logRateManagerWidget(QWidget *parent) : QGroupBox(parent), ui(new Ui::protoManager)
 {
     ui->setupUi(this);
 }
 
-protoManager::~protoManager()
+logRateManagerWidget::~logRateManagerWidget()
 {
     delete ui;
 }
 
-void protoManager::_logRateChanged()   // Обновляем скорость обмена
+void logRateManagerWidget::_logRateChanged()   // Обновляем скорость обмена
 {
     //baudRate = el_lograte.text().toUInt();
     emit logRateChanged(ui->el_lograte->text().toUInt());

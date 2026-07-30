@@ -41,7 +41,8 @@ private slots:
     void _baudRateChanged();
 
 signals:
-    void deviceSelected(comm_device_interface*);
+    void deviceSelected(device);
+
     void deviceHasLeft(comm_device_interface*);
 
     void tactrixArrived(commDeviceWB *);

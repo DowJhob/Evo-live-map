@@ -1,6 +1,7 @@
 #ifndef GAUGE_WIDGET_H
 #define GAUGE_WIDGET_H
 
+#include "qtoolbar.h"
 #include <QObject>
 #include <QWidget>
 #include <QGridLayout>
@@ -12,7 +13,7 @@
 
 #include <src/ecu/ecu-definition.h>
 
-class gaugeWidget:public QWidget
+class gaugeWidget:public QToolBar
 {
     Q_OBJECT
 public:
@@ -29,6 +30,7 @@ public slots:
 
 private:
     QMenu* m_pmnu;
+    QWidget a;
 
 private slots:
     void setProto(QAction* pAction);

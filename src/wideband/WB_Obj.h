@@ -11,7 +11,7 @@ class WB : public QObject
 {
     Q_OBJECT
 public:
-    QThread *thread;
+    QThread *_thread;
     WB();
 
 public slots:

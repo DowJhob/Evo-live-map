@@ -51,4 +51,6 @@ private:
 
 };
 
+Q_DECLARE_METATYPE( offsetMemory )
+
 #endif // ABSTRACT-MEMORY_H

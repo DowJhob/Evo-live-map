@@ -29,6 +29,29 @@ ecu::~ecu()
     //pollTimer->deleteLater();
 }
 
+QMap<ecuModelType, QString> *ecu::getAvailModels()
+{
+    return &AvailModels2;
+}
+
+void ecu::setSelectedECUcommDevice(comm_device_interface *DevComm)
+{
+    // qDebug()<< "ecu::setSelectedECUcommDevice" << dev.DeviceDesc;
+
+    if (selectedDMAproto != nullptr  )
+        selectedDMAproto->stopLog();
+
+    if(selectedDevComm != nullptr)
+    {
+        selectedDevComm->close();
+        selectedDevComm->disconnect();
+        selectedDevComm->deleteLater();
+    }
+    selectedDevComm = DevComm;
+
+    emit ecuConnected(false);
+}
+
 // QMap<ecuModelType, ECU_model *> *ecu::getAvailModels()
 // {
 //     return &AvailModels;
@@ -38,21 +61,6 @@ ecu::~ecu()
 // {
 //     return &availProtos;
 // }
-
-void ecu::setComDev(comm_device_interface *_devComm)
-{
-    if (selectedDMAproto != nullptr  )
-        selectedDMAproto->stopLog();
-
-    if (selectedDevComm != nullptr  )
-    {
-        selectedDMAproto->disconnect_();
-    }
-
-    emit ecuConnected(false);
-
-    selectedDevComm = _devComm;
-}
 
 void ecu::setECUmodel(ECU_model *_ECUmodel)
 {

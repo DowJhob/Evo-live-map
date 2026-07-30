@@ -6,11 +6,14 @@
 #include "deviceNativeFilter.h"
 #include "mainwindow.h"
 
+#include "src/commDevicesController.h"
 #include "src/wideband/WB_Obj.h"
-#include "widgets/ecuManager.h"
+#include "widgets/ecuManagerWidget.h"
 #include "widgets/mapManager/mapmanager.h"
 
 QElapsedTimer t;
+
+Q_DECLARE_METATYPE( QVector<float> )
 
 int main(int argc, char *argv[])
 {
@@ -31,38 +34,54 @@ int main(int argc, char *argv[])
 
     MainWindow mainWindow;
 
-    // deviceNativeFilter usbFilter;
 
-    qRegisterMetaType<Map>("Map");
-    qRegisterMetaType<mapDefinition>("mapDefinition");
-    qRegisterMetaType<offsetMemory>("offsetMemory");
-    qRegisterMetaType<QVector<float>>("QVector<float>");
-
+    //========================================================================================
     ecu *ECU = new ecu();
+    commDevicesController commDevCtrl(ECU);
+    ecuManagerWidget *_ecuManager = new ecuManagerWidget(&mainWindow, ECU, &commDevCtrl);
+    _ecuManager->fillECU_Models(ECU->getAvailModels());
 
-    //========================================================================================
-    ecuManagerWidget *_ecuManager = new ecuManagerWidget(&mainWindow, ECU);
+    QObject::connect(_ecuManager, &ecuManagerWidget::ECU_DeviceSelected, &commDevCtrl, &commDevicesController::setSelectedECUcommDevice);
+    QObject::connect(_ecuManager, &ecuManagerWidget::ecuConnect,          ECU, &ecu::connectDMA, Qt::QueuedConnection);
+    QObject::connect(_ecuManager, &ecuManagerWidget::ECU_ModelSelected,   ECU, &ecu::setECUmodelType);
+    QObject::connect(_ecuManager, &ecuManagerWidget::ECU_ProtoSelected,   ECU, &ecu::setDMAproto);
+    QObject::connect(_ecuManager, &ecuManagerWidget::ECU_deviceHasLeft,   ECU, &ecu::deviceHasLeft);
+    QObject::connect(_ecuManager, &ecuManagerWidget::logRateChanged,      ECU, &ecu::setLogRate);
 
 
-    //========================================================================================
-    mapManager *_mapManager = new mapManager(&mainWindow, ECU);
+    QObject::connect(ECU, &ecu::getAvailProtos, _ecuManager, &ecuManagerWidget::fillAvailECU_Protos);
+    QObject::connect(ECU, &ecu::ecuConnected, _ecuManager, &ecuManagerWidget::ECUconnected, Qt::QueuedConnection);
 
-    //========================================================================================
-    WB *wb = new WB;
-    wbManagerWidget *_wbManager = &_ecuManager->commDevsMngrWgt._wbManager;
-    _wbManager->wb_thread    = wb->thread;
 
-    QObject::connect(_wbManager, &wbManagerWidget::wbSelected, wb, &WB::setWBDev);
-    QObject::connect(_wbManager, &wbManagerWidget::protoSelected, wb, &WB::setWBproto);
-    QObject::connect(_wbManager, &wbManagerWidget::wbStart, wb, &WB::start);
-    QObject::connect(wb, &WB::lambdaValue, &_ecuManager->wbWgt, &gaugeWidget::display);
 
-    _ecuManager->setConectionParamWidget();
 
-    //========================================================================================
+
+
+    mainWindow.setECU(ECU);
     mainWindow.setECUmanager(_ecuManager);
-    mainWindow.setMAPmanager(_mapManager);
+
+
+    gaugeWidget wbWgt{"           = Wideband2 =           ", 4};
+
+    //========================================================================================
+    // wbManagerWidget *_wbManager = &_ecuManager->commDevsMngrWgt._wbManagerWidget;
+    // _wbManager->wb_thread    = wb->thread;
+    WB *wb = new WB;
+
+
+    QObject::connect(&commDevCtrl, &commDevicesController::tactrixArrived,       _ecuManager, &ecuManagerWidget::addTactrix);
+    QObject::connect(&commDevCtrl, &commDevicesController::tactrixRemoved,       _ecuManager, &ecuManagerWidget::removeTactrix);
+
+    QObject::connect(_ecuManager, &ecuManagerWidget::wbSelected,       wb, &WB::setWBDev);
+    QObject::connect(_ecuManager, &ecuManagerWidget::WB_ProtoSelected, wb, &WB::setWBproto);
+    QObject::connect(_ecuManager, &ecuManagerWidget::wbStart,          wb, &WB::start);
+    QObject::connect(wb, &WB::lambdaValue,                         &wbWgt, &gaugeWidget::display);
+
+    //========================================================================================
+
+    mainWindow.setWBGUAGE(&wbWgt);
 
     mainWindow.show();
     return app.exec();
+    delete ECU;
 }

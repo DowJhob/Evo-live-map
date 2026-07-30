@@ -86,6 +86,8 @@ SOURCES += src/main.cpp\
     src/ECU-model/ecu-model.cpp \
     src/ECU-model/evo7-ecu-model.cpp \
     src/ECU-model/evoX-ecu-model.cpp \
+    src/commDevicesController.cpp \
+    src/ecuManagerWidgetCommand.cpp \
     src/wideband/WB_I_ComDev.cpp \
     src/wideband/WB_OP20.cpp \
     src/wideband/WB_Obj.cpp \
@@ -115,16 +117,15 @@ SOURCES += src/main.cpp\
     src/widgets/Patcher/patcher.cpp \
 #    src/widgets/analizer.cpp \
     src/widgets/commDevicesWidget.cpp \
-    src/widgets/ecuManager.cpp \
     src/DMA-proto/pollhelper.cpp \
     src/deviceNativeFilter.cpp \
     src/ecu/ecu-definition.cpp \
     src/fast-notation.cpp \
     src/libs/j2534passthru.cpp \
     src/map-decl/map.cpp \
+    src/widgets/ecuManagerWidget.cpp \
     src/widgets/ecuModelManager/ecumodelmanager.cpp \
     src/widgets/flasher/flashwidget.cpp \
-    src/widgets/wb-manager/wb-manager.cpp \
     src/widgets/hexEditor/hexeditor.cpp \
     src/mainwindow.cpp \
 #    src/libs/J2534.cpp \
@@ -137,6 +138,7 @@ SOURCES += src/main.cpp\
     src/widgets/mapWidget/mapmodel.cpp \
     src/widgets/mapWidget/mapview.cpp \
     src/widgets/mapWidget/mapwidget.cpp \
+    src/widgets/wb-manager/wb-managerWidget.cpp \
     src/xmlmanager.cpp
 
 HEADERS  += src/mainwindow.h \
@@ -148,6 +150,8 @@ HEADERS  += src/mainwindow.h \
     src/ECU-model/ecu-model.h \
     src/ECU-model/evo7-ecu-model.h \
     src/ECU-model/evoX-ecu-model.h \
+    src/commDevicesController.h \
+    src/ecuManagerWidgetCommand.h \
     src/wideband/WB_I_ComDev.h \
     src/wideband/WB_OP20.h \
     src/wideband/WB_Obj.h \
@@ -173,7 +177,6 @@ HEADERS  += src/mainwindow.h \
     src/widgets/Patcher/patcher.h \
 #    src/widgets/analizer.h \
     src/widgets/commDevicesWidget.h \
-    src/widgets/ecuManager.h \
     src/DMA-proto/pollhelper.h \
     # src/DMA-proto/evoX-DMA.h \
     src/DMA-proto/jcsbanksDMA.h \
@@ -193,9 +196,9 @@ HEADERS  += src/mainwindow.h \
     src/map-decl/submap.h \
     src/test-map.h \
     src/types.h \
+    src/widgets/ecuManagerWidget.h \
     src/widgets/ecuModelManager/ecumodelmanager.h \
     src/widgets/flasher/flashwidget.h \
-    src/widgets/wb-manager/wb-manager.h \
     src/widgets/gauge_widget.h \
     src/widgets/hexEditor/hexeditor.h \
     src/widgets/loggermanager.h \
@@ -203,6 +206,7 @@ HEADERS  += src/mainwindow.h \
     src/widgets/mapWidget/mapmodel.h \
     src/widgets/mapWidget/mapview.h \
     src/widgets/mapWidget/mapwidget.h \
+    src/widgets/wb-manager/wb-managerWidget.h \
     src/xmlmanager.h
     #ecu/ecu_x_comm.h \
 
@@ -210,10 +214,10 @@ FORMS    += mainwindow.ui \
     src/widgets/ECUcommDeviceManager/ECUcommDevicesManager.ui \
     src/widgets/ecuModelManager/ecumodelmanager.ui \
     src/widgets/flasher/flashwidget.ui \
-    src/widgets/wb-manager/wb-manager.ui \
     src/widgets/DMA-ProtoManager/proto-manager.ui \
     src/widgets/Patcher/patcher.ui \
-    src/widgets/mapManager/mapmanager.ui
+    src/widgets/mapManager/mapmanager.ui \
+    src/widgets/wb-manager/wb-managerWidget.ui
 
 LIBS += -lSetupapi
 LIBS += -ladvapi32
