@@ -17,10 +17,10 @@ class gaugeWidget:public QToolBar
 {
     Q_OBJECT
 public:
-    uint offset;
-    Scaling *scaling;
-    QLCDNumber lcd;
+    // uint offset;
+    // Scaling *scaling;
     gaugeWidget(QString name, uint DigitNum = 4, QWidget* parent = nullptr);
+    ~gaugeWidget();
 
 protected:
     virtual void contextMenuEvent(QContextMenuEvent* pe);
@@ -29,6 +29,10 @@ public slots:
     void display(QString in);
 
 private:
+    QLCDNumber *lcd;
+    QGridLayout *lay;
+    QLabel *lab;
+
     QMenu* m_pmnu;
     QWidget a;
 

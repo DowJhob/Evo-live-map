@@ -3,7 +3,7 @@
 #include <QElapsedTimer>
 //#include <QQmlApplicationEngine>
 
-#include "deviceNativeFilter.h"
+// #include "deviceNativeFilter.h"
 #include "mainwindow.h"
 
 #include "src/commDevicesController.h"
@@ -41,12 +41,11 @@ int main(int argc, char *argv[])
     ecuManagerWidget *_ecuManager = new ecuManagerWidget(&mainWindow, ECU, &commDevCtrl);
     _ecuManager->fillECU_Models(ECU->getAvailModels());
 
-    QObject::connect(_ecuManager, &ecuManagerWidget::ECU_DeviceSelected, &commDevCtrl, &commDevicesController::setSelectedECUcommDevice);
     mainWindow.setECUmanager(_ecuManager);
 
 
     //========================================================================================
-    gaugeWidget wbWgt{"           = Wideband2 =           ", 4};
+    gaugeWidget wbWgt{"           = Wideband2 =           ", 4, &mainWindow};
     WB *wb = new WB;
     QObject::connect(&commDevCtrl, &commDevicesController::tactrixArrived,       _ecuManager, &ecuManagerWidget::addTactrix);
     QObject::connect(&commDevCtrl, &commDevicesController::tactrixRemoved,       _ecuManager, &ecuManagerWidget::removeTactrix);
@@ -54,6 +53,7 @@ int main(int argc, char *argv[])
     QObject::connect(_ecuManager, &ecuManagerWidget::wbSelected,       wb, &WB::setWBDev);
     QObject::connect(_ecuManager, &ecuManagerWidget::WB_ProtoSelected, wb, &WB::setWBproto);
     QObject::connect(_ecuManager, &ecuManagerWidget::wbStart,          wb, &WB::start);
+
     QObject::connect(wb, &WB::lambdaValue,                         &wbWgt, &gaugeWidget::display);
 
     //========================================================================================
@@ -62,5 +62,4 @@ int main(int argc, char *argv[])
 
     mainWindow.show();
     return app.exec();
-    delete ECU;
 }

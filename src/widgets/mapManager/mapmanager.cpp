@@ -15,6 +15,7 @@ mapManager::mapManager(QWidget *parent, ecu* _ecu) : QGroupBox(parent), ui(new U
 
 mapManager::~mapManager()
 {
+    qDebug() << "==== mapManager::~mapManager() =====";
     delete ui;
 }
 

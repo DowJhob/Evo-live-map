@@ -1,6 +1,6 @@
 #include "ecuManagerWidget.h"
 
-ecuManagerWidget::ecuManagerWidget(QWidget *parent, ecu *ECU, commDevicesController *commDevCtrl) : QToolBar(parent), ECU(ECU)
+ecuManagerWidget::ecuManagerWidget(MainWindow *parent, ecu *ECU, commDevicesController *commDevCtrl) : QToolBar(parent), ECU(ECU)
 {
     //    ECU->test();
 
@@ -26,6 +26,9 @@ ecuManagerWidget::ecuManagerWidget(QWidget *parent, ecu *ECU, commDevicesControl
 
     commDevsMngrWgt.deviceLostState();
 
+    connect(this, &ecuManagerWidget::deviceEventLog, parent, &MainWindow::deviceEventLog);
+    connect(this, &ecuManagerWidget::Log,            parent, &MainWindow::Log);
+
     connect(&commDevsMngrWgt, &commDevicesWidget::ECU_deviceHasLeft, this, &ecuManagerWidget::ECU_deviceHasLeft);
     connect(&commDevsMngrWgt, &commDevicesWidget::ECU_deviceSelected, this, &ecuManagerWidget::deviceSelected);
     connect(&commDevsMngrWgt, &commDevicesWidget::ECU_deviceSelected, this, &ecuManagerWidget::ECU_DeviceSelected);
@@ -41,7 +44,7 @@ ecuManagerWidget::ecuManagerWidget(QWidget *parent, ecu *ECU, commDevicesControl
 
     // connect(&commDevsMngrWgt, &commDevicesWidget::ECU_deviceHasLeft, ECU, &ecu::deviceHasLeft);
     connect(&commDevsMngrWgt, &commDevicesWidget::logRateChanged, ECU, &ecu::setLogRate);
-    connect(&commDevsMngrWgt, &commDevicesWidget::logReady, &wbWgt, &gaugeWidget::display);
+    // connect(&commDevsMngrWgt, &commDevicesWidget::logReady, &wbWgt, &gaugeWidget::display);
 
 
     connect(this, &ecuManagerWidget::ECU_DeviceSelected, commDevCtrl, &commDevicesController::setSelectedECUcommDevice);
@@ -60,7 +63,7 @@ ecuManagerWidget::ecuManagerWidget(QWidget *parent, ecu *ECU, commDevicesControl
 
 ecuManagerWidget::~ecuManagerWidget()
 {
-    //qDebug() << "~ecuManager";
+    qDebug() << "~ecuManager";
 }
 
 void ecuManagerWidget::ECUconnected(bool state)

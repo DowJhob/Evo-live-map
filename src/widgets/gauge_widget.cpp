@@ -2,30 +2,31 @@
 
 gaugeWidget::gaugeWidget(QString name, uint DigitNum, QWidget *parent):QToolBar(parent)
 {
-
+    lcd = new QLCDNumber(DigitNum, this);
     //       setMinimumSize(64, 64);
     //        setMaximumSize(100, 100);
-    lcd.setDigitCount(DigitNum);
-    lcd.setSmallDecimalPoint(true);
-    lcd.resize(QSize(400, 200));
+    lcd->setDigitCount(DigitNum);
+    lcd->setSmallDecimalPoint(true);
+    lcd->resize(QSize(400, 200));
     // lcd.setMinimumWidth( this->width() + 1 );
-    QFont myFont1 = lcd.font();
+    QFont myFont1 = lcd->font();
     //myFont1.setPixelSize (120);
     //lcd.setFont(myFont1);
     QString s;
     s.fill ('-', DigitNum);
-    lcd.display(s);
-    QGridLayout *lay = new QGridLayout();
-    QLabel *lab = new QLabel(name);
+    lcd->display(s);
+    lay = new QGridLayout();
+    lab = new QLabel(name);
     lay->addWidget(lab );
-    lay->addWidget(&lcd);
+    lay->addWidget(lcd);
 
     lab->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
 
-    lcd.setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+    lcd->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 
-
-    // a.setLayout( lay );
+    // QLayout *oldlay = layout();
+    // oldlay->deleteLater();
+    a.setLayout( lay );
     //lay->setSizeConstraint(
     setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Expanding );
 
@@ -55,6 +56,14 @@ gaugeWidget::gaugeWidget(QString name, uint DigitNum, QWidget *parent):QToolBar(
     addWidget(&a);
 }
 
+gaugeWidget::~gaugeWidget()
+{
+    lcd->deleteLater();
+    lay->deleteLater();
+    lab->deleteLater();
+    m_pmnu->deleteLater();
+}
+
 void gaugeWidget::contextMenuEvent(QContextMenuEvent *pe)
 {
     m_pmnu->exec(pe->globalPos());
@@ -62,7 +71,7 @@ void gaugeWidget::contextMenuEvent(QContextMenuEvent *pe)
 
 void gaugeWidget::display(QString in)
 {
-    lcd.display(in);
+    lcd->display(in);
 }
 
 void gaugeWidget::setProto(QAction* pAction)

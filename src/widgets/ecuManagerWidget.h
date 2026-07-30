@@ -11,6 +11,7 @@
 
 #include "../deviceNativeFilter.h"
 #include "src/commDevicesController.h"
+#include "src/mainwindow.h"
 #include "src/widgets/commDevicesWidget.h"
 #include "src/widgets/gauge_widget.h"
 
@@ -47,10 +48,10 @@ public:
     ecu *ECU;
     commDevicesWidget commDevsMngrWgt;
 
-    explicit ecuManagerWidget(QWidget *parent = nullptr, ecu *ECU = nullptr, commDevicesController *commDevCtrl = nullptr);
+    explicit ecuManagerWidget(MainWindow *parent = nullptr, ecu *ECU = nullptr, commDevicesController *commDevCtrl = nullptr);
     ~ecuManagerWidget();
 
-    gaugeWidget wbWgt{"           = Wideband =           ", 4};
+    // gaugeWidget wbWgt{"           = Wideband =           ", 4};
 
 public slots:
     void fillECU_Models(QMap<ecuModelType, QString> *availECUmodels);

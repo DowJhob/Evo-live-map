@@ -17,15 +17,15 @@
 #include "src/widgets/Patcher/patcher.h"
 //#include "src/widgets/analizer.h"
 #include "src/widgets/mapManager/mapmanager.h"
-#include "types.h"
+// #include "types.h"
 
-#include "deviceNativeFilter.h"
+// #include "deviceNativeFilter.h"
 
 #include "widgets/mapWidget/mapwidget.h"
 #include "widgets/hexEditor/hexeditor.h"
 #include "widgets/gauge_widget.h"
 
-#include "widgets/ecuManagerWidget.h"
+// #include "widgets/ecuManagerWidget.h"/
 
 #include "widgets/loggermanager.h"
 
@@ -46,8 +46,7 @@ public:
     ~MainWindow();
     explicit MainWindow(QWidget *parent = nullptr, ecu *ECU = nullptr);
 
-    void setECU(ecu *ECU);
-    void setECUmanager(ecuManagerWidget *_ecuManager);
+    void setECUmanager(QToolBar *_ecuManager);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -75,9 +74,9 @@ private:
     Ui::MainWindow *ui;
 
     //======================== widget lists =================================
-    QSet<gaugeWidget*> gauge_widget_set;
+    // QSet<gaugeWidget*> gauge_widget_set;
     //======================== widget's =================================
-    ecuManagerWidget *_ecuManager = nullptr;
+    // ecuManagerWidget *_ecuManager = nullptr;
     mapManager *_mapManager = nullptr;
     loggerManager _loggerManager;
     hexEditor hexEdit;

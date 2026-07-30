@@ -28,24 +28,17 @@ MainWindow::MainWindow(QWidget *parent, ecu *ECU) : QMainWindow(parent), ui(new 
     qDebug() << "=========== MainWindow:: ================ QThread:" << thread();
 }
 
-void MainWindow::setECU(ecu *ECU)
-{
-
-}
-
-void MainWindow::setECUmanager(ecuManagerWidget *_ecuManager)
+void MainWindow::setECUmanager(QToolBar *_ecuManager)
 {
     addToolBar(Qt::TopToolBarArea, _ecuManager);
 
-    connect(_ecuManager, &ecuManagerWidget::deviceEventLog, this, &MainWindow::deviceEventLog);
-    connect(_ecuManager, &ecuManagerWidget::Log,            this, &MainWindow::Log);
 }
 
 MainWindow::~MainWindow()
 {
     qDebug() << "~MainWindow";
 
-    gaugeDelete();
+    // gaugeDelete();
     delete ui;
 }
 
@@ -85,7 +78,7 @@ void MainWindow::create_gauge(QString name, mutParam *param)
     //    ui->toolBar->addWidget(_graph_log_widget);
     //ui->logger_verticalLayout->layout()->addWidget(_gauge_widget);
     loggerWidgetBar->addWidget(_gauge_widget);
-    gauge_widget_set.insert(_gauge_widget);
+    // gauge_widget_set.insert(_gauge_widget);
 }
 
 void MainWindow::gaugeDelete()

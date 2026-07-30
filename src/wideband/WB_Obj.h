@@ -13,6 +13,10 @@ class WB : public QObject
 public:
     QThread *_thread;
     WB();
+    ~WB()
+    {
+        ;
+    }
 
 public slots:
     void setWBDev(commDeviceWB *_wbdevComm);

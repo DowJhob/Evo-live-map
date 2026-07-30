@@ -25,7 +25,7 @@ ecu::ecu()
 
 ecu::~ecu()
 {
-    //qDebug() << "=========== ~ecu ================";
+    qDebug() << "=========== ~ecu ================";
     //pollTimer->deleteLater();
 }
 
