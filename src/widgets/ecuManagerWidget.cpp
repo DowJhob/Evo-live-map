@@ -44,8 +44,9 @@ ecuManagerWidget::ecuManagerWidget(QWidget *parent, ecu *ECU, commDevicesControl
     connect(&commDevsMngrWgt, &commDevicesWidget::logReady, &wbWgt, &gaugeWidget::display);
 
 
+    connect(this, &ecuManagerWidget::ECU_DeviceSelected, commDevCtrl, &commDevicesController::setSelectedECUcommDevice);
 
-
+    makeExtInterConnect();
 
 
     // Заполняем после подключения, тогда при добавлении буду сигналы
@@ -77,6 +78,20 @@ void ecuManagerWidget::ECUconnected(bool state)
         a_start_action->setText("Start");
         commDevsMngrWgt.devicePresentState();
     }
+}
+
+void ecuManagerWidget::makeExtInterConnect()
+{
+    QObject::connect(this, &ecuManagerWidget::ecuConnect,          ECU, &ecu::connectDMA, Qt::QueuedConnection);
+    QObject::connect(this, &ecuManagerWidget::ECU_ModelSelected,   ECU, &ecu::setECUmodelType);
+    QObject::connect(this, &ecuManagerWidget::ECU_ProtoSelected,   ECU, &ecu::setDMAproto);
+    QObject::connect(this, &ecuManagerWidget::ECU_deviceHasLeft,   ECU, &ecu::deviceHasLeft);
+    QObject::connect(this, &ecuManagerWidget::logRateChanged,      ECU, &ecu::setLogRate);
+
+
+    QObject::connect(ECU, &ecu::getAvailProtos, this, &ecuManagerWidget::fillAvailECU_Protos);
+    QObject::connect(ECU, &ecu::ecuConnected, this, &ecuManagerWidget::ECUconnected, Qt::QueuedConnection);
+
 }
 
 void ecuManagerWidget::deviceSelected(device devComm)

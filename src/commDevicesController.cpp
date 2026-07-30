@@ -29,7 +29,7 @@ void commDevicesController::setSelectedECUcommDevice(device dev)
     case deviceType::J2534  : selectedDevComm = new j2534_comm(nullptr, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID); break;
     case deviceType::OP20   : selectedDevComm = new OP20(nullptr, dev.FunctionLibrary, dev.DeviceDesc, dev.DeviceUniqueID);
         ((OP20*)selectedDevComm)->tactrixWBinstance = new op20wb(static_cast<OP20*>(selectedDevComm));
-        // emit tactrixArrived(((OP20*)selectedDevComm)->tactrixWBinstance);
+        emit tactrixArrived(((OP20*)selectedDevComm)->tactrixWBinstance);
         break;
 
     default                : return;                                            //  но поскольку тут вылетим без добавления то вроде и не важно

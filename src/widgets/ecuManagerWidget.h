@@ -71,6 +71,8 @@ private:
     QAction *a_start_action;
     QAction *a_ramReset;
 
+    void makeExtInterConnect();
+
 
 private slots:
     void start_stop_Action();

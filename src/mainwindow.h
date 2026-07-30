@@ -44,7 +44,7 @@ public:
     QHash<QString, mapWidget*> ptrRAMtables;
 
     ~MainWindow();
-    explicit MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr, ecu *ECU = nullptr);
 
     void setECU(ecu *ECU);
     void setECUmanager(ecuManagerWidget *_ecuManager);
