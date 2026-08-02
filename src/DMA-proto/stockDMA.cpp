@@ -1,6 +1,6 @@
 #include "stockDMA.h"
 
-stockDMA::stockDMA(p_comm_device_interface *p_devComm) : DMA_proto(p_devComm)
+stockDMA::stockDMA(comm_device_interface *p_devComm) : DMA_proto(p_devComm)
 {
     name = "stock DMA proto by nanner55";
     type = DMA_ProtoType::nanner55;
@@ -14,17 +14,17 @@ stockDMA::~stockDMA()
 
 bool stockDMA::connect_()
 {
-    qDebug() << "=========== stockDMA::connect ================ baudRate" << (*p_devComm)->getBaudRate();
-    if((*p_devComm)->open())
+    qDebug() << "=========== stockDMA::connect ================ baudRate" << (p_devComm)->getBaudRate();
+    if((p_devComm)->open())
     {
-        qDebug() << "=========== stockDMA::connect ================ open" << (*p_devComm)->getBaudRate();
-        if ((*p_devComm)->connect(Protocol::ISO9141))
+        qDebug() << "=========== stockDMA::connect ================ open" << (p_devComm)->getBaudRate();
+        if ((p_devComm)->connect(Protocol::ISO9141))
         {
-            qDebug() << "=========== stockDMA::connect ================ connect" << (*p_devComm)->getBaudRate();
+            qDebug() << "=========== stockDMA::connect ================ connect" << (p_devComm)->getBaudRate();
             return true;
         }
     }
-    (*p_devComm)->close();
+    (p_devComm)->close();
     return false;
 }
 
@@ -46,8 +46,8 @@ QByteArray stockDMA::directDMAread(quint32 addr, int lenght)
     setHeader(DMAcomand::directRead, recPacketCount, addr);
     // checksum
     getChckSmm();
-    (*p_devComm)->write( 0x33 );
-    QByteArray b = (*p_devComm)->read();
+    (p_devComm)->write( 0x33 );
+    QByteArray b = (p_devComm)->read();
 
     int lastPacketBodySize = lenght - packetBodySize*(recPacketCount-1);
     //qDebug() << "directDMAread " << b.toHex(':');
@@ -73,11 +73,11 @@ void stockDMA::directDMAwrite(quint32 addr, char *buf, int lenght)
         if (count == recPacketCount-1)
             currentPacketBodySize = lastPacketBodySize;
         setHeader( DMAcomand::directWrite, currentPacketBodySize, addr);
-        memcpy((*p_devComm)->p_out_buff + 5, buf + count*packetBodySize, currentPacketBodySize);
+        memcpy((p_devComm)->p_out_buff + 5, buf + count*packetBodySize, currentPacketBodySize);
         getChckSmm();
         //QElapsedTimer t;
         //t.restart();
-        (*p_devComm)->write(packetSize);
+        (p_devComm)->write(packetSize);
         //qDebug()  << "directDMAwrite write time " << t.nsecsElapsed();
         //t.restart();
         //auto a = read()
@@ -123,17 +123,17 @@ void stockDMA::setHeader(DMAcomand command, uchar count, quint32 addr)
     //uchar packetBodySize = 0x2C;
     //clear body
     for (uint i = 5; i < DS - 2; i++)
-        (*p_devComm)->p_out_buff[i]=0;
+        (p_devComm)->p_out_buff[i]=0;
     //============================================
-    (*p_devComm)->p_out_buff[0] = 0x87;
-    (*p_devComm)->p_out_buff[1] = count;
-    (*p_devComm)->p_out_buff[2] = (uchar)command;
+    (p_devComm)->p_out_buff[0] = 0x87;
+    (p_devComm)->p_out_buff[1] = count;
+    (p_devComm)->p_out_buff[2] = (uchar)command;
     if(command == DMAcomand::directRead)
-        qToBigEndian<quint32>(addr, (char*)(*p_devComm)->p_out_buff + 3);
+        qToBigEndian<quint32>(addr, (char*)(p_devComm)->p_out_buff + 3);
     if(command == DMAcomand::directWrite)
     {
         quint16 a = 0xffff&addr;
-        qToBigEndian<quint16>(a, (char*)(*p_devComm)->p_out_buff + 3);
+        qToBigEndian<quint16>(a, (char*)(p_devComm)->p_out_buff + 3);
         // qDebug() << "setHeader"<< QString::number(a, 16);
     }
 }
@@ -143,9 +143,9 @@ void stockDMA::getChckSmm()
     // checksum
     uchar chckSum = 0;
     for (uint i = 0; i < DS - 2; i++)
-        chckSum += (*p_devComm)->p_out_buff[i];
-    (*p_devComm)->p_out_buff[DS - 2] = chckSum;
+        chckSum += (p_devComm)->p_out_buff[i];
+    (p_devComm)->p_out_buff[DS - 2] = chckSum;
 
     // trailer
-    (*p_devComm)->p_out_buff[DS - 1] = 0x0D;
+    (p_devComm)->p_out_buff[DS - 1] = 0x0D;
 }

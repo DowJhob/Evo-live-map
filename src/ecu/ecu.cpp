@@ -31,45 +31,45 @@ ecu::~ecu()
 
 QMap<ecuModelType, QString> *ecu::getAvailModels()
 {
-    return &AvailModels2;
+    return &AvailModels;
+}
+
+void ecu::ECU_DeviceHasLeft()
+{
+    selectedDMAproto->stopLog();
+    selectedDevComm->disconnect();
+    selectedDevComm->close();
+
+    delete selectedDevComm;
+
+    selectedDMAproto->p_devComm = nullptr;
+
+    emit sigECU_deviceHasStopped();
 }
 
 void ecu::setSelectedECUcommDevice(comm_device_interface *DevComm)
 {
-    // qDebug()<< "ecu::setSelectedECUcommDevice" << dev.DeviceDesc;
+    qDebug()<< Q_FUNC_INFO << DevComm;
 
-    if (selectedDMAproto != nullptr  )
-        selectedDMAproto->stopLog();
-
-    if(selectedDevComm != nullptr)
-    {
-        selectedDevComm->close();
-        selectedDevComm->disconnect();
-        selectedDevComm->deleteLater();
-    }
-    selectedDevComm = DevComm;
-
-    emit ecuConnected(false);
-}
-
-// QMap<ecuModelType, ECU_model *> *ecu::getAvailModels()
-// {
-//     return &AvailModels;
-// }
-
-// QMap<DMA_ProtoType, DMA_proto *> *ecu::getAvailProtos()
-// {
-//     return &availProtos;
-// }
-
-void ecu::setECUmodel(ECU_model *_ECUmodel)
-{
     if (selectedDMAproto != nullptr  )
     {
         selectedDMAproto->stopLog();
-        selectedDMAproto->disconnect_();
+
+        if(selectedDevComm != nullptr)
+        {
+            selectedDevComm->close();
+            selectedDevComm->disconnect();
+            selectedDevComm->deleteLater();
+        }
+        // else {
+            // return;
+        // }
+
+        selectedDevComm = DevComm;
+        selectedDMAproto->p_devComm = selectedDevComm;
     }
-    selectedECUmodel = _ECUmodel;
+
+    // emit ecuConnected(false);
 }
 
 void ecu::setECUmodelType(ecuModelType _ECUmodelType)
@@ -120,13 +120,13 @@ void ecu::setDMAproto(DMA_ProtoType _DMAprotoType)
 
     switch (_DMAprotoType) {
     case DMA_ProtoType::jcsbanks:
-        selectedDMAproto = new jcsbanksDMA(&selectedDevComm);
+        selectedDMAproto = new jcsbanksDMA(selectedDevComm);
         break;
     case DMA_ProtoType::nanner55:
-        selectedDMAproto = new stockDMA(&selectedDevComm);
+        selectedDMAproto = new stockDMA(selectedDevComm);
         break;
     case DMA_ProtoType::tephraX:
-        selectedDMAproto = new stockDMA(&selectedDevComm);
+        selectedDMAproto = new stockDMA(selectedDevComm);
         break;
     default:
         break;
@@ -134,14 +134,8 @@ void ecu::setDMAproto(DMA_ProtoType _DMAprotoType)
 
     selectedDMAprotoType = _DMAprotoType;
 
-    // qDebug() << "=========== ecu::setDMAproto ================ _DMAproto" << _DMAproto << "  /  _DMAproto::thread" << _DMAproto->thread();
-}
-
-void ecu::deviceHasLeft(comm_device_interface *_devComm)
-{
-    selectedDMAproto->stopLog();
-
-    delete _devComm;
+    qDebug() << "=========== ecu::setDMAproto ================ _DMAproto" << selectedDMAproto <<
+        "  /  _DMAproto::thread" << selectedDMAproto->thread();
 }
 
 bool ecu::connectDMA(bool state)

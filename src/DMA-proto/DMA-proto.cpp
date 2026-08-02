@@ -1,6 +1,6 @@
 #include "DMA-proto.h"
 
-DMA_proto::DMA_proto(p_comm_device_interface *p_devComm):p_devComm(p_devComm)
+DMA_proto::DMA_proto(comm_device_interface *p_devComm):p_devComm(p_devComm)
 {
        // qDebug() << "DMA_proto::DMA_proto(p_comm_device_interface *p_devComm)";
 }
@@ -17,7 +17,7 @@ void DMA_proto::startLog(ramMUT *_ramMut)
 
 bool DMA_proto::disconnect_()
 {
-    if(*p_devComm != nullptr)
-        (*p_devComm)->close();
+    if(p_devComm != nullptr)
+        (p_devComm)->close();
     return false;
 }

@@ -7,12 +7,12 @@
 CONFIG += static
 CONFIG += c++17
 #CONFIG += qwt
-#CONFIG += qmltypes
+# CONFIG += qmltypes
 CONFIG += opengl
 
 QT     += core gui xml serialport #datavisualization
 #widgets
-#QT     += quick qml
+QT     += quick qml
 
 
 # https://bugreports.qt.io/browse/QTCREATORBUG-24987
@@ -88,6 +88,7 @@ SOURCES += src/main.cpp\
     src/ECU-model/evoX-ecu-model.cpp \
     src/commDevicesController.cpp \
     src/ecuManagerWidgetCommand.cpp \
+    src/filterHelper.cpp \
     src/wideband/WB_I_ComDev.cpp \
     src/wideband/WB_OP20.cpp \
     src/wideband/WB_Obj.cpp \
@@ -118,7 +119,7 @@ SOURCES += src/main.cpp\
 #    src/widgets/analizer.cpp \
     src/widgets/commDevicesWidget.cpp \
     src/DMA-proto/pollhelper.cpp \
-    src/deviceNativeFilter.cpp \
+    # src/deviceNativeFilter.cpp \
     src/ecu/ecu-definition.cpp \
     src/fast-notation.cpp \
     src/libs/j2534passthru.cpp \
@@ -152,6 +153,7 @@ HEADERS  += src/mainwindow.h \
     src/ECU-model/evoX-ecu-model.h \
     src/commDevicesController.h \
     src/ecuManagerWidgetCommand.h \
+    src/filterHelper.h \
     src/wideband/WB_I_ComDev.h \
     src/wideband/WB_OP20.h \
     src/wideband/WB_Obj.h \
@@ -181,7 +183,7 @@ HEADERS  += src/mainwindow.h \
     # src/DMA-proto/evoX-DMA.h \
     src/DMA-proto/jcsbanksDMA.h \
     src/DMA-proto/stockDMA.h \
-    src/deviceNativeFilter.h \
+    # src/deviceNativeFilter.h \
     src/ecu/ecu-definition.h \
     src/fast-notation.h \
 #    src/libs/J2534.h \
@@ -231,6 +233,7 @@ RESOURCES += \
 
 DISTFILES += \
     src/widgets/mapWidget/fff.qml \
+    src/widgets/mapWidget/rrr.qml \
     xdf/80700010-jcsbanks.xdf \
     xdf/80700010_DMA-stockDMA-byNanner55.xdf \
     xdf/88590015-stockDMA-byNanner55.xdf \

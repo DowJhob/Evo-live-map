@@ -12,28 +12,12 @@ class jcsbanksDMA : public DMA_proto
 {
     Q_OBJECT
 public:
-    explicit jcsbanksDMA(p_comm_device_interface *p_devComm);
+    explicit jcsbanksDMA(comm_device_interface *p_devComm);
 
     ~jcsbanksDMA();
 
     //public slots:
-    bool connect_()
-    {
-        if( (*p_devComm) == nullptr )
-            return false;
-
-        //qDebug() << "=========== jcsbanksDMA::connect ================ baudRate" << (*p_devComm)->getBaudRate();
-        if( (*p_devComm)->ISO9141() )
-            if ( (*p_devComm)->five_baud_init() )
-            {
-                qDebug() << "=========== jcsbanksDMA::MUTconnect ================";
-                return true;
-            }
-        (*p_devComm)->close();
-        return false;
-
-        // return (*ecu_model)->MUTconnect();
-    }
+    bool connect_();
 
     QByteArray indirectDMAread(quint32 addr, int lenght);
     QByteArray directDMAread(quint32 addr, int lenght);

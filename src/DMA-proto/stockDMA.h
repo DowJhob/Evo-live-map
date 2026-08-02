@@ -13,7 +13,7 @@ class stockDMA : public DMA_proto
 {
     Q_OBJECT
 public:
-    explicit stockDMA(p_comm_device_interface *p_devComm);
+    explicit stockDMA(comm_device_interface *p_devComm);
     ~stockDMA();
 
 //public slots:

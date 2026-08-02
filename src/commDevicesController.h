@@ -2,7 +2,8 @@
 #define COMMDEVICESCONTROLLER_H
 
 #include "src/comm-device-interface/comm-device-interface.h"
-#include "src/deviceNativeFilter.h"
+// #include "src/deviceNativeFilter.h"
+#include "src/filterHelper.h"
 #include "src/ecu/ecu.h"
 #include <QObject>
 
@@ -12,18 +13,19 @@ class commDevicesController : public QObject
 public:
     commDevicesController(ecu *ECU);
 
-    void setSelectedECUcommDevice(device dev);
-    void deviceHasLeft(comm_device_interface *_devComm);
-    void ecustopped();
 
 public slots:
+    void setSelectedECUcommDevice(device dev);
+    void ECU_DeviceHasLeft();
+    void ecustopped();
+    void ECU_SetBaudRate(uint baudRate);
 
 private:
-    comm_device_interface *selectedDevComm = nullptr;
+    comm_device_interface *selectedECU_DevComm = nullptr;
 
 signals:
-    void createdDevComm(comm_device_interface *);
-    void deviceHasLeft(); // Посылаем в эку и ждем пока он стопорнет лог
+    void sigCreatedECU_DevComm(comm_device_interface *);
+    void sigECU_DeviceHasLeft(); // Посылаем в эку и ждем пока он стопорнет лог
 
 
     void tactrixArrived(commDeviceWB *);

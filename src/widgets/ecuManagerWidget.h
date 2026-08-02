@@ -9,7 +9,7 @@
 
 #include "../ecu/ecu.h"
 
-#include "../deviceNativeFilter.h"
+// #include "../deviceNativeFilter.h"
 #include "src/commDevicesController.h"
 #include "src/mainwindow.h"
 #include "src/widgets/commDevicesWidget.h"
@@ -46,12 +46,9 @@ class ecuManagerWidget : public QToolBar
     Q_OBJECT
 public:
     ecu *ECU;
-    commDevicesWidget commDevsMngrWgt;
 
     explicit ecuManagerWidget(MainWindow *parent = nullptr, ecu *ECU = nullptr, commDevicesController *commDevCtrl = nullptr);
     ~ecuManagerWidget();
-
-    // gaugeWidget wbWgt{"           = Wideband =           ", 4};
 
 public slots:
     void fillECU_Models(QMap<ecuModelType, QString> *availECUmodels);
@@ -71,9 +68,7 @@ public slots:
 private:
     QAction *a_start_action;
     QAction *a_ramReset;
-
-    void makeExtInterConnect();
-
+    commDevicesWidget commDevsMngrWgt;
 
 private slots:
     void start_stop_Action();
@@ -86,6 +81,7 @@ signals:
     // void deviceSelected(device);
     void ECU_deviceHasLeft(comm_device_interface*);
     void ECU_DeviceSelected(device);
+    void ECU_SetBaudRate(qint32);
     void ECU_ModelSelected(ecuModelType);
     void ECU_ProtoSelected(DMA_ProtoType);
 

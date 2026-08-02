@@ -35,14 +35,14 @@ class DMA_proto : public QObject
 public:
     DMA_ProtoType type;
     QString name;
-    p_comm_device_interface *p_devComm = nullptr;
+    comm_device_interface *p_devComm = nullptr;
     // ECU_model **ecu_model = nullptr;
 
     ecuDefinition* ecuDef = nullptr;
 
     ramMUT *ramMut;
 
-    explicit DMA_proto(p_comm_device_interface *p_devComm);
+    explicit DMA_proto(comm_device_interface *p_devComm);
     virtual ~DMA_proto();;
 
     virtual bool connect_() = 0;

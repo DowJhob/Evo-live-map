@@ -1,7 +1,8 @@
 #include <QApplication>
 #include <QObject>
 #include <QElapsedTimer>
-//#include <QQmlApplicationEngine>
+#include <QQmlApplicationEngine>
+#include <QQuickView>
 
 // #include "deviceNativeFilter.h"
 #include "mainwindow.h"
@@ -24,9 +25,20 @@ int main(int argc, char *argv[])
     //========================================================================================
 
     QThread::currentThread()->setPriority(QThread::TimeCriticalPriority);
-    //    QQmlApplicationEngine engine;
 
-    //    engine.load(QUrl(QStringLiteral("../src/widgets/mapWidget/fff.qml")));
+
+   // //    QQmlApplicationEngine engine;
+
+   // // engine.load(QUrl(QStringLiteral("../src/widgets/mapWidget/fff.qml")));
+   // //    engine.load(QUrl(QStringLiteral("../src/widgets/mapWidget/rrr.qml")));
+
+//     QQuickView view;
+//     view.connect(view.engine(), &QQmlEngine::quit, &app, &QCoreApplication::quit);
+//     view.setSource(QUrl(QStringLiteral("qrc:/fff.qml")));
+// view.show();
+
+
+
     //    if (engine.rootObjects().isEmpty())
     //        return -1;
 
@@ -39,10 +51,9 @@ int main(int argc, char *argv[])
 
     commDevicesController commDevCtrl(ECU);
     ecuManagerWidget *_ecuManager = new ecuManagerWidget(&mainWindow, ECU, &commDevCtrl);
-    _ecuManager->fillECU_Models(ECU->getAvailModels());
+    // _ecuManager->fillECU_Models(ECU->getAvailModels());
 
     mainWindow.setECUmanager(_ecuManager);
-
 
     //========================================================================================
     gaugeWidget wbWgt{"           = Wideband2 =           ", 4, &mainWindow};

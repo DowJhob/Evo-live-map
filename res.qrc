@@ -5,5 +5,6 @@
         <file>ico/reload.png</file>
         <file>ico/Memory-Freer-icon.png</file>
         <file>ico/mountain.png</file>
+        <file>fff.qml</file>
     </qresource>
 </RCC>
