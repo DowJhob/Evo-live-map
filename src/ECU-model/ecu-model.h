@@ -12,7 +12,6 @@ enum class ecuModelType
     EVO7_9_ECU_Model,
     EVO_X_ECU_Model
 };
-
 Q_DECLARE_METATYPE(ecuModelType);
 
 class ECU_model : public QObject

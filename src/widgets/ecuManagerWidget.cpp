@@ -27,7 +27,6 @@ ecuManagerWidget::ecuManagerWidget(MainWindow *parent, ecu *ECU, commDevicesCont
     commDevsMngrWgt.deviceLostState();
 
     connect(this, &ecuManagerWidget::deviceEventLog, parent, &MainWindow::deviceEventLog);
-    connect(this, &ecuManagerWidget::Log,            parent, &MainWindow::Log);
 
     // connect(this, &ecuManagerWidget::ECU_deviceHasLeft, commDevCtrl, &commDevicesController::ECU_DeviceHasLeft);
     connect(&commDevsMngrWgt, &commDevicesWidget::ECU_deviceHasLeft, ECU, &ecu::ECU_DeviceHasLeft);
@@ -37,14 +36,14 @@ ecuManagerWidget::ecuManagerWidget(MainWindow *parent, ecu *ECU, commDevicesCont
     connect(&commDevsMngrWgt, &commDevicesWidget::ECU_deviceSelected, this, &ecuManagerWidget::deviceSelected);
 
     // ================================================================================================
-    connect(ECU, &ecu::getAvailProtos, this, &ecuManagerWidget::fillAvailECU_Protos);
+    connect(ECU, &ecu::sigAvailECU_Protos, this, &ecuManagerWidget::fillAvailECU_Protos);
     connect(&commDevsMngrWgt, &commDevicesWidget::ECU_ModelSelected, ECU, &ecu::setECUmodelType);
     connect(&commDevsMngrWgt, &commDevicesWidget::ECU_ProtoSelected, ECU, &ecu::setDMAproto);
 
     connect(&commDevsMngrWgt, &commDevicesWidget::logRateChanged, ECU, &ecu::setLogRate);
 
-    QObject::connect(this, &ecuManagerWidget::ecuConnect,          ECU, &ecu::connectDMA, Qt::QueuedConnection);
-    QObject::connect(ECU, &ecu::ecuConnected, this, &ecuManagerWidget::ECUconnected, Qt::QueuedConnection);
+    connect(this, &ecuManagerWidget::ecuConnect,          ECU, &ecu::connectDMA, Qt::QueuedConnection);
+    connect(ECU, &ecu::ecuConnected, this, &ecuManagerWidget::ECUconnected, Qt::QueuedConnection);
 
     // connect(&commDevsMngrWgt, &commDevicesWidget::logReady, &wbWgt, &gaugeWidget::display);
 
@@ -108,10 +107,12 @@ void ecuManagerWidget::start_stop_Action()
 
 void ecuManagerWidget::fillECU_Models(QMap<ecuModelType, QString> *availECUmodels)
 {
+    qDebug() << Q_FUNC_INFO << availECUmodels;
     commDevsMngrWgt.fillECU_Models(availECUmodels);
 }
 
 void ecuManagerWidget::fillAvailECU_Protos(QMap<DMA_ProtoType, QString> *availProtos)
 {
+    qDebug() << Q_FUNC_INFO << availProtos;
     commDevsMngrWgt.fillAvailProtos(availProtos);
 }

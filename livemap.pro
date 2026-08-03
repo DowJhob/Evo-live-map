@@ -12,7 +12,7 @@ CONFIG += opengl
 
 QT     += core gui xml serialport #datavisualization
 #widgets
-QT     += quick qml
+# QT     += quick qml
 
 
 # https://bugreports.qt.io/browse/QTCREATORBUG-24987

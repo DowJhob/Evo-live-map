@@ -49,31 +49,35 @@ void ecu::ECU_DeviceHasLeft()
 
 void ecu::setSelectedECUcommDevice(comm_device_interface *DevComm)
 {
-    qDebug()<< Q_FUNC_INFO << DevComm;
+    qDebug()<< Q_FUNC_INFO << "comm_device_interface" << DevComm << ", selectedDMAproto" << selectedDMAproto;
 
     if (selectedDMAproto != nullptr  )
     {
         selectedDMAproto->stopLog();
-
-        if(selectedDevComm != nullptr)
-        {
-            selectedDevComm->close();
-            selectedDevComm->disconnect();
-            selectedDevComm->deleteLater();
-        }
-        // else {
-            // return;
-        // }
-
-        selectedDevComm = DevComm;
-        selectedDMAproto->p_devComm = selectedDevComm;
+        selectedDMAproto->p_devComm = DevComm;
     }
 
+    if(selectedDevComm != nullptr)
+    {
+        selectedDevComm->close();
+        selectedDevComm->disconnect();
+        selectedDevComm->deleteLater();
+        qDebug()<< Q_FUNC_INFO << DevComm;
+    }
+    // else {
+    // return;
+    // }
+
+    selectedDevComm = DevComm;
+
+    qDebug()<< Q_FUNC_INFO << "selectedDevComm" << selectedDevComm << ", selectedDMAproto" << selectedDMAproto;
     // emit ecuConnected(false);
 }
 
 void ecu::setECUmodelType(ecuModelType _ECUmodelType)
 {
+    qDebug()<< Q_FUNC_INFO << "_ECUmodelType" << (int)_ECUmodelType << ", selectedDMAproto" << selectedDMAproto;
+
     if (selectedECUmodel != nullptr  )
     {
         if (selectedECUmodel->type == _ECUmodelType  )
@@ -82,7 +86,6 @@ void ecu::setECUmodelType(ecuModelType _ECUmodelType)
         }
         selectedECUmodel->deleteLater();
     }
-
 
     switch (_ECUmodelType) {
     case ecuModelType::EVO7_9_ECU_Model:
@@ -96,16 +99,13 @@ void ecu::setECUmodelType(ecuModelType _ECUmodelType)
 
     }
 
-    auto a = selectedECUmodel->availProtos;
-    auto b = &a;
-
-    qDebug() << "=========== ecu::setECUmodelType ================" << b;
-
-    emit getAvailProtos(&(selectedECUmodel->availProtos));
+    emit sigAvailECU_Protos(&(selectedECUmodel->availProtos));
 }
 
 void ecu::setDMAproto(DMA_ProtoType _DMAprotoType)
 {
+    qDebug()<< Q_FUNC_INFO << "selectedDMAproto" << selectedDMAproto << ", selectedDevComm" << selectedDevComm;
+
     if (selectedDMAproto != nullptr  )
     {
         selectedDMAproto->stopLog();
@@ -134,8 +134,7 @@ void ecu::setDMAproto(DMA_ProtoType _DMAprotoType)
 
     selectedDMAprotoType = _DMAprotoType;
 
-    qDebug() << "=========== ecu::setDMAproto ================ _DMAproto" << selectedDMAproto <<
-        "  /  _DMAproto::thread" << selectedDMAproto->thread();
+    qDebug()<< Q_FUNC_INFO << "selectedDMAproto" << selectedDMAproto << ", selectedDevComm" << selectedDevComm;
 }
 
 bool ecu::connectDMA(bool state)

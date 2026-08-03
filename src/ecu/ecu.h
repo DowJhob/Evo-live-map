@@ -73,7 +73,7 @@ private:
 
 signals:
 
-    void getAvailProtos(QMap<DMA_ProtoType, QString>*);
+    void sigAvailECU_Protos(QMap<DMA_ProtoType, QString>*);
     void sigECU_deviceHasStopped();
     void ecuConnected(bool);
 

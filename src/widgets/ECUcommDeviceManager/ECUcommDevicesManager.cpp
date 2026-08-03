@@ -22,17 +22,17 @@ void ECUcommDeviceManagerWidget::insertECU_Device(device dev)
 
 void ECUcommDeviceManagerWidget::removeECU_Device(device dev)
 {
-    qDebug()<< Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO;
     // int index = ui->availCommDev->findText(dev.DeviceDesc + " / " + dev.DeviceUniqueID);
     int index = ui->availCommDev->findText(dev.PortName);
-    if(ui->availCommDev->currentIndex() == index)
-        emit ECU_deviceHasLeft();
-    if( index < ui->availCommDev->count() && index < 0)
+    if( index < ui->availCommDev->count() && index > 0)
+    {
+        if(ui->availCommDev->currentIndex() == index)
+            emit ECU_deviceHasLeft();
         ui->availCommDev->removeItem(index);
+    }
     else
-        qDebug() << "Error deleting item";
-    if( index < 0 )
-        ;
+        qDebug() << Q_FUNC_INFO << "Error deleting item, item not in range";
 }
 
 void ECUcommDeviceManagerWidget::_deviceSelected(int index)

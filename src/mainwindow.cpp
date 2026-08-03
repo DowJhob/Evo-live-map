@@ -1,6 +1,18 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+QListWidget *MainWindow::systemLog = nullptr;
+void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
+    Q_UNUSED(type);
+    Q_UNUSED(context);
+    if (MainWindow::systemLog) {
+        // Безопасно добавляем текст в QTextEdit
+        QMetaObject::invokeMethod(MainWindow::systemLog,
+                                  [=]() { MainWindow::systemLog->addItem(msg); }
+                                  , Qt::QueuedConnection/*, Q_ARG(QString, msg)*/);
+    }
+}
+
 MainWindow::MainWindow(QWidget *parent, ecu *ECU) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -23,8 +35,8 @@ MainWindow::MainWindow(QWidget *parent, ecu *ECU) : QMainWindow(parent), ui(new 
 
     //        ui->tabWidget->addTab(&plot, "Surface");
     //        ui->tabWidget->addTab(&scat, "Surface");
-
-
+    systemLog = ui->systemLog;
+    qInstallMessageHandler(messageHandler);
     qDebug() << "=========== MainWindow:: ================ QThread:" << thread();
 }
 
@@ -60,37 +72,4 @@ void MainWindow::setWBGUAGE(gaugeWidget *wbWgt)
 
     // toolbar
     // ui->tabWidget->addTab(wbWgt, "======================");
-}
-
-void MainWindow::create_gauge(QString name, mutParam *param)
-{
-    if ( loggerWidgetBar == nullptr)
-    {
-        loggerWidgetBar = new QToolBar(this);
-        loggerWidgetBar->setMovable(true);
-        loggerWidgetBar->setMinimumSize(100, 100);
-        loggerWidgetBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-        //loggerWidgetBar->setAllowedAreas( Qt::BottomToolBarArea);
-        //insertToolBar(ui->toolBar, loggerWidgetBar);
-        addToolBar(Qt::BottomToolBarArea, loggerWidgetBar);
-    }
-    gaugeWidget *_gauge_widget = new gaugeWidget(name, 4, ui->tabWidget);
-    //    ui->toolBar->addWidget(_graph_log_widget);
-    //ui->logger_verticalLayout->layout()->addWidget(_gauge_widget);
-    loggerWidgetBar->addWidget(_gauge_widget);
-    // gauge_widget_set.insert(_gauge_widget);
-}
-
-void MainWindow::gaugeDelete()
-{
-    //foreach (gauge_widget *gauge, gauge_widget_set)
-    //    for (gauge_widget *gauge : qAsConst(gauge_widget_set))
-    //        gauge->deleteLater();
-    //    gauge_widget_set.clear();
-
-}
-
-void MainWindow::Log(QString str)
-{
-    ui->systemLog->addItem(str);
 }

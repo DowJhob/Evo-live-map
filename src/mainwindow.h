@@ -9,17 +9,15 @@
 #include <QLCDNumber>
 #include <QTreeWidgetItem>
 
-//#include <QMessageBox>
 #include <QStatusBar>
 
 //#include "src/widgets/3D/s3dplot.h"
 //#include "src/widgets/3D/s3dscatter.h"
+#include "qlistwidget.h"
 #include "src/widgets/Patcher/patcher.h"
 //#include "src/widgets/analizer.h"
 #include "src/widgets/mapManager/mapmanager.h"
 // #include "types.h"
-
-// #include "deviceNativeFilter.h"
 
 #include "widgets/mapWidget/mapwidget.h"
 #include "widgets/hexEditor/hexeditor.h"
@@ -42,34 +40,25 @@ class MainWindow : public QMainWindow
 
 public:
     QHash<QString, mapWidget*> ptrRAMtables;
-
     ~MainWindow();
     explicit MainWindow(QWidget *parent = nullptr, ecu *ECU = nullptr);
-
     void setECUmanager(QToolBar *_ecuManager);
+    static QListWidget *systemLog;
 
 protected:
     void closeEvent(QCloseEvent *event);
 
 public slots:
-//    void setUSBfilter(deviceNativeFilter *usbFilter);
-    void Log(QString str);
     void deviceEventLog(QString msg, int pos);
-
     void setWBGUAGE(gaugeWidget *wbWgt);
 
-
 private slots:
-//    void ecuConnected(QHash<QString, Map *> *RAMtables);
-//    void ecuDisconnected();
-//    void createMap(mapDefinition *dMap);
-//    void itemChecks(QTreeWidgetItem *item, int column);
 
 private:
 
-//    s3Dplot plot;
-//s3Dscatter scat;
-//    Analizer an;
+    //    s3Dplot plot;
+    //s3Dscatter scat;
+    //    Analizer an;
     ecu *ECU = nullptr;
     Ui::MainWindow *ui;
 
@@ -82,16 +71,6 @@ private:
     hexEditor hexEdit;
     Patcher patcher;
     QToolBar *loggerWidgetBar = nullptr;
-
-//    QVector<QColor> colormap;
-
-//    void createMapTree(Map *tab);
-//    void freeMapTree();
-
-//    void colorFromFile(QString filename);
-
-    void create_gauge(QString name, mutParam *param);
-    void gaugeDelete();
 
 signals:
     void _exit();

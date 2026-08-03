@@ -1,8 +1,8 @@
 #include <QApplication>
 #include <QObject>
 #include <QElapsedTimer>
-#include <QQmlApplicationEngine>
-#include <QQuickView>
+// #include <QQmlApplicationEngine>
+// #include <QQuickView>
 
 // #include "deviceNativeFilter.h"
 #include "mainwindow.h"
